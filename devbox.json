@@ -1,0 +1,51 @@
+{
+  "packages": {
+    "asdf-vm":          "latest",
+    "azure-cli":        "latest",
+    "doppler":          "latest",
+    "gh":               "latest",
+    "git":              "latest",
+    "glib":             "latest",
+    "glibcLocalesUtf8": {
+      "version": "latest",
+      "platforms": [
+        "x86_64-linux",
+        "aarch64-linux"
+      ]
+    },
+    "gnumake":          "latest",
+    "go-task":          "latest",
+    "jq":               "latest",
+    "kubectl":          "latest",
+    "nodejs_23":        "latest",
+    "openssl":          "latest",
+    "pre-commit":       "latest",
+    "ruff":             "latest",
+    "terraform":        "latest",
+    "tilt":             "latest",
+    "uv":               "latest",
+    "yq":               "latest"
+  },
+  "env": {
+    "VENV_DIR":            ".venv",
+    "UV_HTTP_TIMEOUT":     "90",
+    "UV_COMPILE_BYTECODE": "1",
+    "UV_LINK_MODE":        "copy",
+    "LANG":                "en_US.UTF-8",
+    "LC_ALL":              "en_US.UTF-8",
+    "LANGUAGE":            "en_US.UTF-8"
+  },
+  "shell": {
+    "init_hook": [
+      "[ -d ${VENV_DIR} ] || uv venv ${VENV_DIR}",
+      ". $VENV_DIR/bin/activate",
+      "uv pip install -r pyproject.toml --all-extras"
+    ],
+    "scripts": {
+      "install":     "uv pip install -r pyproject.toml --all-extras",
+      "export-reqs": "uv pip freeze | uv pip compile - -o requirements.txt",
+      "venv":        "uv venv ${VENV_DIR}",
+      "test":        "pytest"
+    }
+  }
+}

@@ -1,0 +1,5 @@
+nodejs 23.2.0
+process-compose 1.46.0
+python 3.12.8
+terraform 1.10.5
+uv 0.6.14

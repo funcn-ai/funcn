@@ -1,0 +1,64 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+env:
+  UV_PROJECT_ENVIRONMENT: ".venv"
+
+tasks:
+  install-uv:
+    desc: "Install uv"
+    cmds:
+      - curl -LsSf https://astral.sh/uv/install.sh | sh
+    status:
+      - command -v uv 2>/dev/null
+
+  venv:
+    desc: "Create a virtual environment"
+    cmds:
+      - uv venv
+    dir: "{{.ROOT_DIR}}"
+    status:
+      - test -d "{{.ROOT_DIR}}/{{.UV_PROJECT_ENVIRONMENT}}"
+
+  install:
+    desc: "Install project dependencies"
+    cmds:
+      - uv pip install -r pyproject.toml
+    dir: "{{.ROOT_DIR}}"
+
+  lock:
+    desc: "Update the project's lockfile."
+    summary: |
+      If the project lockfile (uv.lock) does not exist, it will be created. If a lockfile is present, its contents will be used as preferences for the resolution.
+
+      If there are no changes to the project's dependencies, locking will have no effect unless the --upgrade flag is provided.
+    cmds:
+      - uv lock
+    dir: "{{.ROOT_DIR}}"
+
+  sync:
+    desc: "Sync dependencies with lockfile"
+    summary: |
+      Syncing ensures that all project dependencies are installed and up-to-date with the lockfile.
+
+      By default, an exact sync is performed: uv removes packages that are not declared as dependencies of the project.
+    cmds:
+      - uv sync --frozen
+    dir: "{{.ROOT_DIR}}"
+
+  update-deps:
+    desc: "Update dependencies"
+    summary: |
+      Allow package upgrades, ignoring pinned versions in any existing output file. Implies --refresh
+    cmds:
+      - uv lock --upgrade
+
+  export-reqs:
+    desc: "Export requirements.txt"
+    summary: |
+      Export the project dependencies to a requirements.txt file.
+    cmds:
+      - uv pip compile pyproject.toml -o {{.ROOT_DIR}}/requirements.txt
+    ignore_error: true

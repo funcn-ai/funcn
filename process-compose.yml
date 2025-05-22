@@ -1,0 +1,58 @@
+version: "0.5"
+
+is_strict: true
+
+disable_env_expansion: true
+
+log_location: /tmp/process-compose.log
+log_level: info     # trace / debug / info / warn / error / fatal / panic
+log_configuration:
+  rotation:
+    max_size_mb: 1  # size in MB of the logfile before it's rolled
+    max_age_days: 5 # age in days to keep a logfile
+    max_backups: 3  # number of rolled files to keep
+    compress: true
+
+processes:
+  flask:
+   command: flask --app main run
+   working_dir: ./app
+   environment:
+    - FLASK_APP=main
+    - FLASK_DEBUG=True
+   depends_on:
+      db:
+        condition: "process_started"
+   availability:
+    restart: "always"
+    backoff_seconds: 5  # default: 1
+    max_restarts: 0     # default: 0 (unlimited)
+
+  db:
+    command: >
+      docker run --rm -d \
+        --name ${CONTAINER_NAME} \
+        -e POSTGRES_INITDB_ARGS="--locale-provider=icu --icu-locale=en_US.UTF-8" \
+        -e POSTGRES_DB=${POSTGRES_DB} \
+        -e POSTGRES_USER=${POSTGRES_USER} \
+        -e POSTGRES_PASSWORD=${POSTGRES_PASSWORD} \
+        -p ${PORT}:5432 \
+        postgres:${VERSION}-alpine3.20
+    is_daemon: true
+    is_tty: false
+    environment:
+      - CONTAINER_NAME=${CONTAINER_NAME:-devbox-postgres}
+      - VERSION=${VERSION:-17.4}
+      - PORT=${PORT:-5432}
+      - POSTGRES_DB=${DB_NAME:-postgres}
+      - POSTGRES_USER=${DB_USER:-postgres}
+      - POSTGRES_PASSWORD=${DB_PASS:-postgres}
+    readiness_probe:
+      exec:
+        command: >
+          timeout 30s bash -c \
+          "until docker exec ${CONTAINER_NAME} pg_isready \
+          ; do sleep 3 \
+          ; done"
+    shutdown:
+      command: "docker stop ${CONTAINER_NAME}"

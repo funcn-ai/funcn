@@ -1,0 +1,50 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the
+// README at: https://github.com/devcontainers/templates/tree/main/src/python
+{
+  "name": "Dev Environment",
+  // "build": {
+  //   "dockerfile": "../Dockerfile.dev"
+  // },
+  "service": "app",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.extend.yml"
+  ],
+  "remoteUser": "appuser",
+  "workspaceFolder": "/workspace",
+  "overrideCommand": true,
+  // "shutdownAction": "stopCompose",
+  "containerEnv": {
+    "SHELL": "/bin/bash",
+    "DEBIAN_FRONTEND": "noninteractive"
+  },
+  "postCreateCommand": "make install",
+  "mounts": [
+    "type=bind,source=${localEnv:HOME}/.ssh,target=/home/appuser/.ssh,readonly"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "aaron-bond.better-comments",
+        "charliermarsh.ruff",
+        "codezombiech.gitignore",
+        "doppler.doppler-vscode",
+        "EditorConfig.EditorConfig",
+        "mechatroner.rainbow-csv",
+        "ms-azuretools.vscode-docker",
+        "ms-python.python",
+        "redhat.vscode-yaml"
+      ]
+    }
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/terraform:1": {},
+    "ghcr.io/va-h/devcontainers-features/uv:1": {}
+  },
+  "forwardPorts": [
+    2222,
+    6379,
+    8000
+  ]
+}

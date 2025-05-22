@@ -1,0 +1,10 @@
+# https://f1bonacc1.github.io/process-compose/configuration/
+
+# disable tui (default: 1)
+PC_DISABLE_TUI=1
+
+# set port (default: 8080)
+PC_PORT_NUM=10000
+
+# disable server (default: 1)
+# PC_NO_SERVER=1

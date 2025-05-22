@@ -1,0 +1,29 @@
+{
+  "name": "echo_agent",
+  "version": "0.1.0",
+  "description": "A simple agent that echoes input with an optional prefix.",
+  "type": "agent",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {"source": "echo_agent.py", "destination": "echo_agent.py"},
+    {"source": "__init__.py", "destination": "__init__.py"},
+    {"source": "mcp_server.py", "destination": "mcp_server.py"}
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": ["mirascope[openai,mcp]>=0.5.0", "pydantic>=2.0"],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "post_add_instructions": "You can now import `echo_agent` with `from ai_agents.echo_agent import echo_agent`. Call `await echo_agent(prefix, user_input)` to get the echoed response. For optional tracing, install lilypad: `pip install lilypad`.",
+  "tags": ["example", "echo"],
+  "supports_lilypad": true,
+  "template_variables": {
+    "provider": "openai",
+    "model": "gpt-4o-mini"
+  },
+  "mcp_compatible": true,
+  "mcp_entrypoint": "echo_agent:run_mcp_server"
+}

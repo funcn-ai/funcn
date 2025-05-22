@@ -1,0 +1,47 @@
+services:
+  app:
+    container_name: funcn-app
+    hostname: funcn
+    platform: linux/amd64             # linux/amd64 / linux/arm64/v8
+    tty: true                         # false for `entrypoint` in Dockerfile
+    stdin_open: true                  # false for `entrypoint` in Dockerfile
+    build:
+      context: .
+      dockerfile: ./Dockerfile.dev
+      args:
+        - DEBIAN_FRONTEND=noninteractive
+    ports:
+      - "8000:8000/tcp"
+      - "8080:8080/tcp"
+    volumes:
+      - ./:/app
+    working_dir: /app
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /app
+          ignore:
+            - .venv/
+            - __pycache__/
+            - "*.pyc"
+        - action: rebuild
+          path: ./uv.lock
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory ${REDIS_MAX_MEMORY:-512mb}
+      --maxmemory-policy allkeys-lru
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    volumes:
+      - redis_data:/data
+
+volumes:
+  redis_data:

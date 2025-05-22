@@ -1,0 +1,42 @@
+name: 🐞 Bug report
+description: File a bug report
+labels: [kind/bug]
+title: "🐞 <title>"
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Please check if this bug has [already been reported](./).
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What is the issue?
+      description: What happened? What did you expect to happen?
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: version
+      description:
+      placeholder: v0.9.4 (registry..io/engine) darwin/amd64
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: What are the steps that we need to follow to reproduce this issue?
+    validations:
+      required: false
+  - type: textarea
+    id: log-output
+    attributes:
+      label: Log output
+      description: Please paste the log output
+    validations:
+      required: false
+  - type: markdown
+    attributes:
+      value: |
+        We appreciate you taking the time to report a bug.

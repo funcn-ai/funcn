@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "browser-use": {
+      "command": "~/.local/bin/uvx",
+      "args": [
+        "mcp-browser-use"
+      ],
+      "env": {
+        "ANONYMIZED_TELEMETRY": "false"
+      }
+    },
+    "logfire": {
+      "command": "uvx",
+      "args": ["logfire-mcp", "--read-token=LOGFIRE_READ_TOKEN", "--base-url=https://logfire-us.pydantic.dev/jayscambler/funcn"]
+    }
+  }
+}

@@ -1,0 +1,50 @@
+# Directories
+.devcontainer/
+.env/
+.git/
+.pytest_cache/
+.tox/
+.venv/
+.vscode/
+build/
+develop-eggs/
+dist/
+docs/_build/
+downloads/
+eggs/
+env/
+htmlcov/
+parts/
+sdist/
+target/
+var/
+venv/
+
+# Files
+.cache
+.coverage
+.gitignore
+.gitkeep
+.installed.cfg
+.tool-versions
+coverage.xml
+docker-compose.yml
+nosetests.xml
+
+# Patterns
+**/__pycache__/
+**/*.{env,egg,example,log,md,swp,manifest,so,spec}
+**/*.egg-info/
+**/*.py[cod]
+**/pip-delete-this-directory.txt
+**/pip-log.txt
+**/templates.dat*
+/var/cache/debconf/*
+
+# Vim
+**/.ropeproject
+
+# INCLUDE
+!poetry.lock
+!pyproject.toml
+!requirements.txt

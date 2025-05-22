@@ -1,0 +1,75 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Mirascope Agent and Tool Creation
+
+When developing agents and tools using the Mirascope library, please adhere to the following best practices to ensure consistency and maintainability across the codebase.
+
+## Prefer Functions Over Classes
+
+For both agents and tools, prefer implementing them as functions rather than classes whenever possible. This approach often leads to simpler, more stateless components that are easier to test and reason about.
+
+**Example: Defining a Tool as a Function**
+
+```python
+from mirascope import llm
+
+def get_current_weather(location: str) -> str:
+    """
+    Fetches the current weather for a given location.
+
+    Args:
+        location: The city and state, e.g., "San Francisco, CA"
+
+    Returns:
+        A string describing the current weather.
+    """
+    # Implementation to fetch weather data...
+    return f"The weather in {location} is sunny."
+
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[get_current_weather])
+def weather_assistant(question: str):
+    return question
+
+# response = weather_assistant("What's the weather like in London?")
+# if response.tool:
+#     output = response.tool.call()
+#     print(output)
+```
+
+## Use Generic LLM Call Decorator
+
+Instead of using provider-specific decorators like `@openai.call` or `@anthropic.call`, use the generic `@llm.call` decorator. This allows for greater flexibility in switching between LLM providers and models without significant code changes.
+
+Specify the `provider` and `model` arguments directly in the `@llm.call` decorator.
+
+**Correct Usage:**
+
+```python
+from mirascope.core import llm, prompt_template
+
+@llm.call(provider="openai", model="gpt-4o-mini")
+@prompt_template("Recommend a {genre} book.")
+def recommend_book(genre: str):
+    ...
+
+# book_recommendation = recommend_book("science fiction")
+# print(book_recommendation.content)
+```
+
+**Incorrect Usage (Avoid provider-specific decorators):**
+
+```python
+# from mirascope.core import openai # Avoid this
+
+# @openai.call(model="gpt-4o-mini") # Avoid this
+# @prompt_template("Recommend a {genre} book.")
+# def recommend_book(genre: str):
+#     ...
+```
+
+By following these guidelines, we can build more robust, flexible, and maintainable AI components with Mirascope.
+Refer to the official [Mirascope Tools documentation](mdc:https:/mirascope.com/docs/mirascope/learn/tools) and [Mirascope Agents documentation](mdc:https:/mirascope.com/docs/mirascope/learn/agents) for more in-depth information.
+The [funcn.json](mdc:funcn.json) file contains default provider and model settings that might be relevant.

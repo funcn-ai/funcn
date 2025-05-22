@@ -1,0 +1,19 @@
+{
+  "registry_version": "1.0",
+  "components": [
+    {
+      "name": "echo_agent",
+      "version": "0.1.0",
+      "type": "agent",
+      "description": "A simple agent that echoes input with an optional prefix.",
+      "manifest_path": "components/agents/echo_agent/funcn_component.json"
+    },
+    {
+      "name": "random_joke_tool",
+      "version": "0.1.0",
+      "type": "tool",
+      "description": "A tool that returns a random joke from a curated list.",
+      "manifest_path": "components/tools/random_joke_tool/funcn_component.json"
+    }
+  ]
+}

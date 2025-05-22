@@ -1,0 +1,83 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+dotenv: ['.env']
+
+env:
+  TLD: "{{.ROOT_DIR}}"
+  VENV_DIR: ".venv"
+
+vars:
+
+includes:
+  docker:
+    taskfile: ./taskfiles/docker.yml
+  doppler:
+    taskfile: ./taskfiles/doppler.yml
+  uv:
+    taskfile: ./taskfiles/uv.yml
+
+tasks:
+  default:
+    desc: "Default task"
+    cmds:
+      - task --list
+
+  install-devbox:
+    desc: "Install devbox"
+    cmds:
+      - curl -fsSL https://get.jetify.com/devbox | bash
+    run: once
+    silent: true
+    environment:
+      FORCE: 1
+      INSTALL_DIR: "{{.HOME}}/.local/bin"
+    status:
+      - command -v devbox 2>/dev/null
+
+  install:
+    desc: "Install project dependencies"
+    deps: ["install-devbox"]
+    cmds:
+      - devbox install
+
+  pre-commit:
+    desc: "Run pre-commit hooks"
+    cmds:
+      - pre-commit run --all-files
+
+  lint:
+    desc: "Run linters"
+    cmds:
+      - ruff check --fix --respect-gitignore
+
+  format:
+    desc: "Run formatters"
+    cmds:
+      - ruff format --respect-gitignore
+
+  test:
+    desc: "Run tests"
+    cmds:
+      - pytest
+
+  pyclean:
+    desc: "Remove .pyc and __pycache__"
+    cmds:
+      - |
+        args=(
+          .
+          --debris
+          --verbose
+          -i .devbox
+        )
+        case "{{.CLI_ARGS}}" in
+          dry-run)
+            pyclean "${args[@]}" --dry-run
+            ;;
+          *)
+            pyclean "${args[@]}"
+            ;;
+        esac

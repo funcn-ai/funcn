@@ -1,0 +1,8 @@
+services:
+  app:
+    volumes:
+      - .:/workspace:cached
+    cap_add:
+      - SYS_PTRACE
+    security_opt:
+      - seccomp:unconfined

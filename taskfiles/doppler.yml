@@ -1,0 +1,86 @@
+version: "3.0"
+
+set: ['e', 'u', 'pipefail']
+shopt: ['globstar']
+
+tasks:
+  install:
+    desc: "Install doppler"
+    cmds:
+      - brew install gnupg
+      - brew install dopplerhq/cli/doppler
+    status:
+      - command -v doppler 2>/dev/null
+
+  login:
+    desc: "Log into doppler"
+    cmds:
+      - doppler login
+
+  setup:
+    desc: "Setup doppler"
+    cmds:
+      - doppler setup
+
+  upload:
+    desc: "Upload .env file secrets"
+    cmds:
+      - doppler secrets upload .env
+
+  scope:
+    desc: "Show scope"
+    cmds:
+      - doppler configure --scope $(pwd)
+
+  projects:
+    desc: "Show projects in current directory"
+    cmds:
+      - doppler projects
+
+  environments:
+    desc: "Show environments"
+    cmds:
+      - doppler environments
+
+  secrets:
+    desc: "Show individual secret"
+    summary: |
+      Show an individual secret from the working project
+
+      Example:
+        task doppler:secrets -- COMPOSE_FILE
+    cmds:
+      - doppler secrets get {{.CLI_ARGS}} --plain
+
+  export:
+    desc: "Export secrets as .env"
+    summary: |
+      Export secrets based on environment.
+
+      Arguments:
+        dev   Development
+        prod  Production
+
+      Example:
+        task doppler:export -- dev
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          ENV="dev"
+        else
+          ENV="{{.CLI_ARGS}}"
+        fi
+
+        if [ "$ENV" = "prod" ]; then
+          doppler secrets download -c prod --no-file --format env-no-quotes > .env.prod
+        elif [ "$ENV" = "dev" ]; then
+          doppler secrets download -c dev --no-file --format env-no-quotes > .env.dev
+        else
+          echo "Error: Invalid environment '$ENV'. Must be 'dev' or 'prod'"
+          exit 1
+        fi
+
+  tui:
+    desc: "Call the doppler tui"
+    cmds:
+      - doppler tui
