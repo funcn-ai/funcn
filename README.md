@@ -1,6 +1,6 @@
 # funcn
 
-A set of beautifully-designed, accessible components and a cod
+A set of beautifully-designed, accessible components and a codebase for building AI-powered applications.
 
 ## Summary
 
@@ -15,7 +15,9 @@ Sets up a new development environment for a Mac or Linux (i.e., UNIX) box.
     * [Recommended requirements](#recommended-requirements)
   * [Development](#development)
     * [Devbox](#devbox)
-    * [Taskfile](#taskfile)    * [CLI Usage](#cli-usage)  * [TODO](#todo)
+    * [Taskfile](#taskfile)
+    * [CLI Usage](#cli-usage)
+  * [TODO](#todo)
   * [Further Reading](#further-reading)
 
 ## Setup
@@ -71,7 +73,9 @@ task: Available tasks for this project:
 * pre-commit:               Run pre-commit hooks
 * pyclean:                  Remove .pyc and __pycache__
 * test:                     Run tests
-```### CLI Usage
+```
+
+### CLI Usage
 
 After installation, you can use the `funcn` command:
 
@@ -81,15 +85,12 @@ funcn --help
 
 # Run the main command
 funcn run
-```## TODO
+```
+
+## TODO
 
 * [Open Issues](https://github.com/greyhaven-ai/funcn/issues)
-* QA [Ansible playbook](ansible/playbook.yml)
-  * Test
-    * macOS
-    * Ubuntu
-* Write boilerplate pytest tests
-* CI/CD
+* For other todo items, see [TODO.md](TODO.md)
 
 ## Further Reading
 
