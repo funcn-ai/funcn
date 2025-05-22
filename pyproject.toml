@@ -5,7 +5,7 @@ description = "Discover and integrate reusable agents and tools into your Python
 authors = [
     {name = "greyhaven-ai", email = "info@funcn.ai"}
 ]
-license = "MIT license"
+license = "MIT"
 
 requires-python = ">=3.12,<3.13"
 
@@ -194,4 +194,6 @@ max-complexity = 10
 [tool.setuptools]
 package-dir = {"" = "src"}
 packages = ["funcn_cli", "funcn_cli.commands", "funcn_cli.core"]
-package_data = {"funcn_cli.core" = ["known_llms.json"]}
+
+[tool.setuptools.package-data]
+"funcn_cli.core" = ["known_llms.json"]
