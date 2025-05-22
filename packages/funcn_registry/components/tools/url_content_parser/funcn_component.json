@@ -1,0 +1,32 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "url_content_parser",
+  "version": "0.1.0",
+  "description": "URL content parsing tool that extracts clean text content from web pages. Removes scripts, styles, and other noise to provide readable text content.",
+  "type": "tool",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {"source": "tool.py", "destination": "tool.py", "type": "module"},
+    {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
+  ],
+  "target_directory_key": "toolDirectory",
+  "python_dependencies": [
+    {"name": "httpx", "version": ">=0.24.0"},
+    {"name": "beautifulsoup4", "version": ">=4.0.0"},
+    {"name": "pydantic", "version": ">=2.0.0"}
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "```python\nimport asyncio\nfrom url_content_parser import parse_url_content, URLParseArgs\n\nasync def main():\n    # Parse content from a webpage\n    parse_args = URLParseArgs(\n        url=\"https://example.com/article\",\n        max_chars=5000\n    )\n    content = await parse_url_content(parse_args)\n    print(content)\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "You can now use the URL content parser tool in your agents to extract clean text content from web pages. This tool is commonly used alongside search tools to analyze specific web pages found in search results.",
+  "tags": ["url", "content", "parsing", "web_scraping", "text_extraction"],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

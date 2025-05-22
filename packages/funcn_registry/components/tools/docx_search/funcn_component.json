@@ -1,0 +1,37 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "docx_search",
+  "version": "0.1.0",
+  "description": "Microsoft Word document search and content extraction tool with advanced text search, regex support, and metadata extraction",
+  "type": "tool",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {"source": "tool.py", "destination": "tool.py", "type": "module"},
+    {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {"name": "mirascope[openai]", "version": ">=1.24.0"},
+    {"name": "pydantic", "version": ">=2.0.0"},
+    {"name": "python-docx", "version": ">=0.8.11"},
+    {"name": "aiofiles", "version": ">=23.0.0"}
+  ],
+  "environment_variables": [],
+  "example_usage": "```python\nfrom ai_tools.docx_search import DOCXSearchTool, search_docx, extract_docx_headings\n\nasync def main():\n    # Search for text in a document\n    result = await search_docx(\n        file_path=\"report.docx\",\n        search_text=\"quarterly revenue\",\n        include_tables=True\n    )\n    print(f\"Found {result.total_matches} matches\")\n    \n    # Extract all headings\n    headings = await extract_docx_headings(\n        file_path=\"report.docx\",\n        heading_level=2  # Only level 2 headings\n    )\n    \n    # Search with regex\n    dates = await search_docx_with_regex(\n        file_path=\"report.docx\",\n        pattern=r\"\\d{4}-\\d{2}-\\d{2}\"\n    )\n```",
+  "post_add_instructions": "You can now import the DOCX search tool with `from ai_tools.docx_search import DOCXSearchTool`. The tool provides powerful Word document search capabilities including text search, regex patterns, heading extraction, table search, and metadata extraction. Use the convenience functions for common operations.",
+  "tags": ["docx", "word", "document", "search", "text-extraction", "metadata"],
+  "supports_lilypad": true,
+  "template_variables": {
+    "default_case_sensitive": false,
+    "default_include_tables": true,
+    "default_extract_metadata": true,
+    "default_max_context_chars": 200
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}
