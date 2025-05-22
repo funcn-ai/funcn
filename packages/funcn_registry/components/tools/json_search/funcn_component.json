@@ -1,0 +1,33 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "json_search",
+  "version": "0.1.0",
+  "description": "JSON search tool for searching and querying within JSON files and data structures. Supports JSONPath expressions, fuzzy matching, and searching in both keys and values.",
+  "type": "tool",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {"source": "tool.py", "destination": "tool.py", "type": "module"},
+    {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
+  ],
+  "target_directory_key": "toolDirectory",
+  "python_dependencies": [
+    {"name": "jsonpath-ng", "version": ">=1.6.0"},
+    {"name": "fuzzywuzzy", "version": ">=0.18.0"},
+    {"name": "python-Levenshtein", "version": ">=0.12.0"},
+    {"name": "pydantic", "version": ">=2.0.0"}
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "```python\nimport asyncio\nfrom json_search import search_json_content, JSONSearchArgs\n\nasync def main():\n    # Search in a JSON file\n    file_search = JSONSearchArgs(\n        file_path=\"config/settings.json\",\n        query=\"api_key\",\n        search_keys=True,  # Also search in keys\n        max_results=5\n    )\n    \n    response = await search_json_content(file_search)\n    \n    # Search with JSONPath filtering\n    api_search = JSONSearchArgs(\n        file_path=\"data/api_response.json\",\n        query=\"John\",\n        json_path=\"$.users[*].profile\",  # Only search in user profiles\n        fuzzy_threshold=90\n    )\n    \n    api_response = await search_json_content(api_search)\n    \n    # Search in JSON data directly\n    data = {\n        \"users\": [\n            {\"name\": \"John Doe\", \"email\": \"john@example.com\"},\n            {\"name\": \"Jane Smith\", \"email\": \"jane@example.com\"}\n        ],\n        \"settings\": {\n            \"notifications\": {\"email\": True, \"sms\": False}\n        }\n    }\n    \n    data_search = JSONSearchArgs(\n        json_data=data,\n        query=\"email\",\n        search_keys=True,\n        exact_match=False\n    )\n    \n    data_response = await search_json_content(data_search)\n    \n    if data_response.error:\n        print(f\"Error: {data_response.error}\")\n    else:\n        print(f\"Found {len(data_response.results)} matches in {data_response.total_elements} elements\")\n        print(f\"Search scope: {data_response.search_scope}\")\n        \n        for result in data_response.results:\n            print(f\"\\nPath: {result.path}\")\n            print(f\"Value: {result.value}\")\n            print(f\"Score: {result.match_score}%\")\n            if result.context:\n                print(f\"Context: {result.context}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "The JSON search tool is now available for searching within JSON files and data structures. Key features:\n\n1. **JSONPath expressions**: Use standard JSONPath syntax to narrow search scope\n2. **Fuzzy matching**: Find approximate matches with configurable threshold\n3. **Key/value searching**: Search in object keys, values, or both\n4. **Direct data or file input**: Search JSON files or provide data directly\n5. **Context extraction**: Get the parent object containing matches\n6. **Async operation**: Non-blocking searches for better performance\n\nJSONPath examples:\n- `$.users[*].name` - All user names\n- `$.data[?(@.price > 100)]` - Items with price > 100\n- `$..email` - All email fields at any depth\n- `$.config.database.*` - All database config values\n\nThis tool is ideal for:\n- Configuration file searching\n- API response analysis\n- Log file investigation\n- Data structure exploration",
+  "tags": ["json", "search", "jsonpath", "query", "fuzzy-matching", "configuration", "api"],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

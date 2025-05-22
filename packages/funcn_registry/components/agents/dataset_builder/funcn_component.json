@@ -1,0 +1,42 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "dataset_builder",
+  "version": "0.1.0",
+  "description": "AI-powered dataset builder that creates curated data collections using Exa Websets with custom criteria and enrichments",
+  "type": "agent",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {"source": "agent.py", "destination": "agent.py", "type": "module"},
+    {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    {"name": "mirascope[openai]", "version": ">=1.24.0"},
+    {"name": "pydantic", "version": ">=2.0.0"},
+    {"name": "exa-py", "version": ">=1.0.0"}
+  ],
+  "registry_dependencies": ["exa_websets"],
+  "environment_variables": [
+    {"name": "EXA_API_KEY", "description": "API key for Exa services", "required": true},
+    {"name": "OPENAI_API_KEY", "description": "API key for OpenAI services", "required": true}
+  ],
+  "example_usage": "```python\nfrom ai_agents.dataset_builder import build_dataset, build_company_dataset\n\nasync def main():\n    # Build a general dataset\n    dataset = await build_dataset(\n        topic=\"AI startups\",\n        entity_type=\"company\",\n        target_count=100\n    )\n    print(f\"Dataset created: {dataset.name}\")\n    print(f\"Items collected: {dataset.status.items_found}\")\n    print(f\"Export URL: {dataset.export_url}\")\n    \n    # Build a specialized company dataset\n    fintech_dataset = await build_company_dataset(\n        industry=\"fintech\",\n        criteria=[\"Series A or later funding\", \"B2B focus\"]\n    )\n```",
+  "post_add_instructions": "You can now import the dataset builder with `from ai_agents.dataset_builder import build_dataset`. Make sure to set your EXA_API_KEY and OPENAI_API_KEY environment variables.\n\nThe agent provides:\n1. `build_dataset()` - General dataset building with custom criteria\n2. `build_company_dataset()` - Specialized for company data\n3. `build_research_dataset()` - Academic papers and research\n4. `build_market_dataset()` - Market analysis data\n\nDatasets are built asynchronously using Exa Websets. You can monitor progress in real-time or let it run in the background. For optional tracing, install lilypad: `pip install lilypad`.",
+  "tags": ["dataset", "exa", "websets", "data-collection", "enrichment", "market-research"],
+  "supports_lilypad": true,
+  "template_variables": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "default_entity_type": "general",
+    "default_target_count": 50,
+    "default_wait_for_completion": true,
+    "default_max_wait_minutes": 30
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

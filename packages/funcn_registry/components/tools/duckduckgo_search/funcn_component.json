@@ -1,0 +1,31 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "duckduckgo_search_tools",
+  "version": "0.2.0",
+  "description": "DuckDuckGo web search tools with clean, structured results. Provides comprehensive search coverage using the duckduckgo-search library.",
+  "type": "tool",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {"source": "tool.py", "destination": "tool.py", "type": "module"},
+    {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
+  ],
+  "target_directory_key": "toolDirectory",
+  "python_dependencies": [
+    {"name": "duckduckgo-search", "version": ">=6.0.0"},
+    {"name": "pydantic", "version": ">=2.0.0"}
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "```python\nimport asyncio\nfrom duckduckgo_search_tools import duckduckgo_search, SearchArgs\n\nasync def main():\n    # Basic search\n    search_args = SearchArgs(query=\"Python Mirascope library\", max_results=5)\n    results = await duckduckgo_search(search_args)\n    \n    print(f\"Search provider: {results.provider}\")\n    print(f\"Query: {results.query}\")\n    for result in results.results:\n        print(f\"Title: {result.title}\")\n        print(f\"URL: {result.url}\")\n        print(f\"Snippet: {result.snippet}\")\n        print(\"---\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "You can now use DuckDuckGo search tools in your agents for comprehensive web searches. The tool returns structured results with unified models that work seamlessly with other search providers. For URL content parsing, use the separate 'url_content_parser' tool.",
+  "tags": ["duckduckgo", "web_search", "search_engine", "tools"],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}
