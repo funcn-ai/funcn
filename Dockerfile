@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1.7.1
 
-ARG PYTHON_VERSION=3.12.8
+ARG PYTHON_VERSION=3.12.10
+ARG WORKDIR="/src"
 
 FROM python:${PYTHON_VERSION}-slim-bookworm as builder
 
@@ -25,7 +26,6 @@ ENV PATH="$VENV/bin:$PATH"
 # uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-ARG WORKDIR="/app"
 WORKDIR $WORKDIR
 
 COPY pyproject.toml .
@@ -54,7 +54,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 FROM deps as runner
 
-ARG WORKDIR="/app"
 WORKDIR $WORKDIR
 
 ARG USER_NAME=appuser

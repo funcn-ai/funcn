@@ -10,17 +10,17 @@ services:
       dockerfile: ./Dockerfile.dev
       args:
         - DEBIAN_FRONTEND=noninteractive
+        - WORKDIR=/src
     ports:
       - "8000:8000/tcp"
       - "8080:8080/tcp"
     volumes:
-      - ./:/app
-    working_dir: /app
+      - ./:/src
     develop:
       watch:
         - action: sync
           path: .
-          target: /app
+          target: /src
           ignore:
             - .venv/
             - __pycache__/

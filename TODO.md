@@ -1,3 +1,3 @@
 # TODO
 
-* Move docker workdir from `/app` to `/src`
+* ~~Move docker workdir from `/app` to `/src`~~
