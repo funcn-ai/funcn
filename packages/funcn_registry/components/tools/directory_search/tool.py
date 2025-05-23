@@ -10,7 +10,7 @@ import re
 from datetime import datetime
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 
 class FileInfo(BaseModel):
@@ -48,7 +48,7 @@ class FileInfo(BaseModel):
             created_time=datetime.fromtimestamp(stat.st_ctime) if hasattr(stat, 'st_ctime') else None,
             permissions=oct(stat.st_mode)[-3:],
             mime_type=mime_type,
-            extension=extension
+            extension=extension,
         )
 
 
@@ -81,7 +81,7 @@ async def search_directory(
     content_search: str | None = None,
     max_results: int = 1000,
     sort_by: str = "name",
-    reverse_sort: bool = False
+    reverse_sort: bool = False,
 ) -> DirectorySearchResult:
     """Search and navigate the file system with advanced filtering.
 
@@ -131,7 +131,7 @@ async def search_directory(
             modified_before=modified_before,
             content_search=content_search,
             max_results=max_results,
-            current_depth=0
+            current_depth=0,
         )
 
         # Sort results
@@ -140,7 +140,7 @@ async def search_directory(
 
         # Limit results
         files = files[:max_results]
-        directories = directories[:max(0, max_results - len(files))]
+        directories = directories[: max(0, max_results - len(files))]
 
         search_time = asyncio.get_event_loop().time() - start_time
 
@@ -150,6 +150,7 @@ async def search_directory(
             total_found=len(files) + len(directories),
             files=files,
             directories=directories,
+            error=None,
             search_time=search_time,
             applied_filters={
                 "pattern": pattern,
@@ -158,8 +159,8 @@ async def search_directory(
                 "file_types": file_types,
                 "content_search": content_search,
                 "size_range": (min_size, max_size),
-                "date_range": (modified_after, modified_before)
-            }
+                "date_range": (modified_after, modified_before),
+            },
         )
 
     except Exception as e:
@@ -168,8 +169,11 @@ async def search_directory(
             success=False,
             search_path=path,
             total_found=0,
+            files=[],
+            directories=[],
             error=str(e),
-            search_time=search_time
+            search_time=search_time,
+            applied_filters={}
         )
 
 
@@ -188,11 +192,11 @@ async def _search_directory_recursive(
     modified_before: datetime | None,
     content_search: str | None,
     max_results: int,
-    current_depth: int
+    current_depth: int,
 ) -> tuple[list[FileInfo], list[FileInfo]]:
     """Recursively search a directory."""
-    files = []
-    directories = []
+    files: list[FileInfo] = []
+    directories: list[FileInfo] = []
 
     try:
         # Get all items in directory
@@ -207,14 +211,12 @@ async def _search_directory_recursive(
                     continue
 
                 # Check regex pattern
-                if regex_pattern:
-                    if not re.match(regex_pattern, file_info.name):
-                        continue
+                if regex_pattern and not re.match(regex_pattern, file_info.name):
+                    continue
 
                 # Check other filters
                 if not _matches_filters(
-                    file_info, file_types, exclude_patterns, min_size, max_size,
-                    modified_after, modified_before, include_hidden
+                    file_info, file_types, exclude_patterns, min_size, max_size, modified_after, modified_before, include_hidden
                 ):
                     continue
 
@@ -239,10 +241,10 @@ async def _search_directory_recursive(
                             modified_before=modified_before,
                             content_search=content_search,
                             max_results=max_results,
-                            current_depth=current_depth + 1
+                            current_depth=current_depth + 1,
                         )
-                        files.extend(sub_files[:max(0, max_results - len(files))])
-                        directories.extend(sub_dirs[:max(0, max_results - len(directories))])
+                        files.extend(sub_files[: max(0, max_results - len(files))])
+                        directories.extend(sub_dirs[: max(0, max_results - len(directories))])
                 else:
                     # Check content if specified
                     if await _check_content(str(item), content_search):
@@ -271,13 +273,12 @@ def _matches_filters(
     max_size: int | None,
     modified_after: datetime | None,
     modified_before: datetime | None,
-    include_hidden: bool
+    include_hidden: bool,
 ) -> bool:
     """Check if a file matches all specified filters."""
     # Check file type filter
-    if file_types and not file_info.is_directory:
-        if not any(file_info.name.endswith(ext) for ext in file_types):
-            return False
+    if file_types and not file_info.is_directory and not any(file_info.name.endswith(ext) for ext in file_types):
+        return False
 
     # Check exclude patterns
     if exclude_patterns:
@@ -298,11 +299,8 @@ def _matches_filters(
     if modified_before and file_info.modified_time > modified_before:
         return False
 
-    # Check hidden files
-    if not include_hidden and file_info.name.startswith('.'):
-        return False
-
-    return True
+    # Check hidden files - exclude if hidden and not explicitly included
+    return not file_info.name.startswith('.') or include_hidden
 
 
 async def _check_content(file_path: str, content_search: str | None) -> bool:
@@ -320,32 +318,26 @@ async def _check_content(file_path: str, content_search: str | None) -> bool:
         async with aiofiles.open(file_path, encoding='utf-8', errors='ignore') as f:
             content = await f.read()
             return content_search.lower() in content.lower()
-    except:
+    except Exception:
         return False
 
 
 def _sort_results(items: list[FileInfo], sort_by: str, reverse_sort: bool) -> list[FileInfo]:
     """Sort results based on sort_by parameter."""
-    if sort_by == "name":
-        key_func = lambda x: x.name.lower()
-    elif sort_by == "size":
-        key_func = lambda x: x.size
-    elif sort_by == "modified":
-        key_func = lambda x: x.modified_time
-    elif sort_by == "created":
-        key_func = lambda x: x.created_time or x.modified_time
-    else:
-        key_func = lambda x: x.name.lower()
+    sort_keys = {
+        "name": lambda x: x.name.lower(),
+        "size": lambda x: x.size,
+        "modified": lambda x: x.modified_time,
+        "created": lambda x: x.created_time or x.modified_time,
+    }
 
+    key_func = sort_keys.get(sort_by, sort_keys["name"])
     return sorted(items, key=key_func, reverse=reverse_sort)
 
 
 # Convenience functions
 async def list_directory(
-    path: str = ".",
-    pattern: str | None = None,
-    include_hidden: bool = False,
-    sort_by: str = "name"
+    path: str = ".", pattern: str | None = None, include_hidden: bool = False, sort_by: str = "name"
 ) -> DirectorySearchResult:
     """List contents of a directory with optional filtering.
 
@@ -358,13 +350,7 @@ async def list_directory(
     Returns:
         DirectorySearchResult with files and directories
     """
-    return await search_directory(
-        path=path,
-        pattern=pattern,
-        include_hidden=include_hidden,
-        sort_by=sort_by,
-        recursive=False
-    )
+    return await search_directory(path=path, pattern=pattern, include_hidden=include_hidden, sort_by=sort_by, recursive=False)
 
 
 async def find_files(
@@ -373,7 +359,7 @@ async def find_files(
     recursive: bool = True,
     file_types: list[str] | None = None,
     content_search: str | None = None,
-    max_results: int = 100
+    max_results: int = 100,
 ) -> DirectorySearchResult:
     """Find files matching specified criteria.
 
@@ -394,15 +380,12 @@ async def find_files(
         recursive=recursive,
         file_types=file_types,
         content_search=content_search,
-        max_results=max_results
+        max_results=max_results,
     )
 
 
 async def search_by_content(
-    path: str,
-    search_text: str,
-    file_types: list[str] | None = None,
-    recursive: bool = True
+    path: str, search_text: str, file_types: list[str] | None = None, recursive: bool = True
 ) -> DirectorySearchResult:
     """Search for files containing specific text.
 
@@ -419,5 +402,5 @@ async def search_by_content(
         path=path,
         content_search=search_text,
         file_types=file_types or ['.txt', '.py', '.md', '.json', '.yaml', '.yml'],
-        recursive=recursive
+        recursive=recursive,
     )

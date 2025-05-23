@@ -31,9 +31,6 @@ def list_sources() -> None:
     table.add_column("Alias", style="cyan")
     table.add_column("URL")
     for alias, url in cfg.registry_sources.items():
-        if url == cfg.default_registry_url:
-            alias_display = f"[bold]{alias} (default)[/]"
-        else:
-            alias_display = alias
+        alias_display = f"[bold]{alias} (default)[/]" if url == cfg.default_registry_url else alias
         table.add_row(alias_display, url)
     console.print(table)

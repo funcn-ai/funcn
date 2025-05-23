@@ -4,7 +4,8 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
+from urllib.parse import quote
 
 # Get Nimble API token from environment
 NIMBLE_TOKEN = os.getenv("NIMBLE_API_KEY", "")
@@ -105,7 +106,7 @@ def nimble_serp_search(args: NimbleSERPSearchArgs) -> dict[str, Any]:
         results = data.get("parsing", {}).get("entities", {}).get("OrganicResult", [])
 
         # Build search results with content
-        search_results = {
+        search_results: dict[str, Any] = {
             "query": args.query,
             "search_engine": args.search_engine,
             "results": [],
@@ -158,7 +159,7 @@ def nimble_search(args: NimbleSearchArgs) -> dict[str, Any]:
         return {"error": "NIMBLE_API_KEY environment variable not set"}
 
     # First, construct a Google search URL
-    search_url = f"https://www.google.com/search?q={requests.utils.quote(args.query)}"
+    search_url = f"https://www.google.com/search?q={quote(args.query)}"
 
     url = "https://api.webit.live/api/v1/realtime/web"
     headers = {
@@ -217,7 +218,7 @@ def nimble_maps_search(args: NimbleMapsSearchArgs) -> dict[str, Any]:
         "Content-Type": "application/json",
     }
 
-    search_data = {
+    search_data: dict[str, Any] = {
         "query": args.query,
         "search_engine": "google_maps_search",
         "country": args.country,

@@ -22,11 +22,13 @@ funcn add pg_search
 ### Dependencies
 
 **Python Dependencies:**
+
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `asyncpg` >=0.29.0
 
 **Environment Variables:**
+
 - `DATABASE_URL`: PostgreSQL connection string (Optional)
 
 ### Basic Usage
@@ -193,11 +195,10 @@ You can now import the PostgreSQL search tool with `from ai_tools.pg_search impo
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Postgresql**
 - **Database**
 - **Sql**
@@ -205,8 +206,10 @@ You can now import the PostgreSQL search tool with `from ai_tools.pg_search impo
 - **Full-Text-Search**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

@@ -202,7 +202,7 @@ async def ensemble_response(
     responses = []
     scores = []
 
-    for i, model in enumerate(models):
+    for i, _ in enumerate(models):
         response = await generate_response(question)
         responses.append(response.content)
         # Simulate confidence scores

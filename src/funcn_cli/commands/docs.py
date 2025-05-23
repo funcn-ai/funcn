@@ -85,7 +85,7 @@ def types():
     from funcn_cli.templates.component_type_templates import COMPONENT_TYPE_TEMPLATES
 
     console.print("[blue]Available component types and their specialized templates:[/blue]")
-    for component_type, template in COMPONENT_TYPE_TEMPLATES.items():
+    for component_type in COMPONENT_TYPE_TEMPLATES:
         console.print(f"  • [green]{component_type}[/green]: Specialized template with type-specific sections")
 
     console.print("\n[blue]Usage examples:[/blue]")
@@ -121,7 +121,7 @@ def _generate_docs_by_type(component_type: str, editor: str, output_dir: str | N
 
 def _discover_components_by_type(component_type: str) -> list[tuple[Path, dict]]:
     """Discover all components of a specific type in the registry."""
-    components = []
+    components: list[tuple[Path, dict]] = []
     registry_path = Path("packages/funcn_registry/components")
 
     if not registry_path.exists():
@@ -138,7 +138,7 @@ def _discover_components_by_type(component_type: str) -> list[tuple[Path, dict]]
                                 data = json.load(f)
                                 if data.get("type") == component_type:
                                     components.append((component_dir, data))
-                        except:
+                        except Exception:
                             continue
 
     return components
@@ -192,10 +192,7 @@ def _generate_funcn_md_template(component_name: str, output_file: str | None):
 
     template_content = generate_template_funcn_md(component_name)
 
-    if output_file:
-        output_path = Path(output_file)
-    else:
-        output_path = Path(f"{component_name}_funcn.md")
+    output_path = Path(output_file) if output_file else Path(f"{component_name}_funcn.md")
 
     with open(output_path, 'w') as f:
         f.write(template_content)
@@ -224,14 +221,14 @@ def _find_component_path(component_name: str) -> Path | None:
                             data = json.load(f)
                             if data.get("name") == component_name:
                                 return component_dir
-                    except:
+                    except Exception:
                         continue
 
     return None
 
 def _discover_all_components() -> list[tuple[Path, dict]]:
     """Discover all components in the registry."""
-    components = []
+    components: list[tuple[Path, dict]] = []
     registry_path = Path("packages/funcn_registry/components")
 
     if not registry_path.exists():
@@ -247,7 +244,7 @@ def _discover_all_components() -> list[tuple[Path, dict]]:
                             with open(component_json) as f:
                                 data = json.load(f)
                                 components.append((component_dir, data))
-                        except:
+                        except Exception:
                             continue
 
     return components
@@ -288,10 +285,7 @@ def _generate_global_editor_rules(components: list[tuple[Path, dict]], editor: s
     rules_content = generate_editor_rules(editor, component_list)
 
     # Determine output directory
-    if output_dir:
-        base_dir = Path(output_dir)
-    else:
-        base_dir = Path(".")
+    base_dir = Path(output_dir) if output_dir else Path(".")
 
     # Get editor config
     editor_config = EDITOR_CONFIGS[editor]
@@ -305,7 +299,9 @@ def _generate_global_editor_rules(components: list[tuple[Path, dict]], editor: s
 
         # Add extension if needed
         if not full_path.suffix and "extension" in editor_config:
-            full_path = full_path.with_suffix(editor_config["extension"])
+            extension = editor_config["extension"]
+            if isinstance(extension, str):
+                full_path = full_path.with_suffix(extension)
 
         with open(full_path, 'w') as f:
             f.write(rules_content)

@@ -11,7 +11,7 @@ import tempfile
 import traceback
 from contextlib import redirect_stderr, redirect_stdout
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 
 class CodeExecutionResult(BaseModel):
@@ -113,7 +113,7 @@ try:
                     # Try to serialize the value
                     json.dumps(value)
                     result["variables"][name] = value
-                except:
+                except Exception:
                     result["variables"][name] = str(value)
 
     result["success"] = True
@@ -153,8 +153,12 @@ print(json.dumps(result))
             if stderr:
                 return CodeExecutionResult(
                     success=False,
+                    output=None,
                     error=stderr.decode(),
-                    execution_time=execution_time
+                    return_value=None,
+                    execution_time=execution_time,
+                    variables={},
+                    warnings=[]
                 )
 
             # Parse the JSON result
@@ -164,8 +168,9 @@ print(json.dumps(result))
                 output=result["output"],
                 error=result["error"],
                 return_value=result["return_value"],
+                execution_time=execution_time,
                 variables=result["variables"],
-                execution_time=execution_time
+                warnings=[]
             )
 
         except TimeoutError:
@@ -173,8 +178,12 @@ print(json.dumps(result))
             await process.wait()
             return CodeExecutionResult(
                 success=False,
+                output=None,
                 error=f"Code execution timed out after {timeout_seconds} seconds",
-                execution_time=timeout_seconds
+                return_value=None,
+                execution_time=timeout_seconds,
+                variables={},
+                warnings=[]
             )
 
     finally:
@@ -194,8 +203,12 @@ async def execute_directly(
     except SyntaxError as e:
         return CodeExecutionResult(
             success=False,
+            output=None,
             error=f"Syntax error: {str(e)}",
-            execution_time=0.0
+            return_value=None,
+            execution_time=0.0,
+            variables={},
+            warnings=[]
         )
 
     # Set up execution environment
@@ -207,7 +220,7 @@ async def execute_directly(
         "__builtins__": __builtins__,
         "__name__": "__main__",
     }
-    exec_locals = {}
+    exec_locals: dict[str, Any] = {}
 
     start_time = asyncio.get_event_loop().time()
 
@@ -237,30 +250,39 @@ async def execute_directly(
                         # Try to serialize for safety
                         json.dumps(value)
                         variables[name] = value
-                    except:
+                    except Exception:
                         variables[name] = str(value)
 
         return CodeExecutionResult(
             success=True,
             output=output_buffer.getvalue(),
             error=error_buffer.getvalue() or None,
+            return_value=None,
+            execution_time=execution_time,
             variables=variables,
-            execution_time=execution_time
+            warnings=[]
         )
 
     except TimeoutError:
         return CodeExecutionResult(
             success=False,
+            output=None,
             error=f"Code execution timed out after {timeout_seconds} seconds",
-            execution_time=timeout_seconds
+            return_value=None,
+            execution_time=timeout_seconds,
+            variables={},
+            warnings=[]
         )
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return CodeExecutionResult(
             success=False,
-            error=traceback.format_exc(),
             output=output_buffer.getvalue(),
-            execution_time=execution_time
+            error=traceback.format_exc(),
+            return_value=None,
+            execution_time=execution_time,
+            variables={},
+            warnings=[]
         )
 
 

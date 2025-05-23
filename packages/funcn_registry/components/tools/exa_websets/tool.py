@@ -105,7 +105,8 @@ async def exa_create_webset(args: CreateWebsetArgs) -> WebsetResponse:
             id="error",
             status="error",
             items_count=0,
-            metadata={"error": "EXA_API_KEY environment variable is required"}
+            metadata={"error": "EXA_API_KEY environment variable is required"},
+            createdAt=None
         )
 
     try:
@@ -124,7 +125,7 @@ async def exa_create_webset(args: CreateWebsetArgs) -> WebsetResponse:
             searches=result.searches,
             enrichments=result.enrichments,
             metadata=result.metadata,
-            created_at=result.created_at,
+            createdAt=result.created_at,
             items_count=len(result.items) if hasattr(result, 'items') and result.items else 0
         )
 
@@ -133,7 +134,8 @@ async def exa_create_webset(args: CreateWebsetArgs) -> WebsetResponse:
             id="error",
             status="error",
             items_count=0,
-            metadata={"error": str(e)}
+            metadata={"error": str(e)},
+            createdAt=None
         )
 
 
@@ -146,7 +148,8 @@ async def exa_get_webset(webset_id: str) -> WebsetResponse:
             id=webset_id,
             status="error",
             items_count=0,
-            metadata={"error": "EXA_API_KEY environment variable is required"}
+            metadata={"error": "EXA_API_KEY environment variable is required"},
+            createdAt=None
         )
 
     try:
@@ -164,7 +167,7 @@ async def exa_get_webset(webset_id: str) -> WebsetResponse:
             searches=result.searches,
             enrichments=result.enrichments,
             metadata=result.metadata,
-            created_at=result.created_at,
+            createdAt=result.created_at,
             items_count=len(result.items) if hasattr(result, 'items') and result.items else 0
         )
 
@@ -173,7 +176,8 @@ async def exa_get_webset(webset_id: str) -> WebsetResponse:
             id=webset_id,
             status="error",
             items_count=0,
-            metadata={"error": str(e)}
+            metadata={"error": str(e)},
+            createdAt=None
         )
 
 
@@ -207,7 +211,7 @@ async def exa_list_webset_items(webset_id: str, limit: int = 100) -> WebsetItems
                     properties=item.properties.__dict__ if item.properties else None,
                     evaluations=item.evaluations,
                     enrichments=item.enrichments,
-                    created_at=item.created_at
+                    createdAt=item.created_at
                 ))
 
         return WebsetItemsResponse(
@@ -233,7 +237,8 @@ async def exa_delete_webset(webset_id: str) -> WebsetResponse:
             id=webset_id,
             status="error",
             items_count=0,
-            metadata={"error": "EXA_API_KEY environment variable is required"}
+            metadata={"error": "EXA_API_KEY environment variable is required"},
+            createdAt=None
         )
 
     try:
@@ -248,7 +253,8 @@ async def exa_delete_webset(webset_id: str) -> WebsetResponse:
         return WebsetResponse(
             id=result.id,
             status="deleted",
-            metadata={"deleted_at": result.updated_at if hasattr(result, 'updated_at') else None}
+            metadata={"deleted_at": result.updated_at if hasattr(result, 'updated_at') else None},
+            createdAt=None
         )
 
     except Exception as e:
@@ -256,7 +262,8 @@ async def exa_delete_webset(webset_id: str) -> WebsetResponse:
             id=webset_id,
             status="error",
             items_count=0,
-            metadata={"error": str(e)}
+            metadata={"error": str(e)},
+            createdAt=None
         )
 
 
@@ -273,7 +280,8 @@ async def exa_wait_until_idle(webset_id: str, timeout: int = 300) -> WebsetRespo
             id=webset_id,
             status="error",
             items_count=0,
-            metadata={"error": "EXA_API_KEY environment variable is required"}
+            metadata={"error": "EXA_API_KEY environment variable is required"},
+            createdAt=None
         )
 
     try:
@@ -291,7 +299,7 @@ async def exa_wait_until_idle(webset_id: str, timeout: int = 300) -> WebsetRespo
             searches=result.searches,
             enrichments=result.enrichments,
             metadata=result.metadata,
-            created_at=result.created_at,
+            createdAt=result.created_at,
             items_count=len(result.items) if hasattr(result, 'items') and result.items else 0
         )
 
@@ -300,5 +308,6 @@ async def exa_wait_until_idle(webset_id: str, timeout: int = 300) -> WebsetRespo
             id=webset_id,
             status="error",
             items_count=0,
-            metadata={"error": str(e)}
+            metadata={"error": str(e)},
+            createdAt=None
         )

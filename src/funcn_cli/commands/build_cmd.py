@@ -1,5 +1,3 @@
-from __future__ import annotations
-
 """CLI command: funcn build
 
 Generates individual component JSON manifests from a registry index (similar to
@@ -10,6 +8,7 @@ component into an output directory (default: ``./public/r``).
 The generated files can then be served statically or published, allowing third
 party developers to consume the registry via raw URLs.
 """
+from __future__ import annotations
 
 import json
 import typer

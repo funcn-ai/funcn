@@ -11,7 +11,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 
 class DocumentationMatch(BaseModel):
@@ -100,13 +100,13 @@ async def search_markdown_file(
 
         for i, line in enumerate(lines):
             # Check headers
-            if line.startswith('#'):
-                if matches_query(line, search_query, search_mode, case_sensitive):
-                    matches.append(DocumentationMatch(
+            if line.startswith('#') and matches_query(line, search_query, search_mode, case_sensitive):
+                matches.append(DocumentationMatch(
                         file_path=str(file_path),
                         title=line.strip('#').strip(),
                         content=line,
                         match_type="header",
+                        language=None,
                         line_number=i + 1,
                         relevance_score=calculate_relevance_score(
                             line, str(file_path), "header", search_query, search_mode, prioritize_readme
@@ -128,6 +128,7 @@ async def search_markdown_file(
                 if include_examples and matches_query(code_content, search_query, search_mode, case_sensitive):
                     matches.append(DocumentationMatch(
                         file_path=str(file_path),
+                        title=None,
                         content=code_content,
                         match_type="code_example",
                         language=language,
@@ -142,8 +143,10 @@ async def search_markdown_file(
             elif matches_query(line, search_query, search_mode, case_sensitive):
                 matches.append(DocumentationMatch(
                     file_path=str(file_path),
+                    title=None,
                     content=line,
                     match_type="content",
+                    language=None,
                     line_number=i + 1,
                     relevance_score=calculate_relevance_score(
                         line, str(file_path), "content", search_query, search_mode, prioritize_readme
@@ -197,7 +200,7 @@ async def search_python_file(
                     node_type = "async_function"
                     node_name = node.name
 
-                if docstring and include_docstrings and matches_query(docstring, search_query, search_mode, case_sensitive):
+                if docstring and node_type and include_docstrings and matches_query(docstring, search_query, search_mode, case_sensitive):
                     matches.append(DocumentationMatch(
                         file_path=str(file_path),
                         title=f"{node_type}: {node_name}",
@@ -208,7 +211,8 @@ async def search_python_file(
                         relevance_score=calculate_relevance_score(
                             docstring, str(file_path), node_type, search_query, search_mode, prioritize_readme
                         ),
-                        metadata={"name": node_name, "type": node_type}
+                        metadata={"name": node_name, "type": node_type},
+                        context=None
                     ))
 
         except SyntaxError:
@@ -224,6 +228,7 @@ async def search_python_file(
                     if matches_query(comment, search_query, search_mode, case_sensitive):
                         matches.append(DocumentationMatch(
                             file_path=str(file_path),
+                            title=None,
                             content=comment,
                             match_type="comment",
                             language="python",
@@ -293,7 +298,8 @@ async def search_javascript_file(
                             line_number=jsdoc_start + 1,
                             relevance_score=calculate_relevance_score(
                                 jsdoc_content, str(file_path), "jsdoc", search_query, search_mode, prioritize_readme
-                            )
+                            ),
+                            context=None
                         ))
 
             # Search for regular comments
@@ -302,6 +308,7 @@ async def search_javascript_file(
                 if matches_query(comment, search_query, search_mode, case_sensitive):
                     matches.append(DocumentationMatch(
                         file_path=str(file_path),
+                        title=None,
                         content=comment,
                         match_type="comment",
                         language="javascript",
@@ -406,15 +413,17 @@ async def search_file(
                 if matches_query(line, search_query, search_mode, case_sensitive):
                     matches.append(DocumentationMatch(
                         file_path=str(file_path),
+                        title=None,
                         content=line,
                         match_type="content",
+                        language=None,
                         line_number=i + 1,
                         relevance_score=calculate_relevance_score(
                             line, str(file_path), "content", search_query, search_mode, prioritize_readme
                         ),
                         context=get_context(lines, i, context_lines)
                     ))
-        except:
+        except Exception:
             pass
 
         return matches
@@ -455,8 +464,8 @@ async def search_code_documentation(
 
     try:
         # Validate search path
-        search_path = validate_search_path(search_path)
-        search_path = Path(search_path)
+        search_path_str = validate_search_path(search_path)
+        search_path_obj = Path(search_path_str)
 
         # Default doc types if not specified
         if doc_types is None:
@@ -469,7 +478,7 @@ async def search_code_documentation(
         # Collect all files to search
         files_to_search = []
         for doc_type in doc_types:
-            for file_path in search_path.rglob(f"*.{doc_type}"):
+            for file_path in search_path_obj.rglob(f"*.{doc_type}"):
                 if file_path.is_file():
                     files_to_search.append(file_path)
                     file_types_searched.add(doc_type)
@@ -504,6 +513,7 @@ async def search_code_documentation(
             matches=all_matches,
             searched_files=searched_files,
             search_time=search_time,
+            error=None,
             file_types_searched=list(file_types_searched)
         )
 

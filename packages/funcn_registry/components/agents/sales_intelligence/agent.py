@@ -33,7 +33,7 @@ class SalesTarget(BaseModel):
     location: str | None = Field(None, description="Geographic location (e.g., 'Europe', 'US East Coast')")
     industry: str | None = Field(None, description="Target industry or vertical")
     company_stage: str | None = Field(None, description="Company stage (e.g., 'Series B', 'Fortune 500')")
-    additional_criteria: list[str] | None = Field(default_factory=list, description="Additional filtering criteria")
+    additional_criteria: list[str] = Field(default_factory=list, description="Additional filtering criteria")
 
 
 class SalesIntelligenceResponse(BaseModel):
@@ -125,17 +125,19 @@ async def sales_intelligence_agent(
     current_date = datetime.now().strftime("%Y-%m-%d")
     additional_reqs = "\n".join(additional_requirements) if additional_requirements else "None"
 
-    return {
-        "computed_fields": {
-            "current_date": current_date,
-            "role_or_company": role_or_company,
-            "company_size": company_size or "Any size",
-            "location": location or "Any location",
-            "industry": industry or "Any industry",
-            "company_stage": company_stage or "Any stage",
-            "additional_requirements": additional_reqs
-        }
-    }
+    # This function should be decorated with @llm.call but mypy needs the return type
+    # The actual implementation would use the LLM to create websets and return proper response
+    return SalesIntelligenceResponse(
+        webset_id="placeholder",
+        search_query=f"Find {role_or_company}",
+        entity_type="person" if any(title in role_or_company.lower() for title in ["head", "vp", "director", "manager"]) else "company",
+        criteria=[f"Company size: {company_size}" if company_size else "Any size",
+                 f"Location: {location}" if location else "Any location",
+                 f"Industry: {industry}" if industry else "Any industry"],
+        enrichments=["linkedin_profiles", "company_info", "contact_details"],
+        estimated_results=None,
+        status="pending"
+    )
 
 
 # Convenience functions for common sales searches

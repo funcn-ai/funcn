@@ -322,7 +322,7 @@ def iterative_convergence(
     """
     states = []
     current_solution = initial_solution
-    score_history = []
+    score_history: list[float] = []
 
     for i in range(max_iterations):
         # Optimize
@@ -384,11 +384,11 @@ def process_with_learning(
 ) -> BaseDynamicConfig:
     """Process input with accumulated learnings."""
     formatted_learnings = []
-    for l in learnings:
+    for learning in learnings:
         formatted_learnings.append([
-            f"Iteration {l['iteration']}:",
-            f"Feedback: {l['feedback']}",
-            f"Adaptation: {l['adaptation']}",
+            f"Iteration {learning['iteration']}:",
+            f"Feedback: {learning['feedback']}",
+            f"Adaptation: {learning['adaptation']}",
             ""
         ])
 

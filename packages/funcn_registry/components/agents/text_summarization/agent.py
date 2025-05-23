@@ -3,7 +3,7 @@ from __future__ import annotations
 from lilypad import trace
 from mirascope import llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 
 # Response models for structured outputs
@@ -271,7 +271,7 @@ async def summarize_text(
 
     # Step 3: Validate and refine if requested
     if validate:
-        for iteration in range(max_iterations):
+        for _ in range(max_iterations):
             validation = await validate_summary(
                 original_text=text,
                 summary=summary.summary,
@@ -367,9 +367,11 @@ async def executive_brief(text: str) -> dict[str, Any]:
 
 async def multi_style_summary(
     text: str,
-    styles: list[str] = ["technical", "executive", "simple"]
+    styles: list[str] | None = None
 ) -> dict[str, str]:
     """Generate summaries in multiple styles."""
+    if styles is None:
+        styles = ["technical", "executive", "simple"]
     summaries = {}
     for style in styles:
         result = await summarize_text(text=text, style=style, validate=False)

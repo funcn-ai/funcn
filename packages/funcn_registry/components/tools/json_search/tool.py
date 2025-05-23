@@ -9,7 +9,7 @@ from pathlib import Path
 # FUNCN_LILYPAD_IMPORT_PLACEHOLDER
 # FUNCN_LILYPAD_CONFIGURE_PLACEHOLDER
 from pydantic import BaseModel, Field, validator
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 
 class JSONSearchArgs(BaseModel):
@@ -152,20 +152,20 @@ def _search_json(json_data: Any, args: JSONSearchArgs) -> JSONSearchResponse:
                 path_parts = str(path).split('.')
                 for part in path_parts:
                     # Remove array indices
-                    key = part.split('[')[0]
-                    if not key or key == '$':
+                    part_key = part.split('[')[0]
+                    if not part_key or part_key == '$':
                         continue
 
                     if not args.case_sensitive:
-                        key = key.lower()
+                        part_key = part_key.lower()
 
                     if args.exact_match:
-                        if query in key:
+                        if query in part_key:
                             matched = True
                             match_score = 100.0
                             break
                     else:
-                        score = fuzz.partial_ratio(query, key)
+                        score = fuzz.partial_ratio(query, part_key)
                         if score >= args.fuzzy_threshold:
                             matched = True
                             match_score = float(score)
@@ -216,14 +216,14 @@ def _flatten_json(data: Any, parent_path: str = "$") -> list[tuple[str, Any]]:
     if isinstance(data, dict):
         for key, value in data.items():
             path = f"{parent_path}.{key}"
-            if isinstance(value, (dict, list)):
+            if isinstance(value, dict | list):
                 items.extend(_flatten_json(value, path))
             else:
                 items.append((path, value))
     elif isinstance(data, list):
         for i, value in enumerate(data):
             path = f"{parent_path}[{i}]"
-            if isinstance(value, (dict, list)):
+            if isinstance(value, dict | list):
                 items.extend(_flatten_json(value, path))
             else:
                 items.append((path, value))
@@ -240,14 +240,11 @@ def _get_context(data: Any, path: str) -> dict[str, Any] | None:
         current = data
 
         # Navigate to parent
-        for i, part in enumerate(parts[:-1]):
+        for part in parts[:-1]:
             if '[' in part:
-                key, index = part.split('[')
-                index = int(index.rstrip(']'))
-                if key:
-                    current = current[key][index]
-                else:
-                    current = current[index]
+                key, index_str = part.split('[')
+                index = int(index_str.rstrip(']'))
+                current = current[key][index] if key else current[index]
             else:
                 current = current[part]
 
@@ -258,7 +255,7 @@ def _get_context(data: Any, path: str) -> dict[str, Any] | None:
             # For lists, return a sample context
             return {"_list_sample": current[:3], "_total_items": len(current)}
 
-    except:
+    except (KeyError, IndexError, ValueError, TypeError):
         pass
 
     return None

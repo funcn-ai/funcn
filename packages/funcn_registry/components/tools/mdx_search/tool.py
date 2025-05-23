@@ -9,7 +9,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Literal, Optional
 
 
 class MDXComponent(BaseModel):
@@ -74,6 +74,7 @@ def parse_jsx_component(text: str, start_line: int = 0) -> list[MDXComponent]:
             components.append(MDXComponent(
                 name=component_name,
                 props=props,
+                children=None,
                 line_number=start_line + i + 1,
                 raw_content=match.group(0)
             ))
@@ -147,7 +148,7 @@ def extract_sections(content: str) -> list[tuple[str, str, int]]:
 async def search_mdx_files(
     query: str,
     search_path: str = ".",
-    search_in: list[Literal["content", "headings", "code", "components", "frontmatter"]] = ["content"],
+    search_in: list[Literal["content", "headings", "code", "components", "frontmatter"]] | None = None,
     case_sensitive: bool = False,
     max_results: int = 50,
     file_pattern: str = "**/*.mdx",
@@ -167,8 +168,11 @@ async def search_mdx_files(
     Returns:
         MDXSearchResult with matches
     """
+    if search_in is None:
+        search_in = ["content"]
+
     start_time = asyncio.get_event_loop().time()
-    matches = []
+    matches: list[MDXMatch] = []
     files_searched = 0
     unique_components = set()
 
@@ -180,7 +184,8 @@ async def search_mdx_files(
                 query=query,
                 total_matches=0,
                 error=f"Search path does not exist: {search_path}",
-                search_time=0
+                search_time=0,
+                files_searched=0
             )
 
         # Find all MDX files
@@ -233,11 +238,13 @@ async def search_mdx_files(
                         matches.append(MDXMatch(
                             file_path=str(file_path),
                             title=metadata.get("title"),
+                            section=None,
                             content=str(metadata),
                             match_type="frontmatter",
                             line_number=1,
                             relevance_score=0.9,
-                            frontmatter=metadata
+                            frontmatter=metadata,
+                            context=None
                         ))
 
                 # Search in content
@@ -248,13 +255,12 @@ async def search_mdx_files(
                     line_lower = line.lower() if not case_sensitive else line
 
                     # Update current section
-                    for level, heading, line_no in sections:
+                    for _, heading, line_no in sections:
                         if line_no == i:
                             current_section = heading
 
                     # Search in headings
-                    if "headings" in search_in:
-                        if line.startswith('#') and search_text in line_lower:
+                    if "headings" in search_in and line.startswith('#') and search_text in line_lower:
                             matches.append(MDXMatch(
                                 file_path=str(file_path),
                                 title=metadata.get("title"),
@@ -288,7 +294,8 @@ async def search_mdx_files(
                                 match_type="code",
                                 line_number=i + 1,
                                 relevance_score=0.7,
-                                frontmatter=metadata
+                                frontmatter=metadata,
+                                context=get_context(lines, i)
                             ))
 
                     # Search in regular content
@@ -319,11 +326,13 @@ async def search_mdx_files(
                             matches.append(MDXMatch(
                                 file_path=str(file_path),
                                 title=metadata.get("title"),
+                                section=current_section,
                                 content=component.raw_content,
                                 match_type="component",
                                 line_number=component.line_number,
                                 relevance_score=0.8,
                                 frontmatter=metadata,
+                                context=get_context(lines, component.line_number - 1),
                                 components=[component]
                             ))
 
@@ -344,6 +353,7 @@ async def search_mdx_files(
             matches=matches,
             files_searched=files_searched,
             search_time=search_time,
+            error=None,
             unique_components=list(unique_components)
         )
 
@@ -354,7 +364,8 @@ async def search_mdx_files(
             query=query,
             total_matches=0,
             search_time=search_time,
-            error=str(e)
+            error=str(e),
+            files_searched=0
         )
 
 
@@ -378,7 +389,7 @@ async def extract_mdx_components(
     Returns:
         Dictionary mapping component names to lists of component instances
     """
-    components_by_name = {}
+    components_by_name: dict[str, list[MDXComponent]] = {}
 
     try:
         async with aiofiles.open(file_path, encoding='utf-8') as f:
@@ -527,13 +538,12 @@ async def search_mdx_with_metadata(
         # Check dates
         if date_after or date_before:
             file_date = match.frontmatter.get("date")
-            if file_date:
-                if isinstance(file_date, str):
-                    # Assume ISO format
-                    if date_after and file_date < date_after:
-                        continue
-                    if date_before and file_date > date_before:
-                        continue
+            if file_date and isinstance(file_date, str):
+                # Assume ISO format
+                if date_after and file_date < date_after:
+                    continue
+                if date_before and file_date > date_before:
+                    continue
 
         filtered_matches.append(match)
 

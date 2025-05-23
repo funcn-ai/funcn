@@ -338,7 +338,7 @@ async def multi_round_verification(
     verification_rounds = []
     current_content = content
     confidence_progression = []
-    previous_issues = []
+    previous_issues: list[str] = []
 
     for round_num in range(1, max_rounds + 1):
         # Perform verification round

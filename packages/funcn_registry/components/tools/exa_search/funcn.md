@@ -22,10 +22,12 @@ funcn add exa_search_tools
 ### Dependencies
 
 **Python Dependencies:**
+
 - `exa-py` >=1.0.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
+
 - `EXA_API_KEY`: API key for Exa services. Get it from https://exa.ai (**Required**)
 
 ### Basic Usage
@@ -215,11 +217,10 @@ The search function uses unified models compatible with other providers, while m
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Exa**
 - **Web Search**
 - **Ai Search**
@@ -227,8 +228,10 @@ The search function uses unified models compatible with other providers, while m
 - **Semantic Search**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

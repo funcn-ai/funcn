@@ -10,7 +10,7 @@ from pathlib import Path
 # FUNCN_LILYPAD_IMPORT_PLACEHOLDER
 # FUNCN_LILYPAD_CONFIGURE_PLACEHOLDER
 from pydantic import BaseModel, Field, validator
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 
 class CSVSearchArgs(BaseModel):
@@ -110,8 +110,8 @@ def _process_and_search(file_path: Path, args: CSVSearchArgs) -> CSVSearchRespon
                         value = float(condition[2:])
                         filtered_df = filtered_df[pd.to_numeric(filtered_df[column], errors='coerce') <= value]
                     elif condition.startswith('!='):
-                        value = condition[2:]
-                        filtered_df = filtered_df[filtered_df[column] != value]
+                        value_str = condition[2:]
+                        filtered_df = filtered_df[filtered_df[column] != value_str]
                     else:
                         # Exact match
                         filtered_df = filtered_df[filtered_df[column] == condition]
@@ -155,13 +155,13 @@ def _process_and_search(file_path: Path, args: CSVSearchArgs) -> CSVSearchRespon
 
             if matched_columns:
                 # Convert row to dictionary
-                row_dict = {}
+                row_dict: dict[str, Any] = {}
                 for col in columns:
                     value = row[col]
                     # Handle NaN values
                     if pd.isna(value):
                         row_dict[col] = None
-                    elif isinstance(value, (pd.Timestamp, pd.DatetimeTZDtype)):
+                    elif isinstance(value, pd.Timestamp | pd.DatetimeTZDtype):
                         row_dict[col] = str(value)
                     else:
                         row_dict[col] = value

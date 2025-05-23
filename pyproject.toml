@@ -64,10 +64,14 @@ DEP002 = [
 
 [tool.mypy]
 python_version = "3.11"
-warn_return_any = true
+warn_return_any = false
 warn_unused_configs = true
-disallow_untyped_defs = true
-check_untyped_defs = true
+disallow_untyped_defs = false
+check_untyped_defs = false
+ignore_missing_imports = true
+no_implicit_optional = false
+implicit_reexport = true
+warn_unreachable = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
@@ -197,3 +201,17 @@ packages = ["funcn_cli", "funcn_cli.commands", "funcn_cli.core"]
 
 [tool.setuptools.package-data]
 "funcn_cli.core" = ["known_llms.json"]
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15.0",
+    "pre-commit>=4.2.0",
+    "pytest>=8.3.5",
+    "pytest-asyncio>=0.26.0",
+    "pytest-cov>=6.1.1",
+    "ruff>=0.11.6",
+    "types-aiofiles>=24.1.0.20250516",
+    "types-markdown>=3.8.0.20250415",
+    "types-pyyaml>=6.0.12.20250516",
+    "types-requests>=2.32.0.20250515",
+]

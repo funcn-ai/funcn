@@ -1,12 +1,13 @@
 from __future__ import annotations
 
-from pydantic import BaseModel, Field, constr
+from pydantic import BaseModel, Field, StringConstraints
+from typing import Annotated
 
 # ---------------------------------------------------------------------------
 # Manifest Schema
 # ---------------------------------------------------------------------------
 
-KebabCaseStr = constr(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")
+KebabCaseStr = Annotated[str, StringConstraints(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")]
 
 
 class Author(BaseModel):

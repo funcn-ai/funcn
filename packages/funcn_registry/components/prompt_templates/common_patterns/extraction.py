@@ -9,7 +9,7 @@ import lilypad
 from mirascope import llm, prompt_template
 from mirascope.core import BaseDynamicConfig
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Any, Optional
 
 # Entity extraction
 
@@ -202,7 +202,7 @@ def extract_key_points(
 class StructuredData(BaseModel):
     """Model for structured data extraction."""
 
-    data_points: dict[str, any] = Field(..., description="Extracted data points")
+    data_points: dict[str, Any] = Field(..., description="Extracted data points")
     data_types: dict[str, str] = Field(..., description="Type of each data point")
     confidence_scores: dict[str, float] = Field(..., description="Confidence per field")
     missing_fields: list[str] = Field(..., description="Expected fields not found")

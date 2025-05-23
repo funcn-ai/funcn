@@ -22,12 +22,14 @@ funcn add docx_search
 ### Dependencies
 
 **Python Dependencies:**
+
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `python-docx` >=0.8.11
 - `aiofiles` >=23.0.0
 
 **Environment Variables:**
+
 - None required
 
 ### Basic Usage
@@ -188,11 +190,10 @@ You can now import the DOCX search tool with `from ai_tools.docx_search import D
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Docx**
 - **Word**
 - **Document**
@@ -200,8 +201,10 @@ You can now import the DOCX search tool with `from ai_tools.docx_search import D
 - **Text-Extraction**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

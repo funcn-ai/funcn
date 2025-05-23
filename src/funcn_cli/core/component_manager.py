@@ -57,11 +57,11 @@ class ComponentManager:
                 template_vars["model"] = model
             # Add stream support
             if stream is not None:
-                template_vars["stream"] = stream
+                template_vars["stream"] = str(stream)
             else:
                 # Use config default if not provided
                 config_stream = getattr(self._cfg.config, "stream", False)
-                template_vars["stream"] = config_stream
+                template_vars["stream"] = str(config_stream)
 
             # Determine lilypad flag – CLI overrides manifest default
             enable_lilypad = bool(with_lilypad)
@@ -173,8 +173,20 @@ lilypad.configure(auto_llm=True)'''
             text = text.replace("# FUNCN_LILYPAD_DECORATOR_PLACEHOLDER\n", "")
 
         # Collapse multiple blank lines that may result
-        text = "\n".join(line for line in text.splitlines() if line.strip() or line == "") # Preserve single blank lines
-        while "\n\n\n" in text:
-            text = text.replace("\n\n\n", "\n\n")
+        # Use a more robust approach to handle consecutive blank lines
+        lines = text.splitlines()
+        processed_lines = []
+        consecutive_empty = 0
+
+        for line in lines:
+            if line.strip() == "":
+                consecutive_empty += 1
+                if consecutive_empty <= 1:  # Allow only 1 consecutive empty line
+                    processed_lines.append(line)
+            else:
+                consecutive_empty = 0
+                processed_lines.append(line)
+
+        text = "\n".join(processed_lines)
 
         file_path.write_text(text)

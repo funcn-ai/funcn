@@ -7,7 +7,7 @@ import xml.etree.ElementTree as ET
 from lxml import etree
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 
 class XMLElement(BaseModel):
@@ -94,6 +94,8 @@ async def load_xml(file_path: str | None, xml_content: str | None) -> etree._Ele
             content = await f.read()
         return etree.fromstring(content.encode('utf-8'), parser)
     else:
+        if xml_content is None:
+            raise ValueError("xml_content cannot be None when file_path is not provided")
         return etree.fromstring(xml_content.encode('utf-8'), parser)
 
 
@@ -137,10 +139,7 @@ def search_by_xpath(
                 namespaces[prefix] = uri
 
     try:
-        if namespaces:
-            results = root.xpath(xpath_query, namespaces=namespaces)
-        else:
-            results = root.xpath(xpath_query)
+        results = root.xpath(xpath_query, namespaces=namespaces) if namespaces else root.xpath(xpath_query)
 
         # Ensure results are elements
         return [r for r in results if isinstance(r, etree._Element)]
@@ -340,7 +339,7 @@ async def process_xml(
                 xpath = tree.getpath(element)
                 element_info = build_element_info(element, parent_map, tree, xpath)
                 matches.append(element_info)
-            except:
+            except Exception:
                 continue
 
         # Sort by xpath for consistent ordering
@@ -358,6 +357,7 @@ async def process_xml(
             matches=matches,
             namespaces=namespaces,
             root_element=root_tag,
+            error=None,
             search_time=search_time,
             validation_errors=validation_errors
         )
@@ -369,7 +369,8 @@ async def process_xml(
             file_path=file_path,
             total_matches=0,
             error=str(e),
-            search_time=search_time
+            search_time=search_time,
+            root_element=None
         )
 
 

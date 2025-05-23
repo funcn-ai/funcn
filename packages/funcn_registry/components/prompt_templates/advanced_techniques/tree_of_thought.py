@@ -114,12 +114,12 @@ async def tree_reasoning(
     initial_thoughts = [t.strip() for t in initial_response.content.split('\n') if t.strip()][:4]
 
     # Initialize beam with initial thoughts
-    beam = [([], thought, 0.0) for thought in initial_thoughts]
+    beam: list[tuple[list[str], str, float]] = [([], thought, 0.0) for thought in initial_thoughts]
     completed_paths = []
     total_explored = 0
     total_pruned = 0
 
-    for depth in range(max_depth):
+    for _ in range(max_depth):
         new_beam = []
 
         # Evaluate each path in parallel
@@ -330,7 +330,7 @@ async def tree_search(
         constraints = []
 
     # Initialize search
-    stack = [(initial_state, [])]
+    stack: list[tuple[str, list[str]]] = [(initial_state, [])]
     visited = set()
     solution_path = None
     states_explored = 0

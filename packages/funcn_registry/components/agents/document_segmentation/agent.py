@@ -5,7 +5,7 @@ from collections import defaultdict
 from lilypad import trace
 from mirascope import llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 
 # Response models for structured outputs
@@ -85,7 +85,7 @@ async def segment_by_structure(
     ]
 
     lines = text.split('\n')
-    current_segment = []
+    current_segment: list[str] = []
     current_title = "Introduction"
     start_pos = 0
     segment_counter = 0
@@ -346,7 +346,7 @@ async def segment_document(
                 segment.metadata["summary_error"] = str(e)
 
     # Build hierarchy if requested
-    hierarchy = {}
+    hierarchy: dict[str, list[str]] = {}
     if hierarchical:
         # Group segments by type or parent
         for segment in segments:

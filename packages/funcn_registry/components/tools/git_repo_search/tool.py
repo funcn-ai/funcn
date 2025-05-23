@@ -11,7 +11,7 @@ from pathlib import Path
 # FUNCN_LILYPAD_IMPORT_PLACEHOLDER
 # FUNCN_LILYPAD_CONFIGURE_PLACEHOLDER
 from pydantic import BaseModel, Field, validator
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 
@@ -117,6 +117,7 @@ async def search_git_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             search_type=args.search_type,
             query=args.query,
             repository=args.github_repo or args.repo_path or "unknown",
+            branch=None,
             total_matches=0,
             error=f"Error searching repository: {str(e)}"
         )
@@ -132,7 +133,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 success=False,
                 search_type=args.search_type,
                 query=args.query,
-                repository=args.github_repo,
+                repository=args.github_repo or "unknown",
+                branch=None,
                 total_matches=0,
                 error="GITHUB_TOKEN environment variable not set"
             )
@@ -184,7 +186,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                                     context_before=lines[context_start:line_num-1] if args.include_context else [],
                                     context_after=lines[line_num:context_end] if args.include_context else []
                                 ))
-                except:
+                except Exception:
                     # If we can't get content, just add basic info
                     code_matches.append(CodeMatch(
                         file_path=result.path,
@@ -198,7 +200,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 success=True,
                 search_type=args.search_type,
                 query=args.query,
-                repository=args.github_repo,
+                repository=args.github_repo or "unknown",
                 branch=branch,
                 total_matches=len(code_matches),
                 code_matches=code_matches[:args.max_results],
@@ -216,9 +218,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                     contents.extend(repo.get_contents(file_content.path, ref=branch))
                 else:
                     # Check if file matches
-                    if args.query.lower() in file_content.path.lower():
-                        if not args.file_pattern or Path(file_content.path).match(args.file_pattern):
-                            file_matches.append(FileMatch(
+                    if args.query.lower() in file_content.path.lower() and (not args.file_pattern or Path(file_content.path).match(args.file_pattern)):
+                        file_matches.append(FileMatch(
                                 file_path=file_content.path,
                                 file_size=file_content.size,
                                 last_modified=file_content.last_modified
@@ -228,7 +229,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 success=True,
                 search_type=args.search_type,
                 query=args.query,
-                repository=args.github_repo,
+                repository=args.github_repo or "unknown",
                 branch=branch,
                 total_matches=len(file_matches),
                 file_matches=file_matches[:args.max_results],
@@ -265,7 +266,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 success=True,
                 search_type=args.search_type,
                 query=args.query,
-                repository=args.github_repo,
+                repository=args.github_repo or "unknown",
                 branch=branch,
                 total_matches=len(commit_matches),
                 commit_matches=commit_matches,
@@ -277,7 +278,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 success=False,
                 search_type=args.search_type,
                 query=args.query,
-                repository=args.github_repo,
+                repository=args.github_repo or "unknown",
+                branch=None,
                 total_matches=0,
                 error=f"Search type {args.search_type} not supported for GitHub repositories"
             )
@@ -287,7 +289,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             success=False,
             search_type=args.search_type,
             query=args.query,
-            repository=args.github_repo,
+            repository=args.github_repo or "unknown",
+            branch=None,
             total_matches=0,
             error=f"GitHub API error: {str(e)}"
         )
@@ -296,7 +299,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             success=False,
             search_type=args.search_type,
             query=args.query,
-            repository=args.github_repo,
+            repository=args.github_repo or "unknown",
+            branch=None,
             total_matches=0,
             error=f"Error searching GitHub repository: {str(e)}"
         )
@@ -306,6 +310,17 @@ async def _search_local_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
     """Search a local Git repository."""
     try:
         # Validate repository path
+        if args.repo_path is None:
+            return GitRepoSearchResponse(
+                success=False,
+                search_type=args.search_type,
+                query=args.query,
+                repository="",
+                branch=None,
+                total_matches=0,
+                error="repo_path is required for local repository search"
+            )
+
         repo_path = Path(args.repo_path)
         if not repo_path.exists() or not (repo_path / '.git').exists():
             return GitRepoSearchResponse(
@@ -313,6 +328,7 @@ async def _search_local_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 search_type=args.search_type,
                 query=args.query,
                 repository=str(repo_path),
+                branch=None,
                 total_matches=0,
                 error="Not a valid Git repository"
             )
@@ -327,7 +343,8 @@ async def _search_local_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             success=False,
             search_type=args.search_type,
             query=args.query,
-            repository=args.repo_path,
+            repository=args.repo_path or "unknown",
+            branch=None,
             total_matches=0,
             error=f"Error searching local repository: {str(e)}"
         )
@@ -371,7 +388,7 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                     # Parse git grep output
                     lines = result.stdout.strip().split('\n')
                     current_file = None
-                    current_matches = {}
+                    current_matches: dict[str, list[dict[str, Any]]] = {}
 
                     for line in lines:
                         if not line:
@@ -384,7 +401,7 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                             try:
                                 line_num = int(parts[1])
                                 content = parts[2]
-                            except:
+                            except ValueError:
                                 continue
 
                             if file_path not in current_matches:
@@ -423,6 +440,7 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                     search_type=args.search_type,
                     query=args.query,
                     repository=str(repo_path),
+                    branch=None,
                     total_matches=0,
                     error=f"Git grep error: {str(e)}"
                 )
@@ -436,9 +454,9 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
             )
 
             for item in repo_path.rglob('*'):
-                if item.is_file() and '.git' not in str(item):
-                    if pattern.search(str(item.relative_to(repo_path))):
-                        if not args.file_pattern or item.match(args.file_pattern):
+                if (item.is_file() and '.git' not in str(item) and
+                    pattern.search(str(item.relative_to(repo_path))) and
+                    (not args.file_pattern or item.match(args.file_pattern))):
                             file_matches.append(FileMatch(
                                 file_path=str(item.relative_to(repo_path)),
                                 file_size=item.stat().st_size,
@@ -488,12 +506,24 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                 error=None
             )
 
+        # Default return if search_type doesn't match any condition
+        return GitRepoSearchResponse(
+            success=False,
+            search_type=args.search_type,
+            query=args.query,
+            repository=str(repo_path),
+            branch=None,
+            total_matches=0,
+            error=f"Unsupported search type: {args.search_type}"
+        )
+
     except Exception as e:
         return GitRepoSearchResponse(
             success=False,
             search_type=args.search_type,
             query=args.query,
             repository=str(repo_path),
+            branch=None,
             total_matches=0,
             error=f"Error performing search: {str(e)}"
         )
