@@ -4,7 +4,7 @@ import asyncio
 from datetime import datetime
 from mirascope import llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 # Import Exa websets tools
 try:
@@ -837,7 +837,7 @@ async def build_location_dataset(
 
     return await build_dataset(
         topic=f"{business_type} location opportunities in {geography}",
-        entity_type="location",
+        entity_type="general",
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,

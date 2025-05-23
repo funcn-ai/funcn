@@ -22,12 +22,14 @@ funcn add youtube_video_search
 ### Dependencies
 
 **Python Dependencies:**
+
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `httpx` >=0.25.0
 - `youtube-transcript-api` >=0.6.0
 
 **Environment Variables:**
+
 - `YOUTUBE_API_KEY`: YouTube Data API v3 key (**Required**)
 
 ### Basic Usage
@@ -196,11 +198,10 @@ You can now import YouTube search functions with `from ai_tools.youtube_video_se
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Youtube**
 - **Video**
 - **Search**
@@ -208,8 +209,10 @@ You can now import YouTube search functions with `from ai_tools.youtube_video_se
 - **Captions**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

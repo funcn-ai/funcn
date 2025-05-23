@@ -11,7 +11,11 @@
     },
     "logfire": {
       "command": "uvx",
-      "args": ["logfire-mcp", "--read-token=LOGFIRE_READ_TOKEN", "--base-url=https://logfire-us.pydantic.dev/jayscambler/funcn"]
+      "args": [
+        "logfire-mcp",
+        "--read-token=LOGFIRE_READ_TOKEN",
+        "--base-url=https://logfire-us.pydantic.dev/jayscambler/funcn"
+      ]
     }
   }
 }

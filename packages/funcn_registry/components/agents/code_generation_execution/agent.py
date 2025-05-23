@@ -8,7 +8,7 @@ from lilypad import trace
 from mirascope import llm, prompt_template
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 
 # Response models for structured outputs
@@ -86,13 +86,12 @@ async def execute_python_code(
                                 error=f"Import '{alias.name}' is not allowed",
                                 execution_time=time.time() - start_time
                             )
-                elif isinstance(node, ast.ImportFrom):
-                    if node.module and node.module not in allowed_imports:
-                        return CodeExecutionResult(
-                            success=False,
-                            error=f"Import from '{node.module}' is not allowed",
-                            execution_time=time.time() - start_time
-                        )
+                elif isinstance(node, ast.ImportFrom) and node.module and node.module not in allowed_imports:
+                    return CodeExecutionResult(
+                        success=False,
+                        error=f"Import from '{node.module}' is not allowed",
+                        execution_time=time.time() - start_time
+                    )
 
         # Create a temporary file for the code
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -162,9 +161,10 @@ async def generate_code(
     task: str,
     requirements: str = "None specified",
     constraints: str = "None specified"
-):
+) -> GeneratedCode:
     """Generate Python code for a given task."""
-    pass
+    # This function should be decorated with @llm.call but mypy needs the return type
+    raise NotImplementedError("This function is implemented by the @llm.call decorator")
 
 
 # Step 2: Analyze code for safety and complexity
@@ -192,9 +192,10 @@ async def generate_code(
     Be thorough in identifying any risks or concerns.
     """
 )
-async def analyze_code_safety(code: str):
+async def analyze_code_safety(code: str) -> CodeAnalysis:
     """Analyze code for safety and complexity."""
-    pass
+    # This function should be decorated with @llm.call but mypy needs the return type
+    raise NotImplementedError("This function is implemented by the @llm.call decorator")
 
 
 # Step 3: Generate recommendations
@@ -226,7 +227,7 @@ async def generate_recommendations(
     execution_result: str
 ) -> list[str]:
     """Generate recommendations for code improvement."""
-    pass
+    raise NotImplementedError("This function is implemented by the @llm.call decorator")
 
 
 @trace()

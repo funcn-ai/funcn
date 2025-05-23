@@ -1,11 +1,12 @@
 """YouTube Video Search Tool for video content analysis and transcript extraction."""
 
 import asyncio
+import contextlib
 import httpx
 import re
 from datetime import datetime, timedelta
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 from urllib.parse import parse_qs, quote_plus, urlparse
 from youtube_transcript_api import YouTubeTranscriptApi
 from youtube_transcript_api._errors import NoTranscriptFound, TranscriptsDisabled
@@ -51,19 +52,20 @@ class VideoInfo(BaseModel):
         # Parse published date
         published_at = None
         if snippet.get("publishedAt"):
-            try:
+            with contextlib.suppress(Exception):
                 published_at = datetime.fromisoformat(snippet["publishedAt"].replace("Z", "+00:00"))
-            except:
-                pass
 
         return cls(
             video_id=video_id,
             title=snippet.get("title", ""),
             channel_name=snippet.get("channelTitle", ""),
             description=snippet.get("description"),
+            duration=None,
+            view_count=None,
             published_at=published_at,
             thumbnail_url=snippet.get("thumbnails", {}).get("high", {}).get("url"),
-            video_url=f"https://www.youtube.com/watch?v={video_id}"
+            video_url=f"https://www.youtube.com/watch?v={video_id}",
+            has_transcript=False
         )
 
 
@@ -110,7 +112,7 @@ async def search_youtube_videos(
     try:
         # Build API request
         base_url = "https://www.googleapis.com/youtube/v3/search"
-        params = {
+        params: dict[str, str | int] = {
             "part": "snippet",
             "q": query,
             "type": "video",
@@ -148,6 +150,7 @@ async def search_youtube_videos(
             query=query,
             total_results=data.get("pageInfo", {}).get("totalResults", len(videos)),
             videos=videos,
+            error=None,
             next_page_token=data.get("nextPageToken")
         )
 
@@ -156,7 +159,9 @@ async def search_youtube_videos(
             success=False,
             query=query,
             total_results=0,
-            error=str(e)
+            videos=[],
+            error=str(e),
+            next_page_token=None
         )
 
 
@@ -182,7 +187,8 @@ async def get_video_transcript(
         if "youtube.com" in video_id or "youtu.be" in video_id:
             parsed = urlparse(video_id)
             if "youtube.com" in parsed.netloc:
-                video_id = parse_qs(parsed.query).get("v", [None])[0]
+                extracted_id = parse_qs(parsed.query).get("v", [None])[0]
+                video_id = extracted_id if extracted_id else video_id
             elif "youtu.be" in parsed.netloc:
                 video_id = parsed.path.lstrip("/")
 
@@ -197,7 +203,7 @@ async def get_video_transcript(
         if languages:
             try:
                 transcript = transcript_list.find_transcript(languages)
-            except:
+            except Exception:
                 # Fall back to any available transcript
                 transcript = transcript_list.find_generated_transcript(languages) if languages else None
 
@@ -334,7 +340,7 @@ async def analyze_video_content(
         async with httpx.AsyncClient() as client:
             # Video details request
             video_url = "https://www.googleapis.com/youtube/v3/videos"
-            video_params = {
+            video_params: dict[str, str] = {
                 "part": "snippet,contentDetails,statistics",
                 "id": video_id,
                 "key": api_key
@@ -392,7 +398,7 @@ async def analyze_video_content(
             # Get comments if requested
             if include_comments:
                 comments_url = "https://www.googleapis.com/youtube/v3/commentThreads"
-                comments_params = {
+                comments_params: dict[str, str | int] = {
                     "part": "snippet",
                     "videoId": video_id,
                     "maxResults": min(max_comments, 100),
@@ -420,10 +426,10 @@ async def analyze_video_content(
                         "count": len(comments),
                         "comments": comments
                     }
-                except:
+                except Exception as e:
                     analysis["comments"] = {
                         "available": False,
-                        "error": "Could not retrieve comments"
+                        "error": f"Could not retrieve comments: {str(e)}"
                     }
 
         return analysis

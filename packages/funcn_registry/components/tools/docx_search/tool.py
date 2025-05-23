@@ -11,7 +11,7 @@ from docx.table import Table, _Cell
 from docx.text.paragraph import Paragraph
 from pathlib import Path
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 from zipfile import ZipFile
 
 
@@ -114,12 +114,12 @@ def get_heading_level(paragraph: Paragraph) -> int | None:
     if paragraph.style.name.startswith('Heading'):
         try:
             return int(paragraph.style.name.split()[-1])
-        except:
+        except (ValueError, IndexError):
             pass
     return None
 
 
-def extract_table_text(table: Table) -> list[dict[str, Any]]:
+def extract_table_text(table: Table) -> list[list[dict[str, Any]]]:
     """Extract text from a table with structure information."""
     table_data = []
 
@@ -226,6 +226,7 @@ async def process_docx_document(
                     section_type="heading" if paragraph_heading_level else "paragraph",
                     style=paragraph.style.name,
                     heading_level=paragraph_heading_level,
+                    table_info=None,
                     match_positions=matches
                 )
                 matching_sections.append(section)
@@ -250,6 +251,8 @@ async def process_docx_document(
                                 text=cell_text,
                                 paragraph_index=paragraph_index,
                                 section_type="table",
+                                style=None,
+                                heading_level=None,
                                 table_info={
                                     "table_index": table_idx,
                                     "row": cell_data["row"],
@@ -269,6 +272,7 @@ async def process_docx_document(
             total_matches=sum(len(s.match_positions) for s in matching_sections),
             matching_sections=matching_sections,
             document_metadata=metadata,
+            error=None,
             search_time=search_time,
             total_paragraphs=len(doc.paragraphs),
             total_tables=table_count,
@@ -281,8 +285,13 @@ async def process_docx_document(
             success=False,
             file_path=file_path,
             total_matches=0,
+            matching_sections=[],
+            document_metadata={},
             error=str(e),
-            search_time=search_time
+            search_time=search_time,
+            total_paragraphs=0,
+            total_tables=0,
+            total_words=0
         )
 
 

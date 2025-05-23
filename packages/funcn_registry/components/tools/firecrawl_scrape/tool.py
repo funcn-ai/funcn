@@ -6,7 +6,7 @@ from firecrawl import FirecrawlApp
 # FUNCN_LILYPAD_IMPORT_PLACEHOLDER
 # FUNCN_LILYPAD_CONFIGURE_PLACEHOLDER
 from pydantic import BaseModel, Field, validator
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from urllib.parse import urlparse
 
 
@@ -102,6 +102,13 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
             return FirecrawlScrapeResponse(
                 success=False,
                 url=args.url,
+                markdown=None,
+                html=None,
+                raw_html=None,
+                content=None,
+                links=None,
+                screenshot=None,
+                metadata=None,
                 error="FIRECRAWL_API_KEY environment variable not set"
             )
 
@@ -132,6 +139,13 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
             return FirecrawlScrapeResponse(
                 success=False,
                 url=args.url,
+                markdown=None,
+                html=None,
+                raw_html=None,
+                content=None,
+                links=None,
+                screenshot=None,
+                metadata=None,
                 error=error_msg
             )
 
@@ -177,5 +191,12 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
         return FirecrawlScrapeResponse(
             success=False,
             url=args.url,
+            markdown=None,
+            html=None,
+            raw_html=None,
+            content=None,
+            links=None,
+            screenshot=None,
+            metadata=None,
             error=f"Error scraping website: {str(e)}"
         )

@@ -42,7 +42,7 @@ async def qwant_search(args: SearchArgs) -> SearchResponse:
         async with httpx.AsyncClient(timeout=10.0) as client:
             # Qwant API endpoint for web search
             url = "https://api.qwant.com/v3/search/web"
-            params = {
+            params: dict[str, str | int] = {
                 "q": args.query,
                 "count": min(args.max_results, 10),  # Qwant limits to 10 results per request
                 "locale": args.locale,

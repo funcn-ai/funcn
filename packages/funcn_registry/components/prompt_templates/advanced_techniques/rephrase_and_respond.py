@@ -320,7 +320,7 @@ async def iterative_rephrase(
     Returns:
         IterativeRephrase with refinement history
     """
-    iterations = []
+    iterations: list[dict] = []
     current_version = text
     quality_progression = []
     improvement_focuses = [

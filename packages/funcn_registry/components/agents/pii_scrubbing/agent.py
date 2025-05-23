@@ -4,7 +4,7 @@ import re
 from lilypad import trace
 from mirascope import llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Literal, Optional
+from typing import Any, Literal, Optional
 
 
 # Response models for structured outputs

@@ -10,7 +10,7 @@ from datetime import datetime
 from mirascope import llm, prompt_template
 from mirascope.core import BaseDynamicConfig
 from pydantic import BaseModel, Field, validator
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Basic structured extraction
 
@@ -123,7 +123,7 @@ class ProductReview(BaseModel):
 
     product_name: str = Field(..., description="Name of the product")
     rating: float = Field(..., ge=1, le=5, description="Rating from 1 to 5")
-    pros: list[str] = Field(..., min_items=1, description="Positive aspects")
+    pros: list[str] = Field(..., min_length=1, description="Positive aspects")
     cons: list[str] = Field(default_factory=list, description="Negative aspects")
     summary: str = Field(..., min_length=10, max_length=200, description="Brief summary")
     recommend: bool = Field(..., description="Whether reviewer recommends the product")

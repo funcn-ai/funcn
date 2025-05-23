@@ -165,9 +165,9 @@ def multi_step_analysis(
 
     # Step 2: Solve sub-problems in order
     sub_solutions = {}
-    previous_solutions = []
+    previous_solutions: list[dict] = []
 
-    for i, sub_problem in enumerate(decomposition.solving_order):
+    for sub_problem in decomposition.solving_order:
         # Check dependencies
         deps = decomposition.dependencies.get(sub_problem, [])
         dependencies_met = all(dep in sub_solutions for dep in deps)

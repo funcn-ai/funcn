@@ -54,7 +54,12 @@
           "default": "@/tools"
         }
       },
-      "required": ["agents", "evals", "prompts", "tools"]
+      "required": [
+        "agents",
+        "evals",
+        "prompts",
+        "tools"
+      ]
     },
     "defaultProvider": {
       "type": "string",

@@ -378,7 +378,7 @@ def conditional_dynamic(
     """
     decision_path = []
     current_node = "start"
-    previous_decisions = []
+    previous_decisions: list[str] = []
 
     # Navigate decision tree
     while current_node in decision_tree:

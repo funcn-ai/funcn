@@ -9,7 +9,6 @@ import lilypad
 from mirascope import llm, prompt_template
 from mirascope.core import BaseDynamicConfig
 from pydantic import BaseModel, Field
-from typing import Dict, List
 
 # Basic text classification
 

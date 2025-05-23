@@ -1,5 +1,6 @@
 import pytest
 
+
 def test_placeholder(capfd):
     """
     Boilerplate test to allow for GitHub Actions to run.

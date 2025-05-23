@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from mirascope import llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 # Import Exa search tools
 try:

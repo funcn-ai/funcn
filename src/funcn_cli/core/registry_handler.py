@@ -26,6 +26,8 @@ class RegistryHandler:
             if source_alias
             else self._cfg.config.default_registry_url
         )
+        if not url:
+            raise ValueError(f"No URL found for registry source: {source_alias}")
         console.log(f"Fetching registry index from {url}")
         resp = self._client.get(url)
         resp.raise_for_status()

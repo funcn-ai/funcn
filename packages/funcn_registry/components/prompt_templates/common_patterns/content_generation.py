@@ -9,7 +9,7 @@ import lilypad
 from mirascope import llm, prompt_template
 from mirascope.core import BaseDynamicConfig
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Any, Optional
 
 # Creative content generation
 
@@ -144,7 +144,7 @@ class StructuredContent(BaseModel):
     """Model for structured content."""
 
     format: str = Field(..., description="Content format")
-    metadata: dict[str, any] = Field(..., description="Content metadata")
+    metadata: dict[str, Any] = Field(..., description="Content metadata")
     main_content: dict[str, str] = Field(..., description="Main content sections")
     supplementary: dict[str, list[str]] = Field(..., description="Supplementary elements")
     seo_elements: dict[str, str] = Field(..., description="SEO-related elements")

@@ -47,10 +47,10 @@ def run_mcp_agent(
         raise typer.Exit(code=1)
 
     # Determine host and port
-    final_host = host or funcn_config.default_mcp_host
-    final_port = port or funcn_config.default_mcp_port
+    final_host = host or funcn_config.get("default_mcp_host", "0.0.0.0")
+    final_port = port or funcn_config.get("default_mcp_port", 8000)
 
-    agent_dir_str = funcn_config.agentDirectory
+    agent_dir_str = funcn_config.get("agentDirectory")
     if not agent_dir_str:
         console.print("[bold red]Error: Agent directory not configured in funcn.json.[/bold red]")
         raise typer.Exit(code=1)

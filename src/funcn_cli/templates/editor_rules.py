@@ -334,7 +334,7 @@ def generate_editor_rules(editor: str, components: list[dict]) -> str:
 
     # Component categories for Sourcegraph
     if editor == "sourcegraph":
-        categories = {}
+        categories: dict[str, list[str]] = {}
         for comp in components:
             comp_type = comp.get("type", "unknown")
             if comp_type not in categories:

@@ -6,7 +6,7 @@ import json
 from asyncpg.pool import Pool
 from datetime import datetime
 from pydantic import BaseModel, Field, SecretStr
-from typing import Any, Dict, List, Literal, Optional, Union
+from typing import Any, Literal, Optional, Union
 
 
 class QueryResult(BaseModel):
@@ -75,7 +75,7 @@ def build_search_query(
         select_clause = ", ".join(f'"{col}"' for col in columns)
 
     query_parts = [f'SELECT {select_clause} FROM "{table_name}"']
-    params = []
+    params: list[Any] = []
 
     # Build WHERE clause
     where_clauses = []
@@ -193,10 +193,7 @@ async def execute_postgres_query(
     start_time = asyncio.get_event_loop().time()
 
     # Extract connection string value if SecretStr
-    if isinstance(connection_string, SecretStr):
-        conn_str = connection_string.get_secret_value()
-    else:
-        conn_str = connection_string
+    conn_str = connection_string.get_secret_value() if isinstance(connection_string, SecretStr) else connection_string
 
     try:
         # Validate connection string
@@ -210,7 +207,7 @@ async def execute_postgres_query(
                 # Prepare query and parameters
                 if query:
                     sql_query = query
-                    params = []
+                    params: list[Any] = []
                 else:
                     sql_query, params = build_search_query(
                         table_name, columns, search_text, search_columns,
@@ -239,7 +236,8 @@ async def execute_postgres_query(
                     total_rows=len(results),
                     results=results,
                     execution_time=execution_time,
-                    metadata=metadata
+                    metadata=metadata,
+                    error=None
                 )
 
         finally:
