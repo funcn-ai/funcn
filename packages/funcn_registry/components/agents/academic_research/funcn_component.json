@@ -1,0 +1,35 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "academic_research",
+  "version": "0.1.0",
+  "description": "Academic research agent for finding research papers using Exa websets. Perfect for academics, researchers, and anyone needing to discover scholarly publications.",
+  "type": "agent",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    { "source": "agent.py", "destination": "agent.py", "type": "module" },
+    { "source": "__init__.py", "destination": "__init__.py", "type": "init_file" }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0"
+  ],
+  "registry_dependencies": [
+    "exa_websets"
+  ],
+  "environment_variables": [
+    {"key": "EXA_API_KEY", "description": "API key for Exa", "required": true}
+  ],
+  "example_usage": "```python\nfrom academic_research import academic_research_agent, find_papers_by_methodology\n\n# Find papers on cell generation technology\nresult = await academic_research_agent(\n    topic=\"cell generation technology\",\n    field=\"biology\",\n    journal_requirements=[\"published in major US journal\"]\n)\n\n# Find papers disagreeing with transformer methodology\nresult = await find_papers_by_methodology(\n    field=\"computer_science\",\n    methodology=\"transformer based model methodology for AI training\",\n    disagree_with=\"transformer\"\n)\n```",
+  "post_add_instructions": "Make sure to set your EXA_API_KEY environment variable before using this agent.",
+  "tags": ["research", "academic", "papers", "science", "publications", "exa", "websets"],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

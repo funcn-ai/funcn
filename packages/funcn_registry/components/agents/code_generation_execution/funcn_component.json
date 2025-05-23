@@ -1,0 +1,40 @@
+{
+  "$schema": "https://funcn.ai/schemas/funcn_component.json",
+  "name": "code_generation_execution_agent",
+  "version": "0.1.0",
+  "description": "Agent for generating and safely executing Python code. Analyzes code for safety, supports multiple safety levels, and provides recommendations for improvement. Features sandboxed execution environment and comprehensive code analysis.",
+  "type": "agent",
+  "authors": [
+    {"name": "Funcn Project", "email": "info@funcn.ai"}
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    { "source": "agent.py", "destination": "code_generation_execution/agent.py", "type": "module" },
+    { "source": "__init__.py", "destination": "code_generation_execution/__init__.py", "type": "init_file" }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    {"name": "mirascope", "version": ">=1.24.0"},
+    {"name": "pydantic", "version": ">=2.0.0"},
+    {"name": "lilypad", "version": ">=0.1.0"}
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {"name": "OPENAI_API_KEY", "description": "API key for OpenAI services (if using OpenAI provider).", "required": false},
+    {"name": "ANTHROPIC_API_KEY", "description": "API key for Anthropic services (if using Anthropic provider).", "required": false},
+    {"name": "GOOGLE_API_KEY", "description": "API key for Google services (if using Google provider).", "required": false}
+  ],
+  "example_usage": "```python\nimport asyncio\nfrom code_generation_execution import (\n    generate_and_execute_code,\n    generate_code_snippet,\n    safe_execute_task\n)\n\nasync def main():\n    # Generate and execute code with moderate safety level\n    result = await generate_and_execute_code(\n        task=\"Create a function to calculate fibonacci numbers\",\n        requirements=\"Must be efficient for large numbers\",\n        constraints=\"Use memoization\",\n        auto_execute=True,\n        safety_level=\"moderate\"\n    )\n    \n    print(f\"Generated code:\\n{result.generated_code.code}\")\n    print(f\"\\nSafety analysis: {result.code_analysis}\")\n    if result.execution_result:\n        print(f\"\\nExecution output: {result.execution_result.output}\")\n    print(f\"\\nRecommendations: {result.recommendations}\")\n    \n    # Generate code snippet without execution\n    snippet = await generate_code_snippet(\n        \"Sort a list of dictionaries by multiple keys\"\n    )\n    print(f\"\\nCode snippet:\\n{snippet}\")\n    \n    # Safe execution with strict safety level\n    safe_result = await safe_execute_task(\n        task=\"Generate prime numbers up to 100\",\n        safety_level=\"strict\"\n    )\n    print(f\"\\nSafe execution result: {safe_result}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "This agent generates and optionally executes Python code in a sandboxed environment. Configure safety levels: 'strict' (limited imports, no file/network/system operations), 'moderate' (no system calls), or 'permissive' (fewer restrictions). The agent analyzes code for safety concerns before execution. Set your preferred LLM provider's API key.",
+  "tags": ["code_generation", "code_execution", "agent", "mirascope", "python", "sandbox", "safety_analysis", "lilypad"],
+  "supports_lilypad": true,
+  "template_variables": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "safety_level": "moderate"
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

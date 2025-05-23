@@ -14,7 +14,7 @@
     {"source": "tool.py", "destination": "tool.py", "type": "module"},
     {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
   ],
-  "target_directory_key": "toolDirectory",
+  "target_directory_key": "tools",
   "python_dependencies": [
     {"name": "httpx", "version": ">=0.24.0"},
     {"name": "pydantic", "version": ">=2.0.0"}

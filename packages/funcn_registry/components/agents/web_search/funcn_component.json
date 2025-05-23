@@ -14,7 +14,7 @@
     { "source": "agent.py", "destination": "web_search/agent.py", "type": "module" },
     { "source": "__init__.py", "destination": "web_search/__init__.py", "type": "init_file" }
   ],
-  "target_directory_key": "agentDirectory",
+  "target_directory_key": "agents",
   "python_dependencies": [
     {"name": "mirascope", "version": ">=1.24.0"},
     {"name": "pydantic", "version": ">=2.0.0"}
