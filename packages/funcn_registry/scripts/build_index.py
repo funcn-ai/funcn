@@ -35,8 +35,8 @@ REGISTRY_VERSION = "1.0"
 # ---------------------------------------------------------------------------
 
 def iter_manifest_paths(base_dir: Path) -> Iterable[Path]:
-    """Yield all funcn_component.json paths under *base_dir*."""
-    for path in base_dir.rglob("funcn_component.json"):
+    """Yield all component.json paths under *base_dir*."""
+    for path in base_dir.rglob("component.json"):
         yield path
 
 

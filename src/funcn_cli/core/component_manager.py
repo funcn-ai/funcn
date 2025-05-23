@@ -21,7 +21,7 @@ class ComponentManager:
         """Add a component into the current project.
 
         *identifier* can be a component name (to be resolved via registry) or a
-        direct HTTPS URL to a `funcn_component.json` manifest.
+        direct HTTPS URL to a `component.json` manifest.
         """
         if _added is None:
             _added = set()

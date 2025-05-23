@@ -18,6 +18,8 @@ includes:
     taskfile: ./taskfiles/doppler.yml
   uv:
     taskfile: ./taskfiles/uv.yml
+  docs:
+    taskfile: ./taskfiles/docs.yml
 
 tasks:
   default:

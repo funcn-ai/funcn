@@ -1,0 +1,64 @@
+{
+  "$schema": "https://funcn.ai/schemas/component.json",
+  "name": "csv_search",
+  "version": "0.1.0",
+  "description": "CSV search tool for searching and filtering structured data within CSV files. Supports column-specific searches, data filtering, and both exact and fuzzy matching capabilities.",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Funcn Project",
+      "email": "info@funcn.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {
+      "name": "pandas",
+      "version": ">=2.0.0"
+    },
+    {
+      "name": "fuzzywuzzy",
+      "version": ">=0.18.0"
+    },
+    {
+      "name": "python-Levenshtein",
+      "version": ">=0.12.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    }
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "```python\nimport asyncio\nfrom csv_search import search_csv_content, CSVSearchArgs\n\nasync def main():\n    # Basic search across all columns\n    search_args = CSVSearchArgs(\n        file_path=\"data/customers.csv\",\n        query=\"John Smith\",\n        max_results=10\n    )\n    \n    response = await search_csv_content(search_args)\n    \n    # Search with column filters\n    filtered_search = CSVSearchArgs(\n        file_path=\"data/sales.csv\",\n        query=\"laptop\",\n        columns=[\"product_name\", \"description\"],\n        filters={\n            \"price\": \">500\",\n            \"status\": \"completed\",\n            \"year\": \"2024\"\n        },\n        exact_match=False,\n        fuzzy_threshold=75\n    )\n    \n    filtered_response = await search_csv_content(filtered_search)\n    \n    if filtered_response.error:\n        print(f\"Error: {filtered_response.error}\")\n    else:\n        print(f\"Found {len(filtered_response.results)} matches\")\n        print(f\"Searched {filtered_response.filtered_count} rows after filtering (total: {filtered_response.total_rows})\")\n        \n        for result in filtered_response.results:\n            print(f\"\\nRow {result.row_index}:\")\n            print(f\"Matched in columns: {', '.join(result.matched_columns)}\")\n            print(f\"Match scores: {result.match_scores}\")\n            print(f\"Data: {result.row_data}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "The CSV search tool is now available for searching and filtering structured data. Key features:\n\n1. **Column-specific searches**: Target specific columns for more precise results\n2. **Advanced filtering**: Use comparison operators (>, <, >=, <=, !=) for numeric columns\n3. **Fuzzy matching**: Find approximate matches with configurable threshold\n4. **Exact matching**: Option for precise string matching\n5. **Case sensitivity**: Configurable case-sensitive or case-insensitive search\n6. **Async operation**: Non-blocking searches for better performance\n\nFilter syntax examples:\n- `{'age': '>30'}` - Age greater than 30\n- `{'status': 'active'}` - Exact match for 'active'\n- `{'price': '<=100'}` - Price less than or equal to 100\n- `{'category': '!=deprecated'}` - Category not equal to 'deprecated'",
+  "tags": [
+    "csv",
+    "search",
+    "data",
+    "structured-data",
+    "filtering",
+    "fuzzy-matching",
+    "pandas"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}
