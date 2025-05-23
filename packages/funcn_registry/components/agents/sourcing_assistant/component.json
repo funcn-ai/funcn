@@ -1,0 +1,58 @@
+{
+  "$schema": "https://funcn.ai/schemas/component.json",
+  "name": "sourcing_assistant",
+  "version": "0.1.0",
+  "description": "Sourcing assistant for finding suppliers, manufacturers, and solutions using Exa websets. Perfect for procurement, supply chain management, and technology sourcing.",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Funcn Project",
+      "email": "info@funcn.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0"
+  ],
+  "registry_dependencies": [
+    "exa_websets"
+  ],
+  "environment_variables": [
+    {
+      "key": "EXA_API_KEY",
+      "description": "API key for Exa",
+      "required": true
+    }
+  ],
+  "example_usage": "```python\nfrom sourcing_assistant import sourcing_assistant_agent, find_sustainable_manufacturers\n\n# Find sustainable chemical manufacturers\nresult = await find_sustainable_manufacturers(\n    product_type=\"Hydrochlorous acid\",\n    location=\"Europe\"\n)\n\n# Find low MOQ clothing manufacturers\nresult = await sourcing_assistant_agent(\n    product_type=\"High end clothing\",\n    category=\"manufacturer\",\n    location_preference=\"Asia or Europe\",\n    moq_requirements=\"Low minimum order quantity\"\n)\n```",
+  "post_add_instructions": "Make sure to set your EXA_API_KEY environment variable before using this agent.",
+  "tags": [
+    "sourcing",
+    "suppliers",
+    "manufacturers",
+    "procurement",
+    "supply-chain",
+    "exa",
+    "websets"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

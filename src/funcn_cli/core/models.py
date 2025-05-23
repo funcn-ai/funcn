@@ -6,7 +6,7 @@ from pydantic import BaseModel, Field, constr
 # Manifest Schema
 # ---------------------------------------------------------------------------
 
-KebabCaseStr = constr(regex=r"^[a-z0-9]+(-[a-z0-9]+)*$")
+KebabCaseStr = constr(pattern=r"^[a-z0-9]+(-[a-z0-9]+)*$")
 
 
 class Author(BaseModel):

@@ -41,7 +41,7 @@ test = [
 ]
 
 [project.scripts]
-funcn = "funcn.cli.main"
+funcn = "funcn_cli.main:main"
 
 [tool.deptry]
 # DEP003: transitive deps

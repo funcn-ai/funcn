@@ -6,35 +6,35 @@
       "version": "0.1.0",
       "type": "agent",
       "description": "A simple agent that echoes input with an optional prefix.",
-      "manifest_path": "components/agents/echo/funcn_component.json"
+      "manifest_path": "components/agents/echo/component.json"
     },
     {
       "name": "random_joke",
       "version": "0.1.0",
       "type": "tool",
       "description": "A tool that returns a random joke from a curated list.",
-      "manifest_path": "components/tools/random_joke/funcn_component.json"
+      "manifest_path": "components/tools/random_joke/component.json"
     },
     {
       "name": "web_search_agent",
       "version": "0.3.0",
       "type": "agent",
       "description": "Unified web search agent supporting multiple providers (DuckDuckGo, Qwant) with configurable search strategies. Features privacy-focused and comprehensive search modes.",
-      "manifest_path": "components/agents/web_search/funcn_component.json"
+      "manifest_path": "components/agents/web_search/component.json"
     },
     {
       "name": "duckduckgo_search_tools",
       "version": "0.1.0",
       "type": "tool",
       "description": "DuckDuckGo web search and URL content parsing tools with BeautifulSoup. Provides Mirascope pre-made tool integration and fallback implementations for privacy-respecting search.",
-      "manifest_path": "components/tools/duckduckgo_search_tools/funcn_component.json"
+      "manifest_path": "components/tools/duckduckgo_search_tools/component.json"
     },
     {
       "name": "qwant_search_tools",
       "version": "0.1.0",
       "type": "tool",
       "description": "Privacy-focused web search tools using Qwant search engine. Provides an alternative to DuckDuckGo with support for multi-engine search.",
-      "manifest_path": "components/tools/qwant_search_tools/funcn_component.json"
+      "manifest_path": "components/tools/qwant_search_tools/component.json"
     }
   ]
 }
