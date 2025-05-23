@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1.7.1
 
 ARG PYTHON_VERSION=3.12.10
-ARG WORKDIR="/src"
 
 FROM python:${PYTHON_VERSION}-slim-bookworm as builder
 
@@ -26,7 +25,7 @@ ENV PATH="$VENV/bin:$PATH"
 # uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-WORKDIR $WORKDIR
+WORKDIR /src
 
 COPY pyproject.toml .
 
@@ -54,6 +53,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
 
 FROM deps as runner
 
+ARG WORKDIR="/src"
 WORKDIR $WORKDIR
 
 ARG USER_NAME=appuser
@@ -62,7 +62,8 @@ ARG USER_GID=$USER_UID
 
 RUN groupadd --gid $USER_GID $USER_NAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USER_NAME \
-    && chown -R $USER_NAME:$USER_NAME /app
+    && mkdir -p $WORKDIR \
+    && chown -R $USER_NAME:$USER_NAME $WORKDIR
 
 ARG VENV="/opt/venv"
 ENV PATH=$VENV/bin:$HOME/.local/bin:$PATH
@@ -70,7 +71,7 @@ ENV PATH=$VENV/bin:$HOME/.local/bin:$PATH
 COPY --from=builder \
     --chown=$USER_NAME:$USER_NAME "$VENV" "$VENV"
 
-COPY --chown=$USER_NAME:$USER_NAME ./app/ ${WORKDIR}/
+COPY --chown=$USER_NAME:$USER_NAME ./src/ ${WORKDIR}/
 
 # standardise on locale, don't generate .pyc, enable tracebacks on seg faults
 ENV LANG C.UTF-8

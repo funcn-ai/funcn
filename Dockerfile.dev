@@ -1,7 +1,6 @@
 # syntax=docker/dockerfile:1.7.1
 
 ARG PYTHON_VERSION=3.12.10
-ARG WORKDIR="/src"
 
 FROM python:${PYTHON_VERSION}-slim-bookworm as builder
 
@@ -26,7 +25,7 @@ ENV PATH="$VENV/bin:$PATH"
 # uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
-WORKDIR $WORKDIR
+WORKDIR /src
 
 COPY pyproject.toml .
 
@@ -65,6 +64,7 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 FROM deps as runner
 
+ARG WORKDIR="/src"
 WORKDIR $WORKDIR
 
 ARG USER_NAME=appuser
@@ -75,7 +75,8 @@ RUN groupadd --gid $USER_GID $USER_NAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USER_NAME \
     && echo $USER_NAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USER_NAME \
     && chmod 0440 /etc/sudoers.d/$USER_NAME \
-    && chown -R $USER_NAME:$USER_NAME /app
+    && mkdir -p $WORKDIR \
+    && chown -R $USER_NAME:$USER_NAME $WORKDIR
 
 # Add bash aliases for the user
 RUN <<EOF cat > /home/${USER_NAME}/.bash_aliases
@@ -91,7 +92,7 @@ ENV PATH=$VENV/bin:$HOME/.local/bin:$HOME/.asdf/shims:$PATH
 COPY --from=builder \
     --chown=$USER_NAME:$USER_NAME "$VENV" "$VENV"
 
-COPY --chown=$USER_NAME:$USER_NAME ./app/ ${WORKDIR}/
+COPY --chown=$USER_NAME:$USER_NAME ./src/ ${WORKDIR}/
 
 # standardise on locale, don't generate .pyc, enable tracebacks on seg faults, disable pip version check
 ENV LANG C.UTF-8
