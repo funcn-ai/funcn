@@ -22,12 +22,10 @@ funcn add qwant_search_tools
 ### Dependencies
 
 **Python Dependencies:**
-
 - `httpx` >=0.24.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -185,10 +183,11 @@ You can now use Qwant search tools in your agents for privacy-focused web search
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Qwant**
 - **Web Search**
 - **Privacy**
@@ -196,10 +195,8 @@ You can now use Qwant search tools in your agents for privacy-focused web search
 - **Search Engine**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

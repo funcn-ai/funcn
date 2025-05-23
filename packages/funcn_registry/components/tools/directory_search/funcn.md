@@ -22,13 +22,11 @@ funcn add directory_search
 ### Dependencies
 
 **Python Dependencies:**
-
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `aiofiles` >=23.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -187,10 +185,11 @@ You can now import the directory search tool with `from ai_tools.directory_searc
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Filesystem**
 - **Search**
 - **Directory**
@@ -198,10 +197,8 @@ You can now import the directory search tool with `from ai_tools.directory_searc
 - **Navigation**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

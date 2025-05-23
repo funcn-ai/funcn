@@ -24,17 +24,14 @@ funcn add document_segmentation_agent
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
-
 - None
 
 **Python Dependencies:**
-
 - `mirascope` >=1.24.0
 - `pydantic` >=2.0.0
 - `lilypad` >=0.1.0
 
 **Environment Variables:**
-
 - `OPENAI_API_KEY`: API key for OpenAI services (if using OpenAI provider). (Optional)
 - `ANTHROPIC_API_KEY`: API key for Anthropic services (if using Anthropic provider). (Optional)
 - `GOOGLE_API_KEY`: API key for Google services (if using Google provider). (Optional)
@@ -204,10 +201,11 @@ This agent segments documents using various strategies: 'auto' (intelligent dete
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Document Processing**
 - **Segmentation**
 - **Chunking**
@@ -215,10 +213,8 @@ This agent segments documents using various strategies: 'auto' (intelligent dete
 - **Mirascope**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

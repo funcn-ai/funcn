@@ -22,7 +22,6 @@ funcn add code_docs_search
 ### Dependencies
 
 **Python Dependencies:**
-
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `aiofiles` >=23.0.0
@@ -30,7 +29,6 @@ funcn add code_docs_search
 - `pyyaml` >=6.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -190,10 +188,11 @@ You can now import the code docs search tool with `from ai_tools.code_docs_searc
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Documentation**
 - **Api-Docs**
 - **Markdown**
@@ -201,10 +200,8 @@ You can now import the code docs search tool with `from ai_tools.code_docs_searc
 - **Code-Search**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

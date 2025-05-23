@@ -24,17 +24,14 @@ funcn add dataset_builder
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
-
 - `exa_websets`
 
 **Python Dependencies:**
-
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `exa-py` >=1.0.0
 
 **Environment Variables:**
-
 - `EXA_API_KEY`: API key for Exa services (**Required**)
 - `OPENAI_API_KEY`: API key for OpenAI services (**Required**)
 
@@ -173,19 +170,16 @@ You can now import the dataset builder with `from ai_agents.dataset_builder impo
 The agent provides specialized dataset builders:
 
 **Core Functions:**
-
 - `build_dataset()` - General dataset building with custom criteria
 - `build_company_dataset()` - Company information and analysis
 - `build_research_dataset()` - Academic papers and research
 
 **Market Intelligence:**
-
 - `build_market_dataset()` - Market analysis and trends
 - `build_competitor_dataset()` - Competitive landscape analysis
 - `build_news_trends_dataset()` - News monitoring and sentiment
 
 **Business Development:**
-
 - `build_influencer_dataset()` - Social media influencer discovery
 - `build_investment_dataset()` - Investment opportunities
 - `build_talent_dataset()` - Recruiting and talent sourcing
@@ -202,10 +196,11 @@ Datasets are built asynchronously using Exa Websets. Monitor progress in real-ti
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Dataset**
 - **Exa**
 - **Websets**
@@ -213,10 +208,8 @@ Datasets are built asynchronously using Exa Websets. Monitor progress in real-ti
 - **Enrichment**
 
 **Related Components:**
-
 - `exa_websets`
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

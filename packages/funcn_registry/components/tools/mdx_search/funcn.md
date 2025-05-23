@@ -22,7 +22,6 @@ funcn add mdx_search
 ### Dependencies
 
 **Python Dependencies:**
-
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `aiofiles` >=23.0.0
@@ -30,7 +29,6 @@ funcn add mdx_search
 - `markdown` >=3.4.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -198,10 +196,11 @@ You can now import MDX search functions with `from ai_tools.mdx_search import se
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Mdx**
 - **Documentation**
 - **Jsx**
@@ -209,10 +208,8 @@ You can now import MDX search functions with `from ai_tools.mdx_search import se
 - **Frontmatter**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

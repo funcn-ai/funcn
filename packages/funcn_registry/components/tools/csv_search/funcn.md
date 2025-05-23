@@ -22,14 +22,12 @@ funcn add csv_search
 ### Dependencies
 
 **Python Dependencies:**
-
 - `pandas` >=2.0.0
 - `fuzzywuzzy` >=0.18.0
 - `python-Levenshtein` >=0.12.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -208,7 +206,6 @@ The CSV search tool is now available for searching and filtering structured data
 6. **Async operation**: Non-blocking searches for better performance
 
 Filter syntax examples:
-
 - `{'age': '>30'}` - Age greater than 30
 - `{'status': 'active'}` - Exact match for 'active'
 - `{'price': '<=100'}` - Price less than or equal to 100
@@ -222,10 +219,11 @@ Filter syntax examples:
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Csv**
 - **Search**
 - **Data**
@@ -233,10 +231,8 @@ Filter syntax examples:
 - **Filtering**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
