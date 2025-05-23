@@ -463,3 +463,383 @@ async def build_market_dataset(
         enrichments=enrichments,
         **kwargs
     )
+
+
+async def build_competitor_dataset(
+    company_name: str,
+    industry: str | None = None,
+    aspects: list[str] | None = None,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build a competitor analysis dataset.
+
+    Tracks competitor activities including:
+    - Product launches and updates
+    - Marketing campaigns
+    - Pricing strategies
+    - Customer feedback
+    - Strategic moves
+    """
+    aspects = aspects or ["products", "marketing", "pricing", "news", "strategy"]
+
+    search_queries = []
+    if industry:
+        search_queries.append(f"{company_name} competitors in {industry}")
+
+    search_queries.extend([
+        f"{company_name} competitor {aspect}" for aspect in aspects
+    ])
+
+    criteria = [
+        "Recent information (last 6 months preferred)",
+        "From credible business sources",
+        "Direct competitor or market analysis"
+    ]
+
+    enrichments = [
+        "competitor_name",
+        "competitive_advantage",
+        "product_comparison",
+        "market_share",
+        "recent_activities",
+        "strengths_weaknesses"
+    ]
+
+    return await build_dataset(
+        topic=f"{company_name} competitive landscape",
+        entity_type="company",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )
+
+
+async def build_influencer_dataset(
+    niche: str,
+    platforms: list[str] | None = None,
+    min_followers: int = 10000,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build a social media influencer dataset.
+
+    Discovers influencers with:
+    - Platform presence and metrics
+    - Engagement rates
+    - Content themes
+    - Brand partnerships
+    - Audience demographics
+    """
+    platforms = platforms or ["instagram", "twitter", "linkedin", "youtube", "tiktok"]
+
+    search_queries = [
+        f"{niche} influencers {platform}" for platform in platforms
+    ]
+    search_queries.append(f"top {niche} content creators")
+
+    criteria = [
+        f"Minimum {min_followers:,} followers on at least one platform",
+        f"Active in {niche} content",
+        "Regular posting schedule",
+        "Authentic engagement"
+    ]
+
+    enrichments = [
+        "influencer_name",
+        "platform_handles",
+        "follower_count",
+        "engagement_rate",
+        "content_themes",
+        "brand_partnerships",
+        "contact_info",
+        "audience_demographics"
+    ]
+
+    return await build_dataset(
+        topic=f"{niche} social media influencers",
+        entity_type="person",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )
+
+
+async def build_news_trends_dataset(
+    topic: str,
+    time_period: str = "last 7 days",
+    sources: list[str] | None = None,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build a news and trends dataset.
+
+    Monitors:
+    - Breaking news and developments
+    - Trending topics
+    - Sentiment analysis
+    - Key stakeholders mentioned
+    - Geographic distribution
+    """
+    sources = sources or ["major news outlets", "industry publications", "social media"]
+
+    search_queries = [
+        f"{topic} news {time_period}",
+        f"{topic} trending",
+        f"{topic} latest developments",
+        f"{topic} breaking news"
+    ]
+
+    criteria = [
+        f"Published within {time_period}",
+        "From reputable news sources",
+        "Significant news value or viral content"
+    ]
+
+    enrichments = [
+        "headline",
+        "publication_date",
+        "news_source",
+        "sentiment",
+        "key_people_mentioned",
+        "geographic_focus",
+        "related_topics",
+        "social_shares"
+    ]
+
+    return await build_dataset(
+        topic=f"{topic} news and trends",
+        entity_type="article",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )
+
+
+async def build_investment_dataset(
+    sector: str,
+    investment_stage: str | None = None,
+    geography: str | None = None,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build an investment opportunities dataset.
+
+    Identifies:
+    - Companies seeking funding
+    - Recent funding rounds
+    - Investor activity
+    - Valuation trends
+    - Exit opportunities
+    """
+    search_queries = [
+        f"{sector} startups seeking funding",
+        f"{sector} recent funding rounds",
+        f"{sector} investment opportunities"
+    ]
+
+    if investment_stage:
+        search_queries.append(f"{sector} {investment_stage} funding")
+
+    if geography:
+        search_queries = [f"{q} {geography}" for q in search_queries]
+
+    criteria = [
+        f"Company in {sector} sector",
+        "Credible funding information",
+        "Recent activity (last 12 months)"
+    ]
+
+    if investment_stage:
+        criteria.append(f"Relevant to {investment_stage} stage")
+
+    enrichments = [
+        "company_name",
+        "funding_stage",
+        "amount_raised",
+        "valuation",
+        "investors",
+        "business_model",
+        "growth_metrics",
+        "leadership_team",
+        "market_opportunity"
+    ]
+
+    return await build_dataset(
+        topic=f"{sector} investment opportunities",
+        entity_type="company",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )
+
+
+async def build_talent_dataset(
+    role: str,
+    skills: list[str] | None = None,
+    experience_level: str | None = None,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build a recruiting/talent dataset.
+
+    Finds candidates with:
+    - Relevant skills and experience
+    - Professional background
+    - Notable achievements
+    - Current position
+    - Contact information
+    """
+    search_queries = [
+        f"{role} professionals",
+        f"{role} experts"
+    ]
+
+    if skills:
+        search_queries.extend([
+            f"{role} with {skill} experience" for skill in skills
+        ])
+
+    if experience_level:
+        search_queries.append(f"{experience_level} {role}")
+
+    criteria = [
+        f"Professional working as {role} or similar",
+        "Publicly available professional information",
+        "Active in the field"
+    ]
+
+    if experience_level:
+        criteria.append(f"{experience_level} level experience")
+
+    enrichments = [
+        "candidate_name",
+        "current_position",
+        "company",
+        "skills",
+        "experience_years",
+        "education",
+        "notable_achievements",
+        "linkedin_url",
+        "contact_possibility"
+    ]
+
+    return await build_dataset(
+        topic=f"{role} talent pool",
+        entity_type="person",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )
+
+
+async def build_product_launch_dataset(
+    product_category: str,
+    time_frame: str = "last 3 months",
+    competitors: list[str] | None = None,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build a product launch tracking dataset.
+
+    Monitors:
+    - New product launches
+    - Feature updates
+    - Pricing information
+    - Customer reception
+    - Marketing strategies
+    """
+    search_queries = [
+        f"new {product_category} launches {time_frame}",
+        f"{product_category} product announcements",
+        f"latest {product_category} releases"
+    ]
+
+    if competitors:
+        search_queries.extend([
+            f"{company} {product_category} launch" for company in competitors
+        ])
+
+    criteria = [
+        f"Product launch within {time_frame}",
+        f"Related to {product_category}",
+        "Official announcement or credible coverage"
+    ]
+
+    enrichments = [
+        "product_name",
+        "company",
+        "launch_date",
+        "key_features",
+        "pricing",
+        "target_market",
+        "differentiators",
+        "initial_reception",
+        "marketing_approach"
+    ]
+
+    return await build_dataset(
+        topic=f"{product_category} product launches",
+        entity_type="product",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )
+
+
+async def build_location_dataset(
+    business_type: str,
+    geography: str,
+    criteria_list: list[str] | None = None,
+    **kwargs
+) -> DatasetBuilderResponse:
+    """
+    Build a location/real estate opportunity dataset.
+
+    Finds locations with:
+    - Demographics data
+    - Competition analysis
+    - Traffic patterns
+    - Economic indicators
+    - Growth potential
+    """
+    search_queries = [
+        f"best locations for {business_type} in {geography}",
+        f"{business_type} market analysis {geography}",
+        f"{geography} demographic data for {business_type}",
+        f"{business_type} location factors {geography}"
+    ]
+
+    criteria = criteria_list or [
+        f"Relevant to {business_type} location decisions",
+        f"Within {geography} area",
+        "Recent data (last 2 years)",
+        "Credible source"
+    ]
+
+    enrichments = [
+        "location_name",
+        "demographics",
+        "competitor_density",
+        "foot_traffic",
+        "average_income",
+        "growth_rate",
+        "real_estate_costs",
+        "business_climate",
+        "opportunity_score"
+    ]
+
+    return await build_dataset(
+        topic=f"{business_type} location opportunities in {geography}",
+        entity_type="location",
+        search_queries=search_queries,
+        criteria=criteria,
+        enrichments=enrichments,
+        **kwargs
+    )

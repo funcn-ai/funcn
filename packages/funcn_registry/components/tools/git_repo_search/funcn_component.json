@@ -14,7 +14,7 @@
     {"source": "tool.py", "destination": "tool.py", "type": "module"},
     {"source": "__init__.py", "destination": "__init__.py", "type": "init_file"}
   ],
-  "target_directory_key": "toolDirectory",
+  "target_directory_key": "tools",
   "python_dependencies": [
     {"name": "GitPython", "version": ">=3.1.0"},
     {"name": "PyGithub", "version": ">=2.1.0"},
