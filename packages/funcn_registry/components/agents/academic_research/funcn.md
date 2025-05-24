@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add academic_research
+funcn add academic_research_agent
 ```
 
 ### Dependencies
@@ -24,13 +24,16 @@ funcn add academic_research
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - `exa_websets`
 
 **Python Dependencies:**
+
 - `mirascope>=1.24.0`
 - `pydantic>=2.0.0`
 
 **Environment Variables:**
+
 - ``: API key for Exa (**Required**)
 
 ### Basic Usage
@@ -148,11 +151,10 @@ Make sure to set your EXA_API_KEY environment variable before using this agent.
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Research**
 - **Academic**
 - **Papers**
@@ -160,8 +162,10 @@ Make sure to set your EXA_API_KEY environment variable before using this agent.
 - **Publications**
 
 **Related Components:**
+
 - `exa_websets`
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

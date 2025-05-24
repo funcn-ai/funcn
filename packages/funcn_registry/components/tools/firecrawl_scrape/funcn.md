@@ -22,10 +22,12 @@ funcn add firecrawl_scrape
 ### Dependencies
 
 **Python Dependencies:**
+
 - `firecrawl-py` >=0.0.16
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
+
 - `FIRECRAWL_API_KEY`: API key for Firecrawl services (**Required**)
 
 ### Basic Usage
@@ -193,6 +195,7 @@ This tool follows Mirascope best practices:
 The Firecrawl scraping tool is now available for extracting structured content from websites. Make sure to set your FIRECRAWL_API_KEY environment variable.
 
 Key features:
+
 1. **Multiple output formats**: Markdown, HTML, plain text, links, and screenshots
 2. **JavaScript support**: Handles dynamic content with configurable wait times
 3. **Content filtering**: Include/exclude specific elements using CSS selectors
@@ -200,6 +203,7 @@ Key features:
 5. **Rich metadata**: Extracts Open Graph, Twitter Card, and standard meta tags
 
 This tool is ideal for:
+
 - Content extraction for analysis
 - Building datasets from web content
 - Monitoring website changes
@@ -214,11 +218,10 @@ This tool is ideal for:
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Web-Scraping**
 - **Firecrawl**
 - **Content-Extraction**
@@ -226,8 +229,10 @@ This tool is ideal for:
 - **Markdown**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

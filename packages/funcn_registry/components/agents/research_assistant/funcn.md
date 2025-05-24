@@ -24,14 +24,17 @@ funcn add research_assistant_agent
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - `exa_search`
 
 **Python Dependencies:**
+
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `exa-py` >=1.0.0
 
 **Environment Variables:**
+
 - `EXA_API_KEY`: API key for Exa services (**Required**)
 - `OPENAI_API_KEY`: API key for OpenAI services (**Required**)
 
@@ -163,11 +166,10 @@ For optional tracing, install lilypad: `pip install lilypad`.
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Research**
 - **Exa**
 - **Report-Generation**
@@ -175,8 +177,10 @@ For optional tracing, install lilypad: `pip install lilypad`.
 - **Market-Research**
 
 **Related Components:**
+
 - `exa_search`
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
