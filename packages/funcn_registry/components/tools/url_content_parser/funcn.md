@@ -22,13 +22,11 @@ funcn add url_content_parser_tool
 ### Dependencies
 
 **Python Dependencies:**
-
 - `httpx` >=0.24.0
 - `beautifulsoup4` >=4.0.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -178,10 +176,11 @@ You can now use the URL content parser tool in your agents to extract clean text
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Url**
 - **Content**
 - **Parsing**
@@ -189,10 +188,8 @@ You can now use the URL content parser tool in your agents to extract clean text
 - **Text Extraction**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

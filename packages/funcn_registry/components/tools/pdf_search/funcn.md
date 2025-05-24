@@ -22,14 +22,12 @@ funcn add pdf_search_tool
 ### Dependencies
 
 **Python Dependencies:**
-
 - `PyPDF2` >=3.0.0
 - `fuzzywuzzy` >=0.18.0
 - `python-Levenshtein` >=0.12.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -199,10 +197,11 @@ Note: python-Levenshtein is optional but recommended for better performance with
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Pdf**
 - **Search**
 - **Document**
@@ -210,10 +209,8 @@ Note: python-Levenshtein is optional but recommended for better performance with
 - **Fuzzy-Matching**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

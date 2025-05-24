@@ -22,11 +22,9 @@ funcn add nimble_search_tool
 ### Dependencies
 
 **Python Dependencies:**
-
 - Standard library only
 
 **Environment Variables:**
-
 - `NIMBLE_API_KEY`: API key for Nimble services (**Required**)
 
 ### Basic Usage
@@ -174,10 +172,11 @@ No known issues.
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Search**
 - **Web**
 - **Serp**
@@ -185,10 +184,8 @@ No known issues.
 - **Nimble**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
-- [Funcn Registry](https://funcn.ai/registry)
+- [Funcn Registry]()

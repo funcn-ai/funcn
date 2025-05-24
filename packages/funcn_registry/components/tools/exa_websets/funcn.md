@@ -22,12 +22,10 @@ funcn add exa_websets_tool
 ### Dependencies
 
 **Python Dependencies:**
-
 - `exa-py` >=1.0.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - `EXA_API_KEY`: API key for Exa services. Get it from https://exa.ai (**Required**)
 
 ### Basic Usage
@@ -219,13 +217,11 @@ This tool follows Mirascope best practices:
 You now have access to Exa's advanced Websets functionality! Set your EXA_API_KEY environment variable before using.
 
 Websets allow you to:
-
 1. **Define Search Criteria** - Specify what web content to collect
 2. **Apply Enrichments** - Extract structured data from collected pages
 3. **Build Datasets** - Create curated collections for analysis
 
 Websets are ideal for:
-
 - Market research and competitive analysis
 - Building training datasets
 - Monitoring industry trends
@@ -241,10 +237,11 @@ Note: Websets processing can take time depending on the search complexity and en
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Exa**
 - **Websets**
 - **Data Collection**
@@ -252,10 +249,8 @@ Note: Websets processing can take time depending on the search complexity and en
 - **Enrichment**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

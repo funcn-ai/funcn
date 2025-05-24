@@ -22,12 +22,10 @@ funcn add duckduckgo_search_tool
 ### Dependencies
 
 **Python Dependencies:**
-
 - `duckduckgo-search` >=6.0.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -181,20 +179,19 @@ You can now use DuckDuckGo search tools in your agents for comprehensive web sea
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Duckduckgo**
 - **Web Search**
 - **Search Engine**
 - **Tools**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

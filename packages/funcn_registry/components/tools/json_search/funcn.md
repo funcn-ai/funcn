@@ -22,14 +22,12 @@ funcn add json_search_tool
 ### Dependencies
 
 **Python Dependencies:**
-
 - `jsonpath-ng` >=1.6.0
 - `fuzzywuzzy` >=0.18.0
 - `python-Levenshtein` >=0.12.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
-
 - None required
 
 ### Basic Usage
@@ -224,14 +222,12 @@ The JSON search tool is now available for searching within JSON files and data s
 6. **Async operation**: Non-blocking searches for better performance
 
 JSONPath examples:
-
 - `$.users[*].name` - All user names
 - `$.data[?(@.price > 100)]` - Items with price > 100
 - `$..email` - All email fields at any depth
 - `$.config.database.*` - All database config values
 
 This tool is ideal for:
-
 - Configuration file searching
 - API response analysis
 - Log file investigation
@@ -245,10 +241,11 @@ This tool is ideal for:
 
 ## Migration Notes
 
+
+
 ---
 
 **Key Benefits:**
-
 - **Json**
 - **Search**
 - **Jsonpath**
@@ -256,10 +253,8 @@ This tool is ideal for:
 - **Fuzzy-Matching**
 
 **Related Components:**
-
 - None
 
 **References:**
-
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
