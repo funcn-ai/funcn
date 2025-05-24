@@ -1,4 +1,4 @@
-# firecrawl_scrape
+# firecrawl_scrape_tool
 
 > Firecrawl-powered web scraping tool that extracts clean, structured content from websites. Handles JavaScript-rendered pages and provides multiple output formats including Markdown, HTML, and screenshots.
 

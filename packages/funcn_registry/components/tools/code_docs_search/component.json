@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "code_docs_search",
+  "name": "code_docs_search_tool",
   "version": "0.1.0",
   "description": "Technical documentation search tool for API docs, README files, code comments, docstrings, and code examples",
   "type": "tool",

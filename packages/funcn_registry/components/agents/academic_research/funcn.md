@@ -1,4 +1,4 @@
-# academic_research
+# academic_research_agent
 
 > Academic research agent for finding research papers using Exa websets. Perfect for academics, researchers, and anyone needing to discover scholarly publications.
 

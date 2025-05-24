@@ -1,4 +1,4 @@
-# code_interpreter
+# code_interpreter_tool
 
 > Safe Python code execution tool with sandboxing, timeout controls, and variable capture
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add code_interpreter
+funcn add code_interpreter_tool
 ```
 
 ### Dependencies

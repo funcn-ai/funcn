@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "dataset_builder",
+  "name": "dataset_builder_agent",
   "version": "0.1.0",
   "description": "AI-powered dataset builder that creates curated data collections using Exa Websets with custom criteria and enrichments",
   "type": "agent",

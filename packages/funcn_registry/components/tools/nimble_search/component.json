@@ -1,6 +1,6 @@
 {
   "$schema": "../../../../funcn.schema.json",
-  "name": "nimble_search",
+  "name": "nimble_search_tool",
   "type": "tool",
   "description": "Multi-API search tool using Nimble's Web, SERP, and Maps APIs for comprehensive search capabilities",
   "tags": [

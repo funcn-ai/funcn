@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "sourcing_assistant",
+  "name": "sourcing_assistant_agent",
   "version": "0.1.0",
   "description": "Sourcing assistant for finding suppliers, manufacturers, and solutions using Exa websets. Perfect for procurement, supply chain management, and technology sourcing.",
   "type": "agent",

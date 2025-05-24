@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "exa_websets_tools",
+  "name": "exa_websets_tool",
   "version": "0.1.0",
   "description": "Advanced web data collection tools using Exa Websets. Create curated collections of web data with search criteria and structured enrichments for building datasets.",
   "type": "tool",

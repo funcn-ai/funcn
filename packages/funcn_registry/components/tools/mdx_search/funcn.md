@@ -1,4 +1,4 @@
-# mdx_search
+# mdx_search_tool
 
 > MDX documentation search tool with JSX component parsing, frontmatter support, and section extraction
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add mdx_search
+funcn add mdx_search_tool
 ```
 
 ### Dependencies

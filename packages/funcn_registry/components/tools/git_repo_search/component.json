@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "git_repo_search",
+  "name": "git_repo_search_tool",
   "version": "0.1.0",
   "description": "Git repository search tool for searching code, files, and commits in both local Git repositories and GitHub. Supports pattern matching, file filtering, and commit history search.",
   "type": "tool",

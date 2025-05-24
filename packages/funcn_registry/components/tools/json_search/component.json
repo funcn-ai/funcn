@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "json_search",
+  "name": "json_search_tool",
   "version": "0.1.0",
   "description": "JSON search tool for searching and querying within JSON files and data structures. Supports JSONPath expressions, fuzzy matching, and searching in both keys and values.",
   "type": "tool",

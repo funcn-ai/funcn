@@ -1,4 +1,4 @@
-# qwant_search_tools
+# qwant_search_tool
 
 > Privacy-focused web search tools using Qwant search engine. Provides structured search results with no user tracking, using unified models compatible with other search providers.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add qwant_search_tools
+funcn add qwant_search_tool
 ```
 
 ### Dependencies

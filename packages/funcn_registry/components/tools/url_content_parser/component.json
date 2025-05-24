@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "url_content_parser",
+  "name": "url_content_parser_tool",
   "version": "0.1.0",
   "description": "URL content parsing tool that extracts clean text content from web pages. Removes scripts, styles, and other noise to provide readable text content.",
   "type": "tool",

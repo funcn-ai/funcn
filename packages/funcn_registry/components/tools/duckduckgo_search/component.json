@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "duckduckgo_search_tools",
+  "name": "duckduckgo_search_tool",
   "version": "0.2.0",
   "description": "DuckDuckGo web search tools with clean, structured results. Provides comprehensive search coverage using the duckduckgo-search library.",
   "type": "tool",

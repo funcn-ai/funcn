@@ -1,4 +1,4 @@
-# dataset_builder
+# dataset_builder_agent
 
 > AI-powered dataset builder that creates curated data collections using Exa Websets with custom criteria and enrichments
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add dataset_builder
+funcn add dataset_builder_agent
 ```
 
 ### Dependencies

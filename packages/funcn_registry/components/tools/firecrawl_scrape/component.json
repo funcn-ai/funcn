@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "firecrawl_scrape",
+  "name": "firecrawl_scrape_tool",
   "version": "0.1.0",
   "description": "Firecrawl-powered web scraping tool that extracts clean, structured content from websites. Handles JavaScript-rendered pages and provides multiple output formats including Markdown, HTML, and screenshots.",
   "type": "tool",

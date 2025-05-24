@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "pg_search",
+  "name": "pg_search_tool",
   "version": "0.1.0",
   "description": "PostgreSQL database search and query tool with full-text search, connection pooling, and schema introspection",
   "type": "tool",

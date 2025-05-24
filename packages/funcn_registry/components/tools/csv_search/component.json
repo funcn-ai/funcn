@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "csv_search",
+  "name": "csv_search_tool",
   "version": "0.1.0",
   "description": "CSV search tool for searching and filtering structured data within CSV files. Supports column-specific searches, data filtering, and both exact and fuzzy matching capabilities.",
   "type": "tool",

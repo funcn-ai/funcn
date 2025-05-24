@@ -1,4 +1,4 @@
-# recruiting_assistant
+# recruiting_assistant_agent
 
 > Recruiting assistant for finding qualified candidates using Exa websets. Helps with technical recruiting, sales hiring, and executive search.
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add recruiting_assistant
+funcn add recruiting_assistant_agent
 ```
 
 ### Dependencies

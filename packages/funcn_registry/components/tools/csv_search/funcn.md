@@ -1,4 +1,4 @@
-# csv_search
+# csv_search_tool
 
 > CSV search tool for searching and filtering structured data within CSV files. Supports column-specific searches, data filtering, and both exact and fuzzy matching capabilities.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add csv_search
+funcn add csv_search_tool
 ```
 
 ### Dependencies

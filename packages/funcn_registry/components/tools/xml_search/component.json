@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "xml_search",
+  "name": "xml_search_tool",
   "version": "0.1.0",
   "description": "XML data processing tool with XPath queries, namespace support, validation, and advanced search capabilities",
   "type": "tool",

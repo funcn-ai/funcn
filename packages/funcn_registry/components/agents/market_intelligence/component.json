@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "market_intelligence",
+  "name": "market_intelligence_agent",
   "version": "0.1.0",
   "description": "Market intelligence agent for tracking investment opportunities and market trends using Exa websets. Perfect for VCs, analysts, and business development professionals.",
   "type": "agent",
