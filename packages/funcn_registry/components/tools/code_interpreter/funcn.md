@@ -22,10 +22,12 @@ funcn add code_interpreter_tool
 ### Dependencies
 
 **Python Dependencies:**
+
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
+
 - None required
 
 ### Basic Usage
@@ -176,11 +178,10 @@ You can now import the code interpreter with `from ai_tools.code_interpreter imp
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Code-Execution**
 - **Interpreter**
 - **Sandbox**
@@ -188,8 +189,10 @@ You can now import the code interpreter with `from ai_tools.code_interpreter imp
 - **Safety**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

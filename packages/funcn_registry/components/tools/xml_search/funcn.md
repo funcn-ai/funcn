@@ -22,12 +22,14 @@ funcn add xml_search_tool
 ### Dependencies
 
 **Python Dependencies:**
+
 - `mirascope[openai]` >=1.24.0
 - `pydantic` >=2.0.0
 - `lxml` >=4.9.0
 - `aiofiles` >=23.0.0
 
 **Environment Variables:**
+
 - None required
 
 ### Basic Usage
@@ -187,11 +189,10 @@ You can now import the XML search tool with `from ai_tools.xml_search import XML
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Xml**
 - **Xpath**
 - **Search**
@@ -199,8 +200,10 @@ You can now import the XML search tool with `from ai_tools.xml_search import XML
 - **Xsd**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

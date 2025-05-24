@@ -22,11 +22,13 @@ funcn add git_repo_search_tool
 ### Dependencies
 
 **Python Dependencies:**
+
 - `GitPython` >=3.1.0
 - `PyGithub` >=2.1.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
+
 - `GITHUB_TOKEN`: GitHub personal access token for searching GitHub repositories (Optional)
 
 ### Basic Usage
@@ -224,6 +226,7 @@ The Git repository search tool is now available for searching within Git reposit
 4. **GitHub integration**: Set GITHUB_TOKEN for GitHub repository searches
 
 Use cases:
+
 - Finding specific code patterns across a codebase
 - Locating files by name patterns
 - Searching commit history for specific changes
@@ -238,11 +241,10 @@ Use cases:
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Git**
 - **Github**
 - **Code-Search**
@@ -250,8 +252,10 @@ Use cases:
 - **Version-Control**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

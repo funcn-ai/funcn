@@ -24,14 +24,17 @@ funcn add enhanced_knowledge_graph_agent
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - None
 
 **Python Dependencies:**
+
 - `mirascope` >=1.24.0
 - `pydantic` >=2.0.0
 - `lilypad` >=0.1.0
 
 **Environment Variables:**
+
 - `OPENAI_API_KEY`: API key for OpenAI services (if using OpenAI provider). (Optional)
 - `ANTHROPIC_API_KEY`: API key for Anthropic services (if using Anthropic provider). (Optional)
 - `GOOGLE_API_KEY`: API key for Google services (if using Google provider). (Optional)
@@ -216,11 +219,10 @@ The agent provides explanations for all extractions, making results interpretabl
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Knowledge Graph**
 - **Entity Extraction**
 - **Relationship Extraction**
@@ -228,8 +230,10 @@ The agent provides explanations for all extractions, making results interpretabl
 - **Mirascope**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

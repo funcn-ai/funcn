@@ -24,6 +24,7 @@ funcn add web_search_agent
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - `duckduckgo_search_tools`
 - `qwant_search_tools`
 - `exa_search_tools`
@@ -31,10 +32,12 @@ This agent requires the following dependencies:
 - `url_content_parser`
 
 **Python Dependencies:**
+
 - `mirascope` >=1.24.0
 - `pydantic` >=2.0.0
 
 **Environment Variables:**
+
 - `OPENAI_API_KEY`: API key for OpenAI services (if using OpenAI provider). (Optional)
 - `ANTHROPIC_API_KEY`: API key for Anthropic services (if using Anthropic provider). (Optional)
 - `GOOGLE_API_KEY`: API key for Google services (if using Google provider). (Optional)
@@ -191,11 +194,10 @@ This unified agent requires 'duckduckgo_search_tools', 'qwant_search_tools', 'ex
 
 ## Migration Notes
 
-
-
 ---
 
 **Key Benefits:**
+
 - **Web Search**
 - **Agent**
 - **Mirascope**
@@ -203,6 +205,7 @@ This unified agent requires 'duckduckgo_search_tools', 'qwant_search_tools', 'ex
 - **Privacy**
 
 **Related Components:**
+
 - `duckduckgo_search_tools`
 - `qwant_search_tools`
 - `exa_search_tools`
@@ -210,5 +213,6 @@ This unified agent requires 'duckduckgo_search_tools', 'qwant_search_tools', 'ex
 - `url_content_parser`
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
