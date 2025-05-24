@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "code_interpreter",
+  "name": "code_interpreter_tool",
   "version": "0.1.0",
   "description": "Safe Python code execution tool with sandboxing, timeout controls, and variable capture",
   "type": "tool",

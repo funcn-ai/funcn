@@ -1,4 +1,4 @@
-# git_repo_search
+# git_repo_search_tool
 
 > Git repository search tool for searching code, files, and commits in both local Git repositories and GitHub. Supports pattern matching, file filtering, and commit history search.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add git_repo_search
+funcn add git_repo_search_tool
 ```
 
 ### Dependencies

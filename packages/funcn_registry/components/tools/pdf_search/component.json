@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "pdf_search",
+  "name": "pdf_search_tool",
   "version": "0.1.0",
   "description": "PDF search tool that enables searching for text within PDF documents using fuzzy matching. Extracts text from PDFs and provides context-aware search results with page numbers and match scores.",
   "type": "tool",

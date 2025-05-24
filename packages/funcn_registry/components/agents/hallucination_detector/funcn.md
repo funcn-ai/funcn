@@ -1,4 +1,4 @@
-# hallucination_detector
+# hallucination_detector_agent
 
 > AI-powered hallucination detection agent that verifies factual claims using Exa search
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add hallucination_detector
+funcn add hallucination_detector_agent
 ```
 
 ### Dependencies

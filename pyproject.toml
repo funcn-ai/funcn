@@ -1,11 +1,25 @@
 [project]
 name = "funcn"
 version = "0.1.0"
-description = "Discover and integrate reusable agents and tools into your Python projects"
+description = "Production-ready AI components that you can copy and paste into your apps"
 authors = [
     {name = "greyhaven-ai", email = "info@funcn.ai"}
 ]
 license = "MIT"
+readme = "README_PYPI.md"
+homepage = "https://funcn.ai"
+repository = "https://github.com/funcn-ai/funcn"
+documentation = "https://funcn.ai/docs"
+keywords = ["ai", "llm", "agents", "tools", "components", "mirascope", "lilypad"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
 
 requires-python = ">=3.12,<3.13"
 

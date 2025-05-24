@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "qwant_search_tools",
+  "name": "qwant_search_tool",
   "version": "0.2.0",
   "description": "Privacy-focused web search tools using Qwant search engine. Provides structured search results with no user tracking, using unified models compatible with other search providers.",
   "type": "tool",

@@ -1,4 +1,4 @@
-# xml_search
+# xml_search_tool
 
 > XML data processing tool with XPath queries, namespace support, validation, and advanced search capabilities
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add xml_search
+funcn add xml_search_tool
 ```
 
 ### Dependencies

@@ -1,4 +1,4 @@
-# url_content_parser
+# url_content_parser_tool
 
 > URL content parsing tool that extracts clean text content from web pages. Removes scripts, styles, and other noise to provide readable text content.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add url_content_parser
+funcn add url_content_parser_tool
 ```
 
 ### Dependencies

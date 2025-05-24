@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "youtube_video_search",
+  "name": "youtube_video_search_tool",
   "version": "0.1.0",
   "description": "YouTube video search and transcript extraction tool for content analysis and research",
   "type": "tool",

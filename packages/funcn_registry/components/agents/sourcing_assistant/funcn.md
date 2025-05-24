@@ -1,4 +1,4 @@
-# sourcing_assistant
+# sourcing_assistant_agent
 
 > Sourcing assistant for finding suppliers, manufacturers, and solutions using Exa websets. Perfect for procurement, supply chain management, and technology sourcing.
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add sourcing_assistant
+funcn add sourcing_assistant_agent
 ```
 
 ### Dependencies

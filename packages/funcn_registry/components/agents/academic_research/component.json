@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "academic_research",
+  "name": "academic_research_agent",
   "version": "0.1.0",
   "description": "Academic research agent for finding research papers using Exa websets. Perfect for academics, researchers, and anyone needing to discover scholarly publications.",
   "type": "agent",

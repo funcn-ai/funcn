@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "recruiting_assistant",
+  "name": "recruiting_assistant_agent",
   "version": "0.1.0",
   "description": "Recruiting assistant for finding qualified candidates using Exa websets. Helps with technical recruiting, sales hiring, and executive search.",
   "type": "agent",

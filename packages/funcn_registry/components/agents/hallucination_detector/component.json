@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "hallucination_detector",
+  "name": "hallucination_detector_agent",
   "version": "0.1.0",
   "description": "AI-powered hallucination detection agent that verifies factual claims using Exa search",
   "type": "agent",

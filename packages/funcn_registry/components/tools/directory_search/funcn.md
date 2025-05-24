@@ -1,4 +1,4 @@
-# directory_search
+# directory_search_tool
 
 > Advanced file system navigation and search tool with pattern matching, content search, and filtering capabilities
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add directory_search
+funcn add directory_search_tool
 ```
 
 ### Dependencies

@@ -1,4 +1,4 @@
-# pg_search
+# pg_search_tool
 
 > PostgreSQL database search and query tool with full-text search, connection pooling, and schema introspection
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add pg_search
+funcn add pg_search_tool
 ```
 
 ### Dependencies

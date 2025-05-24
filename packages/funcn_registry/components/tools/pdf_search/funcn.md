@@ -1,4 +1,4 @@
-# pdf_search
+# pdf_search_tool
 
 > PDF search tool that enables searching for text within PDF documents using fuzzy matching. Extracts text from PDFs and provides context-aware search results with page numbers and match scores.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add pdf_search
+funcn add pdf_search_tool
 ```
 
 ### Dependencies

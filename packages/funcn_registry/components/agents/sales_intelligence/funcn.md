@@ -1,4 +1,4 @@
-# sales_intelligence
+# sales_intelligence_agent
 
 > Sales intelligence agent for finding targeted business contacts and companies using Exa websets. Perfect for sales prospecting, lead generation, and market intelligence.
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add sales_intelligence
+funcn add sales_intelligence_agent
 ```
 
 ### Dependencies

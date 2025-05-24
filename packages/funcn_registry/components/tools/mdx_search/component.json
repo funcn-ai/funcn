@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "mdx_search",
+  "name": "mdx_search_tool",
   "version": "0.1.0",
   "description": "MDX documentation search tool with JSX component parsing, frontmatter support, and section extraction",
   "type": "tool",

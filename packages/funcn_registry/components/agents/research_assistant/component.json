@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "research_assistant",
+  "name": "research_assistant_agent",
   "version": "0.1.0",
   "description": "AI-powered research agent that conducts comprehensive research using Exa search",
   "type": "agent",

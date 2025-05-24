@@ -1,4 +1,4 @@
-# exa_search_tools
+# exa_search_tool
 
 > AI-powered search tools using Exa. Features neural search, direct Q&A, and similarity search with advanced filtering and relevance scoring.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add exa_search_tools
+funcn add exa_search_tool
 ```
 
 ### Dependencies

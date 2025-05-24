@@ -1,4 +1,4 @@
-# research_assistant
+# research_assistant_agent
 
 > AI-powered research agent that conducts comprehensive research using Exa search
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add research_assistant
+funcn add research_assistant_agent
 ```
 
 ### Dependencies

@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "directory_search",
+  "name": "directory_search_tool",
   "version": "0.1.0",
   "description": "Advanced file system navigation and search tool with pattern matching, content search, and filtering capabilities",
   "type": "tool",

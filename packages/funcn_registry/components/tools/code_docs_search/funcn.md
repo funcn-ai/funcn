@@ -1,4 +1,4 @@
-# code_docs_search
+# code_docs_search_tool
 
 > Technical documentation search tool for API docs, README files, code comments, docstrings, and code examples
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add code_docs_search
+funcn add code_docs_search_tool
 ```
 
 ### Dependencies

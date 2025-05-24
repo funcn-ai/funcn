@@ -1,4 +1,4 @@
-# json_search
+# json_search_tool
 
 > JSON search tool for searching and querying within JSON files and data structures. Supports JSONPath expressions, fuzzy matching, and searching in both keys and values.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add json_search
+funcn add json_search_tool
 ```
 
 ### Dependencies

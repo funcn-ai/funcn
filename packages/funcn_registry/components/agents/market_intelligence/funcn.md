@@ -1,4 +1,4 @@
-# market_intelligence
+# market_intelligence_agent
 
 > Market intelligence agent for tracking investment opportunities and market trends using Exa websets. Perfect for VCs, analysts, and business development professionals.
 
@@ -16,7 +16,7 @@ This agent integrates seamlessly with the Mirascope framework and follows AI age
 ### Installation
 
 ```bash
-funcn add market_intelligence
+funcn add market_intelligence_agent
 ```
 
 ### Dependencies

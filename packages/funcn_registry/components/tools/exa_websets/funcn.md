@@ -1,4 +1,4 @@
-# exa_websets_tools
+# exa_websets_tool
 
 > Advanced web data collection tools using Exa Websets. Create curated collections of web data with search criteria and structured enrichments for building datasets.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add exa_websets_tools
+funcn add exa_websets_tool
 ```
 
 ### Dependencies

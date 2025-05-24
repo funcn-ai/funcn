@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "sales_intelligence",
+  "name": "sales_intelligence_agent",
   "version": "0.1.0",
   "description": "Sales intelligence agent for finding targeted business contacts and companies using Exa websets. Perfect for sales prospecting, lead generation, and market intelligence.",
   "type": "agent",

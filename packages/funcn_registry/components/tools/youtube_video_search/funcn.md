@@ -1,4 +1,4 @@
-# youtube_video_search
+# youtube_video_search_tool
 
 > YouTube video search and transcript extraction tool for content analysis and research
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add youtube_video_search
+funcn add youtube_video_search_tool
 ```
 
 ### Dependencies

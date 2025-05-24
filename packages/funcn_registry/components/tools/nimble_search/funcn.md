@@ -1,4 +1,4 @@
-# nimble_search
+# nimble_search_tool
 
 > Multi-API search tool using Nimble's Web, SERP, and Maps APIs for comprehensive search capabilities
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add nimble_search
+funcn add nimble_search_tool
 ```
 
 ### Dependencies

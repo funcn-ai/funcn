@@ -1,4 +1,4 @@
-# docx_search
+# docx_search_tool
 
 > Microsoft Word document search and content extraction tool with advanced text search, regex support, and metadata extraction
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add docx_search
+funcn add docx_search_tool
 ```
 
 ### Dependencies

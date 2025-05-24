@@ -1,6 +1,6 @@
 {
   "$schema": "https://funcn.ai/schemas/component.json",
-  "name": "docx_search",
+  "name": "docx_search_tool",
   "version": "0.1.0",
   "description": "Microsoft Word document search and content extraction tool with advanced text search, regex support, and metadata extraction",
   "type": "tool",

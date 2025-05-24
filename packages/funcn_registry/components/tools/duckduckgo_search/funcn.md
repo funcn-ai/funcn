@@ -1,4 +1,4 @@
-# duckduckgo_search_tools
+# duckduckgo_search_tool
 
 > DuckDuckGo web search tools with clean, structured results. Provides comprehensive search coverage using the duckduckgo-search library.
 
@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add duckduckgo_search_tools
+funcn add duckduckgo_search_tool
 ```
 
 ### Dependencies
