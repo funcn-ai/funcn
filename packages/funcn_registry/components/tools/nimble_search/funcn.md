@@ -33,7 +33,7 @@ funcn add nimble_search_tool
 
 ```python
 import asyncio
-from nimble_search import tool_function, ToolArgs
+from nimble_search_tool import tool_function, ToolArgs
 
 async def main():
     # Basic tool usage
@@ -57,7 +57,7 @@ if __name__ == "__main__":
 This tool uses structured Pydantic models for inputs and outputs:
 
 ```python
-from nimble_search import ToolArgs, ToolResult
+from nimble_search_tool import ToolArgs, ToolResult
 
 # Input model defines the expected parameters
 args = ToolArgs(
@@ -75,7 +75,7 @@ result: ToolResult = await tool_function(args)
 
 ```python
 from mirascope.core import llm, prompt_template
-from nimble_search import tool_function
+from nimble_search_tool import tool_function
 
 @llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
 @prompt_template("Use the tool to help answer: {query}")
@@ -130,7 +130,7 @@ Check the examples directory for advanced usage patterns.
 ### Error Handling
 
 ```python
-from nimble_search import tool_function, ToolError
+from nimble_search_tool import tool_function, ToolError
 
 try:
     result = await tool_function(args)
@@ -144,7 +144,7 @@ except ToolError as e:
 
 ```python
 import asyncio
-from nimble_search import tool_function
+from nimble_search_tool import tool_function
 
 # Process multiple inputs concurrently
 async def batch_process(inputs):
@@ -191,4 +191,4 @@ No known issues.
 **References:**
 
 - [Mirascope Documentation](https://mirascope.com)
-- [Funcn Registry]()
+- [Funcn Registry](https://github.com/funcn-ai/funcn)

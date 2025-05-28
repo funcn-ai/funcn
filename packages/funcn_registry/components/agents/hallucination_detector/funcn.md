@@ -7,7 +7,7 @@
 
 ## Overview
 
-An AI-powered agent that detects potential hallucinations in text by extracting factual claims and verifying them using Exa's neural search capabilities.
+AI-powered hallucination detection agent that verifies factual claims using Exa search
 
 This agent integrates seamlessly with the Mirascope framework and follows AI agent best practices for production deployment.
 
@@ -114,13 +114,13 @@ Check the examples directory for advanced usage patterns.
 
 ```python
 # Using different LLM providers
-result_openai = await hallucination_detector(
+result_openai = await hallucination_detector_agent(
     query="your question",
     provider="openai",
     model="gpt-4o-mini"
 )
 
-result_anthropic = await hallucination_detector(
+result_anthropic = await hallucination_detector_agent(
     query="your question",
     provider="anthropic",
     model="claude-3-5-sonnet-20241022"
@@ -131,9 +131,9 @@ result_anthropic = await hallucination_detector(
 
 ```python
 # Custom configuration example
-from hallucination_detector import hallucination_detector_custom
+from hallucination_detector_agent import hallucination_detector_agent_custom
 
-result = await hallucination_detector_custom(
+result = await hallucination_detector_agent_custom(
     query="your question",
     custom_param="value",
     max_retries=3,
@@ -154,7 +154,7 @@ For optional tracing, install lilypad: `pip install lilypad`.
 ### Common Issues
 
 - **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add hallucination_detector` to reinstall dependencies
+- **Dependency Conflicts**: Run `funcn add hallucination_detector_agent` to reinstall dependencies
 - **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes

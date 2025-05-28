@@ -119,13 +119,13 @@ Check the examples directory for advanced usage patterns.
 
 ```python
 # Using different LLM providers
-result_openai = await research_assistant(
+result_openai = await research_assistant_agent(
     query="your question",
     provider="openai",
     model="gpt-4o-mini"
 )
 
-result_anthropic = await research_assistant(
+result_anthropic = await research_assistant_agent(
     query="your question",
     provider="anthropic",
     model="claude-3-5-sonnet-20241022"
@@ -136,9 +136,9 @@ result_anthropic = await research_assistant(
 
 ```python
 # Custom configuration example
-from research_assistant import research_assistant_custom
+from research_assistant_agent import research_assistant_agent_custom
 
-result = await research_assistant_custom(
+result = await research_assistant_agent_custom(
     query="your question",
     custom_param="value",
     max_retries=3,
@@ -161,7 +161,7 @@ For optional tracing, install lilypad: `pip install lilypad`.
 ### Common Issues
 
 - **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add research_assistant` to reinstall dependencies
+- **Dependency Conflicts**: Run `funcn add research_assistant_agent` to reinstall dependencies
 - **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes

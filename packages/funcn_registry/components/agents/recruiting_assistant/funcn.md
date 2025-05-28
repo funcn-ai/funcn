@@ -111,13 +111,13 @@ Check the examples directory for advanced usage patterns.
 
 ```python
 # Using different LLM providers
-result_openai = await recruiting_assistant(
+result_openai = await recruiting_assistant_agent(
     query="your question",
     provider="openai",
     model="gpt-4o-mini"
 )
 
-result_anthropic = await recruiting_assistant(
+result_anthropic = await recruiting_assistant_agent(
     query="your question",
     provider="anthropic",
     model="claude-3-5-sonnet-20241022"
@@ -128,9 +128,9 @@ result_anthropic = await recruiting_assistant(
 
 ```python
 # Custom configuration example
-from recruiting_assistant import recruiting_assistant_custom
+from recruiting_assistant_agent import recruiting_assistant_agent_custom
 
-result = await recruiting_assistant_custom(
+result = await recruiting_assistant_agent_custom(
     query="your question",
     custom_param="value",
     max_retries=3,
@@ -145,7 +145,7 @@ Make sure to set your EXA_API_KEY environment variable before using this agent.
 ### Common Issues
 
 - **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add recruiting_assistant` to reinstall dependencies
+- **Dependency Conflicts**: Run `funcn add recruiting_assistant_agent` to reinstall dependencies
 - **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes

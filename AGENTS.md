@@ -1,9 +1,11 @@
 # Funcn Development Guidelines
 
 ## Context
+
 Funcn is an AI framework for building LLM-powered applications with reusable components.
 
 ## Core Technologies
+
 - Python 3.12+ with type hints
 - Mirascope for LLM integration
 - Pydantic for data validation
@@ -12,18 +14,21 @@ Funcn is an AI framework for building LLM-powered applications with reusable com
 ## Development Standards
 
 ### Mirascope Integration
+
 - Use `@prompt_template` decorators
 - Define Pydantic response models
 - Implement async/await patterns
 - Support multiple LLM providers
 
 ### Component Structure
+
 - component.json manifest required
 - Registry dependencies managed
 - Documentation in funcn.md format
 - Comprehensive examples included
 
 ## Available Components
+
 - **text_summarization_agent** (agent): Advanced text summarization agent using chain-of-thought reasoning, few-shot learning, and iterative refinement. Supports multiple styles (technical, executive, simple, academic, journalistic) and progressive summarization with validation.
 - **recruiting_assistant** (agent): Recruiting assistant for finding qualified candidates using Exa websets. Helps with technical recruiting, sales hiring, and executive search.
 - **enhanced_knowledge_graph_agent** (agent): Enhanced knowledge graph extraction using advanced prompt engineering. Features meta-reasoning for strategy planning, chain-of-thought entity extraction with detailed reasoning, multi-pass relationship detection, and self-consistency validation for high-accuracy results.
@@ -60,6 +65,7 @@ Funcn is an AI framework for building LLM-powered applications with reusable com
 - **xml_search** (tool): XML data processing tool with XPath queries, namespace support, validation, and advanced search capabilities
 
 ## Environment Setup
+
 - ANTHROPIC_API_KEY: API key for Anthropic services (if using Anthropic provider).
 - DATABASE_URL: PostgreSQL connection string
 - EXA_API_KEY: API key for Exa AI search services (if using Exa provider).
@@ -75,6 +81,7 @@ Funcn is an AI framework for building LLM-powered applications with reusable com
 - YOUTUBE_API_KEY: YouTube Data API v3 key
 
 ## Best Practices
+
 - Type all function signatures
 - Use async for LLM calls
 - Include error handling

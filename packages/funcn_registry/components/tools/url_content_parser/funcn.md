@@ -59,7 +59,7 @@ if __name__ == "__main__":
 This tool uses structured Pydantic models for inputs and outputs:
 
 ```python
-from url_content_parser import ToolArgs, ToolResult
+from url_content_parser_tool import ToolArgs, ToolResult
 
 # Input model defines the expected parameters
 args = ToolArgs(
@@ -77,7 +77,7 @@ result: ToolResult = await tool_function(args)
 
 ```python
 from mirascope.core import llm, prompt_template
-from url_content_parser import tool_function
+from url_content_parser_tool import tool_function
 
 @llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
 @prompt_template("Use the tool to help answer: {query}")
@@ -132,7 +132,7 @@ Check the examples directory for advanced usage patterns.
 ### Error Handling
 
 ```python
-from url_content_parser import tool_function, ToolError
+from url_content_parser_tool import tool_function, ToolError
 
 try:
     result = await tool_function(args)
@@ -146,7 +146,7 @@ except ToolError as e:
 
 ```python
 import asyncio
-from url_content_parser import tool_function
+from url_content_parser_tool import tool_function
 
 # Process multiple inputs concurrently
 async def batch_process(inputs):
