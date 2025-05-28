@@ -181,6 +181,7 @@ This agent generates and optionally executes Python code in a sandboxed environm
 ---
 
 **Key Benefits:**
+
 - **Code Generation**
 - **Code Execution**
 - **Agent**
@@ -188,8 +189,10 @@ This agent generates and optionally executes Python code in a sandboxed environm
 - **Python**
 
 **Related Components:**
+
 - None
 
 **References:**
+
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)

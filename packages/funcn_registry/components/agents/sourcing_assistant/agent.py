@@ -155,19 +155,7 @@ async def sourcing_assistant_agent(
     current_date = datetime.now().strftime("%Y-%m-%d")
     specs_str = "\n".join(specifications) if specifications else "None specified"
     certs_str = ", ".join(certifications) if certifications else "None required"
-
-    # This function should be decorated with @llm.call but mypy needs the return type
-    # The actual implementation would use the LLM to create websets and return proper response
-    return SourcingSearchResponse(
-        webset_id="placeholder",
-        search_query=f"Find {product_type} suppliers",
-        sourcing_type=category,
-        criteria=[specs_str] if specs_str != "None specified" else [],
-        enrichments=["company_profiles", "contact_info"],
-        geographic_scope=location_preference or "Global",
-        estimated_suppliers=None,
-        status="pending"
-    )
+    ...
 
 
 # Convenience functions for common sourcing searches

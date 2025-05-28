@@ -139,13 +139,13 @@ Check the examples directory for advanced usage patterns.
 
 ```python
 # Using different LLM providers
-result_openai = await dataset_builder(
+result_openai = await dataset_builder_agent(
     query="your question",
     provider="openai",
     model="gpt-4o-mini"
 )
 
-result_anthropic = await dataset_builder(
+result_anthropic = await dataset_builder_agent(
     query="your question",
     provider="anthropic",
     model="claude-3-5-sonnet-20241022"
@@ -156,9 +156,9 @@ result_anthropic = await dataset_builder(
 
 ```python
 # Custom configuration example
-from dataset_builder import dataset_builder_custom
+from dataset_builder_agent import dataset_builder_agent_custom
 
-result = await dataset_builder_custom(
+result = await dataset_builder_agent_custom(
     query="your question",
     custom_param="value",
     max_retries=3,
@@ -197,7 +197,7 @@ Datasets are built asynchronously using Exa Websets. Monitor progress in real-ti
 ### Common Issues
 
 - **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add dataset_builder` to reinstall dependencies
+- **Dependency Conflicts**: Run `funcn add dataset_builder_agent` to reinstall dependencies
 - **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes

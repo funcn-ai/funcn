@@ -29,12 +29,15 @@ funcn add {component_name}
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 {registry_dependencies}
 
 **Python Dependencies:**
+
 {python_dependencies}
 
 **Environment Variables:**
+
 {environment_variables}
 
 ### Basic Usage
@@ -137,12 +140,15 @@ result = await {component_name}_custom(
 ---
 
 **Key Benefits:**
+
 {key_benefits}
 
 **Related Components:**
+
 {related_components}
 
 **References:**
+
 {references}
 """
 
@@ -171,9 +177,11 @@ funcn add {component_name}
 ### Dependencies
 
 **Python Dependencies:**
+
 {python_dependencies}
 
 **Environment Variables:**
+
 {environment_variables}
 
 ### Basic Usage
@@ -311,12 +319,15 @@ This tool follows Mirascope best practices:
 ---
 
 **Key Benefits:**
+
 {key_benefits}
 
 **Related Components:**
+
 {related_components}
 
 **References:**
+
 {references}
 """
 
@@ -345,6 +356,7 @@ funcn add {component_name}
 ### Dependencies
 
 **Python Dependencies:**
+
 {python_dependencies}
 
 ### Basic Usage
@@ -458,12 +470,15 @@ def enhanced_template(input: str): ...
 ---
 
 **Key Benefits:**
+
 {key_benefits}
 
 **Related Components:**
+
 {related_components}
 
 **References:**
+
 {references}
 """
 
@@ -492,6 +507,7 @@ funcn add {component_name}
 ### Dependencies
 
 **Python Dependencies:**
+
 {python_dependencies}
 
 ### Basic Usage
@@ -637,12 +653,15 @@ class NestedModel(BaseModel):
 ---
 
 **Key Benefits:**
+
 {key_benefits}
 
 **Related Components:**
+
 {related_components}
 
 **References:**
+
 {references}
 """
 
@@ -671,9 +690,11 @@ funcn add {component_name}
 ### Dependencies
 
 **Python Dependencies:**
+
 {python_dependencies}
 
 **Environment Variables:**
+
 {environment_variables}
 
 ### Basic Usage
@@ -835,12 +856,15 @@ results = await batch_evaluate(dataset)
 ---
 
 **Key Benefits:**
+
 {key_benefits}
 
 **Related Components:**
+
 {related_components}
 
 **References:**
+
 {references}
 """
 
@@ -867,12 +891,15 @@ funcn add {component_name}
 ### Dependencies
 
 **Registry Dependencies:**
+
 {registry_dependencies}
 
 **Python Dependencies:**
+
 {python_dependencies}
 
 **Environment Variables:**
+
 {environment_variables}
 
 ### Basic Usage
@@ -893,8 +920,8 @@ funcn add {component_name}
 
 This component follows Mirascope best practices:
 
-- Uses `@prompt_template` decorators for all prompts
-- Implements Pydantic response models for structured outputs
+- Uses appropriate decorators and patterns
+- Implements structured outputs where applicable
 - Supports async/await patterns for optimal performance
 - Compatible with multiple LLM providers
 - Includes comprehensive error handling{lilypad_support}
@@ -918,12 +945,15 @@ This component follows Mirascope best practices:
 ---
 
 **Key Benefits:**
+
 {key_benefits}
 
 **Related Components:**
+
 {related_components}
 
 **References:**
+
 {references}
 """
 

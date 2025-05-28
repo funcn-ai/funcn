@@ -70,7 +70,7 @@ async def main():
 This tool uses structured Pydantic models for inputs and outputs:
 
 ```python
-from xml_search import ToolArgs, ToolResult
+from xml_search_tool import ToolArgs, ToolResult
 
 # Input model defines the expected parameters
 args = ToolArgs(
@@ -88,7 +88,7 @@ result: ToolResult = await tool_function(args)
 
 ```python
 from mirascope.core import llm, prompt_template
-from xml_search import tool_function
+from xml_search_tool import tool_function
 
 @llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
 @prompt_template("Use the tool to help answer: {query}")
@@ -143,7 +143,7 @@ Check the examples directory for advanced usage patterns.
 ### Error Handling
 
 ```python
-from xml_search import tool_function, ToolError
+from xml_search_tool import tool_function, ToolError
 
 try:
     result = await tool_function(args)
@@ -157,7 +157,7 @@ except ToolError as e:
 
 ```python
 import asyncio
-from xml_search import tool_function
+from xml_search_tool import tool_function
 
 # Process multiple inputs concurrently
 async def batch_process(inputs):

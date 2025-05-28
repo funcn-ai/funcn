@@ -111,13 +111,13 @@ Check the examples directory for advanced usage patterns.
 
 ```python
 # Using different LLM providers
-result_openai = await sales_intelligence(
+result_openai = await sales_intelligence_agent(
     query="your question",
     provider="openai",
     model="gpt-4o-mini"
 )
 
-result_anthropic = await sales_intelligence(
+result_anthropic = await sales_intelligence_agent(
     query="your question",
     provider="anthropic",
     model="claude-3-5-sonnet-20241022"
@@ -128,9 +128,9 @@ result_anthropic = await sales_intelligence(
 
 ```python
 # Custom configuration example
-from sales_intelligence import sales_intelligence_custom
+from sales_intelligence_agent import sales_intelligence_agent_custom
 
-result = await sales_intelligence_custom(
+result = await sales_intelligence_agent_custom(
     query="your question",
     custom_param="value",
     max_retries=3,
@@ -145,7 +145,7 @@ Make sure to set your EXA_API_KEY environment variable before using this agent.
 ### Common Issues
 
 - **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add sales_intelligence` to reinstall dependencies
+- **Dependency Conflicts**: Run `funcn add sales_intelligence_agent` to reinstall dependencies
 - **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes

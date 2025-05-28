@@ -16,7 +16,7 @@ This tool is designed to work seamlessly with Mirascope agents and follows funct
 ### Installation
 
 ```bash
-funcn add firecrawl_scrape
+funcn add firecrawl_scrape_tool
 ```
 
 ### Dependencies
@@ -83,7 +83,7 @@ if __name__ == "__main__":
 This tool uses structured Pydantic models for inputs and outputs:
 
 ```python
-from firecrawl_scrape import ToolArgs, ToolResult
+from firecrawl_scrape_tool import ToolArgs, ToolResult
 
 # Input model defines the expected parameters
 args = ToolArgs(
@@ -101,7 +101,7 @@ result: ToolResult = await tool_function(args)
 
 ```python
 from mirascope.core import llm, prompt_template
-from firecrawl_scrape import tool_function
+from firecrawl_scrape_tool import tool_function
 
 @llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
 @prompt_template("Use the tool to help answer: {query}")
@@ -156,7 +156,7 @@ Check the examples directory for advanced usage patterns.
 ### Error Handling
 
 ```python
-from firecrawl_scrape import tool_function, ToolError
+from firecrawl_scrape_tool import tool_function, ToolError
 
 try:
     result = await tool_function(args)
@@ -170,7 +170,7 @@ except ToolError as e:
 
 ```python
 import asyncio
-from firecrawl_scrape import tool_function
+from firecrawl_scrape_tool import tool_function
 
 # Process multiple inputs concurrently
 async def batch_process(inputs):

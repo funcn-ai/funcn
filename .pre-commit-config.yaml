@@ -10,7 +10,7 @@ repos:
     rev: v1.15.0
     hooks:
       - id: mypy
-        args: [--ignore-missing-imports]
+        args: [--ignore-missing-imports, --explicit-package-bases]
         additional_dependencies: [tokenize-rt, types-requests, types-aiofiles, types-Markdown, types-PyYAML]
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v5.0.0

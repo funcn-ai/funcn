@@ -112,13 +112,13 @@ Check the examples directory for advanced usage patterns.
 
 ```python
 # Using different LLM providers
-result_openai = await academic_research(
+result_openai = await academic_research_agent(
     query="your question",
     provider="openai",
     model="gpt-4o-mini"
 )
 
-result_anthropic = await academic_research(
+result_anthropic = await academic_research_agent(
     query="your question",
     provider="anthropic",
     model="claude-3-5-sonnet-20241022"
@@ -129,9 +129,9 @@ result_anthropic = await academic_research(
 
 ```python
 # Custom configuration example
-from academic_research import academic_research_custom
+from academic_research_agent import academic_research_agent_custom
 
-result = await academic_research_custom(
+result = await academic_research_agent_custom(
     query="your question",
     custom_param="value",
     max_retries=3,
@@ -146,7 +146,7 @@ Make sure to set your EXA_API_KEY environment variable before using this agent.
 ### Common Issues
 
 - **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add academic_research` to reinstall dependencies
+- **Dependency Conflicts**: Run `funcn add academic_research_agent` to reinstall dependencies
 - **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes
