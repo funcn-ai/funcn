@@ -1,9 +1,7 @@
 # game_playing_catan
-
 > Multi-model turn-based Settlers of Catan game agent supporting AI vs AI, human vs AI, or mixed gameplay with resource management, trading, and strategic building
 
 **Version**: 0.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -24,14 +22,17 @@ funcn add game_playing_catan
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - None
 
 **Python Dependencies:**
+
 - `mirascope>=1.24.0`
 - `pydantic>=2.0.0`
 - `asyncio`
 
 **Environment Variables:**
+
 - `OPENAI_API_KEY`: OpenAI API key for GPT models (Optional)
 - `ANTHROPIC_API_KEY`: Anthropic API key for Claude models (Optional)
 - `GOOGLE_API_KEY`: Google API key for Gemini models (Optional)
@@ -132,9 +133,24 @@ async for update in catan_game_stream(game_state, ai_players):
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - None
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -146,21 +162,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -182,37 +183,6 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await game_playing_catan(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await game_playing_catan(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from game_playing_catan import game_playing_catan_custom
-
-result = await game_playing_catan_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 To use this agent:
@@ -224,23 +194,17 @@ To use this agent:
 5. The agent handles dice rolls, resource collection, trading, and building
 
 For all-AI games:
+
 - Set all players to PlayerType.AI with different models
 - Each AI will use its own strategy and model for decisions
 - Watch different AI strategies compete!
 
 For human participation:
+
 - Set PlayerType.HUMAN for human players
 - The agent will prompt for input during human turns
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add game_playing_catan` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
 ## Migration Notes
-
-
 
 ---
 
@@ -260,3 +224,40 @@ For human participation:
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add game_playing_catan` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from game_playing_catan import game_playing_catan_custom
+
+result = await game_playing_catan_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await game_playing_catan(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await game_playing_catan(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

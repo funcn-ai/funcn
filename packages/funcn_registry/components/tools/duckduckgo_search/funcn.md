@@ -1,9 +1,7 @@
 # duckduckgo_search_tool
-
 > DuckDuckGo web search tools with clean, structured results. Provides comprehensive search coverage using the duckduckgo-search library.
 
 **Version**: 0.2.0 | **Type**: tool | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -76,37 +74,48 @@ result: ToolResult = await tool_function(args)
 
 ## Integration with Agents
 
-### Using with Mirascope Agents
+## Integration with Mirascope
 
-```python
-from mirascope.core import llm, prompt_template
-from duckduckgo_search_tool import tool_function
+This tool follows Mirascope best practices:
 
-@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
-@prompt_template("Use the tool to help answer: {query}")
-def agent_with_tool(query: str): ...
-
-response = agent_with_tool("your question")
-if response.tool:
-    result = response.tool.call()
-    print(result)
-```
-
-### Tool Chaining
-
-```python
-# Chain multiple tools together
-from funcn_registry.tools import tool1, tool2
-
-async def chained_workflow(input_data):
-    result1 = await tool1(input_data)
-    result2 = await tool2(result1.output)
-    return result2
-```
+- Uses Pydantic models for structured inputs and outputs
+- Supports async/await patterns for optimal performance
+- Compatible with all Mirascope LLM providers
+- Includes comprehensive error handling
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
 
 ## API Reference
 
 See component source code for detailed API documentation.
+
+## Advanced Examples
+
+Check the examples directory for advanced usage patterns.
+
+## Troubleshooting
+
+You can now use DuckDuckGo search tools in your agents for comprehensive web searches. The tool returns structured results with unified models that work seamlessly with other search providers. For URL content parsing, use the separate 'url_content_parser' tool.
+
+## Migration Notes
+
+---
+
+**Key Benefits:**
+
+- **Duckduckgo**
+- **Web Search**
+- **Search Engine**
+- **Tools**
+
+**Related Components:**
+
+- None
+
+**References:**
+
+- [Mirascope Documentation](https://mirascope.com)
+- [Funcn Registry](https://github.com/funcn-ai/funcn)
 
 ### Function Signature
 
@@ -128,9 +137,11 @@ async def tool_function(args: ToolArgs) -> ToolResult:
     """
 ```
 
-## Advanced Examples
+### Common Issues
 
-Check the examples directory for advanced usage patterns.
+- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
+- **API Limits**: Implement rate limiting and retry logic for external APIs
+- **Timeout Issues**: Adjust timeout settings for slow operations
 
 ### Error Handling
 
@@ -158,43 +169,30 @@ async def batch_process(inputs):
     return results
 ```
 
-## Integration with Mirascope
+### Tool Chaining
 
-This tool follows Mirascope best practices:
+```python
+# Chain multiple tools together
+from funcn_registry.tools import tool1, tool2
 
-- Uses Pydantic models for structured inputs and outputs
-- Supports async/await patterns for optimal performance
-- Compatible with all Mirascope LLM providers
-- Includes comprehensive error handling
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
+async def chained_workflow(input_data):
+    result1 = await tool1(input_data)
+    result2 = await tool2(result1.output)
+    return result2
+```
 
-## Troubleshooting
+### Using with Mirascope Agents
 
-You can now use DuckDuckGo search tools in your agents for comprehensive web searches. The tool returns structured results with unified models that work seamlessly with other search providers. For URL content parsing, use the separate 'url_content_parser' tool.
+```python
+from mirascope.core import llm, prompt_template
+from duckduckgo_search_tool import tool_function
 
-### Common Issues
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
+@prompt_template("Use the tool to help answer: {query}")
+def agent_with_tool(query: str): ...
 
-- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
-- **API Limits**: Implement rate limiting and retry logic for external APIs
-- **Timeout Issues**: Adjust timeout settings for slow operations
-
-## Migration Notes
-
----
-
-**Key Benefits:**
-
-- **Duckduckgo**
-- **Web Search**
-- **Search Engine**
-- **Tools**
-
-**Related Components:**
-
-- None
-
-**References:**
-
-- [Mirascope Documentation](https://mirascope.com)
-- [Funcn Registry](https://github.com/funcn-ai/funcn)
+response = agent_with_tool("your question")
+if response.tool:
+    result = response.tool.call()
+    print(result)
+```

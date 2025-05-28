@@ -1,9 +1,7 @@
 # dynamic_learning_path
-
 > Generates personalized, adaptive learning paths based on individual skills, goals, and learning preferences with comprehensive resource curation
 
 **Version**: 0.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -24,14 +22,17 @@ funcn add dynamic_learning_path
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - None
 
 **Python Dependencies:**
+
 - `mirascope>=1.24.0`
 - `pydantic>=2.0.0`
 - `asyncio`
 
 **Environment Variables:**
+
 - `OPENAI_API_KEY`: OpenAI API key for LLM calls (**Required**)
 
 ### Basic Usage
@@ -73,9 +74,24 @@ async for update in dynamic_learning_path_stream(
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - None
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -87,21 +103,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -123,50 +124,11 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await dynamic_learning_path(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await dynamic_learning_path(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from dynamic_learning_path import dynamic_learning_path_custom
-
-result = await dynamic_learning_path_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 The Dynamic Learning Path Generator creates personalized learning journeys. Configure your OpenAI API key and consider your learners' backgrounds, goals, and constraints for optimal path generation.
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add dynamic_learning_path` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
 ## Migration Notes
-
-
 
 ---
 
@@ -186,3 +148,40 @@ The Dynamic Learning Path Generator creates personalized learning journeys. Conf
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add dynamic_learning_path` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from dynamic_learning_path import dynamic_learning_path_custom
+
+result = await dynamic_learning_path_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await dynamic_learning_path(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await dynamic_learning_path(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

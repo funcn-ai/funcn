@@ -1,9 +1,7 @@
 # code_generation_execution_agent
-
 > Agent for generating and safely executing Python code. Analyzes code for safety, supports multiple safety levels, and provides recommendations for improvement. Features sandboxed execution environment and comprehensive code analysis.
 
 **Version**: 0.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -24,14 +22,17 @@ funcn add code_generation_execution_agent
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - None
 
 **Python Dependencies:**
+
 - `mirascope` >=1.24.0
 - `pydantic` >=2.0.0
 - `lilypad` >=0.1.0
 
 **Environment Variables:**
+
 - `OPENAI_API_KEY`: API key for OpenAI services (if using OpenAI provider). (Optional)
 - `ANTHROPIC_API_KEY`: API key for Anthropic services (if using Anthropic provider). (Optional)
 - `GOOGLE_API_KEY`: API key for Google services (if using Google provider). (Optional)
@@ -81,11 +82,26 @@ if __name__ == "__main__":
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - `provider`: `openai`
 - `model`: `gpt-4o-mini`
 - `safety_level`: `moderate`
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -97,21 +113,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -133,50 +134,11 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await code_generation_execution_agent(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await code_generation_execution_agent(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from code_generation_execution_agent import code_generation_execution_agent_custom
-
-result = await code_generation_execution_agent_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 This agent generates and optionally executes Python code in a sandboxed environment. Configure safety levels: 'strict' (limited imports, no file/network/system operations), 'moderate' (no system calls), or 'permissive' (fewer restrictions). The agent analyzes code for safety concerns before execution. Set your preferred LLM provider's API key.
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add code_generation_execution_agent` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
 ## Migration Notes
-
-
 
 ---
 
@@ -196,3 +158,40 @@ This agent generates and optionally executes Python code in a sandboxed environm
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add code_generation_execution_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from code_generation_execution_agent import code_generation_execution_agent_custom
+
+result = await code_generation_execution_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await code_generation_execution_agent(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await code_generation_execution_agent(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

@@ -1,9 +1,7 @@
 # dnd_5e_api
-
 > A comprehensive tool for accessing official D&D 5th Edition content via the D&D 5e API. Provides detailed information about spells, classes, monsters, equipment, races, feats, skills, conditions, magic items, and more. Includes advanced search with filters and support for all SRD content types.
 
 **Version**: 0.2.0 | **Type**: tool | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -22,10 +20,12 @@ funcn add dnd_5e_api
 ### Dependencies
 
 **Python Dependencies:**
+
 - `httpx>=0.27.0`
 - `pydantic>=2.0.0`
 
 **Environment Variables:**
+
 - None required
 
 ### Basic Usage
@@ -111,37 +111,81 @@ result: ToolResult = await tool_function(args)
 
 ## Integration with Agents
 
-### Using with Mirascope Agents
+## Integration with Mirascope
 
-```python
-from mirascope.core import llm, prompt_template
-from dnd_5e_api import tool_function
+This tool follows Mirascope best practices:
 
-@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
-@prompt_template("Use the tool to help answer: {query}")
-def agent_with_tool(query: str): ...
-
-response = agent_with_tool("your question")
-if response.tool:
-    result = response.tool.call()
-    print(result)
-```
-
-### Tool Chaining
-
-```python
-# Chain multiple tools together
-from funcn_registry.tools import tool1, tool2
-
-async def chained_workflow(input_data):
-    result1 = await tool1(input_data)
-    result2 = await tool2(result1.output)
-    return result2
-```
+- Uses Pydantic models for structured inputs and outputs
+- Supports async/await patterns for optimal performance
+- Compatible with all Mirascope LLM providers
+- Includes comprehensive error handling
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
 
 ## API Reference
 
 See component source code for detailed API documentation.
+
+## Advanced Examples
+
+Check the examples directory for advanced usage patterns.
+
+## Troubleshooting
+
+This enhanced tool provides access to:
+
+**Core Content:**
+
+- **Spells**: Complete spell information with schools, components, damage, DC, area of effect
+- **Classes**: Full class details with proficiencies, equipment, multiclassing, spellcasting
+- **Monsters**: Complete stat blocks with abilities, actions, resistances, legendary actions
+- **Equipment**: Weapons, armor, and gear with properties, damage, AC, special features
+- **Races**: Racial abilities, bonuses, traits, languages, and subraces
+
+**Additional Content:**
+
+- **Feats**: Prerequisites and descriptions
+- **Skills**: Ability associations and descriptions
+- **Conditions**: Full condition effects (poisoned, stunned, etc.)
+- **Magic Items**: Rarity, variants, and magical properties
+- **Ability Scores**: Detailed ability score information
+- **Alignments**: Alignment descriptions and abbreviations
+- **Languages**: Language details
+- **Proficiencies**: Proficiency information
+- **Damage Types**: Damage type descriptions
+- **Weapon Properties**: Property explanations
+
+**Advanced Features:**
+
+- Filtered searches for spells (by level, school, name)
+- Filtered searches for monsters (by CR, type, size)
+- Support for all valid D&D 5e API content types
+- Proper error handling with descriptive messages
+- Type-safe models for all content
+
+The tool uses the official D&D 5e API (https://www.dnd5eapi.co/) which provides SRD content.
+No API key is required. All functions are async and should be awaited.
+
+## Migration Notes
+
+---
+
+**Key Benefits:**
+
+- **Dnd**
+- **5E**
+- **Dungeons-And-Dragons**
+- **Rpg**
+- **Tabletop**
+
+**Related Components:**
+
+- None
+
+**References:**
+
+- [Mirascope Documentation](https://mirascope.com)
+- [Funcn Registry](https://github.com/funcn-ai/funcn)
 
 ### Function Signature
 
@@ -163,9 +207,11 @@ async def tool_function(args: ToolArgs) -> ToolResult:
     """
 ```
 
-## Advanced Examples
+### Common Issues
 
-Check the examples directory for advanced usage patterns.
+- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
+- **API Limits**: Implement rate limiting and retry logic for external APIs
+- **Timeout Issues**: Adjust timeout settings for slow operations
 
 ### Error Handling
 
@@ -193,75 +239,30 @@ async def batch_process(inputs):
     return results
 ```
 
-## Integration with Mirascope
+### Tool Chaining
 
-This tool follows Mirascope best practices:
+```python
+# Chain multiple tools together
+from funcn_registry.tools import tool1, tool2
 
-- Uses Pydantic models for structured inputs and outputs
-- Supports async/await patterns for optimal performance
-- Compatible with all Mirascope LLM providers
-- Includes comprehensive error handling
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
+async def chained_workflow(input_data):
+    result1 = await tool1(input_data)
+    result2 = await tool2(result1.output)
+    return result2
+```
 
-## Troubleshooting
+### Using with Mirascope Agents
 
-This enhanced tool provides access to:
+```python
+from mirascope.core import llm, prompt_template
+from dnd_5e_api import tool_function
 
-**Core Content:**
-- **Spells**: Complete spell information with schools, components, damage, DC, area of effect
-- **Classes**: Full class details with proficiencies, equipment, multiclassing, spellcasting
-- **Monsters**: Complete stat blocks with abilities, actions, resistances, legendary actions
-- **Equipment**: Weapons, armor, and gear with properties, damage, AC, special features
-- **Races**: Racial abilities, bonuses, traits, languages, and subraces
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
+@prompt_template("Use the tool to help answer: {query}")
+def agent_with_tool(query: str): ...
 
-**Additional Content:**
-- **Feats**: Prerequisites and descriptions
-- **Skills**: Ability associations and descriptions
-- **Conditions**: Full condition effects (poisoned, stunned, etc.)
-- **Magic Items**: Rarity, variants, and magical properties
-- **Ability Scores**: Detailed ability score information
-- **Alignments**: Alignment descriptions and abbreviations
-- **Languages**: Language details
-- **Proficiencies**: Proficiency information
-- **Damage Types**: Damage type descriptions
-- **Weapon Properties**: Property explanations
-
-**Advanced Features:**
-- Filtered searches for spells (by level, school, name)
-- Filtered searches for monsters (by CR, type, size)
-- Support for all valid D&D 5e API content types
-- Proper error handling with descriptive messages
-- Type-safe models for all content
-
-The tool uses the official D&D 5e API (https://www.dnd5eapi.co/) which provides SRD content.
-No API key is required. All functions are async and should be awaited.
-
-### Common Issues
-
-- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
-- **API Limits**: Implement rate limiting and retry logic for external APIs
-- **Timeout Issues**: Adjust timeout settings for slow operations
-
-## Migration Notes
-
-
-
----
-
-**Key Benefits:**
-
-- **Dnd**
-- **5E**
-- **Dungeons-And-Dragons**
-- **Rpg**
-- **Tabletop**
-
-**Related Components:**
-
-- None
-
-**References:**
-
-- [Mirascope Documentation](https://mirascope.com)
-- [Funcn Registry](https://github.com/funcn-ai/funcn)
+response = agent_with_tool("your question")
+if response.tool:
+    result = response.tool.call()
+    print(result)
+```

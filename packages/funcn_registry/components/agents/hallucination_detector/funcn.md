@@ -1,9 +1,7 @@
 # hallucination_detector_agent
-
 > AI-powered hallucination detection agent that verifies factual claims using Exa search
 
 **Version**: 0.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -57,12 +55,27 @@ async def main():
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - `provider`: `openai`
 - `model`: `gpt-4o-mini`
 - `search_type`: `neural`
 - `max_sources_per_claim`: `5`
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -74,21 +87,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -110,37 +108,6 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await hallucination_detector_agent(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await hallucination_detector_agent(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from hallucination_detector_agent import hallucination_detector_agent_custom
-
-result = await hallucination_detector_agent_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 You can now import the hallucination detector with `from ai_agents.hallucination_detector import detect_hallucinations`. Make sure to set your EXA_API_KEY and OPENAI_API_KEY environment variables. The agent provides:
@@ -150,12 +117,6 @@ You can now import the hallucination detector with `from ai_agents.hallucination
 3. `verify_single_statement()` - Check individual claims
 
 For optional tracing, install lilypad: `pip install lilypad`.
-
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add hallucination_detector_agent` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes
 
@@ -177,3 +138,40 @@ For optional tracing, install lilypad: `pip install lilypad`.
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add hallucination_detector_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from hallucination_detector_agent import hallucination_detector_agent_custom
+
+result = await hallucination_detector_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await hallucination_detector_agent(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await hallucination_detector_agent(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

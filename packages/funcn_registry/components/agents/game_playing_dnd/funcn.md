@@ -1,9 +1,7 @@
 # dnd_game_master
-
 > A comprehensive D&D 5e game master agent with full rules enforcement and persistent campaign state. Features SQLite-based state persistence for multi-session campaigns, fair dice rolling with modifiers, complete D&D 5e API integration, multi-model orchestration, turn-based combat with positioning, spell slot tracking, condition management, death saves, XP/leveling, exhaustion, skill proficiencies, inventory management, and dynamic roleplay with human-in-the-loop support.
 
 **Version**: 1.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -155,9 +153,24 @@ async for update in dnd_game_master_stream(
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - None
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -169,21 +182,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -205,37 +203,6 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await dnd_game_master(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await dnd_game_master(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from dnd_game_master import dnd_game_master_custom
-
-result = await dnd_game_master_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 After adding this component:
@@ -245,6 +212,7 @@ After adding this component:
 2. **Create characters** using the helper function or custom CharacterSheet objects
 
 3. **Key features**:
+
    - **NEW: SQLite state persistence** for multi-session campaigns
    - **NEW: Auto-save functionality** with configurable intervals
    - **NEW: Session management** to continue previous games
@@ -265,6 +233,7 @@ After adding this component:
    - Human-in-the-loop with interrupt capability (Ctrl+C)
 
 4. **State persistence**:
+
    - Campaigns saved in `campaigns/` directory
    - List sessions: `await list_campaign_sessions("Campaign Name")`
    - Continue session: Set `load_session_id` parameter
@@ -272,6 +241,7 @@ After adding this component:
    - Backups in `campaigns/backups/`
 
 5. **Combat features**:
+
    - Initiative tracking and turn order
    - Action economy (action, bonus action, reaction, movement)
    - Position-based combat on grid
@@ -281,6 +251,7 @@ After adding this component:
    - Encounter difficulty calculations
 
 6. **Customization options**:
+
    - Campaign name, tone, and DM style
    - Session length and enabled features
    - Initial scene and quest hooks
@@ -289,18 +260,13 @@ After adding this component:
    - Persistence settings (enable/disable, save interval)
 
 7. **During gameplay**:
+
    - Human players get prompts with timeout
    - AI players act in character based on personality
    - DM enforces all D&D 5e rules consistently
    - All dice rolls show transparent results
    - Resources are tracked automatically
    - Progress auto-saved periodically
-
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add dnd_game_master` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes
 
@@ -324,3 +290,40 @@ After adding this component:
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add dnd_game_master` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from dnd_game_master import dnd_game_master_custom
+
+result = await dnd_game_master_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await dnd_game_master(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await dnd_game_master(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

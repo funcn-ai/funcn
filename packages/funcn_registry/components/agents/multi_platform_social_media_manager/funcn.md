@@ -1,9 +1,7 @@
 # multi_platform_social_media_manager
-
 > Enhanced multi-platform social media campaign manager with trend analysis, engagement prediction, and real-time adaptation capabilities for comprehensive campaign orchestration
 
 **Version**: 0.2.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -24,14 +22,17 @@ funcn add multi_platform_social_media_manager
 This agent requires the following dependencies:
 
 **Registry Dependencies:**
+
 - None
 
 **Python Dependencies:**
+
 - `mirascope>=1.24.0`
 - `pydantic>=2.0.0`
 - `asyncio`
 
 **Environment Variables:**
+
 - `OPENAI_API_KEY`: OpenAI API key for LLM calls (**Required**)
 
 ### Basic Usage
@@ -110,9 +111,24 @@ for protocol in result.crisis_management:
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - None
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -124,21 +140,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -160,50 +161,11 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await multi_platform_social_media_manager(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await multi_platform_social_media_manager(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from multi_platform_social_media_manager import multi_platform_social_media_manager_custom
-
-result = await multi_platform_social_media_manager_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 The Multi-Platform Social Media Manager helps you create comprehensive campaigns with trend analysis and engagement predictions. Configure your OpenAI API key and customize platform strategies based on your brand's unique voice and goals. The agent includes crisis management protocols and real-time adaptation capabilities.
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add multi_platform_social_media_manager` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
 ## Migration Notes
-
-
 
 ---
 
@@ -223,3 +185,40 @@ The Multi-Platform Social Media Manager helps you create comprehensive campaigns
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add multi_platform_social_media_manager` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from multi_platform_social_media_manager import multi_platform_social_media_manager_custom
+
+result = await multi_platform_social_media_manager_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await multi_platform_social_media_manager(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await multi_platform_social_media_manager(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

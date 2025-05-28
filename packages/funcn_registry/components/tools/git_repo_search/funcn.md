@@ -1,9 +1,7 @@
 # git_repo_search_tool
-
 > Git repository search tool for searching code, files, and commits in both local Git repositories and GitHub. Supports pattern matching, file filtering, and commit history search.
 
 **Version**: 0.1.0 | **Type**: tool | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -115,37 +113,74 @@ result: ToolResult = await tool_function(args)
 
 ## Integration with Agents
 
-### Using with Mirascope Agents
+## Integration with Mirascope
 
-```python
-from mirascope.core import llm, prompt_template
-from git_repo_search_tool import tool_function
+This tool follows Mirascope best practices:
 
-@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
-@prompt_template("Use the tool to help answer: {query}")
-def agent_with_tool(query: str): ...
-
-response = agent_with_tool("your question")
-if response.tool:
-    result = response.tool.call()
-    print(result)
-```
-
-### Tool Chaining
-
-```python
-# Chain multiple tools together
-from funcn_registry.tools import tool1, tool2
-
-async def chained_workflow(input_data):
-    result1 = await tool1(input_data)
-    result2 = await tool2(result1.output)
-    return result2
-```
+- Uses Pydantic models for structured inputs and outputs
+- Supports async/await patterns for optimal performance
+- Compatible with all Mirascope LLM providers
+- Includes comprehensive error handling
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
 
 ## API Reference
 
 See component source code for detailed API documentation.
+
+## Advanced Examples
+
+Check the examples directory for advanced usage patterns.
+
+## Troubleshooting
+
+The Git repository search tool is now available for searching within Git repositories. Features:
+
+1. **Multi-source support**: Search both local repositories and GitHub
+2. **Search types**:
+
+   - `code`: Search for code patterns within files
+   - `file`: Search for files by name
+   - `commit`: Search commit messages
+   - `pattern`: Advanced pattern matching
+
+3. **Advanced options**:
+
+   - File pattern filtering (e.g., `*.py`, `*.js`)
+   - Regular expression support
+   - Case sensitivity control
+   - Context lines for code matches
+
+4. **GitHub integration**: Set GITHUB_TOKEN for GitHub repository searches
+
+Use cases:
+
+- Finding specific code patterns across a codebase
+- Locating files by name patterns
+- Searching commit history for specific changes
+- Code review and analysis
+- Documentation searches
+
+## Migration Notes
+
+---
+
+**Key Benefits:**
+
+- **Git**
+- **Github**
+- **Code-Search**
+- **Repository**
+- **Version-Control**
+
+**Related Components:**
+
+- None
+
+**References:**
+
+- [Mirascope Documentation](https://mirascope.com)
+- [Funcn Registry](https://github.com/funcn-ai/funcn)
 
 ### Function Signature
 
@@ -167,9 +202,11 @@ async def tool_function(args: ToolArgs) -> ToolResult:
     """
 ```
 
-## Advanced Examples
+### Common Issues
 
-Check the examples directory for advanced usage patterns.
+- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
+- **API Limits**: Implement rate limiting and retry logic for external APIs
+- **Timeout Issues**: Adjust timeout settings for slow operations
 
 ### Error Handling
 
@@ -197,65 +234,30 @@ async def batch_process(inputs):
     return results
 ```
 
-## Integration with Mirascope
+### Tool Chaining
 
-This tool follows Mirascope best practices:
+```python
+# Chain multiple tools together
+from funcn_registry.tools import tool1, tool2
 
-- Uses Pydantic models for structured inputs and outputs
-- Supports async/await patterns for optimal performance
-- Compatible with all Mirascope LLM providers
-- Includes comprehensive error handling
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
+async def chained_workflow(input_data):
+    result1 = await tool1(input_data)
+    result2 = await tool2(result1.output)
+    return result2
+```
 
-## Troubleshooting
+### Using with Mirascope Agents
 
-The Git repository search tool is now available for searching within Git repositories. Features:
+```python
+from mirascope.core import llm, prompt_template
+from git_repo_search_tool import tool_function
 
-1. **Multi-source support**: Search both local repositories and GitHub
-2. **Search types**:
-   - `code`: Search for code patterns within files
-   - `file`: Search for files by name
-   - `commit`: Search commit messages
-   - `pattern`: Advanced pattern matching
-3. **Advanced options**:
-   - File pattern filtering (e.g., `*.py`, `*.js`)
-   - Regular expression support
-   - Case sensitivity control
-   - Context lines for code matches
-4. **GitHub integration**: Set GITHUB_TOKEN for GitHub repository searches
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
+@prompt_template("Use the tool to help answer: {query}")
+def agent_with_tool(query: str): ...
 
-Use cases:
-
-- Finding specific code patterns across a codebase
-- Locating files by name patterns
-- Searching commit history for specific changes
-- Code review and analysis
-- Documentation searches
-
-### Common Issues
-
-- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
-- **API Limits**: Implement rate limiting and retry logic for external APIs
-- **Timeout Issues**: Adjust timeout settings for slow operations
-
-## Migration Notes
-
----
-
-**Key Benefits:**
-
-- **Git**
-- **Github**
-- **Code-Search**
-- **Repository**
-- **Version-Control**
-
-**Related Components:**
-
-- None
-
-**References:**
-
-- [Mirascope Documentation](https://mirascope.com)
-- [Funcn Registry](https://github.com/funcn-ai/funcn)
+response = agent_with_tool("your question")
+if response.tool:
+    result = response.tool.call()
+    print(result)
+```

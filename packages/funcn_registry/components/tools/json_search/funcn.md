@@ -1,9 +1,7 @@
 # json_search_tool
-
 > JSON search tool for searching and querying within JSON files and data structures. Supports JSONPath expressions, fuzzy matching, and searching in both keys and values.
 
 **Version**: 0.1.0 | **Type**: tool | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -119,37 +117,70 @@ result: ToolResult = await tool_function(args)
 
 ## Integration with Agents
 
-### Using with Mirascope Agents
+## Integration with Mirascope
 
-```python
-from mirascope.core import llm, prompt_template
-from json_search_tool import tool_function
+This tool follows Mirascope best practices:
 
-@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
-@prompt_template("Use the tool to help answer: {query}")
-def agent_with_tool(query: str): ...
-
-response = agent_with_tool("your question")
-if response.tool:
-    result = response.tool.call()
-    print(result)
-```
-
-### Tool Chaining
-
-```python
-# Chain multiple tools together
-from funcn_registry.tools import tool1, tool2
-
-async def chained_workflow(input_data):
-    result1 = await tool1(input_data)
-    result2 = await tool2(result1.output)
-    return result2
-```
+- Uses Pydantic models for structured inputs and outputs
+- Supports async/await patterns for optimal performance
+- Compatible with all Mirascope LLM providers
+- Includes comprehensive error handling
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
 
 ## API Reference
 
 See component source code for detailed API documentation.
+
+## Advanced Examples
+
+Check the examples directory for advanced usage patterns.
+
+## Troubleshooting
+
+The JSON search tool is now available for searching within JSON files and data structures. Key features:
+
+1. **JSONPath expressions**: Use standard JSONPath syntax to narrow search scope
+2. **Fuzzy matching**: Find approximate matches with configurable threshold
+3. **Key/value searching**: Search in object keys, values, or both
+4. **Direct data or file input**: Search JSON files or provide data directly
+5. **Context extraction**: Get the parent object containing matches
+6. **Async operation**: Non-blocking searches for better performance
+
+JSONPath examples:
+
+- `$.users[*].name` - All user names
+- `$.data[?(@.price > 100)]` - Items with price > 100
+- `$..email` - All email fields at any depth
+- `$.config.database.*` - All database config values
+
+This tool is ideal for:
+
+- Configuration file searching
+- API response analysis
+- Log file investigation
+- Data structure exploration
+
+## Migration Notes
+
+---
+
+**Key Benefits:**
+
+- **Json**
+- **Search**
+- **Jsonpath**
+- **Query**
+- **Fuzzy-Matching**
+
+**Related Components:**
+
+- None
+
+**References:**
+
+- [Mirascope Documentation](https://mirascope.com)
+- [Funcn Registry](https://github.com/funcn-ai/funcn)
 
 ### Function Signature
 
@@ -171,9 +202,11 @@ async def tool_function(args: ToolArgs) -> ToolResult:
     """
 ```
 
-## Advanced Examples
+### Common Issues
 
-Check the examples directory for advanced usage patterns.
+- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
+- **API Limits**: Implement rate limiting and retry logic for external APIs
+- **Timeout Issues**: Adjust timeout settings for slow operations
 
 ### Error Handling
 
@@ -201,65 +234,30 @@ async def batch_process(inputs):
     return results
 ```
 
-## Integration with Mirascope
+### Tool Chaining
 
-This tool follows Mirascope best practices:
+```python
+# Chain multiple tools together
+from funcn_registry.tools import tool1, tool2
 
-- Uses Pydantic models for structured inputs and outputs
-- Supports async/await patterns for optimal performance
-- Compatible with all Mirascope LLM providers
-- Includes comprehensive error handling
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
+async def chained_workflow(input_data):
+    result1 = await tool1(input_data)
+    result2 = await tool2(result1.output)
+    return result2
+```
 
-## Troubleshooting
+### Using with Mirascope Agents
 
-The JSON search tool is now available for searching within JSON files and data structures. Key features:
+```python
+from mirascope.core import llm, prompt_template
+from json_search_tool import tool_function
 
-1. **JSONPath expressions**: Use standard JSONPath syntax to narrow search scope
-2. **Fuzzy matching**: Find approximate matches with configurable threshold
-3. **Key/value searching**: Search in object keys, values, or both
-4. **Direct data or file input**: Search JSON files or provide data directly
-5. **Context extraction**: Get the parent object containing matches
-6. **Async operation**: Non-blocking searches for better performance
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
+@prompt_template("Use the tool to help answer: {query}")
+def agent_with_tool(query: str): ...
 
-JSONPath examples:
-
-- `$.users[*].name` - All user names
-- `$.data[?(@.price > 100)]` - Items with price > 100
-- `$..email` - All email fields at any depth
-- `$.config.database.*` - All database config values
-
-This tool is ideal for:
-
-- Configuration file searching
-- API response analysis
-- Log file investigation
-- Data structure exploration
-
-### Common Issues
-
-- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
-- **API Limits**: Implement rate limiting and retry logic for external APIs
-- **Timeout Issues**: Adjust timeout settings for slow operations
-
-## Migration Notes
-
----
-
-**Key Benefits:**
-
-- **Json**
-- **Search**
-- **Jsonpath**
-- **Query**
-- **Fuzzy-Matching**
-
-**Related Components:**
-
-- None
-
-**References:**
-
-- [Mirascope Documentation](https://mirascope.com)
-- [Funcn Registry](https://github.com/funcn-ai/funcn)
+response = agent_with_tool("your question")
+if response.tool:
+    result = response.tool.call()
+    print(result)
+```
