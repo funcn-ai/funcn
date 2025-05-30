@@ -1,0 +1,56 @@
+{
+  "$schema": "https://funcn.ai/schemas/component.json",
+  "name": "prompt_engineering_optimizer",
+  "version": "0.1.0",
+  "description": "Advanced prompt optimization agent that analyzes, generates variants, performs A/B testing, and delivers production-ready optimized prompts with comprehensive documentation",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Funcn Project",
+      "email": "info@funcn.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0",
+    "asyncio"
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "OpenAI API key for LLM calls",
+      "required": true
+    }
+  ],
+  "example_usage": "```python\nfrom prompt_engineering_optimizer import prompt_engineering_optimizer, prompt_engineering_optimizer_stream\n\n# Example 1: Optimize a simple prompt\noriginal_prompt = \"Write a summary of the text\"\n\nresult = await prompt_engineering_optimizer(\n    prompt=original_prompt,\n    task_context=\"Summarizing technical documentation for developers\",\n    target_audience=\"Software engineers\",\n    success_criteria=\"Clear, concise summaries that highlight key technical points\",\n    test_inputs=[\n        \"Long technical document about microservices architecture...\",\n        \"API documentation for a REST service...\"\n    ],\n    optimization_goals=\"Improve clarity and ensure technical accuracy\"\n)\n\nprint(f\"Original Score: {result.optimization.analysis.overall_score:.2f}\")\nprint(f\"Performance Improvement: +{result.performance_improvement:.1f}%\")\nprint(f\"\\nOptimized Prompt:\\n{result.final_prompt}\")\n\n# Example 2: Stream the optimization process\nasync for update in prompt_engineering_optimizer_stream(\n    prompt=\"Generate code based on requirements\",\n    task_context=\"Code generation for Python applications\",\n    enable_ab_testing=True\n):\n    print(update, end='')\n\n# Example 3: Advanced optimization with multiple test cases\ncomplex_prompt = \"\"\"\nYou are an AI assistant. Help the user with their request.\nBe helpful and provide good answers.\n\"\"\"\n\nresult = await prompt_engineering_optimizer(\n    prompt=complex_prompt,\n    task_context=\"General-purpose AI assistant for customer support\",\n    target_audience=\"Non-technical users\",\n    success_criteria=\"Accurate, helpful, and empathetic responses\",\n    test_inputs=[\n        \"How do I reset my password?\",\n        \"I'm having trouble with my order\",\n        \"Can you explain how this works?\"\n    ],\n    optimization_goals=\"Improve specificity, add structure, enhance clarity\",\n    max_variants=6,\n    enable_ab_testing=True\n)\n\n# Access detailed results\nfor variant in result.optimization.variants:\n    print(f\"\\nVariant: {variant.variant_name}\")\n    print(f\"Techniques: {', '.join([t.value for t in variant.techniques_applied])}\")\n    print(f\"Performance: {variant.estimated_performance:.2f}\")\n```",
+  "post_add_instructions": "The Prompt Engineering Optimizer helps you create high-performance prompts through systematic analysis and testing. Configure your OpenAI API key and provide sample test inputs for best results. The agent will generate multiple optimized variants and help you choose the best one based on empirical testing.",
+  "tags": [
+    "prompt-engineering",
+    "optimization",
+    "a-b-testing",
+    "performance",
+    "analysis",
+    "testing"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

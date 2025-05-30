@@ -146,24 +146,7 @@ async def market_intelligence_agent(
     current_date = datetime.now().strftime("%Y-%m-%d")
     investor_criteria_str = "\n".join(investor_criteria) if investor_criteria else "None specified"
     signal_keywords_str = ", ".join(signal_keywords) if signal_keywords else "None specified"
-
-    # This function should be decorated with @llm.call but mypy needs the return type
-    # The actual implementation would use the LLM to create websets and return proper response
-    return MarketIntelligenceResponse(
-        webset_id="placeholder",
-        search_focus=f"{segment or 'Market'} intelligence",
-        search_query=f"Track {company_type or 'companies'} in {segment or 'all segments'}",
-        filters_applied=[
-            f"Segment: {segment}" if segment else "",
-            f"Stage: {investment_stage}" if investment_stage else "",
-            f"Time: {time_period}" if time_period else "",
-            f"Location: {geographic_focus}" if geographic_focus else ""
-        ],
-        enrichments=["company_profiles", "financial_data", "news_coverage"],
-        signal_types=signal_keywords or ["funding", "leadership_changes", "market_trends"],
-        estimated_results=None,
-        status="pending"
-    )
+    ...
 
 
 # Convenience functions for common market intelligence searches

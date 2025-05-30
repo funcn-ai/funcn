@@ -57,6 +57,7 @@ def generate(
     component: str | None = typer.Option(None, "--component", "-c", help="Generate docs for specific component"),
     output_dir: str | None = typer.Option(None, "--output", "-o", help="Output directory (default: project root)"),
     component_type: str | None = typer.Option(None, "--type", "-t", help="Generate docs for components of specific type (agent, tool, prompt_template, response_model, eval, example)"),
+    force_regenerate: bool = typer.Option(False, "--force-regenerate", "-f", help="Force complete regeneration of funcn.md files, overwriting any user customizations"),
 ):
     """Generate editor-specific rule files and documentation."""
 
@@ -65,11 +66,11 @@ def generate(
         raise typer.Exit(1)
 
     if component:
-        _generate_component_docs(component, editor, output_dir)
+        _generate_component_docs(component, editor, output_dir, force_regenerate)
     elif component_type:
-        _generate_docs_by_type(component_type, editor, output_dir)
+        _generate_docs_by_type(component_type, editor, output_dir, force_regenerate)
     else:
-        _generate_all_docs(editor, output_dir)
+        _generate_all_docs(editor, output_dir, force_regenerate)
 
 @app.command()
 def template(
@@ -93,7 +94,7 @@ def types():
     console.print("  • Generate docs for all tools: [cyan]funcn docs generate --type tool[/cyan]")
     console.print("  • Generate template for new component: [cyan]funcn docs template my_component[/cyan]")
 
-def _generate_docs_by_type(component_type: str, editor: str, output_dir: str | None):
+def _generate_docs_by_type(component_type: str, editor: str, output_dir: str | None, force_regenerate: bool):
     """Generate documentation for all components of a specific type."""
     from funcn_cli.templates.component_type_templates import COMPONENT_TYPE_TEMPLATES
 
@@ -112,7 +113,7 @@ def _generate_docs_by_type(component_type: str, editor: str, output_dir: str | N
 
     # Generate funcn.md for each component
     for component_path, component_data in components:
-        _generate_component_funcn_md(component_data, component_path)
+        _generate_component_funcn_md(component_data, component_path, force_regenerate)
 
     # Generate global editor rules
     _generate_global_editor_rules(components, editor, output_dir)
@@ -143,7 +144,7 @@ def _discover_components_by_type(component_type: str) -> list[tuple[Path, dict]]
 
     return components
 
-def _generate_component_docs(component: str, editor: str, output_dir: str | None):
+def _generate_component_docs(component: str, editor: str, output_dir: str | None, force_regenerate: bool):
     """Generate documentation for a specific component."""
     console.print(f"[blue]Generating documentation for component: {component}")
 
@@ -163,12 +164,12 @@ def _generate_component_docs(component: str, editor: str, output_dir: str | None
         component_data = json.load(f)
 
     # Generate funcn.md for the component
-    _generate_component_funcn_md(component_data, component_path)
+    _generate_component_funcn_md(component_data, component_path, force_regenerate)
 
     # Generate editor-specific rules mentioning this component
     _generate_editor_rules_for_component(component_data, editor, output_dir)
 
-def _generate_all_docs(editor: str, output_dir: str | None):
+def _generate_all_docs(editor: str, output_dir: str | None, force_regenerate: bool):
     """Generate all documentation."""
     console.print(f"[blue]Generating all documentation for editor: {editor}")
 
@@ -181,7 +182,7 @@ def _generate_all_docs(editor: str, output_dir: str | None):
 
     # Generate funcn.md for each component
     for component_path, component_data in components:
-        _generate_component_funcn_md(component_data, component_path)
+        _generate_component_funcn_md(component_data, component_path, force_regenerate)
 
     # Generate global editor rules
     _generate_global_editor_rules(components, editor, output_dir)
@@ -249,9 +250,9 @@ def _discover_all_components() -> list[tuple[Path, dict]]:
 
     return components
 
-def _generate_component_funcn_md(component_data: dict, component_path: Path):
-    """Generate funcn.md for a specific component."""
-    from funcn_cli.templates.funcn_md_template import generate_funcn_md
+def _generate_component_funcn_md(component_data: dict, component_path: Path, force_regenerate: bool):
+    """Generate funcn.md for a specific component, preserving existing user content."""
+    from funcn_cli.templates.funcn_md_template import generate_funcn_md, merge_with_existing_funcn_md
 
     # Check if there's an existing README to incorporate
     existing_readme = None
@@ -260,13 +261,25 @@ def _generate_component_funcn_md(component_data: dict, component_path: Path):
         with open(readme_path) as f:
             existing_readme = f.read()
 
-    # Generate funcn.md content
-    funcn_md_content = generate_funcn_md(component_data, existing_readme)
+    # Check for existing funcn.md
+    funcn_md_path = component_path / "funcn.md"
+    existing_funcn_md = None
+    if funcn_md_path.exists():
+        with open(funcn_md_path) as f:
+            existing_funcn_md = f.read()
+
+    # Generate new funcn.md content
+    new_funcn_md_content = generate_funcn_md(component_data, existing_readme)
+
+    # Merge with existing content if it exists
+    if existing_funcn_md and not force_regenerate:
+        final_content = merge_with_existing_funcn_md(existing_funcn_md, new_funcn_md_content, component_data)
+    else:
+        final_content = new_funcn_md_content
 
     # Write funcn.md
-    funcn_md_path = component_path / "funcn.md"
     with open(funcn_md_path, 'w') as f:
-        f.write(funcn_md_content)
+        f.write(final_content)
 
     console.print(f"[green]Generated: {funcn_md_path}")
 

@@ -163,8 +163,7 @@ async def generate_code(
     constraints: str = "None specified"
 ) -> GeneratedCode:
     """Generate Python code for a given task."""
-    # This function should be decorated with @llm.call but mypy needs the return type
-    raise NotImplementedError("This function is implemented by the @llm.call decorator")
+    ...
 
 
 # Step 2: Analyze code for safety and complexity
@@ -194,8 +193,7 @@ async def generate_code(
 )
 async def analyze_code_safety(code: str) -> CodeAnalysis:
     """Analyze code for safety and complexity."""
-    # This function should be decorated with @llm.call but mypy needs the return type
-    raise NotImplementedError("This function is implemented by the @llm.call decorator")
+    ...
 
 
 # Step 3: Generate recommendations
@@ -227,7 +225,7 @@ async def generate_recommendations(
     execution_result: str
 ) -> list[str]:
     """Generate recommendations for code improvement."""
-    raise NotImplementedError("This function is implemented by the @llm.call decorator")
+    ...
 
 
 @trace()

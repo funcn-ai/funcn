@@ -1,0 +1,49 @@
+{
+  "$schema": "https://funcn.ai/schemas/component.json",
+  "name": "dice_roller",
+  "version": "0.1.0",
+  "description": "A fair and transparent dice rolling tool for tabletop RPGs. Supports all standard dice types (d4-d100), modifiers, advantage/disadvantage, and provides detailed roll results with timestamps.",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Funcn Project",
+      "email": "info@funcn.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    "pydantic>=2.0.0"
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "```python\nfrom dice_roller import roll_dice, DiceType, format_roll_result\n\n# Simple d20 roll\nresult = roll_dice(DiceType.D20)\nprint(format_roll_result(result))\n# Output: d20 = 15\n\n# Attack roll with modifier\nattack = roll_dice(DiceType.D20, modifier=5, purpose=\"Attack roll\")\nprint(format_roll_result(attack))\n# Output: Attack roll: d20+5 = 18 + 5 = 23\n\n# Roll with advantage\nadv_roll = roll_dice(DiceType.D20, modifier=3, purpose=\"Stealth check\", advantage=True)\nprint(format_roll_result(adv_roll))\n# Output: Stealth check: d20+3 = [12, 18] (advantage) = 18 + 3 = 21\n\n# Damage roll\ndamage = roll_dice(DiceType.D6, num_dice=3, modifier=2, purpose=\"Fireball damage\")\nprint(format_roll_result(damage))\n# Output: Fireball damage: 3d6+2 = [4, 2, 6] = 12 + 2 = 14\n\n# Critical hit detection\ncrit_check = roll_dice(DiceType.D20)\nif crit_check.critical_success:\n    print(\"\ud83c\udfaf CRITICAL HIT!\")\nelif crit_check.critical_failure:\n    print(\"\ud83d\udc80 CRITICAL MISS!\")\n```",
+  "post_add_instructions": "The dice roller provides:\n- Fair random number generation\n- Support for all standard RPG dice (d4, d6, d8, d10, d12, d20, d100)\n- Advantage and disadvantage mechanics\n- Critical success/failure detection on d20 rolls\n- Transparent roll history with individual die results\n- Timestamps for each roll\n- Optional deterministic rolling with seeds for testing",
+  "tags": [
+    "dice",
+    "rpg",
+    "tabletop",
+    "random",
+    "gaming",
+    "dnd",
+    "fair-dice"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

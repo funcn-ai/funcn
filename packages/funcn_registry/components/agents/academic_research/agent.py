@@ -167,25 +167,7 @@ async def academic_research_agent(
     author_reqs = "\n".join(author_requirements) if author_requirements else "Any authors"
     journal_reqs = "\n".join(journal_requirements) if journal_requirements else "Any journals"
     citation_req = f"Minimum {citation_threshold} citations" if citation_threshold else "Any citation count"
-
-    # This function should be decorated with @llm.call but mypy needs the return type
-    # The actual implementation would use the LLM to create websets and return proper response
-    return AcademicResearchResponse(
-        webset_id="placeholder",
-        search_query=f"Find research papers on {topic}",
-        research_field=field or "interdisciplinary",
-        filters=[
-            f"Field: {field}" if field else "",
-            f"Authors: {author_reqs}" if author_reqs != "Any authors" else "",
-            f"Venue: {publication_venue}" if publication_venue else "",
-            f"Time: {time_period}" if time_period else "",
-            f"Citations: {citation_req}" if citation_threshold else ""
-        ],
-        enrichments=["paper_metadata", "citations", "author_info", "pdf_links"],
-        estimated_papers=None,
-        publication_types=["journal_articles", "conference_papers", "preprints"],
-        status="pending"
-    )
+    ...
 
 
 # Convenience functions for common research searches
