@@ -1,20 +1,42 @@
 {
   "mcpServers": {
-    "browser-use": {
-      "command": "~/.local/bin/uvx",
+    "linear": {
+      "command": "npx",
       "args": [
-        "mcp-browser-use"
-      ],
-      "env": {
-        "ANONYMIZED_TELEMETRY": "false"
-      }
+        "-y",
+        "mcp-remote",
+        "https://mcp.linear.app/sse"
+      ]
     },
-    "logfire": {
-      "command": "uvx",
+    "playwright": {
+      "command": "npx",
       "args": [
-        "logfire-mcp",
-        "--read-token=LOGFIRE_READ_TOKEN",
-        "--base-url=https://logfire-us.pydantic.dev/jayscambler/funcn"
+        "-y",
+        "@playwright/mcp",
+        "--vision"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking@latest"
+      ]
+    },
+    "deepwiki": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.deepwiki.com/sse"
+      ]
+    },
+    "semgrep": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.semgrep.ai/sse"
       ]
     }
   }
