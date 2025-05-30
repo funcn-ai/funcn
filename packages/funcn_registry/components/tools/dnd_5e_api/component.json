@@ -1,0 +1,58 @@
+{
+  "$schema": "https://funcn.ai/schemas/component.json",
+  "name": "dnd_5e_api",
+  "version": "0.2.0",
+  "description": "A comprehensive tool for accessing official D&D 5th Edition content via the D&D 5e API. Provides detailed information about spells, classes, monsters, equipment, races, feats, skills, conditions, magic items, and more. Includes advanced search with filters and support for all SRD content types.",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Funcn Project",
+      "email": "info@funcn.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    "httpx>=0.27.0",
+    "pydantic>=2.0.0"
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "```python\nimport asyncio\nfrom dnd_5e_api import (\n    get_spell_info,\n    get_class_info,\n    get_monster_info,\n    get_equipment_info,\n    get_race_info,\n    get_feat_info,\n    get_skill_info,\n    get_condition_info,\n    get_magic_item_info,\n    search_dnd_content\n)\n\nasync def main():\n    # Look up a spell with full details\n    fireball = await get_spell_info(\"Fireball\")\n    print(f\"{fireball.name} - Level {fireball.level} {fireball.school.name}\")\n    print(f\"Damage: 8d6 fire damage in a 20-foot radius\")\n    print(f\"Classes: {', '.join([c.name for c in fireball.classes])}\")\n    \n    # Look up a monster with complete stat block\n    dragon = await get_monster_info(\"Adult Red Dragon\")\n    print(f\"\\n{dragon.name}\")\n    print(f\"CR: {dragon.challenge_rating}, AC: {dragon.armor_class[0]['value']}, HP: {dragon.hit_points}\")\n    print(f\"STR: {dragon.strength}, DEX: {dragon.dexterity}, CON: {dragon.constitution}\")\n    \n    # Look up race information\n    dwarf = await get_race_info(\"Dwarf\")\n    print(f\"\\n{dwarf.name}\")\n    print(f\"Speed: {dwarf.speed} ft\")\n    print(f\"Ability Bonuses: {', '.join([f'{ab.ability_score.name} +{ab.bonus}' for ab in dwarf.ability_bonuses])}\")\n    \n    # Look up a condition\n    poisoned = await get_condition_info(\"Poisoned\")\n    print(f\"\\n{poisoned.name}\")\n    for effect in poisoned.desc:\n        print(f\"\u2022 {effect}\")\n    \n    # Look up a skill\n    stealth = await get_skill_info(\"Stealth\")\n    print(f\"\\n{stealth.name} ({stealth.ability_score.name})\")\n    \n    # Look up a magic item\n    vorpal = await get_magic_item_info(\"Vorpal Sword\")\n    print(f\"\\n{vorpal.name} - {vorpal.rarity['name']}\")\n    \n    # Advanced search with filters\n    level_3_spells = await search_dnd_content(\"spells\", level=3)\n    print(f\"\\nFound {level_3_spells.count} level 3 spells\")\n    \n    cr_5_monsters = await search_dnd_content(\"monsters\", challenge_rating=5)\n    print(f\"Found {cr_5_monsters.count} CR 5 monsters\")\n\nasyncio.run(main())\n```",
+  "post_add_instructions": "This enhanced tool provides access to:\n\n**Core Content:**\n- **Spells**: Complete spell information with schools, components, damage, DC, area of effect\n- **Classes**: Full class details with proficiencies, equipment, multiclassing, spellcasting\n- **Monsters**: Complete stat blocks with abilities, actions, resistances, legendary actions\n- **Equipment**: Weapons, armor, and gear with properties, damage, AC, special features\n- **Races**: Racial abilities, bonuses, traits, languages, and subraces\n\n**Additional Content:**\n- **Feats**: Prerequisites and descriptions\n- **Skills**: Ability associations and descriptions\n- **Conditions**: Full condition effects (poisoned, stunned, etc.)\n- **Magic Items**: Rarity, variants, and magical properties\n- **Ability Scores**: Detailed ability score information\n- **Alignments**: Alignment descriptions and abbreviations\n- **Languages**: Language details\n- **Proficiencies**: Proficiency information\n- **Damage Types**: Damage type descriptions\n- **Weapon Properties**: Property explanations\n\n**Advanced Features:**\n- Filtered searches for spells (by level, school, name)\n- Filtered searches for monsters (by CR, type, size)\n- Support for all valid D&D 5e API content types\n- Proper error handling with descriptive messages\n- Type-safe models for all content\n\nThe tool uses the official D&D 5e API (https://www.dnd5eapi.co/) which provides SRD content.\nNo API key is required. All functions are async and should be awaited.",
+  "tags": [
+    "dnd",
+    "5e",
+    "dungeons-and-dragons",
+    "rpg",
+    "tabletop",
+    "rules",
+    "spells",
+    "monsters",
+    "races",
+    "feats",
+    "skills",
+    "conditions",
+    "magic-items",
+    "api",
+    "comprehensive"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

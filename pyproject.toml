@@ -5,16 +5,12 @@ description = "Production-ready AI components that you can copy and paste into y
 authors = [
     {name = "greyhaven-ai", email = "info@funcn.ai"}
 ]
-license = "MIT"
+license = {text = "MIT"}
 readme = "README_PYPI.md"
-homepage = "https://funcn.ai"
-repository = "https://github.com/funcn-ai/funcn"
-documentation = "https://funcn.ai/docs"
 keywords = ["ai", "llm", "agents", "tools", "components", "mirascope", "lilypad"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
@@ -29,6 +25,11 @@ dependencies = [
     "pydantic>=2.5.0,<3.0.0",     # Data validation
     "rich>=13.0.0,<14.0.0"        # Pretty output
 ]
+
+[project.urls]
+homepage = "https://funcn.ai"
+repository = "https://github.com/funcn-ai/funcn"
+documentation = "https://funcn.ai/docs"
 
 [project.optional-dependencies]
 dev = [
@@ -86,6 +87,7 @@ ignore_missing_imports = true
 no_implicit_optional = false
 implicit_reexport = true
 warn_unreachable = false
+disable_error_code = ["empty-body", "return"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

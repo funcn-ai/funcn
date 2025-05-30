@@ -18,6 +18,15 @@ on:
       - 'src/funcn_cli/templates/**'
       - 'src/funcn_cli/commands/docs.py'
   workflow_dispatch:
+    inputs:
+      force_regenerate:
+        description: 'Force complete regeneration of funcn.md files (overwrites user customizations)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
 
 permissions:
   contents: write
@@ -54,13 +63,22 @@ jobs:
       - name: Generate documentation for all components
         run: |
           source .venv/bin/activate
-          python -m funcn_cli.main docs generate --editor cursor
-          python -m funcn_cli.main docs generate --editor windsurf
-          python -m funcn_cli.main docs generate --editor cline
-          python -m funcn_cli.main docs generate --editor claude
-          python -m funcn_cli.main docs generate --editor sourcegraph
-          python -m funcn_cli.main docs generate --editor openai_codex
-          python -m funcn_cli.main docs generate --editor amp_code
+          # Generate docs preserving user customizations (default behavior)
+          FORCE_FLAG=""
+          if [ "${{ github.event.inputs.force_regenerate }}" = "true" ]; then
+            FORCE_FLAG="--force-regenerate"
+            echo "Force regeneration enabled - will overwrite user customizations"
+          else
+            echo "Preserving user customizations in existing funcn.md files"
+          fi
+
+          python -m funcn_cli.main docs generate --editor cursor $FORCE_FLAG
+          python -m funcn_cli.main docs generate --editor windsurf $FORCE_FLAG
+          python -m funcn_cli.main docs generate --editor cline $FORCE_FLAG
+          python -m funcn_cli.main docs generate --editor claude $FORCE_FLAG
+          python -m funcn_cli.main docs generate --editor sourcegraph $FORCE_FLAG
+          python -m funcn_cli.main docs generate --editor openai_codex $FORCE_FLAG
+          python -m funcn_cli.main docs generate --editor amp_code $FORCE_FLAG
 
       - name: Check for changes
         id: changes
@@ -80,9 +98,15 @@ jobs:
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add .
-          git commit -m "docs: auto-generate documentation for components
 
-          - Updated funcn.md files for all components
+          COMMIT_MSG="docs: auto-update documentation for components"
+          if [ "${{ github.event.inputs.force_regenerate }}" = "true" ]; then
+            COMMIT_MSG="docs: force regenerate documentation for components"
+          fi
+
+          git commit -m "$COMMIT_MSG
+
+          - Updated funcn.md files for all components (preserving user customizations)
           - Generated editor-specific rules
           - Triggered by changes in ${{ github.sha }}"
           git push

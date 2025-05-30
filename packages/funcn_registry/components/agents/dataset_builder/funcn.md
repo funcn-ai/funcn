@@ -1,9 +1,7 @@
 # dataset_builder_agent
-
 > AI-powered dataset builder that creates curated data collections using Exa Websets with custom criteria and enrichments
 
 **Version**: 0.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -80,6 +78,17 @@ async def main():
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - `provider`: `openai`
@@ -88,6 +97,10 @@ async def main():
 - `default_target_count`: `50`
 - `default_wait_for_completion`: `True`
 - `default_max_wait_minutes`: `30`
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -99,21 +112,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -134,37 +132,6 @@ See component source code for detailed API documentation.
 ## Advanced Examples
 
 Check the examples directory for advanced usage patterns.
-
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await dataset_builder(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await dataset_builder(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from dataset_builder import dataset_builder_custom
-
-result = await dataset_builder_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
 
 ## Troubleshooting
 
@@ -194,12 +161,6 @@ The agent provides specialized dataset builders:
 
 Datasets are built asynchronously using Exa Websets. Monitor progress in real-time or run in background. For optional tracing, install lilypad: `pip install lilypad`.
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add dataset_builder` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
 ## Migration Notes
 
 ---
@@ -220,3 +181,40 @@ Datasets are built asynchronously using Exa Websets. Monitor progress in real-ti
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add dataset_builder_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from dataset_builder_agent import dataset_builder_agent_custom
+
+result = await dataset_builder_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await dataset_builder_agent(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await dataset_builder_agent(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```

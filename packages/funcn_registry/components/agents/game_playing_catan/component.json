@@ -1,0 +1,80 @@
+{
+  "$schema": "https://funcn.ai/schemas/component.json",
+  "name": "game_playing_catan",
+  "version": "0.1.0",
+  "description": "Multi-model turn-based Settlers of Catan game agent supporting AI vs AI, human vs AI, or mixed gameplay with resource management, trading, and strategic building",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Funcn Project",
+      "email": "info@funcn.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/funcn-ai/funcn",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    },
+    {
+      "source": "component.json",
+      "destination": "component.json",
+      "type": "resource"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0",
+    "asyncio"
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "OpenAI API key for GPT models",
+      "required": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "description": "Anthropic API key for Claude models",
+      "required": false
+    },
+    {
+      "name": "GOOGLE_API_KEY",
+      "description": "Google API key for Gemini models",
+      "required": false
+    },
+    {
+      "name": "MISTRAL_API_KEY",
+      "description": "Mistral API key for Mistral models",
+      "required": false
+    }
+  ],
+  "example_usage": "```python\nfrom game_playing_catan import (\n    CatanGame,\n    CatanPlayer,\n    CatanState,\n    CatanPhase,\n    PlayerType,\n    Resource,\n    catan_game_agent,\n    catan_game_stream\n)\nfrom collections import defaultdict\n\n# Create players with different models and strategies\nplayers = [\n    CatanPlayer(\n        player_id=0,\n        name=\"Builder Bot (GPT-4)\",\n        player_type=PlayerType.AI,\n        model=\"gpt-4o\",\n        provider=\"openai\",\n        personality=\"builder\",  # Focuses on settlements/cities\n        resources=defaultdict(int),\n        victory_points=0\n    ),\n    CatanPlayer(\n        player_id=1,\n        name=\"Trader Bot (Claude)\",\n        player_type=PlayerType.AI,\n        model=\"claude-3-opus-20240229\",\n        provider=\"anthropic\",\n        personality=\"trader\",  # Masters the art of trading\n        resources=defaultdict(int),\n        victory_points=0\n    ),\n    CatanPlayer(\n        player_id=2,\n        name=\"Human Player\",\n        player_type=PlayerType.HUMAN,  # Human player\n        resources=defaultdict(int),\n        victory_points=0\n    ),\n    CatanPlayer(\n        player_id=3,\n        name=\"Blocker Bot (Mistral)\",\n        player_type=PlayerType.AI,\n        model=\"mistral-large-latest\",\n        provider=\"mistral\",\n        personality=\"blocker\",  # Denies resources to opponents\n        resources=defaultdict(int),\n        victory_points=0\n    )\n]\n\n# Initialize game state\ngame_state = CatanState(\n    board=[],  # Initialize with hex tiles\n    intersections=[],  # Initialize valid building spots\n    edges=[],  # Initialize valid road locations\n    current_player=0,\n    phase=CatanPhase.SETUP_FIRST_SETTLEMENT,\n    robber_position=(0, 0),  # Desert hex\n    turn_number=0\n)\n\n# Run a turn (works with all AI or mixed human/AI)\ngame = await catan_game_agent(\n    game_state=game_state,\n    players=players\n)\n\n# Or run all-AI game\nai_players = [\n    CatanPlayer(\n        player_id=i,\n        name=f\"AI Player {i+1}\",\n        player_type=PlayerType.AI,\n        model=[\"gpt-4o\", \"claude-3-opus-20240229\", \"gemini-1.5-pro\", \"mistral-large-latest\"][i],\n        provider=[\"openai\", \"anthropic\", \"google\", \"mistral\"][i],\n        personality=[\"builder\", \"trader\", \"expansionist\", \"balanced\"][i],\n        resources=defaultdict(int),\n        victory_points=0\n    )\n    for i in range(4)\n]\n\n# Stream updates for real-time visualization\nasync for update in catan_game_stream(game_state, ai_players):\n    print(update)\n```",
+  "post_add_instructions": "To use this agent:\n\n1. Set up API keys for the LLM providers you want to use\n2. Create 2-4 players with different models and strategies\n3. Initialize the game board with hexes, numbers, and starting positions\n4. Call the agent to process each turn\n5. The agent handles dice rolls, resource collection, trading, and building\n\nFor all-AI games:\n- Set all players to PlayerType.AI with different models\n- Each AI will use its own strategy and model for decisions\n- Watch different AI strategies compete!\n\nFor human participation:\n- Set PlayerType.HUMAN for human players\n- The agent will prompt for input during human turns",
+  "tags": [
+    "game",
+    "multi-agent",
+    "turn-based",
+    "strategy",
+    "resource-management",
+    "trading",
+    "catan",
+    "settlers",
+    "multi-model",
+    "human-in-the-loop"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

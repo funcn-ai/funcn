@@ -125,19 +125,7 @@ async def sales_intelligence_agent(
     current_date = datetime.now().strftime("%Y-%m-%d")
     additional_reqs = "\n".join(additional_requirements) if additional_requirements else "None"
 
-    # This function should be decorated with @llm.call but mypy needs the return type
-    # The actual implementation would use the LLM to create websets and return proper response
-    return SalesIntelligenceResponse(
-        webset_id="placeholder",
-        search_query=f"Find {role_or_company}",
-        entity_type="person" if any(title in role_or_company.lower() for title in ["head", "vp", "director", "manager"]) else "company",
-        criteria=[f"Company size: {company_size}" if company_size else "Any size",
-                 f"Location: {location}" if location else "Any location",
-                 f"Industry: {industry}" if industry else "Any industry"],
-        enrichments=["linkedin_profiles", "company_info", "contact_details"],
-        estimated_results=None,
-        status="pending"
-    )
+    ...
 
 
 # Convenience functions for common sales searches

@@ -1,9 +1,7 @@
 # research_assistant_agent
-
 > AI-powered research agent that conducts comprehensive research using Exa search
 
 **Version**: 0.1.0 | **Type**: agent | **License**: MIT
-**Authors**: Funcn Project <info@funcn.ai> | **Repository**: https://github.com/funcn-ai/funcn
 
 ## Overview
 
@@ -59,6 +57,17 @@ async def main():
 
 ## Agent Configuration
 
+## Agent Architecture
+
+This agent implements the following key patterns:
+
+- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
+- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
+- **Error Handling**: Robust error handling with graceful fallbacks
+- **Async Support**: Full async/await support for optimal performance
+- Instrumented with Lilypad for observability and tracing
+- Supports automatic versioning and A/B testing
+
 ### Template Variables
 
 - `provider`: `openai`
@@ -68,6 +77,10 @@ async def main():
 - `audience`: `general business`
 - `num_queries`: `5`
 - `target_words`: `1000`
+
+### Advanced Configuration
+
+Configure template variables using CLI options or environment variables.
 
 ### LLM Provider Configuration
 
@@ -79,21 +92,6 @@ This agent supports multiple LLM providers through Mirascope:
 - **Groq**: Set `GROQ_API_KEY` for Groq models
 
 Configure the provider and model using template variables or function parameters.
-
-### Advanced Configuration
-
-Configure template variables using CLI options or environment variables.
-
-## Agent Architecture
-
-This agent implements the following key patterns:
-
-- **Structured Outputs**: Uses Pydantic models for reliable, typed responses
-- **Tool Integration**: Seamlessly integrates with funcn tools for enhanced capabilities
-- **Error Handling**: Robust error handling with graceful fallbacks
-- **Async Support**: Full async/await support for optimal performance
-- Instrumented with Lilypad for observability and tracing
-- Supports automatic versioning and A/B testing
 
 ## Integration with Mirascope
 
@@ -115,37 +113,6 @@ See component source code for detailed API documentation.
 
 Check the examples directory for advanced usage patterns.
 
-### Multi-Provider Usage
-
-```python
-# Using different LLM providers
-result_openai = await research_assistant(
-    query="your question",
-    provider="openai",
-    model="gpt-4o-mini"
-)
-
-result_anthropic = await research_assistant(
-    query="your question",
-    provider="anthropic",
-    model="claude-3-5-sonnet-20241022"
-)
-```
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from research_assistant import research_assistant_custom
-
-result = await research_assistant_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ## Troubleshooting
 
 You can now import the research assistant with `from ai_agents.research_assistant import research_topic`. Make sure to set your EXA_API_KEY and OPENAI_API_KEY environment variables. The agent provides:
@@ -157,12 +124,6 @@ You can now import the research assistant with `from ai_agents.research_assistan
 5. `quick_research_summary()` - Fast summaries
 
 For optional tracing, install lilypad: `pip install lilypad`.
-
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add research_assistant` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
 
 ## Migration Notes
 
@@ -184,3 +145,40 @@ For optional tracing, install lilypad: `pip install lilypad`.
 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add research_assistant_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from research_assistant_agent import research_assistant_agent_custom
+
+result = await research_assistant_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Multi-Provider Usage
+
+```python
+# Using different LLM providers
+result_openai = await research_assistant_agent(
+    query="your question",
+    provider="openai",
+    model="gpt-4o-mini"
+)
+
+result_anthropic = await research_assistant_agent(
+    query="your question",
+    provider="anthropic",
+    model="claude-3-5-sonnet-20241022"
+)
+```
