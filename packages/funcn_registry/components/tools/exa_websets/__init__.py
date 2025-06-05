@@ -23,5 +23,5 @@ __all__ = [
     "exa_get_webset",
     "exa_list_webset_items",
     "exa_delete_webset",
-    "exa_wait_until_idle"
+    "exa_wait_until_idle",
 ]

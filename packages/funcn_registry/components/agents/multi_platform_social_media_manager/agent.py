@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 class SocialPlatform(str, Enum):
     """Supported social media platforms."""
+
     TWITTER = "twitter"
     LINKEDIN = "linkedin"
     INSTAGRAM = "instagram"
@@ -26,6 +27,7 @@ class SocialPlatform(str, Enum):
 
 class ContentType(str, Enum):
     """Types of social media content."""
+
     TEXT_POST = "text_post"
     IMAGE_POST = "image_post"
     VIDEO_POST = "video_post"
@@ -42,6 +44,7 @@ class ContentType(str, Enum):
 
 class PostingTime(str, Enum):
     """Optimal posting times."""
+
     EARLY_MORNING = "early_morning"  # 5-7 AM
     MORNING = "morning"  # 7-9 AM
     MID_MORNING = "mid_morning"  # 9-11 AM
@@ -54,6 +57,7 @@ class PostingTime(str, Enum):
 
 class EngagementMetric(str, Enum):
     """Types of engagement metrics."""
+
     LIKES = "likes"
     COMMENTS = "comments"
     SHARES = "shares"
@@ -66,6 +70,7 @@ class EngagementMetric(str, Enum):
 
 class TrendAnalysis(BaseModel):
     """Analysis of current trends relevant to the campaign."""
+
     trending_topics: list[str] = Field(..., description="Currently trending topics")
     trending_hashtags: dict[str, list[str]] = Field(..., description="Trending hashtags per platform")
     viral_content_patterns: list[str] = Field(..., description="Patterns in viral content")
@@ -77,6 +82,7 @@ class TrendAnalysis(BaseModel):
 
 class EngagementAnalysis(BaseModel):
     """Predicted engagement analysis for content."""
+
     predicted_metrics: dict[EngagementMetric, float] = Field(..., description="Predicted engagement metrics")
     engagement_score: float = Field(..., description="Overall engagement score (0-1)")
     virality_potential: float = Field(..., description="Potential for viral spread (0-1)")
@@ -87,6 +93,7 @@ class EngagementAnalysis(BaseModel):
 
 class PlatformStrategy(BaseModel):
     """Enhanced strategy for a specific platform."""
+
     platform: SocialPlatform = Field(..., description="Social media platform")
     target_audience: str = Field(..., description="Target audience for this platform")
     audience_size: str = Field(..., description="Estimated audience size")
@@ -103,6 +110,7 @@ class PlatformStrategy(BaseModel):
 
 class PlatformContent(BaseModel):
     """Enhanced content optimized for a specific platform."""
+
     platform: SocialPlatform = Field(..., description="Target platform")
     content_type: ContentType = Field(..., description="Type of content")
     primary_text: str = Field(..., description="Main text content")
@@ -121,6 +129,7 @@ class PlatformContent(BaseModel):
 
 class ContentOptimization(BaseModel):
     """Enhanced content optimization analysis."""
+
     original_message: str = Field(..., description="Original message to optimize")
     platform_adaptations: list[PlatformContent] = Field(..., description="Platform-specific versions")
     cross_platform_strategy: str = Field(..., description="Strategy for cross-platform consistency")
@@ -133,6 +142,7 @@ class ContentOptimization(BaseModel):
 
 class ContentCalendar(BaseModel):
     """Enhanced social media content calendar."""
+
     campaign_name: str = Field(..., description="Name of the campaign")
     duration: str = Field(..., description="Campaign duration")
     daily_schedule: dict[str, list[PlatformContent]] = Field(..., description="Daily content schedule")
@@ -146,6 +156,7 @@ class ContentCalendar(BaseModel):
 
 class SocialMediaCampaign(BaseModel):
     """Enhanced complete social media campaign."""
+
     campaign_overview: str = Field(..., description="Campaign overview and objectives")
     trend_analysis: TrendAnalysis = Field(..., description="Current trend analysis")
     platform_strategies: list[PlatformStrategy] = Field(..., description="Strategies per platform")
@@ -207,7 +218,7 @@ def analyze_current_trends(
     industry: str,
     platforms: list[str],
     time_period: str = "next 30 days",
-    brand_values: str = ""
+    brand_values: str = "",
 ) -> TrendAnalysis:
     """Analyze current social media trends relevant to the campaign."""
     pass
@@ -269,7 +280,7 @@ def develop_platform_strategies(
     budget: str = "",
     timeline: str = "",
     trend_analysis: TrendAnalysis = None,
-    competitive_landscape: str = ""
+    competitive_landscape: str = "",
 ) -> BaseDynamicConfig:
     """Develop enhanced platform-specific social media strategies."""
     return {
@@ -330,7 +341,7 @@ def predict_content_engagement(
     target_audience: str,
     posting_time: str,
     current_trends: str = "",
-    historical_performance: str = ""
+    historical_performance: str = "",
 ) -> EngagementAnalysis:
     """Predict engagement metrics for social media content."""
     pass
@@ -407,7 +418,7 @@ def optimize_content_for_platforms(
     brand_guidelines: str = "",
     target_audience: str = "",
     trend_analysis: TrendAnalysis = None,
-    performance_goals: str = ""
+    performance_goals: str = "",
 ) -> BaseDynamicConfig:
     """Optimize content for multiple social media platforms with engagement predictions."""
     # For each platform, predict engagement
@@ -478,7 +489,7 @@ def create_content_calendar(
     posting_frequency: str = "",
     resource_constraints: str = "",
     trend_windows: str = "",
-    performance_targets: str = ""
+    performance_targets: str = "",
 ) -> BaseDynamicConfig:
     """Create an enhanced social media content calendar with flexibility for trends."""
     return {
@@ -549,7 +560,7 @@ def synthesize_social_media_campaign(
     content_calendar: ContentCalendar,
     budget: str = "",
     success_criteria: str = "",
-    risk_factors: str = ""
+    risk_factors: str = "",
 ) -> BaseDynamicConfig:
     """Synthesize complete social media campaign with enhanced features."""
     return {
@@ -576,7 +587,7 @@ async def multi_platform_social_media_manager(
     competitive_landscape: str = "",
     performance_goals: str = "",
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> SocialMediaCampaign:
     """
     Create and manage comprehensive multi-platform social media campaigns with
@@ -614,9 +625,11 @@ async def multi_platform_social_media_manager(
         industry=industry or "general",
         platforms=platforms,
         time_period=campaign_duration,
-        brand_values=brand_voice
+        brand_values=brand_voice,
     )
-    print(f"Identified {len(trend_analysis.trending_topics)} trending topics and {len(trend_analysis.opportunity_windows)} opportunity windows")
+    print(
+        f"Identified {len(trend_analysis.trending_topics)} trending topics and {len(trend_analysis.opportunity_windows)} opportunity windows"
+    )
 
     # Step 2: Develop platform-specific strategies
     print("Developing platform-specific strategies...")
@@ -628,7 +641,7 @@ async def multi_platform_social_media_manager(
         budget=budget,
         timeline=timeline,
         trend_analysis=trend_analysis,
-        competitive_landscape=competitive_landscape
+        competitive_landscape=competitive_landscape,
     )
     print(f"Created strategies for {len(platform_strategies)} platforms")
 
@@ -644,7 +657,7 @@ async def multi_platform_social_media_manager(
         brand_guidelines=brand_voice,
         target_audience=target_audience,
         trend_analysis=trend_analysis,
-        performance_goals=performance_goals
+        performance_goals=performance_goals,
     )
 
     # Predict engagement for each platform adaptation
@@ -656,7 +669,7 @@ async def multi_platform_social_media_manager(
             target_audience=target_audience,
             posting_time=platform_content.posting_time.value,
             current_trends=", ".join(trend_analysis.trending_topics[:3]),
-            historical_performance=""
+            historical_performance="",
         )
         platform_content.engagement_prediction = engagement_prediction
 
@@ -672,7 +685,7 @@ async def multi_platform_social_media_manager(
         posting_frequency="optimized per platform",
         resource_constraints=budget,
         trend_windows=", ".join(trend_analysis.opportunity_windows),
-        performance_targets=performance_goals
+        performance_targets=performance_goals,
     )
     print(f"Created {campaign_duration} content calendar with trend flexibility")
 
@@ -686,7 +699,7 @@ async def multi_platform_social_media_manager(
         content_calendar=content_calendar,
         budget=budget,
         success_criteria=performance_goals or f"Achieve {campaign_goal} through multi-platform engagement",
-        risk_factors=competitive_landscape
+        risk_factors=competitive_landscape,
     )
 
     print("Enhanced multi-platform social media campaign ready!")
@@ -694,12 +707,7 @@ async def multi_platform_social_media_manager(
 
 
 async def multi_platform_social_media_manager_stream(
-    campaign_goal: str,
-    target_audience: str,
-    brand_voice: str,
-    platforms: list[str],
-    content_themes: list[str],
-    **kwargs
+    campaign_goal: str, target_audience: str, brand_voice: str, platforms: list[str], content_themes: list[str], **kwargs
 ) -> AsyncGenerator[str, None]:
     """Stream the enhanced social media campaign creation process."""
 

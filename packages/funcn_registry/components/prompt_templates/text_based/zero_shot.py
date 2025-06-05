@@ -97,6 +97,7 @@ def zero_shot_with_context(text: str, context: str = "General analysis"):
 
 # Advanced zero-shot examples with dynamic configuration
 
+
 class TaskResult(BaseModel):
     """Generic task result model."""
 
@@ -128,7 +129,7 @@ def zero_shot_dynamic(
     input_data: str,
     requirement_1: str = "Be concise",
     requirement_2: str = "Be accurate",
-    requirement_3: str = "Show your work"
+    requirement_3: str = "Show your work",
 ) -> llm.OpenAIDynamicConfig:
     """
     Dynamic zero-shot prompting with configurable requirements.
@@ -151,6 +152,7 @@ def zero_shot_dynamic(
 
 
 # Practical zero-shot examples
+
 
 class CodeExplanation(BaseModel):
     """Model for code explanation outputs."""
@@ -198,11 +200,12 @@ def zero_shot_code_analysis(code: str, language: str = "auto"):
 
 # Best practices example
 
+
 @lilypad.trace(versioning="automatic")
 @llm.call(
     provider="openai",
     model="gpt-4o-mini",
-    call_params={"temperature": 0.3}  # Lower temperature for consistency
+    call_params={"temperature": 0.3},  # Lower temperature for consistency
 )
 @prompt_template(
     """

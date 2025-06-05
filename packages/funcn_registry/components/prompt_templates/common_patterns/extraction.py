@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 # Entity extraction
 
+
 class Entity(BaseModel):
     """Model for an extracted entity."""
 
@@ -51,10 +52,7 @@ class EntitiesExtracted(BaseModel):
     Include all instances, even repeated entities.
     """
 )
-def extract_entities(
-    text: str,
-    entity_types: list[str] = None
-):
+def extract_entities(text: str, entity_types: list[str] = None):
     """
     Extract named entities from text.
 
@@ -71,6 +69,7 @@ def extract_entities(
 
 
 # Relationship extraction
+
 
 class Relationship(BaseModel):
     """Model for an extracted relationship."""
@@ -93,12 +92,7 @@ class RelationshipsExtracted(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=RelationshipsExtracted,
-    call_params={"temperature": 0.2}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=RelationshipsExtracted, call_params={"temperature": 0.2})
 @prompt_template(
     """
     Extract relationships between entities in this text:
@@ -117,10 +111,7 @@ class RelationshipsExtracted(BaseModel):
     Only extract clear, stated relationships.
     """
 )
-def extract_relationships(
-    text: str,
-    relationship_types: list[str] = None
-):
+def extract_relationships(text: str, relationship_types: list[str] = None):
     """
     Extract entity relationships from text.
 
@@ -137,6 +128,7 @@ def extract_relationships(
 
 
 # Key points extraction
+
 
 class KeyPoint(BaseModel):
     """Model for a key point."""
@@ -178,11 +170,7 @@ class KeyPointsExtracted(BaseModel):
     Prioritize most important and actionable points.
     """
 )
-def extract_key_points(
-    text: str,
-    focus_area: str = "main ideas",
-    max_points: int = 10
-):
+def extract_key_points(text: str, focus_area: str = "main ideas", max_points: int = 10):
     """
     Extract key points from text.
 
@@ -198,6 +186,7 @@ def extract_key_points(
 
 
 # Structured data extraction
+
 
 class StructuredData(BaseModel):
     """Model for structured data extraction."""
@@ -228,10 +217,7 @@ class StructuredData(BaseModel):
     Be precise and extract only explicitly stated information.
     """
 )
-def extract_structured(
-    text: str,
-    schema: dict[str, str]
-) -> BaseDynamicConfig:
+def extract_structured(text: str, schema: dict[str, str]) -> BaseDynamicConfig:
     """
     Extract data according to schema.
 
@@ -246,14 +232,11 @@ def extract_structured(
     for field, description in schema.items():
         formatted_schema.append([f"- {field}: {description}"])
 
-    return {
-        "computed_fields": {
-            "schema": formatted_schema
-        }
-    }
+    return {"computed_fields": {"schema": formatted_schema}}
 
 
 # Contact information extraction
+
 
 class ContactInfo(BaseModel):
     """Model for contact information."""
@@ -269,12 +252,7 @@ class ContactInfo(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=ContactInfo,
-    call_params={"temperature": 0.1}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=ContactInfo, call_params={"temperature": 0.1})
 @prompt_template(
     """
     Extract contact information from this text:

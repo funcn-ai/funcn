@@ -15,5 +15,5 @@ __all__ = [
     "extract_docx_headings",
     "search_docx_with_regex",
     "DOCXSearchResult",
-    "DocumentSection"
+    "DocumentSection",
 ]

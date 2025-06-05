@@ -10,6 +10,7 @@ from typing import Optional
 
 class GameType(str, Enum):
     """Types of game theory scenarios."""
+
     ZERO_SUM = "zero_sum"
     NON_ZERO_SUM = "non_zero_sum"
     COOPERATIVE = "cooperative"
@@ -25,6 +26,7 @@ class GameType(str, Enum):
 
 class StrategyType(str, Enum):
     """Types of strategies in game theory."""
+
     DOMINANT = "dominant"
     DOMINATED = "dominated"
     NASH_EQUILIBRIUM = "nash_equilibrium"
@@ -40,6 +42,7 @@ class StrategyType(str, Enum):
 
 class PlayerProfile(BaseModel):
     """Profile of a player in the game."""
+
     name: str = Field(..., description="Player identifier")
     objectives: list[str] = Field(..., description="Player's primary objectives")
     constraints: list[str] = Field(..., description="Constraints or limitations")
@@ -53,6 +56,7 @@ class PlayerProfile(BaseModel):
 
 class GameStrategy(BaseModel):
     """A strategy available to a player."""
+
     strategy_name: str = Field(..., description="Name of the strategy")
     description: str = Field(..., description="Detailed description of the strategy")
     strategy_type: StrategyType = Field(..., description="Type of strategy")
@@ -65,6 +69,7 @@ class GameStrategy(BaseModel):
 
 class GameOutcome(BaseModel):
     """Possible outcome of the game."""
+
     outcome_name: str = Field(..., description="Name of the outcome")
     probability: float = Field(..., description="Probability of this outcome (0-1)")
     player_payoffs: dict[str, str] = Field(..., description="Payoffs for each player")
@@ -77,6 +82,7 @@ class GameOutcome(BaseModel):
 
 class GameScenario(BaseModel):
     """Complete game scenario definition."""
+
     scenario_name: str = Field(..., description="Name of the game scenario")
     game_type: GameType = Field(..., description="Type of game")
     description: str = Field(..., description="Detailed scenario description")
@@ -91,15 +97,12 @@ class GameScenario(BaseModel):
 
 class GameAnalysis(BaseModel):
     """Complete game theory analysis."""
+
     scenario: GameScenario = Field(..., description="The game scenario analyzed")
-    available_strategies: dict[str, list[GameStrategy]] = Field(
-        ..., description="Strategies available to each player"
-    )
+    available_strategies: dict[str, list[GameStrategy]] = Field(..., description="Strategies available to each player")
     equilibrium_analysis: list[str] = Field(..., description="Nash equilibria and other solution concepts")
     predicted_outcomes: list[GameOutcome] = Field(..., description="Likely outcomes with probabilities")
-    strategic_recommendations: dict[str, list[str]] = Field(
-        ..., description="Strategic recommendations for each player"
-    )
+    strategic_recommendations: dict[str, list[str]] = Field(..., description="Strategic recommendations for each player")
     sensitivity_analysis: list[str] = Field(..., description="How outcomes change with parameter changes")
     real_world_applications: list[str] = Field(..., description="Real-world applications and examples")
     limitations: list[str] = Field(..., description="Limitations of the analysis")
@@ -150,12 +153,7 @@ class GameAnalysis(BaseModel):
     Provide a complete game scenario structure with all key elements defined.
     """
 )
-def structure_game_scenario(
-    situation: str,
-    context: str = "",
-    stakeholders: str = "",
-    objectives: str = ""
-) -> GameScenario:
+def structure_game_scenario(situation: str, context: str = "", stakeholders: str = "", objectives: str = "") -> GameScenario:
     """Structure and define the game theory scenario."""
     pass
 
@@ -204,10 +202,7 @@ def structure_game_scenario(
     """
 )
 def analyze_player_strategies(
-    game_scenario: GameScenario,
-    player_profiles: list[PlayerProfile],
-    game_rules: list[str],
-    payoff_structure: str
+    game_scenario: GameScenario, player_profiles: list[PlayerProfile], game_rules: list[str], payoff_structure: str
 ) -> BaseDynamicConfig:
     """Analyze available strategies for each player."""
     return {
@@ -261,7 +256,7 @@ def analyze_equilibria(
     game_scenario: GameScenario,
     player_strategies: dict[str, list[GameStrategy]],
     payoff_structure: str,
-    information_structure: str
+    information_structure: str,
 ) -> BaseDynamicConfig:
     """Analyze Nash equilibria and other solution concepts."""
     return {
@@ -314,10 +309,7 @@ def analyze_equilibria(
     """
 )
 def predict_game_outcomes(
-    game_scenario: GameScenario,
-    equilibrium_analysis: list[str],
-    player_characteristics: str,
-    environmental_factors: str = ""
+    game_scenario: GameScenario, equilibrium_analysis: list[str], player_characteristics: str, environmental_factors: str = ""
 ) -> BaseDynamicConfig:
     """Predict likely game outcomes with probabilities."""
     return {
@@ -375,7 +367,7 @@ def synthesize_game_analysis(
     player_strategies: dict[str, list[GameStrategy]],
     equilibrium_analysis: list[str],
     predicted_outcomes: list[GameOutcome],
-    context: str = ""
+    context: str = "",
 ) -> BaseDynamicConfig:
     """Synthesize complete game theory analysis."""
     return {
@@ -395,7 +387,7 @@ async def game_theory_analyzer(
     objectives: str = "",
     environmental_factors: str = "",
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> GameAnalysis:
     """
     Analyze complex situations using game theory principles and solution concepts.
@@ -419,10 +411,7 @@ async def game_theory_analyzer(
     # Step 1: Structure the game scenario
     print("Structuring game scenario...")
     game_scenario = await structure_game_scenario(
-        situation=situation,
-        context=context,
-        stakeholders=stakeholders,
-        objectives=objectives
+        situation=situation, context=context, stakeholders=stakeholders, objectives=objectives
     )
     print(f"Identified {game_scenario.game_type.value} game with {len(game_scenario.players)} players")
 
@@ -432,7 +421,7 @@ async def game_theory_analyzer(
         game_scenario=game_scenario,
         player_profiles=game_scenario.players,
         game_rules=game_scenario.rules,
-        payoff_structure=game_scenario.payoff_structure
+        payoff_structure=game_scenario.payoff_structure,
     )
     total_strategies = sum(len(strategies) for strategies in player_strategies.values())
     print(f"Identified {total_strategies} total strategies across all players")
@@ -443,22 +432,21 @@ async def game_theory_analyzer(
         game_scenario=game_scenario,
         player_strategies=player_strategies,
         payoff_structure=game_scenario.payoff_structure,
-        information_structure=game_scenario.information_structure
+        information_structure=game_scenario.information_structure,
     )
     print(f"Found {len(equilibrium_analysis)} equilibrium concepts")
 
     # Step 4: Predict outcomes
     print("Predicting outcomes...")
-    player_chars = "\n".join([
-        f"{p.name}: Risk tolerance={p.risk_tolerance}, Bargaining power={p.bargaining_power}"
-        for p in game_scenario.players
-    ])
+    player_chars = "\n".join(
+        [f"{p.name}: Risk tolerance={p.risk_tolerance}, Bargaining power={p.bargaining_power}" for p in game_scenario.players]
+    )
 
     predicted_outcomes = await predict_game_outcomes(
         game_scenario=game_scenario,
         equilibrium_analysis=equilibrium_analysis,
         player_characteristics=player_chars,
-        environmental_factors=environmental_factors
+        environmental_factors=environmental_factors,
     )
     print(f"Predicted {len(predicted_outcomes)} possible outcomes")
 
@@ -469,18 +457,14 @@ async def game_theory_analyzer(
         player_strategies=player_strategies,
         equilibrium_analysis=equilibrium_analysis,
         predicted_outcomes=predicted_outcomes,
-        context=context
+        context=context,
     )
 
     print("Game theory analysis complete!")
     return complete_analysis
 
 
-async def game_theory_analyzer_stream(
-    situation: str,
-    context: str = "",
-    **kwargs
-) -> AsyncGenerator[str, None]:
+async def game_theory_analyzer_stream(situation: str, context: str = "", **kwargs) -> AsyncGenerator[str, None]:
     """Stream the game theory analysis process."""
 
     yield "Starting game theory analysis...\n\n"

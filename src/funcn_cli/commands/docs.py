@@ -17,47 +17,47 @@ EDITOR_CONFIGS = {
     "cursor": {
         "files": [".cursor/rules/funcn.mdc"],  # .mdc format in .cursor/rules directory
         "format": "mdc",
-        "extension": ".mdc"
+        "extension": ".mdc",
     },
-    "windsurf": {
-        "files": [".windsurfrules"],
-        "format": "markdown",
-        "extension": ".md"
-    },
-    "cline": {
-        "files": [".clinerules"],
-        "format": "markdown",
-        "extension": ".md"
-    },
-    "claude": {
-        "files": ["CLAUDE.md"],
-        "format": "markdown",
-        "extension": ".md"
-    },
-    "sourcegraph": {
-        "files": [".sourcegraph/memory.md"],
-        "format": "markdown",
-        "extension": ".md"
-    },
+    "windsurf": {"files": [".windsurfrules"], "format": "markdown", "extension": ".md"},
+    "cline": {"files": [".clinerules"], "format": "markdown", "extension": ".md"},
+    "claude": {"files": ["CLAUDE.md"], "format": "markdown", "extension": ".md"},
+    "sourcegraph": {"files": [".sourcegraph/memory.md"], "format": "markdown", "extension": ".md"},
     "openai_codex": {
         "files": ["AGENTS.md"],  # For OpenAI Codex
         "format": "markdown",
-        "extension": ".md"
+        "extension": ".md",
     },
     "amp_code": {
-        "files": ["AGENT.md"],   # For Amp Code
+        "files": ["AGENT.md"],  # For Amp Code
         "format": "markdown",
-        "extension": ".md"
-    }
+        "extension": ".md",
+    },
 }
+
 
 @app.command()
 def generate(
-    editor: str = typer.Option("cursor", "--editor", "-e", help="Target editor/agent (cursor, windsurf, cline, claude, sourcegraph, openai_codex, amp_code)"),
+    editor: str = typer.Option(
+        "cursor",
+        "--editor",
+        "-e",
+        help="Target editor/agent (cursor, windsurf, cline, claude, sourcegraph, openai_codex, amp_code)",
+    ),
     component: str | None = typer.Option(None, "--component", "-c", help="Generate docs for specific component"),
     output_dir: str | None = typer.Option(None, "--output", "-o", help="Output directory (default: project root)"),
-    component_type: str | None = typer.Option(None, "--type", "-t", help="Generate docs for components of specific type (agent, tool, prompt_template, response_model, eval, example)"),
-    force_regenerate: bool = typer.Option(False, "--force-regenerate", "-f", help="Force complete regeneration of funcn.md files, overwriting any user customizations"),
+    component_type: str | None = typer.Option(
+        None,
+        "--type",
+        "-t",
+        help="Generate docs for components of specific type (agent, tool, prompt_template, response_model, eval, example)",
+    ),
+    force_regenerate: bool = typer.Option(
+        False,
+        "--force-regenerate",
+        "-f",
+        help="Force complete regeneration of funcn.md files, overwriting any user customizations",
+    ),
 ):
     """Generate editor-specific rule files and documentation."""
 
@@ -72,6 +72,7 @@ def generate(
     else:
         _generate_all_docs(editor, output_dir, force_regenerate)
 
+
 @app.command()
 def template(
     component_name: str = typer.Argument(..., help="Name of the component"),
@@ -79,6 +80,7 @@ def template(
 ):
     """Generate a funcn.md template for a component."""
     _generate_funcn_md_template(component_name, output_file)
+
 
 @app.command()
 def types():
@@ -94,12 +96,15 @@ def types():
     console.print("  • Generate docs for all tools: [cyan]funcn docs generate --type tool[/cyan]")
     console.print("  • Generate template for new component: [cyan]funcn docs template my_component[/cyan]")
 
+
 def _generate_docs_by_type(component_type: str, editor: str, output_dir: str | None, force_regenerate: bool):
     """Generate documentation for all components of a specific type."""
     from funcn_cli.templates.component_type_templates import COMPONENT_TYPE_TEMPLATES
 
     if component_type not in COMPONENT_TYPE_TEMPLATES:
-        console.print(f"[red]Error: Unknown component type '{component_type}'. Supported: {', '.join(COMPONENT_TYPE_TEMPLATES.keys())}")
+        console.print(
+            f"[red]Error: Unknown component type '{component_type}'. Supported: {', '.join(COMPONENT_TYPE_TEMPLATES.keys())}"
+        )
         raise typer.Exit(1)
 
     console.print(f"[blue]Generating documentation for all '{component_type}' components")
@@ -119,6 +124,7 @@ def _generate_docs_by_type(component_type: str, editor: str, output_dir: str | N
     _generate_global_editor_rules(components, editor, output_dir)
 
     console.print(f"[green]Generated documentation for {len(components)} '{component_type}' components")
+
 
 def _discover_components_by_type(component_type: str) -> list[tuple[Path, dict]]:
     """Discover all components of a specific type in the registry."""
@@ -143,6 +149,7 @@ def _discover_components_by_type(component_type: str) -> list[tuple[Path, dict]]
                             continue
 
     return components
+
 
 def _generate_component_docs(component: str, editor: str, output_dir: str | None, force_regenerate: bool):
     """Generate documentation for a specific component."""
@@ -169,6 +176,7 @@ def _generate_component_docs(component: str, editor: str, output_dir: str | None
     # Generate editor-specific rules mentioning this component
     _generate_editor_rules_for_component(component_data, editor, output_dir)
 
+
 def _generate_all_docs(editor: str, output_dir: str | None, force_regenerate: bool):
     """Generate all documentation."""
     console.print(f"[blue]Generating all documentation for editor: {editor}")
@@ -187,6 +195,7 @@ def _generate_all_docs(editor: str, output_dir: str | None, force_regenerate: bo
     # Generate global editor rules
     _generate_global_editor_rules(components, editor, output_dir)
 
+
 def _generate_funcn_md_template(component_name: str, output_file: str | None):
     """Generate a funcn.md template."""
     from funcn_cli.templates.funcn_md_template import generate_template_funcn_md
@@ -199,6 +208,7 @@ def _generate_funcn_md_template(component_name: str, output_file: str | None):
         f.write(template_content)
 
     console.print(f"[green]Generated template: {output_path}")
+
 
 def _find_component_path(component_name: str) -> Path | None:
     """Find the path to a component by name."""
@@ -227,6 +237,7 @@ def _find_component_path(component_name: str) -> Path | None:
 
     return None
 
+
 def _discover_all_components() -> list[tuple[Path, dict]]:
     """Discover all components in the registry."""
     components: list[tuple[Path, dict]] = []
@@ -249,6 +260,7 @@ def _discover_all_components() -> list[tuple[Path, dict]]:
                             continue
 
     return components
+
 
 def _generate_component_funcn_md(component_data: dict, component_path: Path, force_regenerate: bool):
     """Generate funcn.md for a specific component, preserving existing user content."""
@@ -283,10 +295,12 @@ def _generate_component_funcn_md(component_data: dict, component_path: Path, for
 
     console.print(f"[green]Generated: {funcn_md_path}")
 
+
 def _generate_editor_rules_for_component(component_data: dict, editor: str, output_dir: str | None):
     """Generate editor-specific rules for a component."""
     # This would generate project-level rules that know about this component
     pass
+
 
 def _generate_global_editor_rules(components: list[tuple[Path, dict]], editor: str, output_dir: str | None):
     """Generate global editor rules that know about all components."""

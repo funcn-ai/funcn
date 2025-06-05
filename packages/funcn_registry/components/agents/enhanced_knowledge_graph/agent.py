@@ -10,6 +10,7 @@ from typing import Any, Literal, Optional
 # Enhanced response models with reasoning
 class EntityWithReasoning(BaseModel):
     """Entity with extraction reasoning."""
+
     entity: str = Field(..., description="The entity name")
     type: str = Field(..., description="Entity type")
     confidence: float = Field(..., ge=0.0, le=1.0)
@@ -19,6 +20,7 @@ class EntityWithReasoning(BaseModel):
 
 class RelationshipWithReasoning(BaseModel):
     """Relationship with extraction reasoning."""
+
     source: str = Field(..., description="Source entity")
     target: str = Field(..., description="Target entity")
     relationship: str = Field(..., description="Relationship type")
@@ -29,6 +31,7 @@ class RelationshipWithReasoning(BaseModel):
 
 class ExtractionPlan(BaseModel):
     """Plan for knowledge extraction."""
+
     extraction_strategy: str = Field(..., description="Strategy for extraction")
     entity_categories: list[str] = Field(..., description="Entity categories to focus on")
     relationship_patterns: list[str] = Field(..., description="Relationship patterns to look for")
@@ -38,6 +41,7 @@ class ExtractionPlan(BaseModel):
 
 class ConsistencyCheck(BaseModel):
     """Results of consistency checking."""
+
     consistent_entities: list[str] = Field(..., description="Entities found consistently")
     conflicting_entities: list[tuple[str, str]] = Field(..., description="Conflicting entity interpretations")
     consistent_relationships: list[str] = Field(..., description="Consistently found relationships")
@@ -116,11 +120,7 @@ async def plan_extraction(text_preview: str, domain: str):
     Now extract with similar detailed reasoning:
     """
 )
-async def extract_entities_with_reasoning(
-    text: str,
-    strategy: str,
-    categories: str
-):
+async def extract_entities_with_reasoning(text: str, strategy: str, categories: str):
     """Extract entities with chain-of-thought reasoning."""
     pass
 
@@ -159,11 +159,7 @@ async def extract_entities_with_reasoning(
     Extract relationships with similar reasoning:
     """
 )
-async def extract_relationships_multipass(
-    text: str,
-    entities: str,
-    patterns: str
-):
+async def extract_relationships_multipass(text: str, entities: str, patterns: str):
     """Extract relationships using multi-pass reasoning."""
     pass
 
@@ -193,12 +189,7 @@ async def extract_relationships_multipass(
     Higher consistency = higher confidence in extraction.
     """
 )
-async def validate_consistency(
-    text: str,
-    extraction1: str,
-    extraction2: str,
-    extraction3: str
-):
+async def validate_consistency(text: str, extraction1: str, extraction2: str, extraction3: str):
     """Validate extraction consistency."""
     pass
 
@@ -213,7 +204,7 @@ async def extract_enhanced_knowledge_graph(
     num_consistency_checks: int = 3,
     confidence_threshold: float = 0.7,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> dict[str, Any]:
     """
     Extract knowledge graph using advanced prompt engineering.
@@ -245,24 +236,15 @@ async def extract_enhanced_knowledge_graph(
     # Step 2: Extract entities with reasoning
     categories_str = ", ".join(plan.entity_categories)
     entities_with_reasoning = await extract_entities_with_reasoning(
-        text=text,
-        strategy=plan.extraction_strategy,
-        categories=categories_str
+        text=text, strategy=plan.extraction_strategy, categories=categories_str
     )
 
     # Step 3: Multi-pass relationship extraction if enabled
     if use_multi_pass:
-        entities_str = "\n".join([
-            f"- {e.entity} ({e.type})"
-            for e in entities_with_reasoning
-        ])
+        entities_str = "\n".join([f"- {e.entity} ({e.type})" for e in entities_with_reasoning])
         patterns_str = ", ".join(plan.relationship_patterns)
 
-        relationships = await extract_relationships_multipass(
-            text=text,
-            entities=entities_str,
-            patterns=patterns_str
-        )
+        relationships = await extract_relationships_multipass(text=text, entities=entities_str, patterns=patterns_str)
     else:
         relationships = []
 
@@ -272,12 +254,10 @@ async def extract_enhanced_knowledge_graph(
         extractions = []
         for i in range(num_consistency_checks):
             # Add slight variation to prompt to get different interpretations
-            variation = f" (Attempt {i+1}: Focus on {'precision' if i == 0 else 'recall' if i == 1 else 'balance'})"
+            variation = f" (Attempt {i + 1}: Focus on {'precision' if i == 0 else 'recall' if i == 1 else 'balance'})"
 
             entities_attempt = await extract_entities_with_reasoning(
-                text=text + variation,
-                strategy=plan.extraction_strategy,
-                categories=categories_str
+                text=text + variation, strategy=plan.extraction_strategy, categories=categories_str
             )
             extractions.append(entities_attempt)
 
@@ -286,7 +266,7 @@ async def extract_enhanced_knowledge_graph(
             text=text,
             extraction1=json.dumps([e.model_dump() for e in extractions[0]]),
             extraction2=json.dumps([e.model_dump() for e in extractions[1]]),
-            extraction3=json.dumps([e.model_dump() for e in extractions[2]])
+            extraction3=json.dumps([e.model_dump() for e in extractions[2]]),
         )
 
         # Boost confidence for consistent extractions
@@ -295,15 +275,9 @@ async def extract_enhanced_knowledge_graph(
                 entity.confidence = min(1.0, entity.confidence + consistency.confidence_boost)
 
     # Filter by confidence
-    filtered_entities = [
-        e for e in entities_with_reasoning
-        if e.confidence >= confidence_threshold
-    ]
+    filtered_entities = [e for e in entities_with_reasoning if e.confidence >= confidence_threshold]
 
-    filtered_relationships = [
-        r for r in relationships
-        if r.confidence >= confidence_threshold
-    ]
+    filtered_relationships = [r for r in relationships if r.confidence >= confidence_threshold]
 
     return {
         "extraction_plan": plan.model_dump(),
@@ -313,7 +287,7 @@ async def extract_enhanced_knowledge_graph(
                 "type": e.type,
                 "confidence": e.confidence,
                 "reasoning": e.reasoning,
-                "context_clues": e.context_clues
+                "context_clues": e.context_clues,
             }
             for e in filtered_entities
         ],
@@ -324,7 +298,7 @@ async def extract_enhanced_knowledge_graph(
                 "type": r.relationship,
                 "confidence": r.confidence,
                 "reasoning": r.reasoning,
-                "evidence": r.evidence
+                "evidence": r.evidence,
             }
             for r in filtered_relationships
         ],
@@ -334,6 +308,6 @@ async def extract_enhanced_knowledge_graph(
             "extraction_strategy": plan.extraction_strategy,
             "total_entities": len(filtered_entities),
             "total_relationships": len(filtered_relationships),
-            "avg_confidence": sum(e.confidence for e in filtered_entities) / len(filtered_entities) if filtered_entities else 0
-        }
+            "avg_confidence": sum(e.confidence for e in filtered_entities) / len(filtered_entities) if filtered_entities else 0,
+        },
     }

@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Answer verification
 
+
 class VerificationResult(BaseModel):
     """Model for verification results."""
 
@@ -78,11 +79,7 @@ async def generate_verification_questions(question: str, answer: str):
     Provide a precise answer to help verify accuracy.
     """
 )
-async def answer_verification_question(
-    verification_question: str,
-    original_question: str,
-    answer_to_verify: str
-):
+async def answer_verification_question(verification_question: str, original_question: str, answer_to_verify: str):
     """Answer a verification question."""
     pass
 
@@ -107,25 +104,13 @@ async def answer_verification_question(
     Provide the improved answer.
     """
 )
-async def revise_answer(
-    question: str,
-    original_answer: str,
-    verification_qa: dict[str, str]
-) -> BaseDynamicConfig:
+async def revise_answer(question: str, original_answer: str, verification_qa: dict[str, str]) -> BaseDynamicConfig:
     """Revise answer based on verification."""
     verification_results = []
     for q, a in verification_qa.items():
-        verification_results.append([
-            f"Q: {q}",
-            f"A: {a}",
-            ""
-        ])
+        verification_results.append([f"Q: {q}", f"A: {a}", ""])
 
-    return {
-        "computed_fields": {
-            "verification_results": verification_results
-        }
-    }
+    return {"computed_fields": {"verification_results": verification_results}}
 
 
 async def verify_answer(question: str) -> VerificationResult:
@@ -148,31 +133,25 @@ async def verify_answer(question: str) -> VerificationResult:
     initial_answer = await generate_initial_answer(question)
 
     # Step 2: Generate verification questions
-    verification_questions_response = await generate_verification_questions(
-        question, initial_answer.content
-    )
+    verification_questions_response = await generate_verification_questions(question, initial_answer.content)
     verification_questions = [
-        q.strip() for q in verification_questions_response.content.split('\n')
-        if q.strip() and not q.strip().startswith('#')
+        q.strip() for q in verification_questions_response.content.split('\n') if q.strip() and not q.strip().startswith('#')
     ][:5]
 
     # Step 3: Answer verification questions
     verification_qa = {}
     for vq in verification_questions:
-        answer = await answer_verification_question(
-            vq, question, initial_answer.content
-        )
+        answer = await answer_verification_question(vq, question, initial_answer.content)
         verification_qa[vq] = answer.content
 
     # Step 4: Revise answer based on verification
-    revised_result = await revise_answer(
-        question, initial_answer.content, verification_qa
-    )
+    revised_result = await revise_answer(question, initial_answer.content, verification_qa)
 
     return revised_result
 
 
 # Claim verification
+
 
 class ClaimVerification(BaseModel):
     """Model for claim verification."""
@@ -230,6 +209,7 @@ def verify_claim(claim: str, domain: str = "general"):
 
 # Consistency verification
 
+
 class ConsistencyVerification(BaseModel):
     """Model for consistency verification."""
 
@@ -278,6 +258,7 @@ def verify_consistency(statements: list[str]):
 
 # Advanced verification with multiple rounds
 
+
 class MultiRoundVerification(BaseModel):
     """Model for multi-round verification."""
 
@@ -305,19 +286,13 @@ class MultiRoundVerification(BaseModel):
     List any issues found (or state "No issues found").
     """
 )
-async def verification_round(
-    content: str,
-    round_number: int,
-    previous_issues: list[str]
-):
+async def verification_round(content: str, round_number: int, previous_issues: list[str]):
     """Perform a single verification round."""
     pass
 
 
 async def multi_round_verification(
-    content: str,
-    max_rounds: int = 3,
-    confidence_threshold: float = 0.9
+    content: str, max_rounds: int = 3, confidence_threshold: float = 0.9
 ) -> MultiRoundVerification:
     """
     Multi-round verification process.
@@ -342,13 +317,12 @@ async def multi_round_verification(
 
     for round_num in range(1, max_rounds + 1):
         # Perform verification round
-        round_result = await verification_round(
-            current_content, round_num, previous_issues
-        )
+        round_result = await verification_round(current_content, round_num, previous_issues)
 
         # Parse issues (simplified)
         issues = [
-            line.strip() for line in round_result.content.split('\n')
+            line.strip()
+            for line in round_result.content.split('\n')
             if line.strip() and not line.strip().lower().startswith('no issues')
         ]
 
@@ -357,11 +331,7 @@ async def multi_round_verification(
         confidence = max(0, min(1, confidence))
         confidence_progression.append(confidence)
 
-        verification_rounds.append({
-            "round": round_num,
-            "issues_found": issues,
-            "confidence": confidence
-        })
+        verification_rounds.append({"round": round_num, "issues_found": issues, "confidence": confidence})
 
         if not issues or confidence >= confidence_threshold:
             break
@@ -375,5 +345,5 @@ async def multi_round_verification(
         verification_rounds=verification_rounds,
         final_content=current_content,
         total_revisions=len([r for r in verification_rounds if r["issues_found"]]),
-        confidence_progression=confidence_progression
+        confidence_progression=confidence_progression,
     )

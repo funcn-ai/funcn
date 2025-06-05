@@ -19,6 +19,7 @@ except ImportError:
 # Response models for structured outputs
 class SearchQuery(BaseModel):
     """A single search query for research."""
+
     query: str = Field(..., description="The search query to execute")
     search_type: str = Field(default="auto", description="Type of search: 'auto', 'keyword', or 'neural'")
     category: ExaCategory | None = Field(default=None, description="Optional category for more targeted results")
@@ -26,11 +27,13 @@ class SearchQuery(BaseModel):
 
 class SearchQueriesResponse(BaseModel):
     """Response containing generated search queries."""
+
     queries: list[SearchQuery] = Field(..., description="List of search queries to execute")
 
 
 class ResearchSection(BaseModel):
     """A section of the research report."""
+
     title: str = Field(..., description="Section title")
     content: str = Field(..., description="Section content")
     sources_used: list[str] = Field(default_factory=list, description="URLs of sources used in this section")
@@ -38,6 +41,7 @@ class ResearchSection(BaseModel):
 
 class ResearchReportResponse(BaseModel):
     """Complete research report response."""
+
     title: str = Field(..., description="Report title")
     executive_summary: str = Field(..., description="Executive summary of findings")
     sections: list[ResearchSection] = Field(..., description="Report sections")
@@ -75,11 +79,7 @@ class ResearchReportResponse(BaseModel):
     Generate {num_queries} diverse queries.
     """
 )
-async def generate_search_queries(
-    topic: str,
-    depth: str = "comprehensive",
-    num_queries: int = 5
-):
+async def generate_search_queries(topic: str, depth: str = "comprehensive", num_queries: int = 5):
     """Generate diverse search queries for research."""
     pass
 
@@ -111,10 +111,7 @@ async def generate_search_queries(
     Execute all searches and collect the results.
     """
 )
-async def collect_research_data(
-    topic: str,
-    queries: str
-):
+async def collect_research_data(topic: str, queries: str):
     """Collect research data using Exa search."""
     pass
 
@@ -161,13 +158,7 @@ async def collect_research_data(
     Create a comprehensive report of approximately {target_words} words.
     """
 )
-async def synthesize_research_report(
-    topic: str,
-    research_data: str,
-    style: str,
-    audience: str,
-    target_words: int
-):
+async def synthesize_research_report(topic: str, research_data: str, style: str, audience: str, target_words: int):
     """Synthesize collected data into a research report."""
     pass
 
@@ -180,7 +171,7 @@ async def research_topic(
     num_queries: int = 5,
     target_words: int = 1000,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> ResearchReportResponse:
     """
     Research a topic and generate a comprehensive report.
@@ -204,31 +195,17 @@ async def research_topic(
         ResearchReportResponse with the complete research report
     """
     # Step 1: Generate search queries
-    queries_response = await generate_search_queries(
-        topic=topic,
-        depth=depth,
-        num_queries=num_queries
-    )
+    queries_response = await generate_search_queries(topic=topic, depth=depth, num_queries=num_queries)
 
     # Convert queries to string for the next step
-    queries_str = "\n".join([
-        f"- {q.query} (type: {q.search_type}, category: {q.category})"
-        for q in queries_response.queries
-    ])
+    queries_str = "\n".join([f"- {q.query} (type: {q.search_type}, category: {q.category})" for q in queries_response.queries])
 
     # Step 2: Collect research data
-    research_data = await collect_research_data(
-        topic=topic,
-        queries=queries_str
-    )
+    research_data = await collect_research_data(topic=topic, queries=queries_str)
 
     # Step 3: Synthesize report
     report = await synthesize_research_report(
-        topic=topic,
-        research_data=str(research_data),
-        style=style,
-        audience=audience,
-        target_words=target_words
+        topic=topic, research_data=str(research_data), style=style, audience=audience, target_words=target_words
     )
 
     return report
@@ -251,7 +228,7 @@ async def research_company(company_name: str, **kwargs) -> ResearchReportRespons
         depth="comprehensive",
         style="professional",
         audience="business executives",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -271,7 +248,7 @@ async def research_technology(technology: str, **kwargs) -> ResearchReportRespon
         depth="comprehensive",
         style="technical",
         audience="technical professionals",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -291,7 +268,7 @@ async def research_market(market_or_industry: str, **kwargs) -> ResearchReportRe
         depth="comprehensive",
         style="professional",
         audience="business strategists",
-        **kwargs
+        **kwargs,
     )
 
 
@@ -304,16 +281,11 @@ async def quick_research_summary(topic: str) -> dict[str, Any]:
     - key_points: List of main findings
     - sources: List of source URLs
     """
-    report = await research_topic(
-        topic=topic,
-        depth="quick",
-        num_queries=3,
-        target_words=500
-    )
+    report = await research_topic(topic=topic, depth="quick", num_queries=3, target_words=500)
 
     return {
         "summary": report.executive_summary,
         "key_points": [section.title for section in report.sections],
         "sources": report.all_sources,
-        "word_count": report.word_count
+        "word_count": report.word_count,
     }

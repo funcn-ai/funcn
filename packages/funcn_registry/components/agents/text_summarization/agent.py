@@ -9,6 +9,7 @@ from typing import Any, Literal, Optional
 # Response models for structured outputs
 class KeyPoint(BaseModel):
     """A key point extracted from text."""
+
     point: str = Field(..., description="The key point or insight")
     importance: float = Field(..., ge=0.0, le=1.0, description="Importance score (0-1)")
     evidence: str = Field(..., description="Supporting evidence from the text")
@@ -16,6 +17,7 @@ class KeyPoint(BaseModel):
 
 class SummaryAnalysis(BaseModel):
     """Analysis of text for summarization."""
+
     main_topic: str = Field(..., description="Main topic or theme")
     key_points: list[KeyPoint] = Field(..., description="Key points extracted")
     target_audience: str = Field(..., description="Identified target audience")
@@ -25,6 +27,7 @@ class SummaryAnalysis(BaseModel):
 
 class Summary(BaseModel):
     """A generated summary."""
+
     summary: str = Field(..., description="The summary text")
     style: str = Field(..., description="Summary style used")
     word_count: int = Field(..., description="Word count of summary")
@@ -34,6 +37,7 @@ class Summary(BaseModel):
 
 class ProgressiveSummary(BaseModel):
     """Progressive summary with multiple levels."""
+
     one_sentence: str = Field(..., description="One sentence summary")
     paragraph: str = Field(..., description="One paragraph summary")
     detailed: str = Field(..., description="Detailed summary")
@@ -43,6 +47,7 @@ class ProgressiveSummary(BaseModel):
 
 class SummaryValidation(BaseModel):
     """Validation results for a summary."""
+
     is_accurate: bool = Field(..., description="Whether summary accurately represents original")
     missing_points: list[str] = Field(..., description="Important points missing from summary")
     added_information: list[str] = Field(..., description="Information not in original text")
@@ -132,7 +137,7 @@ async def generate_summary(
     target_length: int,
     style: str,
     few_shot_examples: str,
-    style_guidelines: str
+    style_guidelines: str,
 ):
     """Generate summary with few-shot examples."""
     pass
@@ -161,10 +166,7 @@ async def generate_summary(
     Ensure each level builds upon the previous while adding appropriate detail.
     """
 )
-async def generate_progressive_summary(
-    text: str,
-    key_points: str
-):
+async def generate_progressive_summary(text: str, key_points: str):
     """Generate summaries at multiple levels of detail."""
     pass
 
@@ -193,11 +195,7 @@ async def generate_progressive_summary(
     Provide specific feedback and improvement suggestions.
     """
 )
-async def validate_summary(
-    original_text: str,
-    summary: str,
-    key_points: str
-):
+async def validate_summary(original_text: str, summary: str, key_points: str):
     """Validate summary accuracy and quality."""
     pass
 
@@ -212,7 +210,7 @@ async def summarize_text(
     validate: bool = True,
     max_iterations: int = 3,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> Summary | ProgressiveSummary:
     """
     Summarize text using advanced prompt engineering techniques.
@@ -237,17 +235,11 @@ async def summarize_text(
     analysis = await analyze_for_summary(text)
 
     # Convert key points to string for prompts
-    key_points_str = "\n".join([
-        f"- {kp.point} (importance: {kp.importance})"
-        for kp in analysis.key_points
-    ])
+    key_points_str = "\n".join([f"- {kp.point} (importance: {kp.importance})" for kp in analysis.key_points])
 
     # If progressive summary requested
     if progressive:
-        return await generate_progressive_summary(
-            text=text,
-            key_points=key_points_str
-        )
+        return await generate_progressive_summary(text=text, key_points=key_points_str)
 
     # Determine target length
     if target_length is None:
@@ -266,17 +258,13 @@ async def summarize_text(
         target_length=target_length,
         style=style,
         few_shot_examples=few_shot_examples,
-        style_guidelines=style_guidelines
+        style_guidelines=style_guidelines,
     )
 
     # Step 3: Validate and refine if requested
     if validate:
         for _ in range(max_iterations):
-            validation = await validate_summary(
-                original_text=text,
-                summary=summary.summary,
-                key_points=key_points_str
-            )
+            validation = await validate_summary(original_text=text, summary=summary.summary, key_points=key_points_str)
 
             if validation.quality_score >= 0.8 and validation.is_accurate:
                 break
@@ -299,7 +287,7 @@ async def summarize_text(
                 target_length=target_length,
                 style=style,
                 few_shot_examples=few_shot_examples,
-                style_guidelines=style_guidelines
+                style_guidelines=style_guidelines,
             )
 
     return summary
@@ -311,28 +299,28 @@ def get_style_config(style: str) -> tuple[str, str]:
         "technical": (
             """Example: 'The system uses microservices architecture with Docker containers...'
             → 'Microservices architecture implemented via Docker enables scalable deployment.'""",
-            "Use technical terminology, focus on specifications and implementation details"
+            "Use technical terminology, focus on specifications and implementation details",
         ),
         "executive": (
             """Example: 'Q3 revenue increased 23% driven by cloud services...'
             → 'Strong Q3 performance with 23% revenue growth from cloud expansion.'""",
-            "Focus on outcomes, metrics, and strategic implications"
+            "Focus on outcomes, metrics, and strategic implications",
         ),
         "simple": (
             """Example: 'Photosynthesis converts light energy into chemical energy...'
             → 'Plants use sunlight to make their own food.'""",
-            "Use simple language, avoid jargon, explain complex concepts simply"
+            "Use simple language, avoid jargon, explain complex concepts simply",
         ),
         "academic": (
             """Example: 'The study examines correlation between variables X and Y...'
             → 'Research demonstrates significant correlation (p<0.05) between X and Y variables.'""",
-            "Maintain scholarly tone, include methodology and findings"
+            "Maintain scholarly tone, include methodology and findings",
         ),
         "journalistic": (
             """Example: 'The new policy affects millions of citizens...'
             → 'New policy to impact millions as government shifts approach.'""",
-            "Lead with most important information, answer who/what/when/where/why"
-        )
+            "Lead with most important information, answer who/what/when/where/why",
+        ),
     }
     return configs.get(style, ("", "Generate a clear, concise summary"))
 
@@ -346,29 +334,19 @@ async def quick_summary(text: str) -> str:
 
 async def executive_brief(text: str) -> dict[str, Any]:
     """Generate an executive brief with key metrics."""
-    summary = await summarize_text(
-        text=text,
-        style="executive",
-        validate=True
-    )
-    progressive = await summarize_text(
-        text=text,
-        progressive=True
-    )
+    summary = await summarize_text(text=text, style="executive", validate=True)
+    progressive = await summarize_text(text=text, progressive=True)
 
     return {
         "one_line": progressive.one_sentence,
         "summary": summary.summary,
         "key_takeaways": progressive.key_takeaways,
         "word_count": summary.word_count,
-        "confidence": summary.confidence_score
+        "confidence": summary.confidence_score,
     }
 
 
-async def multi_style_summary(
-    text: str,
-    styles: list[str] | None = None
-) -> dict[str, str]:
+async def multi_style_summary(text: str, styles: list[str] | None = None) -> dict[str, str]:
     """Generate summaries in multiple styles."""
     if styles is None:
         styles = ["technical", "executive", "simple"]

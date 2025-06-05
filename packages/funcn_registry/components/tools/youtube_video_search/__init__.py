@@ -17,5 +17,5 @@ __all__ = [
     "analyze_video_content",
     "VideoSearchResult",
     "VideoInfo",
-    "TranscriptSegment"
+    "TranscriptSegment",
 ]

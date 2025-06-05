@@ -12,6 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 
 class OptimizationTechnique(str, Enum):
     """Prompt optimization techniques."""
+
     CHAIN_OF_THOUGHT = "chain_of_thought"
     FEW_SHOT = "few_shot"
     ZERO_SHOT = "zero_shot"
@@ -30,6 +31,7 @@ class OptimizationTechnique(str, Enum):
 
 class PromptIssue(str, Enum):
     """Common prompt issues to address."""
+
     AMBIGUOUS_INSTRUCTIONS = "ambiguous_instructions"
     MISSING_CONTEXT = "missing_context"
     POOR_EXAMPLES = "poor_examples"
@@ -48,6 +50,7 @@ class PromptIssue(str, Enum):
 
 class PromptAnalysis(BaseModel):
     """Analysis of a prompt's strengths and weaknesses."""
+
     clarity_score: float = Field(..., description="Clarity of instructions (0-1)")
     specificity_score: float = Field(..., description="Specificity of requirements (0-1)")
     context_adequacy: float = Field(..., description="Adequacy of context provided (0-1)")
@@ -62,6 +65,7 @@ class PromptAnalysis(BaseModel):
 
 class PromptVariant(BaseModel):
     """A variant of the original prompt with specific optimizations."""
+
     variant_id: str = Field(..., description="Unique identifier for the variant")
     variant_name: str = Field(..., description="Name of the variant")
     optimized_prompt: str = Field(..., description="The optimized prompt text")
@@ -76,6 +80,7 @@ class PromptVariant(BaseModel):
 
 class TestResult(BaseModel):
     """Result of testing a prompt variant."""
+
     variant_id: str = Field(..., description="ID of the tested variant")
     variant_name: str = Field(..., description="Name of the tested variant")
     test_input: str = Field(..., description="Input used for testing")
@@ -93,6 +98,7 @@ class TestResult(BaseModel):
 
 class ABTestResult(BaseModel):
     """Result of A/B testing between variants."""
+
     variant_a_id: str = Field(..., description="ID of variant A")
     variant_b_id: str = Field(..., description="ID of variant B")
     winner: str = Field(..., description="ID of the winning variant")
@@ -104,6 +110,7 @@ class ABTestResult(BaseModel):
 
 class PromptOptimization(BaseModel):
     """Complete prompt optimization analysis."""
+
     original_prompt: str = Field(..., description="The original prompt")
     analysis: PromptAnalysis = Field(..., description="Analysis of the original prompt")
     variants: list[PromptVariant] = Field(..., description="Generated prompt variants")
@@ -117,6 +124,7 @@ class PromptOptimization(BaseModel):
 
 class OptimizationResult(BaseModel):
     """Final optimization result with recommendations."""
+
     optimization: PromptOptimization
     final_prompt: str = Field(..., description="The final optimized prompt")
     performance_improvement: float = Field(..., description="Performance improvement percentage")
@@ -177,10 +185,7 @@ class OptimizationResult(BaseModel):
     """
 )
 def analyze_prompt_effectiveness(
-    prompt: str,
-    task_context: str = "",
-    target_audience: str = "",
-    success_criteria: str = ""
+    prompt: str, task_context: str = "", target_audience: str = "", success_criteria: str = ""
 ) -> PromptAnalysis:
     """Analyze a prompt for effectiveness and identify issues."""
     ...
@@ -235,10 +240,7 @@ def analyze_prompt_effectiveness(
     """
 )
 def generate_prompt_variants(
-    original_prompt: str,
-    analysis_results: PromptAnalysis,
-    priority_issues: list[str],
-    optimization_goals: str = ""
+    original_prompt: str, analysis_results: PromptAnalysis, priority_issues: list[str], optimization_goals: str = ""
 ) -> BaseDynamicConfig:
     """Generate optimized prompt variants."""
     return {
@@ -298,7 +300,7 @@ def test_prompt_variant(
     test_input: str,
     expected_output_type: str = "",
     evaluation_context: str = "",
-    success_criteria: str = ""
+    success_criteria: str = "",
 ) -> BaseDynamicConfig:
     """Test a prompt variant and evaluate its performance."""
     return {
@@ -352,7 +354,7 @@ def compare_variants_ab_test(
     test_results_a: list[TestResult],
     variant_b: PromptVariant,
     test_results_b: list[TestResult],
-    evaluation_context: str = ""
+    evaluation_context: str = "",
 ) -> ABTestResult:
     """Perform A/B testing comparison between two variants."""
     pass
@@ -403,7 +405,7 @@ def synthesize_optimization_results(
     optimization_analysis: PromptOptimization,
     test_results: list[TestResult],
     ab_test_results: list[ABTestResult],
-    performance_goals: str = ""
+    performance_goals: str = "",
 ) -> BaseDynamicConfig:
     """Synthesize optimization results into final recommendations."""
     return {
@@ -416,11 +418,7 @@ def synthesize_optimization_results(
 
 
 async def run_variant_tests(
-    variant: PromptVariant,
-    test_inputs: list[str],
-    expected_output_type: str,
-    evaluation_context: str,
-    success_criteria: str
+    variant: PromptVariant, test_inputs: list[str], expected_output_type: str, evaluation_context: str, success_criteria: str
 ) -> list[TestResult]:
     """Run tests for a single variant with multiple inputs."""
     test_results = []
@@ -434,7 +432,7 @@ async def run_variant_tests(
             test_input=test_input,
             expected_output_type=expected_output_type,
             evaluation_context=evaluation_context,
-            success_criteria=success_criteria
+            success_criteria=success_criteria,
         )
 
         # Add response time
@@ -455,7 +453,7 @@ async def prompt_engineering_optimizer(
     max_variants: int = 5,
     enable_ab_testing: bool = True,
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> OptimizationResult:
     """
     Optimize prompts using advanced prompt engineering techniques and testing.
@@ -487,10 +485,7 @@ async def prompt_engineering_optimizer(
     # Step 1: Analyze the original prompt
     print("🔍 Analyzing original prompt...")
     analysis = await analyze_prompt_effectiveness(
-        prompt=prompt,
-        task_context=task_context,
-        target_audience=target_audience,
-        success_criteria=success_criteria
+        prompt=prompt, task_context=task_context, target_audience=target_audience, success_criteria=success_criteria
     )
     print(f"📊 Analysis complete - Overall Score: {analysis.overall_score:.2f}, Issues: {len(analysis.identified_issues)}")
 
@@ -498,10 +493,7 @@ async def prompt_engineering_optimizer(
     print("🔧 Generating optimized variants...")
     priority_issues = [issue.value for issue in analysis.identified_issues[:3]]  # Top 3 issues
     variants = await generate_prompt_variants(
-        original_prompt=prompt,
-        analysis_results=analysis,
-        priority_issues=priority_issues,
-        optimization_goals=optimization_goals
+        original_prompt=prompt, analysis_results=analysis, priority_issues=priority_issues, optimization_goals=optimization_goals
     )
 
     # Limit variants to max_variants
@@ -509,7 +501,7 @@ async def prompt_engineering_optimizer(
 
     # Assign unique IDs to variants
     for i, variant in enumerate(variants):
-        variant.variant_id = f"variant_{i+1}"
+        variant.variant_id = f"variant_{i + 1}"
 
     print(f"✨ Generated {len(variants)} optimized variants")
 
@@ -519,14 +511,7 @@ async def prompt_engineering_optimizer(
 
     # Run tests for all variants in parallel
     test_tasks = [
-        run_variant_tests(
-            variant,
-            test_inputs,
-            expected_output_type,
-            task_context,
-            success_criteria
-        )
-        for variant in variants
+        run_variant_tests(variant, test_inputs, expected_output_type, task_context, success_criteria) for variant in variants
     ]
 
     variant_test_results = await asyncio.gather(*test_tasks)
@@ -565,7 +550,7 @@ async def prompt_engineering_optimizer(
                 test_results_a=results_a,
                 variant_b=variant_b,
                 test_results_b=results_b,
-                evaluation_context=task_context
+                evaluation_context=task_context,
             )
             ab_test_results.append(ab_result)
 
@@ -573,8 +558,7 @@ async def prompt_engineering_optimizer(
 
     # Step 5: Determine best variant
     best_variant_id = max(
-        variants,
-        key=lambda v: sum(r.quality_score for r in all_test_results if r.variant_id == v.variant_id)
+        variants, key=lambda v: sum(r.quality_score for r in all_test_results if r.variant_id == v.variant_id)
     ).variant_id
 
     # Step 6: Create optimization analysis
@@ -604,9 +588,9 @@ async def prompt_engineering_optimizer(
             "Monitor performance in production",
             "A/B test with real users",
             "Iterate based on user feedback",
-            "Track token usage and costs"
+            "Track token usage and costs",
         ],
-        optimization_metrics=optimization_metrics
+        optimization_metrics=optimization_metrics,
     )
 
     # Step 7: Synthesize final results
@@ -616,18 +600,14 @@ async def prompt_engineering_optimizer(
         optimization_analysis=optimization_analysis,
         test_results=all_test_results,
         ab_test_results=ab_test_results,
-        performance_goals=optimization_goals
+        performance_goals=optimization_goals,
     )
 
     print("✅ Prompt optimization complete!")
     return final_result
 
 
-async def prompt_engineering_optimizer_stream(
-    prompt: str,
-    task_context: str = "",
-    **kwargs
-) -> AsyncGenerator[str, None]:
+async def prompt_engineering_optimizer_stream(prompt: str, task_context: str = "", **kwargs) -> AsyncGenerator[str, None]:
     """Stream the prompt optimization process."""
 
     yield "🔧 Starting prompt optimization...\n\n"

@@ -13,6 +13,7 @@ from typing import Optional
 
 # Factual question answering
 
+
 class FactualAnswer(BaseModel):
     """Model for factual QA results."""
 
@@ -25,12 +26,7 @@ class FactualAnswer(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=FactualAnswer,
-    call_params={"temperature": 0.1}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=FactualAnswer, call_params={"temperature": 0.1})
 @prompt_template(
     """
     Answer this factual question precisely:
@@ -50,11 +46,7 @@ class FactualAnswer(BaseModel):
     Be concise but complete. Acknowledge if uncertain.
     """
 )
-def answer_factual(
-    question: str,
-    domain: str = "general knowledge",
-    depth_level: str = "standard"
-):
+def answer_factual(question: str, domain: str = "general knowledge", depth_level: str = "standard"):
     """
     Answer factual questions with confidence scoring.
 
@@ -70,6 +62,7 @@ def answer_factual(
 
 
 # Reasoning-based question answering
+
 
 class ReasonedAnswer(BaseModel):
     """Model for reasoning-based answers."""
@@ -102,10 +95,7 @@ class ReasonedAnswer(BaseModel):
     Show your reasoning process clearly.
     """
 )
-def answer_reasoning(
-    question: str,
-    context: str = ""
-):
+def answer_reasoning(question: str, context: str = ""):
     """
     Answer questions requiring logical reasoning.
 
@@ -121,6 +111,7 @@ def answer_reasoning(
 
 # Context-based question answering
 
+
 class ContextualAnswer(BaseModel):
     """Model for context-based answers."""
 
@@ -133,12 +124,7 @@ class ContextualAnswer(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=ContextualAnswer,
-    call_params={"temperature": 0.2}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=ContextualAnswer, call_params={"temperature": 0.2})
 @prompt_template(
     """
     Answer this question based only on the provided context:
@@ -157,10 +143,7 @@ class ContextualAnswer(BaseModel):
     Do not use external knowledge.
     """
 )
-def answer_contextual(
-    question: str,
-    context: str
-):
+def answer_contextual(question: str, context: str):
     """
     Answer questions based on provided context.
 
@@ -175,6 +158,7 @@ def answer_contextual(
 
 
 # Multi-hop question answering
+
 
 class MultiHopAnswer(BaseModel):
     """Model for multi-hop reasoning answers."""
@@ -207,10 +191,7 @@ class MultiHopAnswer(BaseModel):
     Show how each piece of information contributes.
     """
 )
-def answer_multi_hop(
-    question: str,
-    information: str
-):
+def answer_multi_hop(question: str, information: str):
     """
     Answer complex multi-hop reasoning questions.
 
@@ -225,6 +206,7 @@ def answer_multi_hop(
 
 
 # Comparative question answering
+
 
 class ComparativeAnswer(BaseModel):
     """Model for comparative answers."""
@@ -257,10 +239,7 @@ class ComparativeAnswer(BaseModel):
     Be objective and balanced in comparison.
     """
 )
-def answer_comparative(
-    question: str,
-    context: str = ""
-):
+def answer_comparative(question: str, context: str = ""):
     """
     Answer questions requiring comparison.
 
@@ -275,6 +254,7 @@ def answer_comparative(
 
 
 # Dynamic QA with follow-up handling
+
 
 @lilypad.trace(versioning="automatic")
 @llm.call(provider="openai", model="gpt-4o-mini")
@@ -295,10 +275,7 @@ def answer_comparative(
     Provide a coherent answer that acknowledges the conversation flow.
     """
 )
-def answer_with_history(
-    question: str,
-    qa_history: list[dict[str, str]]
-) -> BaseDynamicConfig:
+def answer_with_history(question: str, qa_history: list[dict[str, str]]) -> BaseDynamicConfig:
     """
     Answer questions with conversation history.
 
@@ -311,14 +288,6 @@ def answer_with_history(
     """
     formatted_history = []
     for qa in qa_history:
-        formatted_history.append([
-            f"Q: {qa['question']}",
-            f"A: {qa['answer']}",
-            ""
-        ])
+        formatted_history.append([f"Q: {qa['question']}", f"A: {qa['answer']}", ""])
 
-    return {
-        "computed_fields": {
-            "qa_history": formatted_history
-        }
-    }
+    return {"computed_fields": {"qa_history": formatted_history}}

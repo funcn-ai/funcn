@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Prompt generation
 
+
 class GeneratedPrompt(BaseModel):
     """Model for generated prompts."""
 
@@ -42,11 +43,7 @@ class GeneratedPrompt(BaseModel):
     Consider prompt engineering best practices.
     """
 )
-def generate_prompt(
-    task: str,
-    context: str = "",
-    constraints: list[str] = None
-):
+def generate_prompt(task: str, context: str = "", constraints: list[str] = None):
     """
     Generate an optimized prompt for a task.
 
@@ -69,6 +66,7 @@ def generate_prompt(
 
 
 # Prompt optimization
+
 
 class OptimizedPrompt(BaseModel):
     """Model for optimized prompts."""
@@ -101,10 +99,7 @@ class OptimizedPrompt(BaseModel):
     Explain each improvement made.
     """
 )
-def optimize_prompt(
-    original_prompt: str,
-    goal: str
-):
+def optimize_prompt(original_prompt: str, goal: str):
     """
     Optimize an existing prompt.
 
@@ -124,6 +119,7 @@ def optimize_prompt(
 
 
 # Prompt engineering assistant
+
 
 class PromptEngineeringAdvice(BaseModel):
     """Model for prompt engineering advice."""
@@ -156,11 +152,7 @@ class PromptEngineeringAdvice(BaseModel):
     Focus on practical, actionable advice.
     """
 )
-def prompt_engineering_assistant(
-    task_type: str,
-    requirements: list[str] = None,
-    model: str = "general LLM"
-):
+def prompt_engineering_assistant(task_type: str, requirements: list[str] = None, model: str = "general LLM"):
     """
     Get prompt engineering advice for a task.
 
@@ -183,6 +175,7 @@ def prompt_engineering_assistant(
 
 
 # Dynamic prompt adaptation
+
 
 class AdaptivePrompt(BaseModel):
     """Model for adaptive prompts."""
@@ -211,10 +204,7 @@ class AdaptivePrompt(BaseModel):
     The system should handle various scenarios gracefully.
     """
 )
-def create_adaptive_prompt(
-    task: str,
-    contexts: list[str]
-):
+def create_adaptive_prompt(task: str, contexts: list[str]):
     """
     Create adaptive prompt system.
 
@@ -234,6 +224,7 @@ def create_adaptive_prompt(
 
 
 # Self-improving prompts
+
 
 class SelfImprovingPrompt(BaseModel):
     """Model for self-improving prompts."""
@@ -265,26 +256,21 @@ class SelfImprovingPrompt(BaseModel):
     Generate an improved version.
     """
 )
-def analyze_prompt_performance(
-    current_prompt: str,
-    performance_data: list[dict]
-) -> BaseDynamicConfig:
+def analyze_prompt_performance(current_prompt: str, performance_data: list[dict]) -> BaseDynamicConfig:
     """Analyze prompt performance."""
     formatted_data = []
     for data in performance_data:
-        formatted_data.append([
-            f"Input: {data['input']}",
-            f"Output: {data['output']}",
-            f"Quality: {data['quality']}",
-            f"Issues: {data.get('issues', 'None')}",
-            ""
-        ])
+        formatted_data.append(
+            [
+                f"Input: {data['input']}",
+                f"Output: {data['output']}",
+                f"Quality: {data['quality']}",
+                f"Issues: {data.get('issues', 'None')}",
+                "",
+            ]
+        )
 
-    return {
-        "computed_fields": {
-            "performance_data": formatted_data
-        }
-    }
+    return {"computed_fields": {"performance_data": formatted_data}}
 
 
 @lilypad.trace(versioning="automatic")
@@ -302,20 +288,12 @@ def analyze_prompt_performance(
     Document what you learned for future iterations.
     """
 )
-def create_improved_version(
-    analysis: str,
-    current_prompt: str,
-    iteration: int
-):
+def create_improved_version(analysis: str, current_prompt: str, iteration: int):
     """Create improved prompt version."""
     pass
 
 
-async def self_improving_prompt(
-    initial_prompt: str,
-    test_cases: list[dict],
-    iterations: int = 3
-) -> list[SelfImprovingPrompt]:
+async def self_improving_prompt(initial_prompt: str, test_cases: list[dict], iterations: int = 3) -> list[SelfImprovingPrompt]:
     """
     Self-improving prompt through iterations.
 
@@ -337,32 +315,23 @@ async def self_improving_prompt(
 
     for i in range(iterations):
         # Analyze performance
-        analysis = await analyze_prompt_performance(
-            current_prompt=current_prompt,
-            performance_data=test_cases
-        )
+        analysis = await analyze_prompt_performance(current_prompt=current_prompt, performance_data=test_cases)
 
         # Create improved version
-        improvement = await create_improved_version(
-            analysis=analysis.content,
-            current_prompt=current_prompt,
-            iteration=i + 1
-        )
+        improvement = await create_improved_version(analysis=analysis.content, current_prompt=current_prompt, iteration=i + 1)
 
         improvements.append(improvement)
         current_prompt = improvement.next_version
 
         # Update test cases with new results (simplified)
         for test_case in test_cases:
-            test_case['quality'] = min(
-                test_case['quality'] + 0.1,
-                1.0
-            )
+            test_case['quality'] = min(test_case['quality'] + 0.1, 1.0)
 
     return improvements
 
 
 # Meta-prompt templates
+
 
 @lilypad.trace(versioning="automatic")
 @llm.call(provider="openai", model="gpt-4o-mini")

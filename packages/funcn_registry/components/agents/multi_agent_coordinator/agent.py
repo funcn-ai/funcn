@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 class AgentCapability(str, Enum):
     """Available agent capabilities in the system."""
+
     RESEARCH = "research"
     WEB_SEARCH = "web_search"
     DATA_ANALYSIS = "data_analysis"
@@ -27,10 +28,10 @@ class AgentCapability(str, Enum):
 
 class TaskBreakdown(BaseModel):
     """Breakdown of a complex task into subtasks."""
+
     subtasks: list[str] = Field(..., description="List of subtasks to be executed")
     dependencies: dict[str, list[str]] = Field(
-        default_factory=dict,
-        description="Dependencies between subtasks (subtask -> list of prerequisite subtasks)"
+        default_factory=dict, description="Dependencies between subtasks (subtask -> list of prerequisite subtasks)"
     )
     estimated_complexity: int = Field(..., description="Complexity score from 1-10")
     reasoning: str = Field(..., description="Reasoning for the task breakdown")
@@ -38,24 +39,22 @@ class TaskBreakdown(BaseModel):
 
 class AgentSelection(BaseModel):
     """Selection of agents for specific subtasks."""
+
     subtask: str = Field(..., description="The subtask to be executed")
     primary_agent: AgentCapability = Field(..., description="Primary agent for this subtask")
-    supporting_agents: list[AgentCapability] = Field(
-        default_factory=list,
-        description="Supporting agents that may be needed"
-    )
+    supporting_agents: list[AgentCapability] = Field(default_factory=list, description="Supporting agents that may be needed")
     confidence: float = Field(..., description="Confidence in agent selection (0-1)")
     reasoning: str = Field(..., description="Reasoning for agent selection")
 
 
 class CoordinationPlan(BaseModel):
     """Complete coordination plan for multi-agent execution."""
+
     task_breakdown: TaskBreakdown
     agent_assignments: list[AgentSelection]
     execution_order: list[str] = Field(..., description="Order of subtask execution")
     parallel_groups: list[list[str]] = Field(
-        default_factory=list,
-        description="Groups of subtasks that can be executed in parallel"
+        default_factory=list, description="Groups of subtasks that can be executed in parallel"
     )
     estimated_duration: str = Field(..., description="Estimated time to complete")
     risk_assessment: str = Field(..., description="Potential risks and mitigation strategies")
@@ -63,15 +62,13 @@ class CoordinationPlan(BaseModel):
 
 class CoordinationResult(BaseModel):
     """Result of multi-agent coordination."""
+
     final_answer: str = Field(..., description="Synthesized final answer")
     subtask_results: dict[str, str] = Field(..., description="Results from each subtask")
     agents_used: list[str] = Field(..., description="List of agents that were utilized")
     execution_summary: str = Field(..., description="Summary of the execution process")
     quality_score: float = Field(..., description="Quality assessment of the result (0-1)")
-    recommendations: list[str] = Field(
-        default_factory=list,
-        description="Recommendations for future similar tasks"
-    )
+    recommendations: list[str] = Field(default_factory=list, description="Recommendations for future similar tasks")
 
 
 @llm.call(
@@ -102,11 +99,7 @@ class CoordinationResult(BaseModel):
     Analyze the task and provide a detailed breakdown with dependencies and complexity assessment.
     """
 )
-def analyze_task_breakdown(
-    task: str,
-    context: str = "",
-    requirements: str = ""
-) -> TaskBreakdown:
+def analyze_task_breakdown(task: str, context: str = "", requirements: str = "") -> TaskBreakdown:
     """Analyze and break down a complex task into manageable subtasks."""
     pass
 
@@ -152,10 +145,7 @@ def analyze_task_breakdown(
     For each subtask, select the most appropriate primary agent and any supporting agents needed.
     """
 )
-def select_agents_for_subtasks(
-    subtasks: list[str],
-    context: str = ""
-) -> list[AgentSelection]:
+def select_agents_for_subtasks(subtasks: list[str], context: str = "") -> list[AgentSelection]:
     """Select appropriate agents for each subtask."""
     pass
 
@@ -191,9 +181,7 @@ def select_agents_for_subtasks(
     """
 )
 def create_coordination_plan(
-    task_breakdown: TaskBreakdown,
-    agent_assignments: list[AgentSelection],
-    original_task: str
+    task_breakdown: TaskBreakdown, agent_assignments: list[AgentSelection], original_task: str
 ) -> BaseDynamicConfig:
     """Create a comprehensive coordination plan for multi-agent execution."""
     return {
@@ -235,10 +223,7 @@ def create_coordination_plan(
     """
 )
 def synthesize_final_result(
-    original_task: str,
-    coordination_plan: CoordinationPlan,
-    subtask_results: dict[str, str],
-    execution_notes: str = ""
+    original_task: str, coordination_plan: CoordinationPlan, subtask_results: dict[str, str], execution_notes: str = ""
 ) -> BaseDynamicConfig:
     """Synthesize final result from all agent outputs."""
     return {
@@ -250,10 +235,7 @@ def synthesize_final_result(
 
 
 async def execute_subtask_with_agent(
-    subtask: str,
-    agent_capability: AgentCapability,
-    context: str = "",
-    timeout: int = 300
+    subtask: str, agent_capability: AgentCapability, context: str = "", timeout: int = 300
 ) -> str:
     """Execute a subtask using the specified agent capability with timeout."""
     try:
@@ -262,31 +244,37 @@ async def execute_subtask_with_agent(
             # Import and use the appropriate agent based on capability
             if agent_capability == AgentCapability.WEB_SEARCH:
                 from ..web_search import web_search_agent
+
                 result = await web_search_agent(subtask)
                 return result.answer if hasattr(result, 'answer') else str(result)
 
             elif agent_capability == AgentCapability.TEXT_SUMMARIZATION:
                 from ..text_summarization import summarize_text
+
                 result = await summarize_text(subtask, context)
                 return result.summary if hasattr(result, 'summary') else str(result)
 
             elif agent_capability == AgentCapability.RESEARCH:
                 from ..research_assistant import research_topic
+
                 result = await research_topic(subtask, context)
                 return result.answer if hasattr(result, 'answer') else str(result)
 
             elif agent_capability == AgentCapability.HALLUCINATION_DETECTION:
                 from ..hallucination_detector import detect_hallucinations
+
                 result = await detect_hallucinations(subtask, context)
                 return result.analysis if hasattr(result, 'analysis') else str(result)
 
             elif agent_capability == AgentCapability.KNOWLEDGE_GRAPH:
                 from ..knowledge_graph import extract_knowledge_graph
+
                 result = await extract_knowledge_graph(subtask, context)
                 return result.graph_summary if hasattr(result, 'graph_summary') else str(result)
 
             elif agent_capability == AgentCapability.CODE_GENERATION:
                 from ..code_generation_execution import generate_and_execute_code
+
                 result = await generate_and_execute_code(subtask, context)
                 return result.code if hasattr(result, 'code') else str(result)
 
@@ -304,12 +292,7 @@ async def execute_subtask_with_agent(
                     Provide a detailed result for this specific subtask.
                     """
                 )
-                def execute_generic_subtask(
-                    subtask: str,
-                    agent_capability: str,
-                    context: str = ""
-                ) -> str:
-                    ...
+                def execute_generic_subtask(subtask: str, agent_capability: str, context: str = "") -> str: ...
 
                 result = await execute_generic_subtask(subtask, agent_capability.value, context)
                 return result.content if hasattr(result, 'content') else str(result)
@@ -327,7 +310,7 @@ async def multi_agent_coordinator(
     max_parallel_tasks: int = 3,
     task_timeout: int = 300,
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> CoordinationResult:
     """
     Coordinate multiple specialized agents to solve complex tasks.
@@ -383,25 +366,15 @@ async def multi_agent_coordinator(
 
         # Execute ready tasks in parallel (respecting max_parallel_tasks)
         for i in range(0, len(ready_tasks), max_parallel_tasks):
-            batch = ready_tasks[i:i + max_parallel_tasks]
+            batch = ready_tasks[i : i + max_parallel_tasks]
             tasks = []
 
             for subtask in batch:
                 # Find the agent assignment for this subtask
-                assignment = next(
-                    (a for a in agent_assignments if a.subtask == subtask),
-                    None
-                )
+                assignment = next((a for a in agent_assignments if a.subtask == subtask), None)
                 if assignment:
                     agents_used.add(assignment.primary_agent.value)
-                    tasks.append(
-                        execute_subtask_with_agent(
-                            subtask,
-                            assignment.primary_agent,
-                            context,
-                            task_timeout
-                        )
-                    )
+                    tasks.append(execute_subtask_with_agent(subtask, assignment.primary_agent, context, task_timeout))
 
             # Wait for batch to complete
             if tasks:
@@ -419,19 +392,11 @@ async def multi_agent_coordinator(
     # Execute any remaining tasks that weren't in parallel groups
     for subtask in task_breakdown.subtasks:
         if subtask not in completed_tasks:
-            assignment = next(
-                (a for a in agent_assignments if a.subtask == subtask),
-                None
-            )
+            assignment = next((a for a in agent_assignments if a.subtask == subtask), None)
             if assignment:
                 try:
                     agents_used.add(assignment.primary_agent.value)
-                    result = await execute_subtask_with_agent(
-                        subtask,
-                        assignment.primary_agent,
-                        context,
-                        task_timeout
-                    )
+                    result = await execute_subtask_with_agent(subtask, assignment.primary_agent, context, task_timeout)
                     subtask_results[subtask] = result
                 except Exception as e:
                     execution_notes.append(f"Error in {subtask}: {e}")
@@ -439,12 +404,7 @@ async def multi_agent_coordinator(
 
     # Step 5: Synthesize final result
     print("Synthesizing final result...")
-    final_result = await synthesize_final_result(
-        task,
-        coordination_plan,
-        subtask_results,
-        "\n".join(execution_notes)
-    )
+    final_result = await synthesize_final_result(task, coordination_plan, subtask_results, "\n".join(execution_notes))
 
     # Update agents_used in the result
     final_result.agents_used = list(agents_used)
@@ -454,10 +414,7 @@ async def multi_agent_coordinator(
 
 
 async def multi_agent_coordinator_stream(
-    task: str,
-    context: str = "",
-    requirements: str = "",
-    **kwargs
+    task: str, context: str = "", requirements: str = "", **kwargs
 ) -> AsyncGenerator[str, None]:
     """Stream the multi-agent coordination process with real-time updates."""
 

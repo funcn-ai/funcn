@@ -15,5 +15,5 @@ __all__ = [
     "find_code_examples",
     "search_api_docs",
     "CodeDocsSearchResult",
-    "DocumentationMatch"
+    "DocumentationMatch",
 ]

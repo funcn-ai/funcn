@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Extractive summarization
 
+
 class ExtractSummary(BaseModel):
     """Model for extractive summary."""
 
@@ -51,6 +52,7 @@ def summarize_extractive(text: str, num_sentences: int = 5):
 
 # Abstractive summarization
 
+
 class AbstractSummary(BaseModel):
     """Model for abstractive summary."""
 
@@ -61,12 +63,7 @@ class AbstractSummary(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=AbstractSummary,
-    call_params={"temperature": 0.3}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=AbstractSummary, call_params={"temperature": 0.3})
 @prompt_template(
     """
     Create a {style} summary of this text:
@@ -88,7 +85,7 @@ def summarize_abstractive(
     target_length: int = 100,
     audience: str = "general",
     focus_areas: list[str] = None,
-    tone: str = "neutral"
+    tone: str = "neutral",
 ):
     """
     Abstractive summarization - generate new summary text.
@@ -110,6 +107,7 @@ def summarize_abstractive(
 
 
 # Bullet point summarization
+
 
 class BulletSummary(BaseModel):
     """Model for bullet point summary."""
@@ -153,6 +151,7 @@ def summarize_bullets(text: str, num_bullets: int = 7):
 
 # Advanced hierarchical summarization
 
+
 class HierarchicalSummary(BaseModel):
     """Model for hierarchical summary."""
 
@@ -193,12 +192,9 @@ def summarize_hierarchical(text: str):
 
 # Dynamic summarization with context
 
+
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    call_params={"temperature": 0.2}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", call_params={"temperature": 0.2})
 @prompt_template(
     """
     Summarize this text for the specific context:
@@ -216,10 +212,7 @@ def summarize_hierarchical(text: str):
     """
 )
 def summarize_contextual(
-    text: str,
-    context: str,
-    previous_knowledge: list[str] = None,
-    goals: list[str] = None
+    text: str, context: str, previous_knowledge: list[str] = None, goals: list[str] = None
 ) -> BaseDynamicConfig:
     """
     Context-aware dynamic summarization.
@@ -243,8 +236,4 @@ def summarize_contextual(
     for goal in goals:
         formatted_goals.append([f"- {goal}"])
 
-    return {
-        "computed_fields": {
-            "goals": formatted_goals
-        }
-    }
+    return {"computed_fields": {"goals": formatted_goals}}

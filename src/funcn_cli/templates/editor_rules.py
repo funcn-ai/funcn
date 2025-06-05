@@ -307,15 +307,18 @@ Funcn AI framework using Mirascope for LLM-powered component development.
 - Testing multi-provider compatibility
 """
 
+
 def generate_editor_rules(editor: str, components: list[dict]) -> str:
     """Generate editor-specific rules content."""
 
     # Format available components
     if components:
-        available_components = "\n".join([
-            f"- **{comp.get('name', 'Unknown')}** ({comp.get('type', 'unknown')}): {comp.get('description', 'No description')}"
-            for comp in components
-        ])
+        available_components = "\n".join(
+            [
+                f"- **{comp.get('name', 'Unknown')}** ({comp.get('type', 'unknown')}): {comp.get('description', 'No description')}"
+                for comp in components
+            ]
+        )
     else:
         available_components = "- No components found"
 
@@ -326,9 +329,7 @@ def generate_editor_rules(editor: str, components: list[dict]) -> str:
             env_vars.add((env_var.get("name", ""), env_var.get("description", "")))
 
     if env_vars:
-        environment_variables = "\n".join([
-            f"- {name}: {desc}" for name, desc in sorted(env_vars) if name
-        ])
+        environment_variables = "\n".join([f"- {name}: {desc}" for name, desc in sorted(env_vars) if name])
     else:
         environment_variables = "- No specific environment variables required"
 
@@ -341,10 +342,9 @@ def generate_editor_rules(editor: str, components: list[dict]) -> str:
                 categories[comp_type] = []
             categories[comp_type].append(comp.get("name", "Unknown"))
 
-        component_categories = "\n".join([
-            f"- **{cat_type.title()}**: {', '.join(comps)}"
-            for cat_type, comps in categories.items()
-        ])
+        component_categories = "\n".join(
+            [f"- **{cat_type.title()}**: {', '.join(comps)}" for cat_type, comps in categories.items()]
+        )
     else:
         component_categories = ""
 
@@ -368,5 +368,5 @@ def generate_editor_rules(editor: str, components: list[dict]) -> str:
         available_components=available_components,
         environment_variables=environment_variables,
         component_structure=component_structure,
-        component_categories=component_categories
+        component_categories=component_categories,
     )

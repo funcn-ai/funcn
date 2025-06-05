@@ -20,16 +20,19 @@ except ImportError:
 # Response models for structured outputs
 class ExtractedClaim(BaseModel):
     """A single extracted claim from text."""
+
     claim: str = Field(..., description="A single, verifiable statement extracted from the text")
 
 
 class ExtractedClaimsResponse(BaseModel):
     """Response containing all extracted claims."""
+
     claims: list[str] = Field(..., description="List of factual claims extracted from the text")
 
 
 class ClaimVerification(BaseModel):
     """Verification result for a single claim."""
+
     claim: str = Field(..., description="The claim being verified")
     assessment: str = Field(..., description="Assessment: 'supported', 'refuted', or 'insufficient_evidence'")
     confidence_score: float = Field(..., ge=0.0, le=1.0, description="Confidence score between 0 and 1")
@@ -40,10 +43,13 @@ class ClaimVerification(BaseModel):
 
 class HallucinationDetectionResponse(BaseModel):
     """Complete hallucination detection response."""
+
     claims_extracted: int = Field(..., description="Total number of claims extracted")
     claims_verified: list[ClaimVerification] = Field(..., description="Verification results for each claim")
     overall_assessment: str = Field(..., description="Overall assessment of the text's accuracy")
-    hallucination_score: float = Field(..., ge=0.0, le=1.0, description="Overall hallucination score (0=no hallucinations, 1=all hallucinations)")
+    hallucination_score: float = Field(
+        ..., ge=0.0, le=1.0, description="Overall hallucination score (0=no hallucinations, 1=all hallucinations)"
+    )
     summary: str = Field(..., description="Summary of the hallucination detection results")
 
 
@@ -147,10 +153,7 @@ async def verify_claim(claim: str):
     5. Provide a summary of the findings
     """
 )
-async def analyze_hallucinations(
-    original_text: str,
-    verification_results: str
-):
+async def analyze_hallucinations(original_text: str, verification_results: str):
     """Analyze the overall hallucination detection results."""
     pass
 
@@ -160,7 +163,7 @@ async def detect_hallucinations(
     llm_provider: str = "openai",
     model: str = "gpt-4o-mini",
     search_type: str = "neural",
-    max_sources_per_claim: int = 5
+    max_sources_per_claim: int = 5,
 ) -> HallucinationDetectionResponse:
     """
     Detect potential hallucinations in text by fact-checking claims.
@@ -189,7 +192,7 @@ async def detect_hallucinations(
             claims_verified=[],
             overall_assessment="no claims found",
             hallucination_score=0.0,
-            summary="No verifiable claims were found in the text."
+            summary="No verifiable claims were found in the text.",
         )
 
     # Step 2: Verify each claim
@@ -200,21 +203,20 @@ async def detect_hallucinations(
             verification_results.append(verification)
         except Exception as e:
             # Handle errors gracefully
-            verification_results.append(ClaimVerification(
-                claim=claim,
-                assessment="insufficient_evidence",
-                confidence_score=0.0,
-                supporting_sources=[],
-                refuting_sources=[],
-                summary=f"Error during verification: {str(e)}"
-            ))
+            verification_results.append(
+                ClaimVerification(
+                    claim=claim,
+                    assessment="insufficient_evidence",
+                    confidence_score=0.0,
+                    supporting_sources=[],
+                    refuting_sources=[],
+                    summary=f"Error during verification: {str(e)}",
+                )
+            )
 
     # Step 3: Analyze overall results
     verification_json = json.dumps([v.model_dump() for v in verification_results], indent=2)
-    final_analysis = await analyze_hallucinations(
-        original_text=text,
-        verification_results=verification_json
-    )
+    final_analysis = await analyze_hallucinations(original_text=text, verification_results=verification_json)
 
     return final_analysis
 
@@ -235,7 +237,7 @@ async def detect_hallucinations_quick(text: str) -> dict[str, Any]:
         "is_hallucinated": result.hallucination_score > 0.5,
         "score": result.hallucination_score,
         "summary": result.summary,
-        "claims_checked": result.claims_extracted
+        "claims_checked": result.claims_extracted,
     }
 
 

@@ -8,6 +8,7 @@ component into an output directory (default: ``./public/r``).
 The generated files can then be served statically or published, allowing third
 party developers to consume the registry via raw URLs.
 """
+
 from __future__ import annotations
 
 import json
@@ -24,20 +25,29 @@ app = typer.Typer(help="Build registry JSON files from an index.")
 @app.callback(invoke_without_command=True)
 def build(  # noqa: D401 – CLI entry-point
     ctx: typer.Context,
-    registry: Annotated[str | None, typer.Argument(
-        help="Path to registry index JSON file.",
-        show_default=False,
-    )] = None,
-    output: Annotated[str, typer.Option(
-        "--output",
-        "-o",
-        help="Destination directory for generated JSON files.",
-    )] = "./public/r",
-    cwd: Annotated[Path | None, typer.Option(
-        "--cwd",
-        "-c",
-        help="Working directory. Defaults to current directory.",
-    )] = None,
+    registry: Annotated[
+        str | None,
+        typer.Argument(
+            help="Path to registry index JSON file.",
+            show_default=False,
+        ),
+    ] = None,
+    output: Annotated[
+        str,
+        typer.Option(
+            "--output",
+            "-o",
+            help="Destination directory for generated JSON files.",
+        ),
+    ] = "./public/r",
+    cwd: Annotated[
+        Path | None,
+        typer.Option(
+            "--cwd",
+            "-c",
+            help="Working directory. Defaults to current directory.",
+        ),
+    ] = None,
 ) -> None:
     """Generate per-component JSON manifests from a registry index file."""
 

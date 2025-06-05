@@ -14,6 +14,7 @@ from typing import Any
 
 # Tree of Thought reasoning
 
+
 class ThoughtNode(BaseModel):
     """Model for a node in the thought tree."""
 
@@ -55,11 +56,7 @@ class TreeSolution(BaseModel):
     4. Consider different approaches
     """
 )
-async def evaluate_thought(
-    problem: str,
-    current_thought: str,
-    current_path: list[str]
-):
+async def evaluate_thought(problem: str, current_thought: str, current_path: list[str]):
     """Evaluate a thought and generate next steps."""
     pass
 
@@ -86,12 +83,7 @@ async def generate_initial_thoughts(problem: str):
     pass
 
 
-async def tree_reasoning(
-    problem: str,
-    max_depth: int = 5,
-    beam_width: int = 3,
-    min_score: float = 0.5
-) -> TreeSolution:
+async def tree_reasoning(problem: str, max_depth: int = 5, beam_width: int = 3, min_score: float = 0.5) -> TreeSolution:
     """
     Tree of Thought reasoning with beam search.
 
@@ -144,11 +136,7 @@ async def tree_reasoning(
             else:
                 # Add next thoughts to new beam
                 for next_thought in eval_result.next_thoughts:
-                    new_beam.append((
-                        current_path,
-                        next_thought,
-                        eval_result.evaluation_score
-                    ))
+                    new_beam.append((current_path, next_thought, eval_result.evaluation_score))
 
         # Keep only top beam_width paths
         new_beam.sort(key=lambda x: x[2], reverse=True)
@@ -171,11 +159,12 @@ async def tree_reasoning(
         solution=best_path[-1] if best_path else "No solution",
         confidence=best_score,
         explored_paths=total_explored,
-        pruned_paths=total_pruned
+        pruned_paths=total_pruned,
     )
 
 
 # Path exploration
+
 
 class ExplorationResult(BaseModel):
     """Model for path exploration results."""
@@ -208,10 +197,7 @@ class ExplorationResult(BaseModel):
     - Key insights
     """
 )
-async def analyze_paths(
-    problem: str,
-    paths: list[list[str]]
-) -> BaseDynamicConfig:
+async def analyze_paths(problem: str, paths: list[list[str]]) -> BaseDynamicConfig:
     """Analyze multiple reasoning paths."""
     paths_text = []
     for i, path in enumerate(paths, 1):
@@ -220,17 +206,10 @@ async def analyze_paths(
             paths_text.append([f"  Step {j}: {step}"])
         paths_text.append([""])
 
-    return {
-        "computed_fields": {
-            "paths_text": paths_text
-        }
-    }
+    return {"computed_fields": {"paths_text": paths_text}}
 
 
-async def explore_paths(
-    problem: str,
-    num_paths: int = 5
-) -> ExplorationResult:
+async def explore_paths(problem: str, num_paths: int = 5) -> ExplorationResult:
     """
     Explore multiple solution paths.
 
@@ -251,7 +230,7 @@ async def explore_paths(
     paths = []
     for i in range(num_paths):
         # Generate path (simplified)
-        path = [f"Approach {i+1}: Initial thought", "Develop idea", "Conclude"]
+        path = [f"Approach {i + 1}: Initial thought", "Develop idea", "Conclude"]
         paths.append(path)
 
     # Analyze paths
@@ -261,6 +240,7 @@ async def explore_paths(
 
 
 # Tree search with backtracking
+
 
 class SearchState(BaseModel):
     """Model for search state."""
@@ -290,23 +270,13 @@ class SearchState(BaseModel):
     Consider constraints: {constraints:list}
     """
 )
-async def evaluate_state(
-    problem: str,
-    goal: str,
-    current_state: str,
-    path: list[str],
-    constraints: list[str]
-):
+async def evaluate_state(problem: str, goal: str, current_state: str, path: list[str], constraints: list[str]):
     """Evaluate current search state."""
     pass
 
 
 async def tree_search(
-    problem: str,
-    goal: str,
-    initial_state: str,
-    constraints: list[str] = None,
-    max_depth: int = 10
+    problem: str, goal: str, initial_state: str, constraints: list[str] = None, max_depth: int = 10
 ) -> dict[str, Any]:
     """
     Tree search with backtracking.
@@ -346,11 +316,7 @@ async def tree_search(
 
         # Evaluate current state
         state_eval = await evaluate_state(
-            problem=problem,
-            goal=goal,
-            current_state=current_state,
-            path=path,
-            constraints=constraints
+            problem=problem, goal=goal, current_state=current_state, path=path, constraints=constraints
         )
 
         if state_eval.is_goal:
@@ -366,5 +332,5 @@ async def tree_search(
         "solution_found": solution_path is not None,
         "solution_path": solution_path or [],
         "states_explored": states_explored,
-        "search_depth": len(solution_path) if solution_path else 0
+        "search_depth": len(solution_path) if solution_path else 0,
     }

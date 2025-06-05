@@ -24,13 +24,25 @@ Funcn is a production-ready component library for Mirascope-powered AI applicati
 
 ### Code Standards
 
-**IMPORTANT**: All generated code must follow the standards defined in:
+**IMPORTANT**: All generated code must follow the standards defined in the `.claude/` directory:
 
-- `.claude/code-standards.md` - Comprehensive code style guide
-- `.claude/pre-commit-quick-fixes.md` - Common fixes to apply automatically
+#### Core Standards
+
+- `.claude/standards/code-standards.md` - Comprehensive code style guide
+- `.claude/standards/testing-standards.md` - Pytest testing patterns and coverage guidelines
+- `.claude/standards/mirascope-lilypad-best-practice-standards.md` - Mirascope patterns and Lilypad observability
+
+#### Workflow & Process
+
 - `.claude/development-workflow.md` - Linear issue tracking and branch management
-- `.claude/testing-standards.md` - Pytest testing patterns and coverage guidelines
-- `.claude/mirascope-lilypad-best-practices.md` - Mirascope patterns and Lilypad observability
+- `.claude/pre-commit-quick-fixes.md` - Common fixes to apply automatically
+
+#### Claude Code Meta Standards (NEW)
+
+- `.claude/standards/claude-code-meta-standards.md` - Best practices for using Claude Code effectively
+- `.claude/standards/meta-prompts-library.md` - Pre-built prompts for meta-programming with Claude
+- `.claude/standards/quick-reference.md` - Quick reference for common Claude Code operations
+- `.claude/standards/claude-commands.json` - Custom commands for enhanced Claude Code usage
 
 These standards ensure code passes all pre-commit hooks without manual cleanup and follows proper development workflow.
 
@@ -334,26 +346,32 @@ See `.claude/development-workflow.md` for detailed workflow instructions.
 
 **Use Two-Level Task Management:**
 
-- **Linear Sub-Issues**: For commit-level work (external tracking)
+- **Linear Projects**: For organizing related issues (external tracking)
 - **Claude TODOs**: For fine-grained task tracking during coding
 
 Example workflow:
 ```python
-# Create main issue and sub-issues
-main = mcp_linear.create_issue(title="Add PDF parser tool")
-subs = [
-    mcp_linear.create_issue(title="Setup structure", parentId=main.id),
-    mcp_linear.create_issue(title="Core parsing", parentId=main.id),
-    mcp_linear.create_issue(title="Error handling", parentId=main.id),
-    mcp_linear.create_issue(title="Tests", parentId=main.id)
+# Create a project for complex features
+project = mcp_linear.create_project(
+    name="PDF Parser Tool Implementation",
+    teamId=team_id,
+    description="Add comprehensive PDF parsing capabilities"
+)
+
+# Create issues within the project
+issues = [
+    mcp_linear.create_issue(title="Setup PDF parser structure", projectId=project.id),
+    mcp_linear.create_issue(title="Implement core parsing logic", projectId=project.id),
+    mcp_linear.create_issue(title="Add error handling", projectId=project.id),
+    mcp_linear.create_issue(title="Write comprehensive tests", projectId=project.id)
 ]
 
-# Work through each sub-issue with focused commits
+# Work through each issue with focused commits
 git checkout -b jayscambler/fun-123
-git commit -m "feat: Setup structure #FUN-124"
-git commit -m "feat: Core parsing #FUN-125"
-git commit -m "feat: Error handling #FUN-126"
-git commit -m "test: Add PDF parser tests #FUN-127"
+git commit -m "feat: Setup PDF parser structure #FUN-124"
+git commit -m "feat: Implement core parsing logic #FUN-125"
+git commit -m "feat: Add error handling #FUN-126"
+git commit -m "test: Write comprehensive tests #FUN-127"
 ```
 
 ## Pre-commit Compliance
@@ -400,3 +418,45 @@ pytest -n auto
 ```
 
 See `.claude/testing-standards.md` for detailed testing patterns and examples.
+
+## Claude Code Meta Usage
+
+### Using Claude Code Effectively
+
+For optimal Claude Code usage in this project, refer to:
+
+1. **Quick Start**: `.claude/standards/quick-reference.md` - Essential commands and shortcuts
+2. **Best Practices**: `.claude/standards/claude-code-meta-standards.md` - Comprehensive workflow patterns
+3. **Prompt Library**: `.claude/standards/meta-prompts-library.md` - Pre-built prompts for common tasks
+4. **Custom Commands**: `.claude/standards/claude-commands.json` - Project-specific Claude commands
+
+### Key Meta Patterns
+
+#### Extended Thinking
+
+```bash
+# For complex problems
+"think about the best architecture for this feature"
+"think harder about why this bug is occurring"
+"think more about performance implications"
+```
+
+#### Workflow Automation
+
+```bash
+# Use custom commands
+/meta-analyze    # Deep codebase analysis
+/quick-fix       # Fast bug fixes
+/workflow-feature # Complete feature implementation
+```
+
+#### Multi-Claude Workflows
+
+```bash
+# Run parallel Claude sessions for complex tasks
+# Terminal 1: Frontend work
+# Terminal 2: Backend work
+# Terminal 3: Testing
+```
+
+See `.claude/standards/` directory for complete meta-programming documentation.

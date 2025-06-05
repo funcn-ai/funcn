@@ -14,6 +14,7 @@ from pydantic import BaseModel, Field
 
 # Self-consistency checking
 
+
 class ConsistencyResult(BaseModel):
     """Model for consistency check results."""
 
@@ -29,7 +30,7 @@ class ConsistencyResult(BaseModel):
 @llm.call(
     provider="openai",
     model="gpt-4o-mini",
-    call_params={"temperature": 0.7}  # Higher temp for diversity
+    call_params={"temperature": 0.7},  # Higher temp for diversity
 )
 @prompt_template(
     """
@@ -64,18 +65,13 @@ async def generate_response(question: str):
     Select the best answer based on consistency.
     """
 )
-async def analyze_consistency(
-    question: str,
-    responses: list[str]
-) -> BaseDynamicConfig:
+async def analyze_consistency(question: str, responses: list[str]) -> BaseDynamicConfig:
     """Analyze response consistency."""
     return {}
 
 
 async def consistency_check(
-    question: str,
-    num_samples: int = 5,
-    temperature_range: tuple[float, float] = (0.5, 0.9)
+    question: str, num_samples: int = 5, temperature_range: tuple[float, float] = (0.5, 0.9)
 ) -> ConsistencyResult:
     """
     Self-consistency check through multiple sampling.
@@ -118,11 +114,12 @@ async def consistency_check(
         consistent_answer=most_common[0],
         confidence=agreement_rate,
         agreement_rate=agreement_rate,
-        variations=list(response_counter.keys())
+        variations=list(response_counter.keys()),
     )
 
 
 # Ensemble response generation
+
 
 class EnsembleResponse(BaseModel):
     """Model for ensemble response."""
@@ -153,32 +150,16 @@ class EnsembleResponse(BaseModel):
     Explain your synthesis approach.
     """
 )
-async def synthesize_ensemble(
-    question: str,
-    responses: list[str],
-    scores: list[float]
-) -> BaseDynamicConfig:
+async def synthesize_ensemble(question: str, responses: list[str], scores: list[float]) -> BaseDynamicConfig:
     """Synthesize ensemble response."""
     responses_with_scores = []
     for i, (resp, score) in enumerate(zip(responses, scores, strict=False), 1):
-        responses_with_scores.append([
-            f"Response {i} (confidence: {score:.2f}):",
-            resp,
-            ""
-        ])
+        responses_with_scores.append([f"Response {i} (confidence: {score:.2f}):", resp, ""])
 
-    return {
-        "computed_fields": {
-            "responses_with_scores": responses_with_scores
-        }
-    }
+    return {"computed_fields": {"responses_with_scores": responses_with_scores}}
 
 
-async def ensemble_response(
-    question: str,
-    models: list[str] = None,
-    synthesis_strategy: str = "weighted"
-) -> EnsembleResponse:
+async def ensemble_response(question: str, models: list[str] = None, synthesis_strategy: str = "weighted") -> EnsembleResponse:
     """
     Generate ensemble response from multiple models.
 
@@ -216,6 +197,7 @@ async def ensemble_response(
 
 # Majority voting
 
+
 class VotingResult(BaseModel):
     """Model for voting results."""
 
@@ -241,21 +223,12 @@ class VotingResult(BaseModel):
     Provide your answer clearly.
     """
 )
-async def generate_vote(
-    question: str,
-    question_type: str,
-    approach_number: int,
-    perspective: str
-):
+async def generate_vote(question: str, question_type: str, approach_number: int, perspective: str):
     """Generate a vote with specific perspective."""
     pass
 
 
-async def majority_voting(
-    question: str,
-    num_voters: int = 7,
-    question_type: str = "general"
-) -> VotingResult:
+async def majority_voting(question: str, num_voters: int = 7, question_type: str = "general") -> VotingResult:
     """
     Majority voting for answer selection.
 
@@ -272,21 +245,15 @@ async def majority_voting(
     Returns:
         VotingResult with winning answer
     """
-    perspectives = [
-        "analytical", "practical", "theoretical",
-        "critical", "creative", "systematic", "intuitive"
-    ]
+    perspectives = ["analytical", "practical", "theoretical", "critical", "creative", "systematic", "intuitive"]
 
     # Collect votes asynchronously
     tasks = []
     for i in range(num_voters):
         perspective = perspectives[i % len(perspectives)]
-        tasks.append(generate_vote(
-            question=question,
-            question_type=question_type,
-            approach_number=i + 1,
-            perspective=perspective
-        ))
+        tasks.append(
+            generate_vote(question=question, question_type=question_type, approach_number=i + 1, perspective=perspective)
+        )
 
     vote_responses = await asyncio.gather(*tasks)
     votes = [response.content for response in vote_responses]
@@ -311,11 +278,12 @@ async def majority_voting(
         votes=dict(vote_counter),
         winner=winner,
         confidence=winner_percentage,
-        consensus_level=consensus_level
+        consensus_level=consensus_level,
     )
 
 
 # Advanced self-consistency with reasoning
+
 
 class ReasonedConsistency(BaseModel):
     """Model for reasoned consistency check."""
@@ -348,22 +316,12 @@ class ReasonedConsistency(BaseModel):
     Provide confidence in the final answer.
     """
 )
-def analyze_reasoning_consistency(
-    question: str,
-    reasoning_approaches: list[dict[str, str]]
-) -> BaseDynamicConfig:
+def analyze_reasoning_consistency(question: str, reasoning_approaches: list[dict[str, str]]) -> BaseDynamicConfig:
     """Analyze consistency across reasoning paths."""
     formatted_approaches = []
     for i, approach in enumerate(reasoning_approaches, 1):
-        formatted_approaches.append([
-            f"Approach {i}: {approach['method']}",
-            f"Reasoning: {approach['reasoning']}",
-            f"Answer: {approach['answer']}",
-            ""
-        ])
+        formatted_approaches.append(
+            [f"Approach {i}: {approach['method']}", f"Reasoning: {approach['reasoning']}", f"Answer: {approach['answer']}", ""]
+        )
 
-    return {
-        "computed_fields": {
-            "reasoning_approaches": formatted_approaches
-        }
-    }
+    return {"computed_fields": {"reasoning_approaches": formatted_approaches}}

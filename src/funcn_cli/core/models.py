@@ -47,6 +47,7 @@ class ComponentManifest(BaseModel):
 # Registry Index Schema
 # ---------------------------------------------------------------------------
 
+
 class RegistryComponentEntry(BaseModel):
     name: str
     version: str

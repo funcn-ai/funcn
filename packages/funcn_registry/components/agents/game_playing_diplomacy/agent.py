@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 class DiplomacyPower(str, Enum):
     """The seven Great Powers in Diplomacy."""
+
     AUSTRIA = "Austria-Hungary"
     ENGLAND = "England"
     FRANCE = "France"
@@ -22,6 +23,7 @@ class DiplomacyPower(str, Enum):
 
 class DiplomacyPhase(str, Enum):
     """Game phases in Diplomacy."""
+
     SPRING_DIPLOMACY = "spring_diplomacy"
     SPRING_ORDERS = "spring_orders"
     SPRING_RETREATS = "spring_retreats"
@@ -33,12 +35,14 @@ class DiplomacyPhase(str, Enum):
 
 class UnitType(str, Enum):
     """Types of units in Diplomacy."""
+
     ARMY = "army"
     FLEET = "fleet"
 
 
 class OrderType(str, Enum):
     """Types of orders in Diplomacy."""
+
     HOLD = "hold"
     MOVE = "move"
     SUPPORT = "support"
@@ -50,12 +54,14 @@ class OrderType(str, Enum):
 
 class PlayerType(str, Enum):
     """Types of players."""
+
     HUMAN = "human"
     AI = "ai"
 
 
 class DiplomacyUnit(BaseModel):
     """A military unit in Diplomacy."""
+
     unit_type: UnitType = Field(..., description="Type of unit (army or fleet)")
     location: str = Field(..., description="Current location/province")
     power: DiplomacyPower = Field(..., description="Controlling power")
@@ -64,6 +70,7 @@ class DiplomacyUnit(BaseModel):
 
 class DiplomacyOrder(BaseModel):
     """An order for a unit."""
+
     unit_location: str = Field(..., description="Location of the unit")
     order_type: OrderType = Field(..., description="Type of order")
     destination: str | None = Field(None, description="Destination for move/retreat")
@@ -74,6 +81,7 @@ class DiplomacyOrder(BaseModel):
 
 class DiplomacyMessage(BaseModel):
     """A diplomatic message between powers."""
+
     from_power: DiplomacyPower = Field(..., description="Sending power")
     to_power: DiplomacyPower = Field(..., description="Receiving power")
     message: str = Field(..., description="Message content")
@@ -83,6 +91,7 @@ class DiplomacyMessage(BaseModel):
 
 class DiplomacyPlayer(BaseModel):
     """A player in the game."""
+
     power: DiplomacyPower = Field(..., description="Which power they control")
     player_type: PlayerType = Field(..., description="Human or AI")
     model: str | None = Field(None, description="AI model if AI player")
@@ -93,6 +102,7 @@ class DiplomacyPlayer(BaseModel):
 
 class ProvinceControl(BaseModel):
     """Control status of a province."""
+
     province: str = Field(..., description="Province name")
     controller: DiplomacyPower | None = Field(None, description="Controlling power")
     has_supply_center: bool = Field(..., description="Whether it's a supply center")
@@ -101,6 +111,7 @@ class ProvinceControl(BaseModel):
 
 class DiplomacyState(BaseModel):
     """Current state of the Diplomacy game."""
+
     year: int = Field(..., description="Current game year")
     phase: DiplomacyPhase = Field(..., description="Current phase")
     provinces: list[ProvinceControl] = Field(..., description="All provinces and control")
@@ -112,6 +123,7 @@ class DiplomacyState(BaseModel):
 
 class DiplomacyMove(BaseModel):
     """A complete move including orders and diplomacy."""
+
     power: DiplomacyPower = Field(..., description="Power making the move")
     orders: list[DiplomacyOrder] = Field(..., description="Military orders")
     messages: list[DiplomacyMessage] = Field(..., description="Diplomatic messages")
@@ -121,6 +133,7 @@ class DiplomacyMove(BaseModel):
 
 class NegotiationProposal(BaseModel):
     """A negotiation proposal between powers."""
+
     proposing_power: DiplomacyPower = Field(..., description="Power making proposal")
     target_powers: list[DiplomacyPower] = Field(..., description="Powers involved")
     proposal_type: str = Field(..., description="Type of proposal (alliance, NAP, DMZ, etc.)")
@@ -132,6 +145,7 @@ class NegotiationProposal(BaseModel):
 
 class StrategicAnalysis(BaseModel):
     """Strategic analysis of the game state."""
+
     power_rankings: dict[str, int] = Field(..., description="Power rankings by strength")
     threat_assessment: dict[str, float] = Field(..., description="Threat level per power (0-1)")
     opportunity_zones: list[str] = Field(..., description="Provinces ripe for expansion")
@@ -142,6 +156,7 @@ class StrategicAnalysis(BaseModel):
 
 class DiplomacyGame(BaseModel):
     """Complete game state and history."""
+
     game_id: str = Field(..., description="Unique game identifier")
     current_state: DiplomacyState = Field(..., description="Current game state")
     players: list[DiplomacyPlayer] = Field(..., description="All players")
@@ -208,7 +223,7 @@ def analyze_strategic_situation(
     historical_context: str = "",
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Analyze the strategic situation for a power."""
     return {
@@ -267,7 +282,7 @@ def develop_negotiation_strategy(
     expansion_opportunities: str,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Develop negotiation proposals for diplomatic phase."""
     return {
@@ -324,7 +339,7 @@ def craft_diplomatic_messages(
     strategic_goals: str,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Craft diplomatic messages to other powers."""
     return {
@@ -386,7 +401,7 @@ def plan_military_orders(
     priority_targets: str,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Plan military orders for the current phase."""
     return {
@@ -437,7 +452,7 @@ def synthesize_complete_move(
     key_objectives: str,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Synthesize complete move including orders and diplomacy."""
     return {
@@ -449,11 +464,7 @@ def synthesize_complete_move(
     }
 
 
-async def process_human_input(
-    game: DiplomacyGame,
-    human_power: DiplomacyPower,
-    phase: DiplomacyPhase
-) -> DiplomacyMove:
+async def process_human_input(game: DiplomacyGame, human_power: DiplomacyPower, phase: DiplomacyPhase) -> DiplomacyMove:
     """Process human player input for their turn."""
     print(f"\n{human_power.value}'s turn - {phase.value}")
     print("\nCurrent game state:")
@@ -480,13 +491,11 @@ async def process_human_input(
             try:
                 target_power = DiplomacyPower(target)
                 message = input(f"Message to {target_power.value}: ")
-                messages.append(DiplomacyMessage(
-                    from_power=human_power,
-                    to_power=target_power,
-                    message=message,
-                    timestamp=datetime.now(),
-                    is_public=False
-                ))
+                messages.append(
+                    DiplomacyMessage(
+                        from_power=human_power, to_power=target_power, message=message, timestamp=datetime.now(), is_public=False
+                    )
+                )
             except ValueError:
                 print("Invalid power name. Try again.")
 
@@ -503,53 +512,53 @@ async def process_human_input(
                 order_str = input(f"Order for {unit.unit_type.value} in {unit.location}: ")
                 # Parse order (simplified - in real implementation would be more robust)
                 if 'hold' in order_str.lower() or ' h' in order_str.lower():
-                    orders.append(DiplomacyOrder(
-                        unit_location=unit.location,
-                        order_type=OrderType.HOLD,
-                        destination=None,
-                        target_unit=None,
-                        target_destination=None,
-                        via_convoy=None
-                    ))
+                    orders.append(
+                        DiplomacyOrder(
+                            unit_location=unit.location,
+                            order_type=OrderType.HOLD,
+                            destination=None,
+                            target_unit=None,
+                            target_destination=None,
+                            via_convoy=None,
+                        )
+                    )
                     break
                 elif '-' in order_str or 'move' in order_str.lower():
                     # Extract destination
                     parts = order_str.split('-') if '-' in order_str else order_str.split('to')
                     if len(parts) >= 2:
                         destination = parts[1].strip()
-                        orders.append(DiplomacyOrder(
-                            unit_location=unit.location,
-                            order_type=OrderType.MOVE,
-                            destination=destination,
-                            target_unit=None,
-                            target_destination=None,
-                            via_convoy=None
-                        ))
+                        orders.append(
+                            DiplomacyOrder(
+                                unit_location=unit.location,
+                                order_type=OrderType.MOVE,
+                                destination=destination,
+                                target_unit=None,
+                                target_destination=None,
+                                via_convoy=None,
+                            )
+                        )
                         break
                 elif 'support' in order_str.lower() or ' s ' in order_str.lower():
                     # Simplified support parsing
-                    orders.append(DiplomacyOrder(
-                        unit_location=unit.location,
-                        order_type=OrderType.SUPPORT,
-                        destination=None,
-                        target_unit=None,
-                        target_destination=None,
-                        via_convoy=None
-                        # Would parse target unit and destination in full implementation
-                    ))
+                    orders.append(
+                        DiplomacyOrder(
+                            unit_location=unit.location,
+                            order_type=OrderType.SUPPORT,
+                            destination=None,
+                            target_unit=None,
+                            target_destination=None,
+                            via_convoy=None,
+                            # Would parse target unit and destination in full implementation
+                        )
+                    )
                     break
                 else:
                     print("Invalid order format. Please try again.")
 
     reasoning = input("\nExplain your strategy (optional): ") or "Human player move"
 
-    return DiplomacyMove(
-        power=human_power,
-        orders=orders,
-        messages=messages,
-        reasoning=reasoning,
-        contingency_plans=[]
-    )
+    return DiplomacyMove(power=human_power, orders=orders, messages=messages, reasoning=reasoning, contingency_plans=[])
 
 
 async def diplomacy_game_agent(
@@ -560,7 +569,7 @@ async def diplomacy_game_agent(
     game_id: str = "game_001",
     current_phase: DiplomacyPhase = DiplomacyPhase.SPRING_DIPLOMACY,
     llm_provider: str = "openai",
-    default_model: str = "gpt-4o"
+    default_model: str = "gpt-4o",
 ) -> DiplomacyGame:
     """
     Run a turn of Diplomacy with multiple AI models and human players.
@@ -614,35 +623,34 @@ async def diplomacy_game_agent(
                         opportunity_zones=[],
                         defensive_priorities=[],
                         alliance_recommendations=[],
-                        key_chokepoints=[]
-                    )
+                        key_chokepoints=[],
+                    ),
                 ),
                 player.power,
-                current_phase
+                current_phase,
             )
             current_moves.append(move)
         else:
             # AI player with specific model
             model = player.model or default_model
             provider = player.provider or llm_provider
-            personality_prompt = PERSONALITY_PROMPTS.get(
-                player.personality or "balanced",
-                PERSONALITY_PROMPTS["balanced"]
-            )
+            personality_prompt = PERSONALITY_PROMPTS.get(player.personality or "balanced", PERSONALITY_PROMPTS["balanced"])
 
             # Step 1: Strategic analysis
             print(f" {player.power.value} analyzing situation...")
             strategic_analysis = await analyze_strategic_situation(
                 power=player.power,
                 game_state=game_state,
-                recent_messages=[m for m in game_state.recent_messages
-                               if m.to_power == player.power or m.from_power == player.power],
-                active_agreements=[a for a in active_agreements
-                                 if player.power in a.target_powers or a.proposing_power == player.power],
+                recent_messages=[
+                    m for m in game_state.recent_messages if m.to_power == player.power or m.from_power == player.power
+                ],
+                active_agreements=[
+                    a for a in active_agreements if player.power in a.target_powers or a.proposing_power == player.power
+                ],
                 historical_context=f"Turn {len(game_history)}",
                 personality_prompt=personality_prompt,
                 provider=provider,
-                model=model
+                model=model,
             )
 
             # Step 2: Develop negotiation strategy (if diplomatic phase)
@@ -652,31 +660,28 @@ async def diplomacy_game_agent(
                 proposals = await develop_negotiation_strategy(
                     power=player.power,
                     strategic_analysis=strategic_analysis,
-                    current_relationships="", # Would analyze from game history
+                    current_relationships="",  # Would analyze from game history
                     power_positions=str(game_state.supply_centers),
                     immediate_threats=", ".join(strategic_analysis.defensive_priorities[:3]),
                     expansion_opportunities=", ".join(strategic_analysis.opportunity_zones[:3]),
                     personality_prompt=personality_prompt,
                     provider=provider,
-                    model=model
+                    model=model,
                 )
 
                 # Craft messages based on proposals
                 if proposals:
-                    target_powers = list(set(
-                        power for proposal in proposals
-                        for power in proposal.target_powers
-                    ))
+                    target_powers = list(set(power for proposal in proposals for power in proposal.target_powers))
                     diplomatic_messages = await craft_diplomatic_messages(
                         power=player.power,
                         proposals=proposals,
                         target_powers=target_powers,
                         current_phase=current_phase,
-                        relationship_status="", # Would analyze from history
+                        relationship_status="",  # Would analyze from history
                         strategic_goals=", ".join([p.proposal_type for p in proposals]),
                         personality_prompt=personality_prompt,
                         provider=provider,
-                        model=model
+                        model=model,
                     )
 
             # Step 3: Plan military orders (if order phase)
@@ -690,11 +695,11 @@ async def diplomacy_game_agent(
                         current_units=player_units,
                         strategic_analysis=strategic_analysis,
                         agreements=active_agreements,
-                        expected_moves="", # Would analyze from patterns
+                        expected_moves="",  # Would analyze from patterns
                         priority_targets=", ".join(strategic_analysis.opportunity_zones[:3]),
                         personality_prompt=personality_prompt,
                         provider=provider,
-                        model=model
+                        model=model,
                     )
 
             # Step 4: Synthesize complete move
@@ -708,7 +713,7 @@ async def diplomacy_game_agent(
                 key_objectives=f"Control {game_state.supply_centers.get(player.power.value, 0) + 1} centers",
                 personality_prompt=personality_prompt,
                 provider=provider,
-                model=model
+                model=model,
             )
             current_moves.append(move)
 
@@ -723,14 +728,13 @@ async def diplomacy_game_agent(
         move_history=game_history,
         active_agreements=active_agreements,
         strategic_analysis=StrategicAnalysis(
-            power_rankings={p.value: game_state.supply_centers.get(p.value, 0)
-                          for p in DiplomacyPower},
+            power_rankings={p.value: game_state.supply_centers.get(p.value, 0) for p in DiplomacyPower},
             threat_assessment={},
             opportunity_zones=[],
             defensive_priorities=[],
             alliance_recommendations=[],
-            key_chokepoints=[]
-        )
+            key_chokepoints=[],
+        ),
     )
 
     print("\nTurn complete!")
@@ -738,9 +742,7 @@ async def diplomacy_game_agent(
 
 
 async def diplomacy_game_stream(
-    game_state: DiplomacyState,
-    players: list[DiplomacyPlayer],
-    **kwargs
+    game_state: DiplomacyState, players: list[DiplomacyPlayer], **kwargs
 ) -> AsyncGenerator[str, None]:
     """Stream the Diplomacy game turn with live updates."""
 
@@ -762,7 +764,7 @@ async def diplomacy_game_stream(
     yield "## Turn Summary\n\n"
 
     # Show moves for this turn
-    current_turn_moves = game.move_history[-len(players):]
+    current_turn_moves = game.move_history[-len(players) :]
     for move in current_turn_moves:
         yield f"### {move.power.value}\n"
         yield f"**Strategy:** {move.reasoning}\n"

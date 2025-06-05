@@ -10,6 +10,7 @@ from typing import Any, Literal, Optional
 # Response models for structured outputs
 class PIIEntity(BaseModel):
     """A detected PII entity."""
+
     text: str = Field(..., description="The PII text found")
     entity_type: str = Field(..., description="Type of PII (e.g., 'email', 'phone', 'ssn', 'name')")
     start_index: int = Field(..., description="Starting position in the text")
@@ -20,6 +21,7 @@ class PIIEntity(BaseModel):
 
 class PIIDetectionResponse(BaseModel):
     """Response containing detected PII entities."""
+
     entities: list[PIIEntity] = Field(..., description="List of detected PII entities")
     pii_types_found: list[str] = Field(..., description="Unique types of PII found")
     total_pii_count: int = Field(..., description="Total number of PII instances found")
@@ -28,6 +30,7 @@ class PIIDetectionResponse(BaseModel):
 
 class ScrubbedTextResponse(BaseModel):
     """Response containing scrubbed text and metadata."""
+
     original_text: str = Field(..., description="Original text before scrubbing")
     scrubbed_text: str = Field(..., description="Text with PII removed or masked")
     entities_removed: list[PIIEntity] = Field(..., description="List of PII entities that were removed")
@@ -63,14 +66,16 @@ async def detect_pii_regex(text: str) -> list[PIIEntity]:
 
     for pii_type, pattern in PII_PATTERNS.items():
         for match in re.finditer(pattern, text):
-            entities.append(PIIEntity(
-                text=match.group(),
-                entity_type=pii_type,
-                start_index=match.start(),
-                end_index=match.end(),
-                confidence=0.9,  # High confidence for regex matches
-                replacement=f"[{pii_type.upper()}]"
-            ))
+            entities.append(
+                PIIEntity(
+                    text=match.group(),
+                    entity_type=pii_type,
+                    start_index=match.start(),
+                    end_index=match.end(),
+                    confidence=0.9,  # High confidence for regex matches
+                    replacement=f"[{pii_type.upper()}]",
+                )
+            )
 
     return entities
 
@@ -158,11 +163,7 @@ async def detect_pii_llm(text: str):
     Return the scrubbed text along with details about what was removed.
     """
 )
-async def scrub_pii(
-    text: str,
-    entities: str,
-    method: str
-):
+async def scrub_pii(text: str, entities: str, method: str):
     """Scrub PII from text using specified method."""
     pass
 
@@ -177,7 +178,7 @@ async def scrub_pii_from_text(
     custom_patterns: dict[str, str] | None = None,
     confidence_threshold: float = 0.7,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> ScrubbedTextResponse:
     """
     Detect and remove PII from text.
@@ -227,16 +228,11 @@ async def scrub_pii_from_text(
 
     # Step 2: Scrub the PII
     if unique_entities:
-        entities_str = "\n".join([
-            f"- {e.entity_type}: '{e.text}' at position {e.start_index}-{e.end_index}"
-            for e in unique_entities
-        ])
-
-        scrubbed_response = await scrub_pii(
-            text=text,
-            entities=entities_str,
-            method=scrubbing_method
+        entities_str = "\n".join(
+            [f"- {e.entity_type}: '{e.text}' at position {e.start_index}-{e.end_index}" for e in unique_entities]
         )
+
+        scrubbed_response = await scrub_pii(text=text, entities=entities_str, method=scrubbing_method)
 
         return scrubbed_response
     else:
@@ -247,7 +243,7 @@ async def scrub_pii_from_text(
             entities_removed=[],
             scrubbing_method=scrubbing_method,
             reversible=False,
-            mapping=None
+            mapping=None,
         )
 
 
@@ -262,10 +258,7 @@ async def quick_scrub(text: str) -> str:
     return result.scrubbed_text
 
 
-async def detect_pii_only(
-    text: str,
-    method: Literal["llm", "regex", "hybrid"] = "hybrid"
-) -> dict[str, Any]:
+async def detect_pii_only(text: str, method: Literal["llm", "regex", "hybrid"] = "hybrid") -> dict[str, Any]:
     """
     Only detect PII without scrubbing.
 
@@ -274,36 +267,25 @@ async def detect_pii_only(
     result = await scrub_pii_from_text(
         text=text,
         detection_method=method,
-        scrubbing_method="mask"  # Won't be used
+        scrubbing_method="mask",  # Won't be used
     )
 
     return {
         "pii_found": len(result.entities_removed) > 0,
         "pii_count": len(result.entities_removed),
         "pii_types": list(set(e.entity_type for e in result.entities_removed)),
-        "entities": [
-            {
-                "text": e.text,
-                "type": e.entity_type,
-                "confidence": e.confidence
-            }
-            for e in result.entities_removed
-        ]
+        "entities": [{"text": e.text, "type": e.entity_type, "confidence": e.confidence} for e in result.entities_removed],
     }
 
 
 async def scrub_with_mapping(
-    text: str,
-    scrubbing_method: Literal["mask", "synthetic"] = "synthetic"
+    text: str, scrubbing_method: Literal["mask", "synthetic"] = "synthetic"
 ) -> tuple[str, dict[str, str]]:
     """
     Scrub PII and return mapping for potential reversal.
 
     Returns tuple of (scrubbed_text, mapping_dict).
     """
-    result = await scrub_pii_from_text(
-        text=text,
-        scrubbing_method=scrubbing_method
-    )
+    result = await scrub_pii_from_text(text=text, scrubbing_method=scrubbing_method)
 
     return result.scrubbed_text, result.mapping or {}

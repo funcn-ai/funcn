@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Basic sequential chain
 
+
 class TopicSummary(BaseModel):
     """Model for topic summaries."""
 
@@ -86,16 +87,13 @@ def sequential_basic(topic: str) -> ExpandedContent:
     research = research_topic(topic)
 
     # Step 2: Expand into full content
-    content = expand_content(
-        topic=research.topic,
-        key_points=research.key_points,
-        summary=research.summary
-    )
+    content = expand_content(topic=research.topic, key_points=research.key_points, summary=research.summary)
 
     return content
 
 
 # Sequential chain with context preservation
+
 
 class ContextualAnalysis(BaseModel):
     """Model for contextual analysis."""
@@ -119,11 +117,7 @@ class ContextualAnalysis(BaseModel):
     Build upon the previous analysis to provide deeper insights.
     """
 )
-def analyze_with_context(
-    data: str,
-    context: str,
-    previous_analysis: str = "No previous analysis"
-) -> BaseDynamicConfig:
+def analyze_with_context(data: str, context: str, previous_analysis: str = "No previous analysis") -> BaseDynamicConfig:
     """Contextual analysis that builds on previous results."""
     return {}
 
@@ -145,30 +139,16 @@ def analyze_with_context(
     4. Confidence in conclusions
     """
 )
-def synthesize_analyses(
-    analyses: list[str],
-    original_context: str
-) -> BaseDynamicConfig:
+def synthesize_analyses(analyses: list[str], original_context: str) -> BaseDynamicConfig:
     """Synthesize multiple analyses into final insights."""
     formatted_analyses = []
     for i, analysis in enumerate(analyses, 1):
-        formatted_analyses.append([
-            f"Analysis {i}:",
-            analysis,
-            ""
-        ])
+        formatted_analyses.append([f"Analysis {i}:", analysis, ""])
 
-    return {
-        "computed_fields": {
-            "analyses": formatted_analyses
-        }
-    }
+    return {"computed_fields": {"analyses": formatted_analyses}}
 
 
-def sequential_with_context(
-    data_points: list[str],
-    context: str
-) -> ContextualAnalysis:
+def sequential_with_context(data_points: list[str], context: str) -> ContextualAnalysis:
     """
     Sequential chain with context preservation.
 
@@ -189,24 +169,18 @@ def sequential_with_context(
 
     # Analyze each data point with context
     for data in data_points:
-        analysis = analyze_with_context(
-            data=data,
-            context=context,
-            previous_analysis=previous
-        )
+        analysis = analyze_with_context(data=data, context=context, previous_analysis=previous)
         analyses.append(analysis.content)
         previous = analysis.content
 
     # Synthesize all analyses
-    final_analysis = synthesize_analyses(
-        analyses=analyses,
-        original_context=context
-    )
+    final_analysis = synthesize_analyses(analyses=analyses, original_context=context)
 
     return final_analysis
 
 
 # Multi-step sequential processing
+
 
 class ProcessedData(BaseModel):
     """Model for processed data."""
@@ -306,16 +280,12 @@ def sequential_multi_step(raw_data: str) -> list[ProcessedData]:
     results.append(cleaned)
 
     # Step 2: Transform
-    transformed = transform_data(
-        cleaned_data=cleaned.data,
-        transformations=cleaned.transformations
-    )
+    transformed = transform_data(cleaned_data=cleaned.data, transformations=cleaned.transformations)
     results.append(transformed)
 
     # Step 3: Enrich
     enriched = enrich_data(
-        transformed_data=transformed.data,
-        transformations=cleaned.transformations + transformed.transformations
+        transformed_data=transformed.data, transformations=cleaned.transformations + transformed.transformations
     )
     results.append(enriched)
 

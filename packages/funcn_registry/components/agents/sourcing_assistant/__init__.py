@@ -26,5 +26,5 @@ __all__ = [
     "SourcingRequirements",
     "SourcingSearchResponse",
     "SourcingCategory",
-    "Industry"
+    "Industry",
 ]

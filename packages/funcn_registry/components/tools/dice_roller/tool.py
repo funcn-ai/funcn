@@ -9,6 +9,7 @@ from typing import Optional
 
 class DiceType(str, Enum):
     """Standard dice types used in tabletop RPGs."""
+
     D4 = "d4"
     D6 = "d6"
     D8 = "d8"
@@ -20,6 +21,7 @@ class DiceType(str, Enum):
 
 class DiceRoll(BaseModel):
     """Result of a dice roll with full transparency."""
+
     dice_type: DiceType = Field(..., description="Type of dice rolled")
     num_dice: int = Field(..., description="Number of dice rolled")
     modifier: int = Field(default=0, description="Modifier to add to the total")
@@ -37,6 +39,7 @@ class DiceRoll(BaseModel):
 
 class DiceRollRequest(BaseModel):
     """Request for a dice roll."""
+
     dice_type: DiceType = Field(..., description="Type of dice to roll")
     num_dice: int = Field(default=1, description="Number of dice to roll")
     modifier: int = Field(default=0, description="Modifier to add")
@@ -67,7 +70,7 @@ def roll_dice(
     purpose: str = "",
     advantage: bool = False,
     disadvantage: bool = False,
-    seed: int | None = None
+    seed: int | None = None,
 ) -> DiceRoll:
     """
     Roll dice with full transparency and fairness.
@@ -123,7 +126,7 @@ def roll_dice(
             timestamp=timestamp,
             seed=seed,
             advantage=advantage,
-            disadvantage=disadvantage
+            disadvantage=disadvantage,
         )
 
     # Standard roll
@@ -151,7 +154,7 @@ def roll_dice(
         timestamp=timestamp,
         seed=seed,
         advantage=False,
-        disadvantage=False
+        disadvantage=False,
     )
 
 
@@ -174,7 +177,7 @@ def roll_multiple(requests: list[DiceRollRequest]) -> list[DiceRoll]:
             purpose=request.purpose,
             advantage=request.advantage,
             disadvantage=request.disadvantage,
-            seed=request.seed
+            seed=request.seed,
         )
         results.append(result)
     return results
@@ -233,63 +236,25 @@ def format_roll_result(roll: DiceRoll) -> str:
 
 
 # Example usage functions
-def roll_attack(
-    attack_bonus: int,
-    advantage: bool = False,
-    disadvantage: bool = False
-) -> DiceRoll:
+def roll_attack(attack_bonus: int, advantage: bool = False, disadvantage: bool = False) -> DiceRoll:
     """Roll an attack with the given bonus."""
-    return roll_dice(
-        DiceType.D20,
-        modifier=attack_bonus,
-        purpose="Attack roll",
-        advantage=advantage,
-        disadvantage=disadvantage
-    )
+    return roll_dice(DiceType.D20, modifier=attack_bonus, purpose="Attack roll", advantage=advantage, disadvantage=disadvantage)
 
 
-def roll_damage(
-    num_dice: int,
-    dice_type: DiceType,
-    damage_bonus: int = 0,
-    damage_type: str = "damage"
-) -> DiceRoll:
+def roll_damage(num_dice: int, dice_type: DiceType, damage_bonus: int = 0, damage_type: str = "damage") -> DiceRoll:
     """Roll damage dice."""
-    return roll_dice(
-        dice_type,
-        num_dice=num_dice,
-        modifier=damage_bonus,
-        purpose=f"{damage_type} damage"
-    )
+    return roll_dice(dice_type, num_dice=num_dice, modifier=damage_bonus, purpose=f"{damage_type} damage")
 
 
-def roll_saving_throw(
-    save_bonus: int,
-    save_type: str,
-    advantage: bool = False,
-    disadvantage: bool = False
-) -> DiceRoll:
+def roll_saving_throw(save_bonus: int, save_type: str, advantage: bool = False, disadvantage: bool = False) -> DiceRoll:
     """Roll a saving throw."""
     return roll_dice(
-        DiceType.D20,
-        modifier=save_bonus,
-        purpose=f"{save_type} saving throw",
-        advantage=advantage,
-        disadvantage=disadvantage
+        DiceType.D20, modifier=save_bonus, purpose=f"{save_type} saving throw", advantage=advantage, disadvantage=disadvantage
     )
 
 
-def roll_ability_check(
-    ability_bonus: int,
-    ability_name: str,
-    advantage: bool = False,
-    disadvantage: bool = False
-) -> DiceRoll:
+def roll_ability_check(ability_bonus: int, ability_name: str, advantage: bool = False, disadvantage: bool = False) -> DiceRoll:
     """Roll an ability check."""
     return roll_dice(
-        DiceType.D20,
-        modifier=ability_bonus,
-        purpose=f"{ability_name} check",
-        advantage=advantage,
-        disadvantage=disadvantage
+        DiceType.D20, modifier=ability_bonus, purpose=f"{ability_name} check", advantage=advantage, disadvantage=disadvantage
     )

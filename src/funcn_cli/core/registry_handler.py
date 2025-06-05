@@ -21,11 +21,7 @@ class RegistryHandler:
     # ------------------------------------------------------------------
 
     def fetch_index(self, source_alias: str | None = None) -> RegistryIndex:
-        url = (
-            self._cfg.config.registry_sources.get(source_alias, None)
-            if source_alias
-            else self._cfg.config.default_registry_url
-        )
+        url = self._cfg.config.registry_sources.get(source_alias, None) if source_alias else self._cfg.config.default_registry_url
         if not url:
             raise ValueError(f"No URL found for registry source: {source_alias}")
         console.log(f"Fetching registry index from {url}")

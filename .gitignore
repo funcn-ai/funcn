@@ -5,6 +5,10 @@
 **/facts/
 **/results/
 
+# MCP Configuration (contains sensitive tokens/keys)
+mcp.json
+**/mcp.json
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -369,3 +373,4 @@ terraform.rc
 # INCLUDE
 !**/.gitkeep
 !**/*.example*
+

@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Multi-step analysis
 
+
 class ProblemDecomposition(BaseModel):
     """Model for problem decomposition."""
 
@@ -81,25 +82,14 @@ def decompose_problem(problem: str, domain: str):
     """
 )
 def solve_sub_problem(
-    sub_problem: str,
-    main_problem: str,
-    previous_solutions: list[dict],
-    dependencies_met: bool
+    sub_problem: str, main_problem: str, previous_solutions: list[dict], dependencies_met: bool
 ) -> BaseDynamicConfig:
     """Solve individual sub-problem."""
     formatted_solutions = []
     for sol in previous_solutions:
-        formatted_solutions.append([
-            f"Sub-problem: {sol['sub_problem']}",
-            f"Solution: {sol['solution']}",
-            ""
-        ])
+        formatted_solutions.append([f"Sub-problem: {sol['sub_problem']}", f"Solution: {sol['solution']}", ""])
 
-    return {
-        "computed_fields": {
-            "previous_solutions": formatted_solutions
-        }
-    }
+    return {"computed_fields": {"previous_solutions": formatted_solutions}}
 
 
 @lilypad.trace(versioning="automatic")
@@ -119,32 +109,24 @@ def solve_sub_problem(
     3. Limitations to acknowledge
     """
 )
-def integrate_solutions(
-    problem: str,
-    sub_solutions: dict[str, SubProblemSolution]
-) -> BaseDynamicConfig:
+def integrate_solutions(problem: str, sub_solutions: dict[str, SubProblemSolution]) -> BaseDynamicConfig:
     """Integrate all sub-solutions."""
     formatted_solutions = []
     for sub_prob, solution in sub_solutions.items():
-        formatted_solutions.append([
-            f"Sub-problem: {sub_prob}",
-            f"Solution: {solution.solution}",
-            f"Methodology: {solution.methodology}",
-            f"Confidence: {solution.confidence}",
-            ""
-        ])
+        formatted_solutions.append(
+            [
+                f"Sub-problem: {sub_prob}",
+                f"Solution: {solution.solution}",
+                f"Methodology: {solution.methodology}",
+                f"Confidence: {solution.confidence}",
+                "",
+            ]
+        )
 
-    return {
-        "computed_fields": {
-            "sub_solutions_text": formatted_solutions
-        }
-    }
+    return {"computed_fields": {"sub_solutions_text": formatted_solutions}}
 
 
-def multi_step_analysis(
-    problem: str,
-    domain: str = "general"
-) -> IntegratedSolution:
+def multi_step_analysis(problem: str, domain: str = "general") -> IntegratedSolution:
     """
     Multi-step analytical reasoning for complex problems.
 
@@ -177,25 +159,20 @@ def multi_step_analysis(
             sub_problem=sub_problem,
             main_problem=decomposition.main_problem,
             previous_solutions=previous_solutions,
-            dependencies_met=dependencies_met
+            dependencies_met=dependencies_met,
         )
 
         sub_solutions[sub_problem] = solution
-        previous_solutions.append({
-            "sub_problem": sub_problem,
-            "solution": solution.solution
-        })
+        previous_solutions.append({"sub_problem": sub_problem, "solution": solution.solution})
 
     # Step 3: Integrate solutions
-    integrated = integrate_solutions(
-        problem=problem,
-        sub_solutions=sub_solutions
-    )
+    integrated = integrate_solutions(problem=problem, sub_solutions=sub_solutions)
 
     return integrated
 
 
 # Multi-step synthesis
+
 
 class InformationGathering(BaseModel):
     """Model for information gathering results."""
@@ -241,11 +218,7 @@ class Synthesis(BaseModel):
     4. Information gaps
     """
 )
-def gather_information(
-    topic: str,
-    context: str,
-    focus_areas: list[str]
-):
+def gather_information(topic: str, context: str, focus_areas: list[str]):
     """Gather information for synthesis."""
     pass
 
@@ -290,22 +263,12 @@ def analyze_patterns(topic: str, key_facts: list[str]):
     Create synthesis with new insights and applications.
     """
 )
-def synthesize_understanding(
-    topic: str,
-    key_facts: list[str],
-    gaps: list[str],
-    patterns: list[str],
-    anomalies: list[str]
-):
+def synthesize_understanding(topic: str, key_facts: list[str], gaps: list[str], patterns: list[str], anomalies: list[str]):
     """Synthesize final understanding."""
     pass
 
 
-def multi_step_synthesis(
-    topic: str,
-    context: str,
-    focus_areas: list[str] = None
-) -> Synthesis:
+def multi_step_synthesis(topic: str, context: str, focus_areas: list[str] = None) -> Synthesis:
     """
     Multi-step synthesis reasoning.
 
@@ -333,17 +296,14 @@ def multi_step_synthesis(
 
     # Step 3: Synthesize understanding
     synthesis = synthesize_understanding(
-        topic=topic,
-        key_facts=info.key_facts,
-        gaps=info.gaps,
-        patterns=patterns.patterns_found,
-        anomalies=patterns.anomalies
+        topic=topic, key_facts=info.key_facts, gaps=info.gaps, patterns=patterns.patterns_found, anomalies=patterns.anomalies
     )
 
     return synthesis
 
 
 # Multi-step decision making
+
 
 class DecisionCriteria(BaseModel):
     """Model for decision criteria."""
@@ -388,11 +348,7 @@ class Decision(BaseModel):
     3. Minimum acceptable thresholds
     """
 )
-def establish_criteria(
-    decision_context: str,
-    constraints: list[str],
-    goals: list[str]
-):
+def establish_criteria(decision_context: str, constraints: list[str], goals: list[str]):
     """Establish decision criteria."""
     pass
 
@@ -412,24 +368,14 @@ def establish_criteria(
     Score each criterion and calculate overall score.
     """
 )
-def evaluate_option(
-    option: str,
-    decision_context: str,
-    criteria: DecisionCriteria
-) -> BaseDynamicConfig:
+def evaluate_option(option: str, decision_context: str, criteria: DecisionCriteria) -> BaseDynamicConfig:
     """Evaluate single option."""
     criteria_weights = []
     for criterion, weight in criteria.weights.items():
         threshold = criteria.thresholds.get(criterion, 0)
-        criteria_weights.append([
-            f"- {criterion}: weight={weight}, threshold={threshold}"
-        ])
+        criteria_weights.append([f"- {criterion}: weight={weight}, threshold={threshold}"])
 
-    return {
-        "computed_fields": {
-            "criteria_weights": criteria_weights
-        }
-    }
+    return {"computed_fields": {"criteria_weights": criteria_weights}}
 
 
 @lilypad.trace(versioning="automatic")
@@ -446,33 +392,25 @@ def evaluate_option(
     Select best option with rationale, confidence, and risk analysis.
     """
 )
-def make_final_decision(
-    decision_context: str,
-    evaluations: list[OptionEvaluation]
-) -> BaseDynamicConfig:
+def make_final_decision(decision_context: str, evaluations: list[OptionEvaluation]) -> BaseDynamicConfig:
     """Make final decision."""
     evaluations_text = []
     for eval in evaluations:
-        evaluations_text.append([
-            f"Option: {eval.option}",
-            f"Overall Score: {eval.overall_score}",
-            f"Pros: {', '.join(eval.pros)}",
-            f"Cons: {', '.join(eval.cons)}",
-            ""
-        ])
+        evaluations_text.append(
+            [
+                f"Option: {eval.option}",
+                f"Overall Score: {eval.overall_score}",
+                f"Pros: {', '.join(eval.pros)}",
+                f"Cons: {', '.join(eval.cons)}",
+                "",
+            ]
+        )
 
-    return {
-        "computed_fields": {
-            "evaluations_text": evaluations_text
-        }
-    }
+    return {"computed_fields": {"evaluations_text": evaluations_text}}
 
 
 def multi_step_decision(
-    decision_context: str,
-    options: list[str],
-    constraints: list[str] = None,
-    goals: list[str] = None
+    decision_context: str, options: list[str], constraints: list[str] = None, goals: list[str] = None
 ) -> Decision:
     """
     Multi-step decision making process.

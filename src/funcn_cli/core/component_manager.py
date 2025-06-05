@@ -17,7 +17,16 @@ class ComponentManager:
     # Public API
     # ------------------------------------------------------------------
 
-    def add_component(self, identifier: str, *, provider: str | None = None, model: str | None = None, with_lilypad: bool = False, stream: bool | None = None, _added: set[str] | None = None) -> None:
+    def add_component(
+        self,
+        identifier: str,
+        *,
+        provider: str | None = None,
+        model: str | None = None,
+        with_lilypad: bool = False,
+        stream: bool | None = None,
+        _added: set[str] | None = None,
+    ) -> None:
         """Add a component into the current project.
 
         *identifier* can be a component name (to be resolved via registry) or a
@@ -93,9 +102,7 @@ class ComponentManager:
 
             if manifest.python_dependencies:
                 deps = " ".join(manifest.python_dependencies)
-                console.print(
-                    f"\n[bold]Next steps:[/] Install Python packages with:\n  uv pip install {deps}"
-                )
+                console.print(f"\n[bold]Next steps:[/] Install Python packages with:\n  uv pip install {deps}")
 
             # Suggest lilypad install if enabled but not declared in manifest deps
             if enable_lilypad:
@@ -109,7 +116,9 @@ class ComponentManager:
             if manifest.registry_dependencies:
                 for dep in manifest.registry_dependencies:
                     if Confirm.ask(f"Component '{manifest.name}' requires dependency '{dep}'. Add it now?", default=True):
-                        self.add_component(dep, provider=provider, model=model, with_lilypad=with_lilypad, stream=stream, _added=_added)
+                        self.add_component(
+                            dep, provider=provider, model=model, with_lilypad=with_lilypad, stream=stream, _added=_added
+                        )
                     else:
                         console.print(f"[yellow]Skipped dependency '{dep}'. You can add it later with: funcn add {dep}")
 
@@ -152,15 +161,15 @@ class ComponentManager:
             text = text.replace(
                 "# FUNCN_LILYPAD_CONFIGURE_PLACEHOLDER",
                 '''# Configure Lilypad (ensure LILYPAD_PROJECT_ID and LILYPAD_API_KEY are set in your environment)
-lilypad.configure(auto_llm=True)'''
+lilypad.configure(auto_llm=True)''',
             )
             # Add default trace decorator if placeholder present
             if "# FUNCN_LILYPAD_DECORATOR_PLACEHOLDER" in text:
-                obj_name = file_path.stem # e.g., echo_agent or random_joke_tool
+                obj_name = file_path.stem  # e.g., echo_agent or random_joke_tool
                 if obj_name.endswith("_tool"):
-                    obj_name = obj_name[:-5] # remove _tool suffix
+                    obj_name = obj_name[:-5]  # remove _tool suffix
                 if obj_name.endswith("_agent"):
-                    obj_name = obj_name[:-6] # remove _agent suffix
+                    obj_name = obj_name[:-6]  # remove _agent suffix
 
                 text = text.replace(
                     "# FUNCN_LILYPAD_DECORATOR_PLACEHOLDER",

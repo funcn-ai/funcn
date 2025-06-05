@@ -47,7 +47,7 @@ async def qwant_search(args: SearchArgs) -> SearchResponse:
                 "count": min(args.max_results, 10),  # Qwant limits to 10 results per request
                 "locale": args.locale,
                 "safesearch": 1,  # Enable safe search
-                "freshness": "all"
+                "freshness": "all",
             }
 
             headers = {
@@ -63,28 +63,20 @@ async def qwant_search(args: SearchArgs) -> SearchResponse:
             if "data" in data and "result" in data["data"] and "items" in data["data"]["result"]:
                 items = data["data"]["result"]["items"]
 
-                for item in items[:args.max_results]:
+                for item in items[: args.max_results]:
                     if item.get("type") == "web":  # Only include web results
-                        results.append(SearchResult(
-                            title=item.get("title", ""),
-                            url=item.get("url", ""),
-                            snippet=item.get("desc", "")
-                        ))
+                        results.append(
+                            SearchResult(title=item.get("title", ""), url=item.get("url", ""), snippet=item.get("desc", ""))
+                        )
 
-            return SearchResponse(
-                results=results,
-                query=args.query,
-                provider="qwant"
-            )
+            return SearchResponse(results=results, query=args.query, provider="qwant")
 
     except Exception as e:
         # Fallback to a single error result
         return SearchResponse(
-            results=[SearchResult(
-                title=f"Search Error for: {args.query}",
-                url="",
-                snippet=f"Error performing Qwant search: {str(e)}"
-            )],
+            results=[
+                SearchResult(title=f"Search Error for: {args.query}", url="", snippet=f"Error performing Qwant search: {str(e)}")
+            ],
             query=args.query,
-            provider="qwant"
+            provider="qwant",
         )

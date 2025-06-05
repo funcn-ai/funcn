@@ -122,6 +122,7 @@ def few_shot_generation(product: str, style: str):
 
 # Dynamic few-shot with computed examples
 
+
 class Example(BaseModel):
     """Model for dynamic examples."""
 
@@ -144,11 +145,7 @@ class Example(BaseModel):
     Input: {input}
     """
 )
-def dynamic_few_shot(
-    task_description: str,
-    examples: list[Example],
-    input: str
-) -> BaseDynamicConfig:
+def dynamic_few_shot(task_description: str, examples: list[Example], input: str) -> BaseDynamicConfig:
     """
     Dynamic few-shot prompting with variable examples.
 
@@ -167,23 +164,21 @@ def dynamic_few_shot(
     """
     formatted_examples = []
     for i, example in enumerate(examples, 1):
-        formatted_examples.append([
-            f"Example {i}:",
-            f"Input: {example.input}",
-            f"Output: {example.output}",
-            f"Explanation: {example.explanation}",
-            ""  # Empty line for spacing
-        ])
+        formatted_examples.append(
+            [
+                f"Example {i}:",
+                f"Input: {example.input}",
+                f"Output: {example.output}",
+                f"Explanation: {example.explanation}",
+                "",  # Empty line for spacing
+            ]
+        )
 
-    return {
-        "computed_fields": {
-            "num_examples": len(examples),
-            "examples": formatted_examples
-        }
-    }
+    return {"computed_fields": {"num_examples": len(examples), "examples": formatted_examples}}
 
 
 # Advanced few-shot with contextual examples
+
 
 class ContextualExample(BaseModel):
     """Model for contextual examples."""
@@ -260,11 +255,12 @@ def few_shot_contextual_qa(context: str, question: str):
 
 # Few-shot with adaptive examples
 
+
 @lilypad.trace(versioning="automatic")
 @llm.call(
     provider="openai",
     model="gpt-4o-mini",
-    call_params={"temperature": 0.2}  # Lower temperature for consistency
+    call_params={"temperature": 0.2},  # Lower temperature for consistency
 )
 @prompt_template(
     """
@@ -287,11 +283,7 @@ def few_shot_contextual_qa(context: str, question: str):
     """
 )
 def few_shot_adaptive(
-    task: str,
-    input: str,
-    example_type: str = "similar",
-    examples: list[tuple[str, str]] = None,
-    patterns: list[str] = None
+    task: str, input: str, example_type: str = "similar", examples: list[tuple[str, str]] = None, patterns: list[str] = None
 ) -> BaseDynamicConfig:
     """
     Adaptive few-shot prompting with pattern recognition.
@@ -312,25 +304,13 @@ def few_shot_adaptive(
         Processed result following example patterns
     """
     if examples is None:
-        examples = [
-            ("Simple input", "Simple output"),
-            ("Complex input", "Complex output")
-        ]
+        examples = [("Simple input", "Simple output"), ("Complex input", "Complex output")]
 
     if patterns is None:
         patterns = ["Consistent formatting", "Clear structure"]
 
     formatted_examples = []
     for i, (ex_input, ex_output) in enumerate(examples, 1):
-        formatted_examples.append([
-            f"Example {i}:",
-            f"Input: {ex_input}",
-            f"Output: {ex_output}",
-            ""
-        ])
+        formatted_examples.append([f"Example {i}:", f"Input: {ex_input}", f"Output: {ex_output}", ""])
 
-    return {
-        "computed_fields": {
-            "adaptive_examples": formatted_examples
-        }
-    }
+    return {"computed_fields": {"adaptive_examples": formatted_examples}}

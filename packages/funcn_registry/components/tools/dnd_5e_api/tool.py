@@ -8,6 +8,7 @@ from typing import Any, Optional
 # Base models for common structures
 class APIReference(BaseModel):
     """Minimal representation of a resource."""
+
     index: str = Field(..., description="Resource index for shorthand searching")
     name: str = Field(..., description="Name of the referenced resource")
     url: str = Field(..., description="URL of the referenced resource")
@@ -15,6 +16,7 @@ class APIReference(BaseModel):
 
 class DC(BaseModel):
     """Represents a difficulty check."""
+
     dc_type: APIReference = Field(..., description="Type of DC")
     dc_value: int = Field(..., description="DC value")
     success_type: str = Field(..., description="Type of success: none, half, or other")
@@ -22,12 +24,14 @@ class DC(BaseModel):
 
 class Damage(BaseModel):
     """Represents damage."""
+
     damage_type: APIReference = Field(..., description="Type of damage")
     damage_dice: str = Field(..., description="Damage dice formula")
 
 
 class Choice(BaseModel):
     """Represents a choice made by a player."""
+
     desc: str = Field(..., description="Description of the choice")
     choose: int = Field(..., description="Number of options to choose")
     type: str = Field(..., description="Type of choice")
@@ -37,6 +41,7 @@ class Choice(BaseModel):
 
 class AbilityBonus(BaseModel):
     """Represents an ability score bonus."""
+
     ability_score: APIReference = Field(..., description="Ability score reference")
     bonus: int = Field(..., description="Bonus value")
 
@@ -44,6 +49,7 @@ class AbilityBonus(BaseModel):
 # Enhanced spell model with more fields
 class DndSpell(BaseModel):
     """D&D 5e spell information."""
+
     index: str = Field(..., description="Spell index")
     name: str = Field(..., description="Spell name")
     level: int = Field(..., description="Spell level (0 for cantrips)")
@@ -68,6 +74,7 @@ class DndSpell(BaseModel):
 # Enhanced class model
 class DndClass(BaseModel):
     """D&D 5e class information."""
+
     index: str = Field(..., description="Class index")
     name: str = Field(..., description="Class name")
     hit_die: int = Field(..., description="Hit die size")
@@ -86,6 +93,7 @@ class DndClass(BaseModel):
 # Enhanced equipment model
 class DndEquipment(BaseModel):
     """D&D 5e equipment information."""
+
     index: str = Field(..., description="Equipment index")
     name: str = Field(..., description="Equipment name")
     equipment_category: APIReference = Field(..., description="Category of equipment")
@@ -115,6 +123,7 @@ class DndEquipment(BaseModel):
 # Enhanced monster model
 class DndMonster(BaseModel):
     """D&D 5e monster information."""
+
     index: str = Field(..., description="Monster index")
     name: str = Field(..., description="Monster name")
     size: str = Field(..., description="Size category")
@@ -164,6 +173,7 @@ class DndMonster(BaseModel):
 # New models for additional content types
 class DndRace(BaseModel):
     """D&D 5e race information."""
+
     index: str = Field(..., description="Race index")
     name: str = Field(..., description="Race name")
     speed: int = Field(..., description="Base walking speed")
@@ -184,6 +194,7 @@ class DndRace(BaseModel):
 
 class DndFeat(BaseModel):
     """D&D 5e feat information."""
+
     index: str = Field(..., description="Feat index")
     name: str = Field(..., description="Feat name")
     desc: list[str] = Field(..., description="Feat description")
@@ -193,6 +204,7 @@ class DndFeat(BaseModel):
 
 class DndSkill(BaseModel):
     """D&D 5e skill information."""
+
     index: str = Field(..., description="Skill index")
     name: str = Field(..., description="Skill name")
     desc: list[str] = Field(..., description="Skill description")
@@ -202,6 +214,7 @@ class DndSkill(BaseModel):
 
 class DndCondition(BaseModel):
     """D&D 5e condition information."""
+
     index: str = Field(..., description="Condition index")
     name: str = Field(..., description="Condition name")
     desc: list[str] = Field(..., description="Condition effects")
@@ -210,6 +223,7 @@ class DndCondition(BaseModel):
 
 class DndMagicItem(BaseModel):
     """D&D 5e magic item information."""
+
     index: str = Field(..., description="Item index")
     name: str = Field(..., description="Item name")
     equipment_category: APIReference = Field(..., description="Equipment category")
@@ -222,6 +236,7 @@ class DndMagicItem(BaseModel):
 
 class DndApiResponse(BaseModel):
     """Generic D&D API response."""
+
     count: int = Field(..., description="Number of results")
     results: list[dict[str, str]] = Field(..., description="List of results with name and url")
 
@@ -270,7 +285,7 @@ async def get_spell_info(spell_name: str) -> DndSpell:
             damage=data.get("damage"),
             dc=DC(**data["dc"]) if "dc" in data else None,
             area_of_effect=data.get("area_of_effect"),
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -307,7 +322,7 @@ async def get_class_info(class_name: str) -> DndClass:
             multi_classing=data.get("multi_classing", {}),
             subclasses=[APIReference(**s) for s in data["subclasses"]],
             spellcasting=data.get("spellcasting"),
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -338,7 +353,9 @@ async def get_monster_info(monster_name: str) -> DndMonster:
             type=data["type"],
             subtype=data.get("subtype"),
             alignment=data["alignment"],
-            armor_class=data["armor_class"] if isinstance(data["armor_class"], list) else [{"type": "natural", "value": data["armor_class"]}],
+            armor_class=data["armor_class"]
+            if isinstance(data["armor_class"], list)
+            else [{"type": "natural", "value": data["armor_class"]}],
             hit_points=data["hit_points"],
             hit_dice=data["hit_dice"],
             hit_points_roll=data["hit_points_roll"],
@@ -364,7 +381,7 @@ async def get_monster_info(monster_name: str) -> DndMonster:
             actions=data.get("actions", []),
             legendary_actions=data.get("legendary_actions"),
             reactions=data.get("reactions"),
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -407,7 +424,7 @@ async def get_equipment_info(equipment_name: str) -> DndEquipment:
             armor_class=data.get("armor_class"),
             str_minimum=data.get("str_minimum"),
             stealth_disadvantage=data.get("stealth_disadvantage"),
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -435,22 +452,24 @@ async def get_race_info(race_name: str) -> DndRace:
             index=data["index"],
             name=data["name"],
             speed=data["speed"],
-            ability_bonuses=[AbilityBonus(
-                ability_score=APIReference(**ab["ability_score"]),
-                bonus=ab["bonus"]
-            ) for ab in data["ability_bonuses"]],
+            ability_bonuses=[
+                AbilityBonus(ability_score=APIReference(**ab["ability_score"]), bonus=ab["bonus"])
+                for ab in data["ability_bonuses"]
+            ],
             ability_bonus_options=Choice(**data["ability_bonus_options"]) if "ability_bonus_options" in data else None,
             alignment=data["alignment"],
             age=data["age"],
             size=data["size"],
             size_description=data["size_description"],
             starting_proficiencies=[APIReference(**p) for p in data.get("starting_proficiencies", [])],
-            starting_proficiency_options=Choice(**data["starting_proficiency_options"]) if "starting_proficiency_options" in data else None,
+            starting_proficiency_options=Choice(**data["starting_proficiency_options"])
+            if "starting_proficiency_options" in data
+            else None,
             languages=[APIReference(**lang) for lang in data["languages"]],
             language_options=Choice(**data["language_options"]) if "language_options" in data else None,
             traits=[APIReference(**t) for t in data.get("traits", [])],
             subraces=[APIReference(**s) for s in data.get("subraces", [])],
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -479,7 +498,7 @@ async def get_feat_info(feat_name: str) -> DndFeat:
             name=data["name"],
             desc=data["desc"],
             prerequisites=data.get("prerequisites", []),
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -508,7 +527,7 @@ async def get_skill_info(skill_name: str) -> DndSkill:
             name=data["name"],
             desc=data["desc"],
             ability_score=APIReference(**data["ability_score"]),
-            url=data["url"]
+            url=data["url"],
         )
 
 
@@ -532,12 +551,7 @@ async def get_condition_info(condition_name: str) -> DndCondition:
 
         data = response.json()
 
-        return DndCondition(
-            index=data["index"],
-            name=data["name"],
-            desc=data["desc"],
-            url=data["url"]
-        )
+        return DndCondition(index=data["index"], name=data["name"], desc=data["desc"], url=data["url"])
 
 
 async def get_magic_item_info(item_name: str) -> DndMagicItem:
@@ -568,15 +582,11 @@ async def get_magic_item_info(item_name: str) -> DndMagicItem:
             variants=[APIReference(**v) for v in data.get("variants", [])],
             variant=data.get("variant", False),
             desc=data["desc"],
-            url=data["url"]
+            url=data["url"],
         )
 
 
-async def search_dnd_content(
-    content_type: str,
-    query: str | None = None,
-    **filters
-) -> DndApiResponse:
+async def search_dnd_content(content_type: str, query: str | None = None, **filters) -> DndApiResponse:
     """
     Search for D&D 5e content by type with optional filtering.
 
@@ -591,11 +601,30 @@ async def search_dnd_content(
         DndApiResponse with search results
     """
     valid_types = [
-        "ability-scores", "alignments", "backgrounds", "classes", "conditions",
-        "damage-types", "equipment", "equipment-categories", "feats", "features",
-        "languages", "magic-items", "magic-schools", "monsters", "proficiencies",
-        "races", "rule-sections", "rules", "skills", "spells", "subclasses",
-        "subraces", "traits", "weapon-properties"
+        "ability-scores",
+        "alignments",
+        "backgrounds",
+        "classes",
+        "conditions",
+        "damage-types",
+        "equipment",
+        "equipment-categories",
+        "feats",
+        "features",
+        "languages",
+        "magic-items",
+        "magic-schools",
+        "monsters",
+        "proficiencies",
+        "races",
+        "rule-sections",
+        "rules",
+        "skills",
+        "spells",
+        "subclasses",
+        "subraces",
+        "traits",
+        "weapon-properties",
     ]
 
     if content_type not in valid_types:
@@ -626,19 +655,10 @@ async def search_dnd_content(
         # Filter results if query provided and not using API filters
         if query and not params:
             query_lower = query.lower()
-            filtered_results = [
-                r for r in data["results"]
-                if query_lower in r["name"].lower()
-            ]
-            return DndApiResponse(
-                count=len(filtered_results),
-                results=filtered_results
-            )
+            filtered_results = [r for r in data["results"] if query_lower in r["name"].lower()]
+            return DndApiResponse(count=len(filtered_results), results=filtered_results)
 
-        return DndApiResponse(
-            count=data["count"],
-            results=data["results"]
-        )
+        return DndApiResponse(count=data["count"], results=data["results"])
 
 
 async def get_ability_score_info(ability_name: str) -> dict[str, Any]:
@@ -652,12 +672,18 @@ async def get_ability_score_info(ability_name: str) -> dict[str, Any]:
         Dictionary with ability score details
     """
     ability_map = {
-        "strength": "str", "str": "str",
-        "dexterity": "dex", "dex": "dex",
-        "constitution": "con", "con": "con",
-        "intelligence": "int", "int": "int",
-        "wisdom": "wis", "wis": "wis",
-        "charisma": "cha", "cha": "cha"
+        "strength": "str",
+        "str": "str",
+        "dexterity": "dex",
+        "dex": "dex",
+        "constitution": "con",
+        "con": "con",
+        "intelligence": "int",
+        "int": "int",
+        "wisdom": "wis",
+        "wis": "wis",
+        "charisma": "cha",
+        "cha": "cha",
     }
 
     ability_index = ability_map.get(ability_name.lower())
@@ -726,15 +752,25 @@ async def get_alignment_info(alignment_name: str) -> dict[str, Any]:
         Dictionary with alignment details
     """
     alignment_map = {
-        "lawful good": "lawful-good", "lg": "lawful-good",
-        "neutral good": "neutral-good", "ng": "neutral-good",
-        "chaotic good": "chaotic-good", "cg": "chaotic-good",
-        "lawful neutral": "lawful-neutral", "ln": "lawful-neutral",
-        "true neutral": "neutral", "neutral": "neutral", "n": "neutral",
-        "chaotic neutral": "chaotic-neutral", "cn": "chaotic-neutral",
-        "lawful evil": "lawful-evil", "le": "lawful-evil",
-        "neutral evil": "neutral-evil", "ne": "neutral-evil",
-        "chaotic evil": "chaotic-evil", "ce": "chaotic-evil"
+        "lawful good": "lawful-good",
+        "lg": "lawful-good",
+        "neutral good": "neutral-good",
+        "ng": "neutral-good",
+        "chaotic good": "chaotic-good",
+        "cg": "chaotic-good",
+        "lawful neutral": "lawful-neutral",
+        "ln": "lawful-neutral",
+        "true neutral": "neutral",
+        "neutral": "neutral",
+        "n": "neutral",
+        "chaotic neutral": "chaotic-neutral",
+        "cn": "chaotic-neutral",
+        "lawful evil": "lawful-evil",
+        "le": "lawful-evil",
+        "neutral evil": "neutral-evil",
+        "ne": "neutral-evil",
+        "chaotic evil": "chaotic-evil",
+        "ce": "chaotic-evil",
     }
 
     alignment_index = alignment_map.get(alignment_name.lower())

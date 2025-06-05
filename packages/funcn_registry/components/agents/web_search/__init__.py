@@ -19,5 +19,5 @@ __all__ = [
     "web_search_ai",
     "web_search_structured",
     "WebSearchResponse",
-    "SearchProvider"
+    "SearchProvider",
 ]

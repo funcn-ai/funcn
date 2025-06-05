@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Basic text classification
 
+
 class TextClassification(BaseModel):
     """Model for text classification results."""
 
@@ -55,6 +56,7 @@ def classify_text(text: str, categories: list[str]):
 
 # Sentiment classification
 
+
 class SentimentAnalysis(BaseModel):
     """Model for sentiment analysis."""
 
@@ -66,12 +68,7 @@ class SentimentAnalysis(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=SentimentAnalysis,
-    call_params={"temperature": 0.2}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=SentimentAnalysis, call_params={"temperature": 0.2})
 @prompt_template(
     """
     Analyze the sentiment of this text:
@@ -103,6 +100,7 @@ def classify_sentiment(text: str):
 
 # Multi-label classification
 
+
 class MultiLabelClassification(BaseModel):
     """Model for multi-label classification."""
 
@@ -132,11 +130,7 @@ class MultiLabelClassification(BaseModel):
     Threshold: {threshold} (minimum score to assign label)
     """
 )
-def classify_multi_label(
-    text: str,
-    labels: list[str],
-    threshold: float = 0.5
-):
+def classify_multi_label(text: str, labels: list[str], threshold: float = 0.5):
     """
     Multi-label classification with scoring.
 
@@ -152,6 +146,7 @@ def classify_multi_label(
 
 
 # Hierarchical classification
+
 
 class HierarchicalClassification(BaseModel):
     """Model for hierarchical classification."""
@@ -182,10 +177,7 @@ class HierarchicalClassification(BaseModel):
     Provide confidence at each level.
     """
 )
-def classify_hierarchical(
-    text: str,
-    taxonomy: dict[str, dict]
-) -> BaseDynamicConfig:
+def classify_hierarchical(text: str, taxonomy: dict[str, dict]) -> BaseDynamicConfig:
     """
     Hierarchical classification through taxonomy.
 
@@ -205,14 +197,11 @@ def classify_hierarchical(
                 for fine in fine_cats:
                     formatted_taxonomy.append([f"    * {fine}"])
 
-    return {
-        "computed_fields": {
-            "taxonomy": formatted_taxonomy
-        }
-    }
+    return {"computed_fields": {"taxonomy": formatted_taxonomy}}
 
 
 # Intent classification
+
 
 class IntentClassification(BaseModel):
     """Model for intent classification."""
@@ -226,12 +215,7 @@ class IntentClassification(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=IntentClassification,
-    call_params={"temperature": 0.1}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=IntentClassification, call_params={"temperature": 0.1})
 @prompt_template(
     """
     Classify the intent of this user input:
@@ -251,11 +235,7 @@ class IntentClassification(BaseModel):
     Consider user's goal and context.
     """
 )
-def classify_intent(
-    user_input: str,
-    intents: list[str],
-    context: str = "general conversation"
-):
+def classify_intent(user_input: str, intents: list[str], context: str = "general conversation"):
     """
     User intent classification for conversational AI.
 

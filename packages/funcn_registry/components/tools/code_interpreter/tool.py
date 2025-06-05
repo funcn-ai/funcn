@@ -31,7 +31,7 @@ async def execute_code(
     timeout_seconds: int = 30,
     capture_variables: bool = True,
     use_subprocess: bool = True,
-    allowed_modules: list[str] | None = None
+    allowed_modules: list[str] | None = None,
 ) -> CodeExecutionResult:
     """Execute Python code safely with sandboxing and timeout controls.
 
@@ -47,9 +47,22 @@ async def execute_code(
     """
     if allowed_modules is None:
         allowed_modules = [
-            "math", "statistics", "json", "datetime", "re", "collections",
-            "itertools", "functools", "operator", "urllib.parse", "base64",
-            "hashlib", "random", "string", "decimal", "fractions"
+            "math",
+            "statistics",
+            "json",
+            "datetime",
+            "re",
+            "collections",
+            "itertools",
+            "functools",
+            "operator",
+            "urllib.parse",
+            "base64",
+            "hashlib",
+            "random",
+            "string",
+            "decimal",
+            "fractions",
         ]
 
     if use_subprocess:
@@ -59,10 +72,7 @@ async def execute_code(
 
 
 async def execute_in_subprocess(
-    code: str,
-    timeout_seconds: int,
-    capture_variables: bool,
-    allowed_modules: list[str]
+    code: str, timeout_seconds: int, capture_variables: bool, allowed_modules: list[str]
 ) -> CodeExecutionResult:
     """Execute code in an isolated subprocess for safety."""
     # Create a temporary file to execute the code
@@ -137,17 +147,11 @@ print(json.dumps(result))
         # Run the code in a subprocess with timeout
         start_time = asyncio.get_event_loop().time()
         process = await asyncio.create_subprocess_exec(
-            sys.executable,
-            temp_path,
-            stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            sys.executable, temp_path, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
         )
 
         try:
-            stdout, stderr = await asyncio.wait_for(
-                process.communicate(),
-                timeout=timeout_seconds
-            )
+            stdout, stderr = await asyncio.wait_for(process.communicate(), timeout=timeout_seconds)
             execution_time = asyncio.get_event_loop().time() - start_time
 
             if stderr:
@@ -158,7 +162,7 @@ print(json.dumps(result))
                     return_value=None,
                     execution_time=execution_time,
                     variables={},
-                    warnings=[]
+                    warnings=[],
                 )
 
             # Parse the JSON result
@@ -170,7 +174,7 @@ print(json.dumps(result))
                 return_value=result["return_value"],
                 execution_time=execution_time,
                 variables=result["variables"],
-                warnings=[]
+                warnings=[],
             )
 
         except TimeoutError:
@@ -183,7 +187,7 @@ print(json.dumps(result))
                 return_value=None,
                 execution_time=timeout_seconds,
                 variables={},
-                warnings=[]
+                warnings=[],
             )
 
     finally:
@@ -191,11 +195,7 @@ print(json.dumps(result))
         os.unlink(temp_path)
 
 
-async def execute_directly(
-    code: str,
-    timeout_seconds: int,
-    capture_variables: bool
-) -> CodeExecutionResult:
+async def execute_directly(code: str, timeout_seconds: int, capture_variables: bool) -> CodeExecutionResult:
     """Execute code directly in the current process (less safe)."""
     # Validate syntax first
     try:
@@ -208,7 +208,7 @@ async def execute_directly(
             return_value=None,
             execution_time=0.0,
             variables={},
-            warnings=[]
+            warnings=[],
         )
 
     # Set up execution environment
@@ -229,14 +229,7 @@ async def execute_directly(
         with redirect_stdout(output_buffer), redirect_stderr(error_buffer):
             # Use asyncio to run with timeout
             await asyncio.wait_for(
-                asyncio.get_event_loop().run_in_executor(
-                    None,
-                    exec,
-                    code,
-                    exec_globals,
-                    exec_locals
-                ),
-                timeout=timeout_seconds
+                asyncio.get_event_loop().run_in_executor(None, exec, code, exec_globals, exec_locals), timeout=timeout_seconds
             )
 
         execution_time = asyncio.get_event_loop().time() - start_time
@@ -260,7 +253,7 @@ async def execute_directly(
             return_value=None,
             execution_time=execution_time,
             variables=variables,
-            warnings=[]
+            warnings=[],
         )
 
     except TimeoutError:
@@ -271,7 +264,7 @@ async def execute_directly(
             return_value=None,
             execution_time=timeout_seconds,
             variables={},
-            warnings=[]
+            warnings=[],
         )
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
@@ -282,7 +275,7 @@ async def execute_directly(
             return_value=None,
             execution_time=execution_time,
             variables={},
-            warnings=[]
+            warnings=[],
         )
 
 
@@ -302,11 +295,7 @@ def validate_code(code: str) -> tuple[bool, str | None]:
         return False, str(e)
 
 
-async def execute_code_with_timeout(
-    code: str,
-    timeout_seconds: int = 5,
-    max_output_length: int = 10000
-) -> CodeExecutionResult:
+async def execute_code_with_timeout(code: str, timeout_seconds: int = 5, max_output_length: int = 10000) -> CodeExecutionResult:
     """Execute code with strict timeout and output limits.
 
     Args:
@@ -317,12 +306,7 @@ async def execute_code_with_timeout(
     Returns:
         CodeExecutionResult with limited output
     """
-    result = await execute_code(
-        code=code,
-        timeout_seconds=timeout_seconds,
-        capture_variables=False,
-        use_subprocess=True
-    )
+    result = await execute_code(code=code, timeout_seconds=timeout_seconds, capture_variables=False, use_subprocess=True)
 
     # Truncate output if too long
     if result.output and len(result.output) > max_output_length:

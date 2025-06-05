@@ -53,11 +53,7 @@ def get_sqlite_connection(db_path: str) -> Iterator[sqlite3.Connection]:
 
 
 async def execute_sqlite_query(
-    db_path: str,
-    query: str,
-    parameters: tuple | dict | None = None,
-    fetch_results: bool = True,
-    commit: bool = True
+    db_path: str, query: str, parameters: tuple | dict | None = None, fetch_results: bool = True, commit: bool = True
 ) -> SQLiteQueryResult:
     """Execute a SQLite query with proper error handling and async support.
 
@@ -80,15 +76,7 @@ async def execute_sqlite_query(
 
         # Run query in thread pool to avoid blocking
         loop = asyncio.get_event_loop()
-        result = await loop.run_in_executor(
-            None,
-            _execute_query_sync,
-            str(db_file),
-            query,
-            parameters,
-            fetch_results,
-            commit
-        )
+        result = await loop.run_in_executor(None, _execute_query_sync, str(db_file), query, parameters, fetch_results, commit)
 
         execution_time = asyncio.get_event_loop().time() - start_time
         result.execution_time = execution_time
@@ -96,21 +84,11 @@ async def execute_sqlite_query(
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
-        return SQLiteQueryResult(
-            success=False,
-            query=query,
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
-        )
+        return SQLiteQueryResult(success=False, query=query, rows_affected=0, error=str(e), execution_time=execution_time)
 
 
 def _execute_query_sync(
-    db_path: str,
-    query: str,
-    parameters: tuple | dict | None,
-    fetch_results: bool,
-    commit: bool
+    db_path: str, query: str, parameters: tuple | dict | None, fetch_results: bool, commit: bool
 ) -> SQLiteQueryResult:
     """Synchronous query execution for thread pool."""
     with get_sqlite_connection(db_path) as conn:
@@ -141,7 +119,7 @@ def _execute_query_sync(
                 results=results,
                 columns=columns,
                 error=None,
-                execution_time=0  # Will be set by async wrapper
+                execution_time=0,  # Will be set by async wrapper
             )
 
         except Exception as e:
@@ -149,10 +127,7 @@ def _execute_query_sync(
             raise e
 
 
-async def create_agent_state_table(
-    db_path: str,
-    table_name: str = "agent_state"
-) -> SQLiteQueryResult:
+async def create_agent_state_table(db_path: str, table_name: str = "agent_state") -> SQLiteQueryResult:
     """Create a table for storing agent state.
 
     Args:
@@ -182,7 +157,7 @@ async def create_agent_state_table(
         f"CREATE INDEX IF NOT EXISTS idx_{table_name}_agent_id ON {table_name}(agent_id)",
         f"CREATE INDEX IF NOT EXISTS idx_{table_name}_conversation_id ON {table_name}(conversation_id)",
         f"CREATE INDEX IF NOT EXISTS idx_{table_name}_key ON {table_name}(key)",
-        f"CREATE INDEX IF NOT EXISTS idx_{table_name}_updated_at ON {table_name}(updated_at)"
+        f"CREATE INDEX IF NOT EXISTS idx_{table_name}_updated_at ON {table_name}(updated_at)",
     ]
 
     # Execute table creation
@@ -203,7 +178,7 @@ async def store_agent_state(
     value: Any,
     conversation_id: str | None = None,
     metadata: dict[str, Any] | None = None,
-    table_name: str = "agent_state"
+    table_name: str = "agent_state",
 ) -> SQLiteQueryResult:
     """Store or update agent state in the database.
 
@@ -242,11 +217,7 @@ async def store_agent_state(
 
 
 async def get_agent_state(
-    db_path: str,
-    agent_id: str,
-    key: str | None = None,
-    conversation_id: str | None = None,
-    table_name: str = "agent_state"
+    db_path: str, agent_id: str, key: str | None = None, conversation_id: str | None = None, table_name: str = "agent_state"
 ) -> SQLiteQueryResult:
     """Retrieve agent state from the database.
 
@@ -299,11 +270,7 @@ async def get_agent_state(
 
 
 async def delete_agent_state(
-    db_path: str,
-    agent_id: str,
-    key: str | None = None,
-    conversation_id: str | None = None,
-    table_name: str = "agent_state"
+    db_path: str, agent_id: str, key: str | None = None, conversation_id: str | None = None, table_name: str = "agent_state"
 ) -> SQLiteQueryResult:
     """Delete agent state from the database.
 
@@ -356,8 +323,7 @@ async def get_database_info(db_path: str) -> SQLiteDatabaseInfo:
 
     # Get table information
     tables_result = await execute_sqlite_query(
-        db_path,
-        "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
+        db_path, "SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'"
     )
 
     tables = []
@@ -366,49 +332,34 @@ async def get_database_info(db_path: str) -> SQLiteDatabaseInfo:
             table_name = table_row['name']
 
             # Get column info
-            pragma_result = await execute_sqlite_query(
-                db_path,
-                f"PRAGMA table_info({table_name})"
-            )
+            pragma_result = await execute_sqlite_query(db_path, f"PRAGMA table_info({table_name})")
 
             columns = []
             if pragma_result.success:
                 for col in pragma_result.results:
-                    columns.append({
-                        'name': col['name'],
-                        'type': col['type'],
-                        'nullable': not col['notnull'],
-                        'default': col['dflt_value'],
-                        'primary_key': bool(col['pk'])
-                    })
+                    columns.append(
+                        {
+                            'name': col['name'],
+                            'type': col['type'],
+                            'nullable': not col['notnull'],
+                            'default': col['dflt_value'],
+                            'primary_key': bool(col['pk']),
+                        }
+                    )
 
             # Get row count
-            count_result = await execute_sqlite_query(
-                db_path,
-                f"SELECT COUNT(*) as count FROM {table_name}"
-            )
+            count_result = await execute_sqlite_query(db_path, f"SELECT COUNT(*) as count FROM {table_name}")
             row_count = count_result.results[0]['count'] if count_result.success else 0
 
             # Get indexes
             index_result = await execute_sqlite_query(
-                db_path,
-                f"SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='{table_name}'"
+                db_path, f"SELECT name FROM sqlite_master WHERE type='index' AND tbl_name='{table_name}'"
             )
             indexes = [idx['name'] for idx in index_result.results] if index_result.success else []
 
-            tables.append(SQLiteTableInfo(
-                name=table_name,
-                columns=columns,
-                row_count=row_count,
-                indexes=indexes
-            ))
+            tables.append(SQLiteTableInfo(name=table_name, columns=columns, row_count=row_count, indexes=indexes))
 
-    return SQLiteDatabaseInfo(
-        path=str(db_file),
-        size_bytes=size_bytes,
-        tables=tables,
-        version=sqlite_version
-    )
+    return SQLiteDatabaseInfo(path=str(db_file), size_bytes=size_bytes, tables=tables, version=sqlite_version)
 
 
 # Convenience functions for common operations
@@ -418,7 +369,7 @@ async def query_agent_history(
     conversation_id: str | None = None,
     limit: int = 100,
     offset: int = 0,
-    table_name: str = "agent_state"
+    table_name: str = "agent_state",
 ) -> SQLiteQueryResult:
     """Query agent state history with pagination.
 
@@ -452,11 +403,7 @@ async def query_agent_history(
     return await execute_sqlite_query(db_path, query, tuple(parameters))
 
 
-async def cleanup_old_state(
-    db_path: str,
-    days_to_keep: int = 30,
-    table_name: str = "agent_state"
-) -> SQLiteQueryResult:
+async def cleanup_old_state(db_path: str, days_to_keep: int = 30, table_name: str = "agent_state") -> SQLiteQueryResult:
     """Clean up old agent state records.
 
     Args:

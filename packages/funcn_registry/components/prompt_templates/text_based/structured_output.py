@@ -14,6 +14,7 @@ from typing import Any, Optional
 
 # Basic structured extraction
 
+
 class PersonInfo(BaseModel):
     """Model for person information extraction."""
 
@@ -54,6 +55,7 @@ def structured_extraction(text: str):
 
 
 # Complex nested structures
+
 
 class Address(BaseModel):
     """Model for address information."""
@@ -118,6 +120,7 @@ def structured_generation(job_text: str):
 
 # Validated structured output
 
+
 class ProductReview(BaseModel):
     """Model for product review with validation."""
 
@@ -146,12 +149,7 @@ class ProductReview(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=ProductReview,
-    call_params={"temperature": 0.3}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=ProductReview, call_params={"temperature": 0.3})
 @prompt_template(
     """
     Analyze this product review and extract structured information:
@@ -186,6 +184,7 @@ def structured_validation(review_text: str):
 
 
 # Dynamic structured output
+
 
 class DataPoint(BaseModel):
     """Generic data point model."""
@@ -223,10 +222,7 @@ class AnalysisResult(BaseModel):
     """
 )
 def structured_dynamic_analysis(
-    data: str,
-    analysis_type: str,
-    context: str = "General analysis",
-    focus_areas: list[str] = None
+    data: str, analysis_type: str, context: str = "General analysis", focus_areas: list[str] = None
 ) -> BaseDynamicConfig:
     """
     Dynamic structured analysis with flexible output.
@@ -252,6 +248,7 @@ def structured_dynamic_analysis(
 
 
 # Structured output with relationships
+
 
 class Entity(BaseModel):
     """Model for entities in text."""
@@ -289,12 +286,7 @@ class KnowledgeGraph(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=KnowledgeGraph,
-    call_params={"temperature": 0.2}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=KnowledgeGraph, call_params={"temperature": 0.2})
 @prompt_template(
     """
     Extract entities and their relationships from this text to build a knowledge graph:

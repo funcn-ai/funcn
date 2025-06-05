@@ -49,36 +49,28 @@ async def duckduckgo_search(args: SearchArgs) -> SearchResponse:
         raw_results = await asyncio.to_thread(_search)
 
         for result in raw_results:
-            results.append(SearchResult(
-                title=result.get("title", ""),
-                url=result.get("href", ""),
-                snippet=result.get("body", "")
-            ))
+            results.append(
+                SearchResult(title=result.get("title", ""), url=result.get("href", ""), snippet=result.get("body", ""))
+            )
 
-        return SearchResponse(
-            results=results,
-            query=args.query,
-            provider="duckduckgo"
-        )
+        return SearchResponse(results=results, query=args.query, provider="duckduckgo")
 
     except ImportError:
         # Fallback if duckduckgo_search is not available
         return SearchResponse(
-            results=[SearchResult(
-                title=f"Search for: {args.query}",
-                url="",
-                snippet="DuckDuckGo search library not available. Please install 'duckduckgo-search' package."
-            )],
+            results=[
+                SearchResult(
+                    title=f"Search for: {args.query}",
+                    url="",
+                    snippet="DuckDuckGo search library not available. Please install 'duckduckgo-search' package.",
+                )
+            ],
             query=args.query,
-            provider="duckduckgo"
+            provider="duckduckgo",
         )
     except Exception as e:
         return SearchResponse(
-            results=[SearchResult(
-                title=f"Search Error for: {args.query}",
-                url="",
-                snippet=f"Error performing search: {str(e)}"
-            )],
+            results=[SearchResult(title=f"Search Error for: {args.query}", url="", snippet=f"Error performing search: {str(e)}")],
             query=args.query,
-            provider="duckduckgo"
+            provider="duckduckgo",
         )

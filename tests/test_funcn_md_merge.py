@@ -66,7 +66,7 @@ Auto-generated examples
     component_data = {
         "name": "test_component",
         "description": "Auto-generated description from component.json",
-        "version": "0.2.0"
+        "version": "0.2.0",
     }
 
     result = merge_with_existing_funcn_md(existing_content, new_content, component_data)
@@ -137,11 +137,7 @@ funcn add test_component
 Updated integration info with new features
 """
 
-    component_data = {
-        "name": "test_component",
-        "description": "Description",
-        "version": "0.2.0"
-    }
+    component_data = {"name": "test_component", "description": "Description", "version": "0.2.0"}
 
     result = merge_with_existing_funcn_md(existing_content, new_content, component_data)
 
@@ -196,11 +192,7 @@ Updated overview
 Auto-generated API reference
 """
 
-    component_data = {
-        "name": "test_component",
-        "description": "Description",
-        "version": "0.2.0"
-    }
+    component_data = {"name": "test_component", "description": "Description", "version": "0.2.0"}
 
     result = merge_with_existing_funcn_md(existing_content, new_content, component_data)
 

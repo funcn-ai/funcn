@@ -26,5 +26,5 @@ __all__ = [
     "ResearchPaperQuery",
     "AcademicResearchResponse",
     "ResearchField",
-    "PublicationVenue"
+    "PublicationVenue",
 ]

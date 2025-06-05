@@ -46,7 +46,9 @@ class WebSearchResponse(BaseModel):
     answer: str = Field(..., description="Comprehensive answer based on web search results")
     sources: list[str] = Field(default_factory=list, description="URLs of sources used in the answer")
     search_queries: list[str] = Field(default_factory=list, description="Search queries that were performed")
-    search_providers: list[str] = Field(default_factory=list, description="Search providers used (e.g., duckduckgo, qwant, exa, nimble)")
+    search_providers: list[str] = Field(
+        default_factory=list, description="Search providers used (e.g., duckduckgo, qwant, exa, nimble)"
+    )
     privacy_note: str | None = Field(default=None, description="Privacy information if applicable")
 
 
@@ -66,19 +68,31 @@ def determine_exa_category(question: str) -> ExaCategory | None:
         return ExaCategory.COMPANY
 
     # Research papers and academic content
-    if any(term in question_lower for term in ["research", "paper", "study", "academic", "scientific", "journal", "publication", "thesis", "dissertation"]):
+    if any(
+        term in question_lower
+        for term in ["research", "paper", "study", "academic", "scientific", "journal", "publication", "thesis", "dissertation"]
+    ):
         return ExaCategory.RESEARCH_PAPER
 
     # News and current events
-    if any(term in question_lower for term in ["news", "breaking", "latest", "current events", "headline", "article", "report", "journalism"]):
+    if any(
+        term in question_lower
+        for term in ["news", "breaking", "latest", "current events", "headline", "article", "report", "journalism"]
+    ):
         return ExaCategory.NEWS
 
     # LinkedIn profiles
-    if any(term in question_lower for term in ["linkedin", "professional profile", "career", "resume", "cv", "professional background"]):
+    if any(
+        term in question_lower
+        for term in ["linkedin", "professional profile", "career", "resume", "cv", "professional background"]
+    ):
         return ExaCategory.LINKEDIN_PROFILE
 
     # GitHub and code repositories
-    if any(term in question_lower for term in ["github", "repository", "repo", "code", "open source", "programming", "developer", "software project"]):
+    if any(
+        term in question_lower
+        for term in ["github", "repository", "repo", "code", "open source", "programming", "developer", "software project"]
+    ):
         return ExaCategory.GITHUB
 
     # Tweets and Twitter content
@@ -102,7 +116,10 @@ def determine_exa_category(question: str) -> ExaCategory | None:
         return ExaCategory.PDF
 
     # Financial reports
-    if any(term in question_lower for term in ["financial report", "quarterly report", "annual report", "earnings", "financial statement", "10-k", "10-q"]):
+    if any(
+        term in question_lower
+        for term in ["financial report", "quarterly report", "annual report", "earnings", "financial statement", "10-k", "10-q"]
+    ):
         return ExaCategory.FINANCIAL_REPORT
 
     return None
@@ -116,7 +133,10 @@ def determine_search_strategy(question: str, search_provider: SearchProvider) ->
     question_lower = question.lower()
 
     # Location-based queries -> Nimble
-    if any(term in question_lower for term in ["restaurant", "store", "near me", "location", "address", "place", "map", "directions", "local", "nearby"]):
+    if any(
+        term in question_lower
+        for term in ["restaurant", "store", "near me", "location", "address", "place", "map", "directions", "local", "nearby"]
+    ):
         return "nimble"
 
     # Exa categories -> Exa
@@ -125,7 +145,9 @@ def determine_search_strategy(question: str, search_provider: SearchProvider) ->
         return "exa"
 
     # General semantic/AI queries -> Exa
-    if any(term in question_lower for term in ["similar to", "like", "semantic", "meaning", "context", "understanding", "analysis"]):
+    if any(
+        term in question_lower for term in ["similar to", "like", "semantic", "meaning", "context", "understanding", "analysis"]
+    ):
         return "exa"
 
     # Privacy-sensitive queries could default to Qwant, but for now default to DuckDuckGo
@@ -209,7 +231,7 @@ async def web_search_agent(
     max_results_per_search: int = 5,
     llm_provider: str = "openai",
     model: str = "gpt-4o-mini",
-    stream: bool = False
+    stream: bool = False,
 ) -> BaseDynamicConfig:
     """
     Unified web search agent using dynamic configuration.
@@ -272,72 +294,42 @@ async def web_search_agent(
             "max_results": max_results_per_search,
             "llm_provider": llm_provider,
             "model": model,
-        }
+        },
     }
 
 
 # Convenience functions remain the same but now use the unified agent
 async def web_search_private(question: str, **kwargs) -> WebSearchResponse:
     """Convenience function for privacy-focused search using Qwant."""
-    return await web_search_agent(
-        question=question,
-        search_provider="qwant",
-        privacy_mode=True,
-        **kwargs
-    )
+    return await web_search_agent(question=question, search_provider="qwant", privacy_mode=True, **kwargs)
 
 
 async def web_search_comprehensive(question: str, **kwargs) -> WebSearchResponse:
     """Convenience function for comprehensive search using all available providers."""
-    return await web_search_agent(
-        question=question,
-        search_provider="all",
-        **kwargs
-    )
+    return await web_search_agent(question=question, search_provider="all", **kwargs)
 
 
 async def web_search_fast(question: str, **kwargs) -> WebSearchResponse:
     """Convenience function for fast search using DuckDuckGo."""
-    return await web_search_agent(
-        question=question,
-        search_provider="duckduckgo",
-        **kwargs
-    )
+    return await web_search_agent(question=question, search_provider="duckduckgo", **kwargs)
 
 
 async def web_search_ai(question: str, **kwargs) -> WebSearchResponse:
     """Convenience function for AI-powered semantic search using Exa."""
-    return await web_search_agent(
-        question=question,
-        search_provider="exa",
-        **kwargs
-    )
+    return await web_search_agent(question=question, search_provider="exa", **kwargs)
 
 
 async def web_search_structured(question: str, **kwargs) -> WebSearchResponse:
     """Convenience function for structured search using Nimble."""
-    return await web_search_agent(
-        question=question,
-        search_provider="nimble",
-        **kwargs
-    )
+    return await web_search_agent(question=question, search_provider="nimble", **kwargs)
 
 
 # Streaming version using the same unified agent with stream=True
-async def web_search_agent_stream(
-    question: str,
-    search_provider: SearchProvider = "auto",
-    **kwargs
-) -> AsyncGenerator[str, None]:
+async def web_search_agent_stream(question: str, search_provider: SearchProvider = "auto", **kwargs) -> AsyncGenerator[str, None]:
     """
     Streaming version of the unified web search agent.
 
     Simply calls the main agent with stream=True in the dynamic config.
     """
-    async for chunk in await web_search_agent(
-        question=question,
-        search_provider=search_provider,
-        stream=True,
-        **kwargs
-    ):
+    async for chunk in await web_search_agent(question=question, search_provider=search_provider, stream=True, **kwargs):
         yield chunk

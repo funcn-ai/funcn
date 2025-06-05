@@ -28,10 +28,12 @@ app.add_typer(docs.app, name="docs", help="Generate documentation and editor-spe
 
 # Entry point for Python -m funcn_cli ---------------------------------------
 
+
 def main() -> None:  # pragma: no cover
     """Main entry point for console script."""
     sys.argv[0] = "funcn"
     app()  # type: ignore[misc]
+
 
 def _main() -> None:  # pragma: no cover
     sys.argv[0] = "funcn"

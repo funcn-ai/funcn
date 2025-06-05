@@ -11,6 +11,7 @@ from typing import Dict, List, Optional, Tuple
 # Import search tools for real-time verification
 try:
     from duckduckgo_search import DDGS
+
     DUCKDUCKGO_AVAILABLE = True
 except ImportError:
     DUCKDUCKGO_AVAILABLE = False
@@ -18,6 +19,7 @@ except ImportError:
 try:
     import os
     from exa_py import Exa
+
     EXA_AVAILABLE = bool(os.environ.get("EXA_API_KEY"))
 except ImportError:
     EXA_AVAILABLE = False
@@ -25,6 +27,7 @@ except ImportError:
 
 class CredibilityLevel(str, Enum):
     """Source credibility levels."""
+
     VERY_HIGH = "very_high"
     HIGH = "high"
     MODERATE = "moderate"
@@ -35,6 +38,7 @@ class CredibilityLevel(str, Enum):
 
 class VerificationStatus(str, Enum):
     """Verification status of claims."""
+
     VERIFIED = "verified"
     PARTIALLY_VERIFIED = "partially_verified"
     UNVERIFIED = "unverified"
@@ -45,6 +49,7 @@ class VerificationStatus(str, Enum):
 
 class BiasDirection(str, Enum):
     """Political/ideological bias direction."""
+
     FAR_LEFT = "far_left"
     LEFT = "left"
     CENTER_LEFT = "center_left"
@@ -57,6 +62,7 @@ class BiasDirection(str, Enum):
 
 class MisinformationType(str, Enum):
     """Types of misinformation."""
+
     FABRICATION = "fabrication"
     MANIPULATION = "manipulation"
     MISREPRESENTATION = "misrepresentation"
@@ -69,6 +75,7 @@ class MisinformationType(str, Enum):
 
 class ClaimType(str, Enum):
     """Types of claims for verification routing."""
+
     STATISTICAL = "statistical"
     SCIENTIFIC = "scientific"
     MEDICAL = "medical"
@@ -99,7 +106,9 @@ class WebSearchTool(BaseTool):
                 with DDGS() as ddgs:
                     search_results = list(ddgs.text(self.query, max_results=self.max_results))
                     for result in search_results:
-                        results.append(f"Title: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                        results.append(
+                            f"Title: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                        )
                 return "\n\n".join(results) if results else "No search results found."
             except Exception as e:
                 pass
@@ -147,7 +156,7 @@ class FactCheckSearchTool(BaseTool):
             "site:boomlive.in",
             "site:altnews.in",
             "site:maldita.es",
-            "site:newtral.es"
+            "site:newtral.es",
         ]
 
         results = []
@@ -159,13 +168,17 @@ class FactCheckSearchTool(BaseTool):
                         query = f"{site} {self.claim}"
                         search_results = list(ddgs.text(query, max_results=2))
                         for result in search_results:
-                            results.append(f"Source: {site.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Source: {site.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                     # Also do a general fact-check search
                     general_query = f'"{self.claim}" fact check OR debunked OR false OR verified'
                     general_results = list(ddgs.text(general_query, max_results=3))
                     for result in general_results:
-                        results.append(f"General Search:\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                        results.append(
+                            f"General Search:\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                        )
 
                 return "\n\n".join(results) if results else "No fact-checks found for this claim."
             except Exception:
@@ -191,7 +204,7 @@ class AcademicSearchTool(BaseTool):
             "site:science.org",
             "site:plos.org",
             "site:academic.oup.com",
-            "site:springer.com"
+            "site:springer.com",
         ]
 
         results = []
@@ -203,13 +216,17 @@ class AcademicSearchTool(BaseTool):
                         query = f"{site} {self.query}"
                         search_results = list(ddgs.text(query, max_results=2))
                         for result in search_results:
-                            results.append(f"Academic Source: {site.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Academic Source: {site.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                     # Search for meta-analyses and systematic reviews
                     meta_query = f'"{self.query}" meta-analysis OR systematic review OR peer-reviewed'
                     meta_results = list(ddgs.text(meta_query, max_results=2))
                     for result in meta_results:
-                        results.append(f"Research:\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                        results.append(
+                            f"Research:\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                        )
 
                 return "\n\n".join(results) if results else "No academic sources found."
             except Exception:
@@ -237,26 +254,11 @@ class GovernmentDataTool(BaseTool):
                 "site:congress.gov",
                 "site:gao.gov",
                 "site:cbo.gov",
-                "site:federalregister.gov"
+                "site:federalregister.gov",
             ],
-            "UK": [
-                "site:gov.uk",
-                "site:ons.gov.uk",
-                "site:parliament.uk",
-                "site:data.gov.uk"
-            ],
-            "EU": [
-                "site:europa.eu",
-                "site:ec.europa.eu",
-                "site:eurostat.ec.europa.eu"
-            ],
-            "GLOBAL": [
-                "site:who.int",
-                "site:un.org",
-                "site:worldbank.org",
-                "site:imf.org",
-                "site:oecd.org"
-            ]
+            "UK": ["site:gov.uk", "site:ons.gov.uk", "site:parliament.uk", "site:data.gov.uk"],
+            "EU": ["site:europa.eu", "site:ec.europa.eu", "site:eurostat.ec.europa.eu"],
+            "GLOBAL": ["site:who.int", "site:un.org", "site:worldbank.org", "site:imf.org", "site:oecd.org"],
         }
 
         results = []
@@ -269,7 +271,9 @@ class GovernmentDataTool(BaseTool):
                         query = f"{site} {self.query}"
                         search_results = list(ddgs.text(query, max_results=2))
                         for result in search_results:
-                            results.append(f"Official Source: {site.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Official Source: {site.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                 return "\n\n".join(results) if results else "No government data found."
             except Exception:
@@ -295,13 +299,15 @@ class ReverseImageSearchTool(BaseTool):
                         f'"{self.image_description}" original source',
                         f'"{self.image_description}" fake OR manipulated OR doctored',
                         f'"{self.image_description}" fact check image',
-                        f'"{self.image_description}" reverse image search results'
+                        f'"{self.image_description}" reverse image search results',
                     ]
 
                     for query in queries:
                         search_results = list(ddgs.text(query, max_results=2))
                         for result in search_results:
-                            results.append(f"Image Search:\nQuery: {query}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Image Search:\nQuery: {query}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                     return "\n\n".join(results) if results else "No image verification results found."
             except Exception:
@@ -328,19 +334,23 @@ class SocialMediaVerificationTool(BaseTool):
                         platform_query = f'site:{self.platform}.com "{self.claim}"'
                         search_results = list(ddgs.text(platform_query, max_results=3))
                         for result in search_results:
-                            results.append(f"Platform Search ({self.platform}):\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Platform Search ({self.platform}):\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                     # General social media verification
                     verification_queries = [
                         f'"{self.claim}" verified account OR official statement',
                         f'"{self.claim}" deleted tweet OR deleted post OR screenshot',
-                        f'"{self.claim}" social media hoax OR fake'
+                        f'"{self.claim}" social media hoax OR fake',
                     ]
 
                     for query in verification_queries:
                         search_results = list(ddgs.text(query, max_results=2))
                         for result in search_results:
-                            results.append(f"Verification Search:\nQuery: {query}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Verification Search:\nQuery: {query}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                 return "\n\n".join(results) if results else "No social media verification results found."
             except Exception:
@@ -367,7 +377,7 @@ class ExpertSourceTool(BaseTool):
             "site:clevelandclinic.org",
             "site:johnshopkins.edu",
             "site:scientificamerican.com",
-            "site:theconversation.com"
+            "site:theconversation.com",
         ]
 
         results = []
@@ -379,13 +389,17 @@ class ExpertSourceTool(BaseTool):
                         query = f"{source} {self.topic} {self.claim}"
                         search_results = list(ddgs.text(query, max_results=2))
                         for result in search_results:
-                            results.append(f"Expert Source: {source.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                            results.append(
+                                f"Expert Source: {source.replace('site:', '')}\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                            )
 
                     # Search for expert quotes
                     expert_query = f'"{self.topic}" expert OR professor OR researcher "{self.claim}"'
                     expert_results = list(ddgs.text(expert_query, max_results=3))
                     for result in expert_results:
-                        results.append(f"Expert Opinion:\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}")
+                        results.append(
+                            f"Expert Opinion:\nTitle: {result.get('title', '')}\nURL: {result.get('href', '')}\nSnippet: {result.get('body', '')}"
+                        )
 
                 return "\n\n".join(results) if results else "No expert sources found."
             except Exception:
@@ -396,6 +410,7 @@ class ExpertSourceTool(BaseTool):
 
 class SourceCredibility(BaseModel):
     """Enhanced credibility assessment of a news source."""
+
     source_name: str = Field(..., description="Name of the news source")
     url: str = Field(..., description="URL of the source")
     credibility_level: CredibilityLevel = Field(..., description="Overall credibility assessment")
@@ -412,6 +427,7 @@ class SourceCredibility(BaseModel):
 
 class FactCheck(BaseModel):
     """Enhanced fact-checking result for a specific claim."""
+
     claim: str = Field(..., description="The specific claim being fact-checked")
     verification_status: VerificationStatus = Field(..., description="Verification result")
     supporting_sources: list[str] = Field(..., description="Sources that support the claim")
@@ -427,6 +443,7 @@ class FactCheck(BaseModel):
 
 class BiasAnalysis(BaseModel):
     """Analysis of bias in news content."""
+
     bias_type: str = Field(..., description="Type of bias detected")
     bias_indicators: list[str] = Field(..., description="Specific indicators of bias")
     loaded_language: list[str] = Field(..., description="Examples of loaded language")
@@ -439,6 +456,7 @@ class BiasAnalysis(BaseModel):
 
 class NewsAnalysis(BaseModel):
     """Enhanced analysis of news content and claims."""
+
     headline: str = Field(..., description="News headline")
     main_claims: list[str] = Field(..., description="Key claims made in the article")
     claim_types: dict[str, ClaimType] = Field(..., description="Type categorization for each claim")
@@ -457,6 +475,7 @@ class NewsAnalysis(BaseModel):
 
 class MediaLiteracyReport(BaseModel):
     """Media literacy education component."""
+
     key_questions: list[str] = Field(..., description="Questions readers should ask")
     red_flags_found: list[str] = Field(..., description="Red flags in this content")
     verification_tips: list[str] = Field(..., description="Tips for verifying similar content")
@@ -467,6 +486,7 @@ class MediaLiteracyReport(BaseModel):
 
 class NewsVerification(BaseModel):
     """Enhanced comprehensive news verification result."""
+
     original_article: str = Field(..., description="Original article or claim")
     source_credibility: list[SourceCredibility] = Field(..., description="Credibility of sources")
     news_analysis: NewsAnalysis = Field(..., description="Analysis of the news content")
@@ -482,6 +502,7 @@ class NewsVerification(BaseModel):
 
 class VerificationResult(BaseModel):
     """Enhanced final verification result with summary."""
+
     verification: NewsVerification
     overall_credibility: CredibilityLevel = Field(..., description="Overall credibility assessment")
     misinformation_risk: str = Field(..., description="Risk level of misinformation")
@@ -556,10 +577,7 @@ class VerificationResult(BaseModel):
     """
 )
 def assess_source_credibility(
-    sources: list[str],
-    context: str = "",
-    topic_area: str = "",
-    time_period: str = "current"
+    sources: list[str], context: str = "", topic_area: str = "", time_period: str = "current"
 ) -> list[SourceCredibility]:
     """Assess the credibility of news sources with enhanced analysis and real-time verification."""
     pass
@@ -641,11 +659,7 @@ def assess_source_credibility(
     """
 )
 def analyze_news_content(
-    article_content: str,
-    headline: str = "",
-    source_context: str = "",
-    publication_date: str = "",
-    author_info: str = ""
+    article_content: str, headline: str = "", source_context: str = "", publication_date: str = "", author_info: str = ""
 ) -> NewsAnalysis:
     """Analyze news content with enhanced bias detection and claim categorization."""
     pass
@@ -662,7 +676,7 @@ def analyze_news_content(
         GovernmentDataTool,
         ReverseImageSearchTool,
         SocialMediaVerificationTool,
-        ExpertSourceTool
+        ExpertSourceTool,
     ],
 )
 @prompt_template(
@@ -739,11 +753,7 @@ def analyze_news_content(
     """
 )
 def fact_check_claims(
-    claims: list[str],
-    available_sources: list[str],
-    context: str = "",
-    time_sensitivity: str = "",
-    related_fact_checks: str = ""
+    claims: list[str], available_sources: list[str], context: str = "", time_sensitivity: str = "", related_fact_checks: str = ""
 ) -> list[FactCheck]:
     """Fact-check specific claims with enhanced verification methodology and comprehensive tool suite."""
     pass
@@ -798,7 +808,7 @@ def create_media_literacy_report(
     news_analysis: NewsAnalysis,
     fact_check_results: list[FactCheck],
     source_credibility: list[SourceCredibility],
-    verification_findings: str
+    verification_findings: str,
 ) -> BaseDynamicConfig:
     """Create educational media literacy report."""
     return {
@@ -865,7 +875,7 @@ def synthesize_news_verification(
     content_analysis: NewsAnalysis,
     fact_check_results: list[FactCheck],
     media_literacy_report: MediaLiteracyReport,
-    additional_context: str = ""
+    additional_context: str = "",
 ) -> BaseDynamicConfig:
     """Synthesize comprehensive news verification with education focus."""
     return {
@@ -889,7 +899,7 @@ async def multi_source_news_verification(
     educational_mode: bool = True,
     use_realtime_search: bool = True,
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> VerificationResult:
     """
     Verify news articles and claims using enhanced multi-source analysis,
@@ -924,9 +934,16 @@ async def multi_source_news_verification(
 
     if sources is None:
         sources = [
-            "Reuters", "Associated Press", "BBC News", "NPR",
-            "The Guardian", "The New York Times", "The Washington Post",
-            "Financial Times", "The Economist", "ProPublica"
+            "Reuters",
+            "Associated Press",
+            "BBC News",
+            "NPR",
+            "The Guardian",
+            "The New York Times",
+            "The Washington Post",
+            "Financial Times",
+            "The Economist",
+            "ProPublica",
         ]
 
     # Check if real-time search is available
@@ -939,12 +956,7 @@ async def multi_source_news_verification(
     print("Assessing source credibility...")
     if use_realtime_search:
         print("  ↳ Using real-time web search to verify current reputation...")
-    source_credibility = assess_source_credibility(
-        sources=sources,
-        context=context,
-        topic_area=topic_area,
-        time_period="current"
-    )
+    source_credibility = assess_source_credibility(sources=sources, context=context, topic_area=topic_area, time_period="current")
     print(f"Assessed {len(source_credibility)} sources")
 
     # Step 2: Analyze news content
@@ -954,7 +966,7 @@ async def multi_source_news_verification(
         headline=headline,
         source_context=context,
         publication_date=datetime.now().strftime("%Y-%m-%d"),
-        author_info=author_info
+        author_info=author_info,
     )
     print(f"Identified {len(content_analysis.main_claims)} main claims")
     print(f"Found {len(content_analysis.misinformation_indicators)} potential misinformation indicators")
@@ -966,7 +978,7 @@ async def multi_source_news_verification(
         available_sources=sources,
         context=context,
         time_sensitivity="current",
-        related_fact_checks="checking fact-checker databases" if check_fact_checkers else ""
+        related_fact_checks="checking fact-checker databases" if check_fact_checkers else "",
     )
     print(f"Fact-checked {len(fact_check_results)} claims")
 
@@ -978,7 +990,7 @@ async def multi_source_news_verification(
             news_analysis=content_analysis,
             fact_check_results=fact_check_results,
             source_credibility=source_credibility,
-            verification_findings="comprehensive verification completed"
+            verification_findings="comprehensive verification completed",
         )
         print(f"Generated {len(media_literacy_report.key_questions)} critical thinking questions")
 
@@ -990,7 +1002,7 @@ async def multi_source_news_verification(
         content_analysis=content_analysis,
         fact_check_results=fact_check_results,
         media_literacy_report=media_literacy_report,
-        additional_context=context
+        additional_context=context,
     )
 
     # Step 6: Create final result with enhanced assessments
@@ -1002,19 +1014,32 @@ async def multi_source_news_verification(
     confidence_score = 0.0
     if total_claims > 0:
         verification_weight = verified_claims / total_claims * 0.4
-        source_weight = sum(
-            {"very_high": 1.0, "high": 0.8, "moderate": 0.6, "low": 0.3, "very_low": 0.1, "unknown": 0.5}[sc.credibility_level.value]
-            for sc in source_credibility
-        ) / len(source_credibility) * 0.3 if source_credibility else 0.15
+        source_weight = (
+            sum(
+                {"very_high": 1.0, "high": 0.8, "moderate": 0.6, "low": 0.3, "very_low": 0.1, "unknown": 0.5}[
+                    sc.credibility_level.value
+                ]
+                for sc in source_credibility
+            )
+            / len(source_credibility)
+            * 0.3
+            if source_credibility
+            else 0.15
+        )
         transparency_weight = content_analysis.transparency_score * 0.2
         completeness_weight = content_analysis.completeness_score * 0.1
         confidence_score = verification_weight + source_weight + transparency_weight + completeness_weight
 
     # Determine overall credibility
-    avg_credibility_score = sum(
-        {"very_high": 5, "high": 4, "moderate": 3, "low": 2, "very_low": 1, "unknown": 2.5}[sc.credibility_level.value]
-        for sc in source_credibility
-    ) / len(source_credibility) if source_credibility else 2.5
+    avg_credibility_score = (
+        sum(
+            {"very_high": 5, "high": 4, "moderate": 3, "low": 2, "very_low": 1, "unknown": 2.5}[sc.credibility_level.value]
+            for sc in source_credibility
+        )
+        / len(source_credibility)
+        if source_credibility
+        else 2.5
+    )
 
     if contradicted_claims > total_claims * 0.5:
         overall_credibility = CredibilityLevel.VERY_LOW
@@ -1053,7 +1078,7 @@ async def multi_source_news_verification(
             f"Average source credibility: {overall_credibility.value}",
             f"Bias level: {content_analysis.bias_analysis.bias_type}",
             f"Transparency score: {content_analysis.transparency_score:.2f}",
-            f"Misinformation indicators: {len(content_analysis.misinformation_indicators)}"
+            f"Misinformation indicators: {len(content_analysis.misinformation_indicators)}",
         ],
         confidence_score=confidence_score,
         action_recommendations=[
@@ -1061,17 +1086,17 @@ async def multi_source_news_verification(
             "Check for updates or corrections to this story",
             "Consider the source's track record and potential biases",
             "Look for expert opinions on technical claims",
-            "Be aware of emotional language that may influence perception"
+            "Be aware of emotional language that may influence perception",
         ],
         follow_up_suggestions=[
             "Monitor how this story develops over time",
             "Check specialized fact-checking websites",
             "Seek out diverse perspectives on this topic",
             "Consult subject matter experts for technical details",
-            "Review primary documents if referenced"
+            "Review primary documents if referenced",
         ],
         share_recommendations=share_recommendations,
-        educational_value=f"This verification demonstrates {len(verification.media_literacy_report.media_literacy_lessons)} key media literacy concepts"
+        educational_value=f"This verification demonstrates {len(verification.media_literacy_report.media_literacy_lessons)} key media literacy concepts",
     )
 
     print("Enhanced news verification complete!")
@@ -1079,10 +1104,7 @@ async def multi_source_news_verification(
 
 
 async def multi_source_news_verification_stream(
-    article_content: str,
-    headline: str = "",
-    use_realtime_search: bool = True,
-    **kwargs
+    article_content: str, headline: str = "", use_realtime_search: bool = True, **kwargs
 ) -> AsyncGenerator[str, None]:
     """Stream the enhanced news verification process with optional real-time search."""
 
@@ -1097,9 +1119,7 @@ async def multi_source_news_verification_stream(
             yield "Real-time search not available - install duckduckgo-search or set EXA_API_KEY\n\n"
 
     # Perform verification
-    result = await multi_source_news_verification(
-        article_content, headline, use_realtime_search=use_realtime_search, **kwargs
-    )
+    result = await multi_source_news_verification(article_content, headline, use_realtime_search=use_realtime_search, **kwargs)
 
     yield "## Overall Assessment\n\n"
     yield f"**Credibility Level:** {result.overall_credibility.value.replace('_', ' ').title()}\n"

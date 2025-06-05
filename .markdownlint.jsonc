@@ -3,6 +3,10 @@
   "default": true,
   // Trailing spaces
   "MD009": false,
+  // Trailing punctuation in heading (allow colons for examples/steps)
+  "MD026": {
+    "punctuation": ".,;!?"
+  },
   // Line length (default: 80)
   "MD013": false,
   // Duplicate headings (e.g., nested headings)
@@ -18,5 +22,11 @@
   // Empahsis as heading (e.g., table of contents)
   "MD036": false,
   // Fenced code blocks should have a language specified
-  "MD040": false
+  "MD040": false,
+  // First line in a file should be a top-level heading
+  "MD041": false,
+  // Files should end with a single newline character
+  "MD047": false,
+  // Inline HTML (allow for .claude directory with custom tags)
+  "MD033": false
 }

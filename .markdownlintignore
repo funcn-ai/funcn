@@ -1,0 +1,4 @@
+# Ignore entire .claude directory as it contains Claude-specific files with XML tags
+.claude/
+.claude/**
+.claude/**/*.md

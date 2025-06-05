@@ -11,6 +11,7 @@ console = Console()
 
 app = typer.Typer(help="Add a component to the current project.")
 
+
 def _get_known_providers_help() -> str:
     try:
         known_llms_path = Path(__file__).parent.parent / "core" / "known_llms.json"
@@ -21,7 +22,7 @@ def _get_known_providers_help() -> str:
             if providers:
                 return f"LLM provider to use (e.g., {', '.join(providers[:3])}, ...). See full list in funcn_cli/core/known_llms.json."
     except Exception:
-        pass # Fallback to default help
+        pass  # Fallback to default help
     return "LLM provider to use (e.g., openai, anthropic). Check documentation for more."
 
 
@@ -30,9 +31,16 @@ def add(  # noqa: D401 – CLI entry-point
     _ctx: typer.Context,
     identifier: str | None = typer.Argument(None, help="Component name or manifest URL", show_default=False),
     provider: str | None = typer.Option(None, "--provider", help=_get_known_providers_help(), show_default=False),
-    model: str | None = typer.Option(None, "--model", help="Model name to use (e.g., gpt-4o-mini). Refer to provider docs or funcn_cli/core/known_llms.json.", show_default=False),
+    model: str | None = typer.Option(
+        None,
+        "--model",
+        help="Model name to use (e.g., gpt-4o-mini). Refer to provider docs or funcn_cli/core/known_llms.json.",
+        show_default=False,
+    ),
     with_lilypad: bool = typer.Option(False, "--with-lilypad", help="Include lilypad tracing decorators"),
-    stream: bool | None = typer.Option(None, "--stream", help="Enable streaming responses for this component (overrides config)", show_default=False),
+    stream: bool | None = typer.Option(
+        None, "--stream", help="Enable streaming responses for this component (overrides config)", show_default=False
+    ),
 ) -> None:
     """Add a component to the current project.
 

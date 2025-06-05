@@ -19,7 +19,9 @@ class CSVSearchArgs(BaseModel):
     file_path: str = Field(..., description="Path to the CSV file to search")
     query: str = Field(..., description="Search query to find within the CSV")
     columns: list[str] | None = Field(None, description="Specific columns to search in. If None, searches all columns")
-    filters: dict[str, Any] | None = Field(None, description="Column filters to apply before searching (e.g., {'age': '>30', 'status': 'active'})")
+    filters: dict[str, Any] | None = Field(
+        None, description="Column filters to apply before searching (e.g., {'age': '>30', 'status': 'active'})"
+    )
     max_results: int = Field(default=50, description="Maximum number of results to return")
     fuzzy_threshold: int = Field(default=80, description="Fuzzy matching threshold (0-100)")
     exact_match: bool = Field(default=False, description="Whether to use exact matching instead of fuzzy matching")
@@ -57,11 +59,7 @@ async def search_csv_content(args: CSVSearchArgs) -> CSVSearchResponse:
         file_path = Path(args.file_path)
         if not file_path.exists():
             return CSVSearchResponse(
-                results=[],
-                total_rows=0,
-                columns=[],
-                filtered_count=0,
-                error=f"CSV file not found: {args.file_path}"
+                results=[], total_rows=0, columns=[], filtered_count=0, error=f"CSV file not found: {args.file_path}"
             )
 
         # Run CSV processing in thread pool to avoid blocking
@@ -71,13 +69,7 @@ async def search_csv_content(args: CSVSearchArgs) -> CSVSearchResponse:
         return results
 
     except Exception as e:
-        return CSVSearchResponse(
-            results=[],
-            total_rows=0,
-            columns=[],
-            filtered_count=0,
-            error=f"Error searching CSV: {str(e)}"
-        )
+        return CSVSearchResponse(results=[], total_rows=0, columns=[], filtered_count=0, error=f"Error searching CSV: {str(e)}")
 
 
 def _process_and_search(file_path: Path, args: CSVSearchArgs) -> CSVSearchResponse:
@@ -166,30 +158,19 @@ def _process_and_search(file_path: Path, args: CSVSearchArgs) -> CSVSearchRespon
                     else:
                         row_dict[col] = value
 
-                results.append(CSVSearchResult(
-                    row_index=int(idx),
-                    row_data=row_dict,
-                    matched_columns=matched_columns,
-                    match_scores=match_scores
-                ))
+                results.append(
+                    CSVSearchResult(
+                        row_index=int(idx), row_data=row_dict, matched_columns=matched_columns, match_scores=match_scores
+                    )
+                )
 
         # Sort by best match score and limit results
         results.sort(key=lambda x: max(x.match_scores.values()) if x.match_scores else 0, reverse=True)
-        results = results[:args.max_results]
+        results = results[: args.max_results]
 
         return CSVSearchResponse(
-            results=results,
-            total_rows=total_rows,
-            columns=columns,
-            filtered_count=filtered_count,
-            error=None
+            results=results, total_rows=total_rows, columns=columns, filtered_count=filtered_count, error=None
         )
 
     except Exception as e:
-        return CSVSearchResponse(
-            results=[],
-            total_rows=0,
-            columns=[],
-            filtered_count=0,
-            error=f"Error processing CSV: {str(e)}"
-        )
+        return CSVSearchResponse(results=[], total_rows=0, columns=[], filtered_count=0, error=f"Error processing CSV: {str(e)}")

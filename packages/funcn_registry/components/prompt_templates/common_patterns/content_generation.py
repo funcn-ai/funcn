@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 # Creative content generation
 
+
 class CreativeContent(BaseModel):
     """Model for creative content."""
 
@@ -25,12 +26,7 @@ class CreativeContent(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=CreativeContent,
-    call_params={"temperature": 0.8}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=CreativeContent, call_params={"temperature": 0.8})
 @prompt_template(
     """
     Generate creative content with these parameters:
@@ -53,7 +49,7 @@ def generate_creative(
     style: str = "contemporary",
     tone: str = "engaging",
     target_length: int = 500,
-    requirements: list[str] = None
+    requirements: list[str] = None,
 ):
     """
     Generate creative content (stories, poems, etc.).
@@ -76,6 +72,7 @@ def generate_creative(
 
 # Technical content generation
 
+
 class TechnicalContent(BaseModel):
     """Model for technical content."""
 
@@ -88,12 +85,7 @@ class TechnicalContent(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=TechnicalContent,
-    call_params={"temperature": 0.3}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=TechnicalContent, call_params={"temperature": 0.3})
 @prompt_template(
     """
     Generate technical documentation:
@@ -114,11 +106,7 @@ class TechnicalContent(BaseModel):
     """
 )
 def generate_technical(
-    topic: str,
-    doc_type: str,
-    audience: str = "developers",
-    tech_level: str = "intermediate",
-    focus_areas: list[str] = None
+    topic: str, doc_type: str, audience: str = "developers", tech_level: str = "intermediate", focus_areas: list[str] = None
 ):
     """
     Generate technical documentation.
@@ -139,6 +127,7 @@ def generate_technical(
 
 
 # Structured content generation
+
 
 class StructuredContent(BaseModel):
     """Model for structured content."""
@@ -172,11 +161,7 @@ class StructuredContent(BaseModel):
     """
 )
 def generate_structured(
-    format: str,
-    topic: str,
-    template: dict[str, list[str]],
-    optimization_goal: str = "readability",
-    section_length: int = 200
+    format: str, topic: str, template: dict[str, list[str]], optimization_goal: str = "readability", section_length: int = 200
 ) -> BaseDynamicConfig:
     """
     Generate content following a specific structure.
@@ -197,14 +182,11 @@ def generate_structured(
         for element in elements:
             formatted_template.append([f"  - {element}"])
 
-    return {
-        "computed_fields": {
-            "template": formatted_template
-        }
-    }
+    return {"computed_fields": {"template": formatted_template}}
 
 
 # Marketing content generation
+
 
 class MarketingContent(BaseModel):
     """Model for marketing content."""
@@ -218,12 +200,7 @@ class MarketingContent(BaseModel):
 
 
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    response_model=MarketingContent,
-    call_params={"temperature": 0.7}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", response_model=MarketingContent, call_params={"temperature": 0.7})
 @prompt_template(
     """
     Generate marketing content for:
@@ -249,7 +226,7 @@ def generate_marketing(
     marketing_goal: str,
     tone: str = "professional",
     features: list[str] = None,
-    usps: list[str] = None
+    usps: list[str] = None,
 ):
     """
     Generate marketing copy.
@@ -273,6 +250,7 @@ def generate_marketing(
 
 
 # Dynamic content variation
+
 
 class ContentVariation(BaseModel):
     """Model for content variations."""
@@ -304,7 +282,7 @@ def generate_variations(
     num_variations: int = 3,
     tones: list[str] = None,
     lengths: list[str] = None,
-    audiences: list[str] = None
+    audiences: list[str] = None,
 ):
     """
     Generate content variations.
@@ -330,6 +308,7 @@ def generate_variations(
 
 # Template-based generation
 
+
 @lilypad.trace(versioning="automatic")
 @llm.call(provider="openai", model="gpt-4o-mini")
 @prompt_template(
@@ -351,11 +330,7 @@ def generate_variations(
     - Adapt tone to context
     """
 )
-def generate_from_template(
-    template: str,
-    variables: dict[str, str],
-    context: str
-) -> BaseDynamicConfig:
+def generate_from_template(template: str, variables: dict[str, str], context: str) -> BaseDynamicConfig:
     """
     Generate content from template.
 
@@ -371,8 +346,4 @@ def generate_from_template(
     for key, value in variables.items():
         formatted_variables.append([f"{{{key}}}: {value}"])
 
-    return {
-        "computed_fields": {
-            "variables": formatted_variables
-        }
-    }
+    return {"computed_fields": {"variables": formatted_variables}}
