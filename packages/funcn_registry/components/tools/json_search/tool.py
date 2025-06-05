@@ -3,7 +3,8 @@ from __future__ import annotations
 import asyncio
 import json
 from fuzzywuzzy import fuzz
-from jsonpath_ng import JSONPathError, parse
+from jsonpath_ng import parse
+from jsonpath_ng.exceptions import JSONPathError
 from pathlib import Path
 
 # FUNCN_LILYPAD_IMPORT_PLACEHOLDER

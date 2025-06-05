@@ -8,15 +8,16 @@ import time
 from collections.abc import AsyncGenerator
 from datetime import datetime
 from enum import Enum
+from mirascope import BaseDynamicConfig, llm, prompt_template
 
 # Import our tools
-from funcn_registry.components.tools.dice_roller import (
+from packages.funcn_registry.components.tools.dice_roller.tool import (
     DiceRoll as ToolDiceRoll,
     DiceType as ToolDiceType,
     format_roll_result,
     roll_dice as tool_roll_dice,
 )
-from funcn_registry.components.tools.dnd_5e_api import (
+from packages.funcn_registry.components.tools.dnd_5e_api.tool import (
     get_ability_score_info,
     get_class_info,
     get_condition_info,
@@ -29,14 +30,10 @@ from funcn_registry.components.tools.dnd_5e_api import (
     get_skill_info,
     get_spell_info,
     search_dnd_content,
-    search_equipment,
-    search_magic_items,
-    search_monsters,
-    search_spells,
 )
 
 # Add SQLite state management imports
-from funcn_registry.components.tools.sqlite_db import (
+from packages.funcn_registry.components.tools.sqlite_db.tool import (
     cleanup_old_state,
     create_agent_state_table,
     delete_agent_state,
@@ -45,7 +42,6 @@ from funcn_registry.components.tools.sqlite_db import (
     query_agent_history,
     store_agent_state,
 )
-from mirascope import BaseDynamicConfig, llm, prompt_template, tool
 from pathlib import Path
 from pydantic import BaseModel, Field, validator
 from typing import Any, Optional, Union
@@ -935,7 +931,6 @@ async def create_campaign_backup(db_path: str, backup_name: str | None = None) -
 
 
 # Enhanced tool functions with proper rule enforcement
-@tool
 async def roll_ability_check(
     character_name: str,
     ability: str,
@@ -995,7 +990,6 @@ async def roll_ability_check(
     return "\n".join(details)
 
 
-@tool
 async def roll_saving_throw(
     character_name: str,
     ability: str,
@@ -1055,7 +1049,6 @@ async def roll_saving_throw(
     return "\n".join(output)
 
 
-@tool
 async def roll_attack(
     attacker_name: str,
     target_ac: int,
@@ -1146,7 +1139,6 @@ async def roll_attack(
     return "\n".join(output)
 
 
-@tool
 async def calculate_movement(
     character_name: str,
     from_position: tuple[int, int],
@@ -1203,7 +1195,6 @@ async def calculate_movement(
     return "\n".join(output)
 
 
-@tool
 async def check_spell_requirements(
     caster_name: str,
     spell_name: str,
@@ -1277,7 +1268,6 @@ async def check_spell_requirements(
         return f"Error: {str(e)}"
 
 
-@tool
 async def apply_condition(
     character_name: str,
     condition_name: str,
@@ -1318,7 +1308,6 @@ async def apply_condition(
         return f"Error: {str(e)}"
 
 
-@tool
 async def calculate_encounter_xp(
     monster_names: list[str],
     party_size: int,
@@ -1427,7 +1416,6 @@ async def calculate_encounter_xp(
     return "\n".join(output)
 
 
-@tool
 async def manage_rest(
     character_name: str,
     rest_type: str,
@@ -1506,7 +1494,6 @@ async def manage_rest(
 
 
 # Existing tool functions remain the same
-@tool
 async def roll_for_action(
     dice_type: str,
     num_dice: int = 1,
@@ -1546,7 +1533,6 @@ async def roll_for_action(
     return format_roll_result(result)
 
 
-@tool
 async def lookup_spell(spell_name: str) -> str:
     """
     Look up D&D 5e spell information.
@@ -1573,7 +1559,6 @@ Classes: {', '.join(spell.classes)}"""
         return str(e)
 
 
-@tool
 async def lookup_monster(monster_name: str) -> str:
     """
     Look up D&D 5e monster statistics.
@@ -1603,7 +1588,6 @@ Actions: {len(monster.actions)} available"""
         return str(e)
 
 
-@tool
 async def lookup_equipment(item_name: str) -> str:
     """
     Look up D&D 5e equipment information.
@@ -1640,7 +1624,6 @@ async def lookup_equipment(item_name: str) -> str:
         return str(e)
 
 
-@tool
 async def search_rules(content_type: str, query: str = "") -> str:
     """
     Search D&D 5e rules and content.
@@ -1663,7 +1646,6 @@ async def search_rules(content_type: str, query: str = "") -> str:
         return str(e)
 
 
-@tool
 async def lookup_race(race_name: str) -> str:
     """
     Look up D&D 5e race information.
@@ -1699,7 +1681,6 @@ async def lookup_race(race_name: str) -> str:
         return str(e)
 
 
-@tool
 async def lookup_condition(condition_name: str) -> str:
     """
     Look up D&D 5e condition effects.
@@ -1717,7 +1698,6 @@ async def lookup_condition(condition_name: str) -> str:
         return str(e)
 
 
-@tool
 async def lookup_skill(skill_name: str) -> str:
     """
     Look up D&D 5e skill information.
@@ -1735,7 +1715,6 @@ async def lookup_skill(skill_name: str) -> str:
         return str(e)
 
 
-@tool
 async def lookup_magic_item(item_name: str) -> str:
     """
     Look up D&D 5e magic item information.
@@ -1763,7 +1742,6 @@ async def lookup_magic_item(item_name: str) -> str:
         return str(e)
 
 
-@tool
 async def search_content(content_type: str, query: str = "", level: int | None = None, school: str | None = None, challenge_rating: float | None = None) -> str:
     """
     Search D&D 5e content with filters.
