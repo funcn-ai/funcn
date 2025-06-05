@@ -967,6 +967,7 @@ COMPONENT_TYPE_TEMPLATES = {
     "example": DEFAULT_TEMPLATE,  # Examples use default template
 }
 
+
 def get_template_for_type(component_type: str) -> str:
     """Get the appropriate template for a component type."""
     return COMPONENT_TYPE_TEMPLATES.get(component_type, DEFAULT_TEMPLATE)

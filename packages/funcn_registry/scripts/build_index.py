@@ -34,6 +34,7 @@ REGISTRY_VERSION = "1.0"
 # Helpers
 # ---------------------------------------------------------------------------
 
+
 def iter_manifest_paths(base_dir: Path) -> Iterable[Path]:
     """Yield all component.json paths under *base_dir*."""
     for path in base_dir.rglob("component.json"):
@@ -43,6 +44,7 @@ def iter_manifest_paths(base_dir: Path) -> Iterable[Path]:
 # ---------------------------------------------------------------------------
 # Main build routine
 # ---------------------------------------------------------------------------
+
 
 def build_index() -> None:
     component_entries: list[RegistryComponentEntry] = []

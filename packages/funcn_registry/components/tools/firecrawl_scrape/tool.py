@@ -16,32 +16,20 @@ class FirecrawlScrapeArgs(BaseModel):
     url: str = Field(..., description="URL of the webpage to scrape")
     formats: list[str] = Field(
         default=["markdown", "html"],
-        description="Formats to return. Options: 'markdown', 'html', 'rawHtml', 'content', 'links', 'screenshot'"
+        description="Formats to return. Options: 'markdown', 'html', 'rawHtml', 'content', 'links', 'screenshot'",
     )
     only_main_content: bool = Field(
-        default=True,
-        description="Only return the main content of the page, excluding headers, navs, footers, etc."
+        default=True, description="Only return the main content of the page, excluding headers, navs, footers, etc."
     )
     include_tags: list[str] | None = Field(
-        None,
-        description="CSS selectors to include in the scrape (e.g., ['article', '.content', '#main'])"
+        None, description="CSS selectors to include in the scrape (e.g., ['article', '.content', '#main'])"
     )
     exclude_tags: list[str] | None = Field(
-        None,
-        description="CSS selectors to exclude from the scrape (e.g., ['.ads', '#sidebar', 'nav'])"
+        None, description="CSS selectors to exclude from the scrape (e.g., ['.ads', '#sidebar', 'nav'])"
     )
-    wait_for: int | None = Field(
-        None,
-        description="Time to wait in milliseconds for the page to load before scraping"
-    )
-    screenshot: bool = Field(
-        default=False,
-        description="Whether to take a screenshot of the page"
-    )
-    remove_scripts: bool = Field(
-        default=True,
-        description="Remove script tags from the HTML"
-    )
+    wait_for: int | None = Field(None, description="Time to wait in milliseconds for the page to load before scraping")
+    screenshot: bool = Field(default=False, description="Whether to take a screenshot of the page")
+    remove_scripts: bool = Field(default=True, description="Remove script tags from the HTML")
 
     @validator('formats')
     def validate_formats(cls, v):
@@ -109,17 +97,13 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
                 links=None,
                 screenshot=None,
                 metadata=None,
-                error="FIRECRAWL_API_KEY environment variable not set"
+                error="FIRECRAWL_API_KEY environment variable not set",
             )
 
         app = FirecrawlApp(api_key=api_key)
 
         # Prepare scrape parameters
-        params = {
-            "formats": args.formats,
-            "onlyMainContent": args.only_main_content,
-            "removeScripts": args.remove_scripts
-        }
+        params = {"formats": args.formats, "onlyMainContent": args.only_main_content, "removeScripts": args.remove_scripts}
 
         # Add optional parameters
         if args.include_tags:
@@ -146,7 +130,7 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
                 links=None,
                 screenshot=None,
                 metadata=None,
-                error=error_msg
+                error=error_msg,
             )
 
         # Extract metadata if available
@@ -168,7 +152,7 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
                 twitter_card=meta_data.get("twitterCard"),
                 twitter_title=meta_data.get("twitterTitle"),
                 twitter_description=meta_data.get("twitterDescription"),
-                twitter_image=meta_data.get("twitterImage")
+                twitter_image=meta_data.get("twitterImage"),
             )
 
         # Build response
@@ -182,7 +166,7 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
             links=result.get("links") if "links" in args.formats else None,
             screenshot=result.get("screenshot") if "screenshot" in args.formats else None,
             metadata=metadata,
-            error=None
+            error=None,
         )
 
         return response
@@ -198,5 +182,5 @@ async def scrape_website(args: FirecrawlScrapeArgs) -> FirecrawlScrapeResponse:
             links=None,
             screenshot=None,
             metadata=None,
-            error=f"Error scraping website: {str(e)}"
+            error=f"Error scraping website: {str(e)}",
         )

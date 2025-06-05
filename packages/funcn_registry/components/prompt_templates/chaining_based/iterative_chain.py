@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Basic iterative refinement
 
+
 class RefinementResult(BaseModel):
     """Model for refinement results."""
 
@@ -71,22 +72,12 @@ def assess_quality(content: str):
     Improve the content while maintaining its core message.
     """
 )
-def refine_content(
-    content: str,
-    iteration: int,
-    quality_score: float,
-    weaknesses: list[str],
-    suggestions: list[str]
-):
+def refine_content(content: str, iteration: int, quality_score: float, weaknesses: list[str], suggestions: list[str]):
     """Refine content based on assessment."""
     pass
 
 
-def iterative_refinement(
-    initial_content: str,
-    target_score: float = 8.0,
-    max_iterations: int = 5
-) -> list[RefinementResult]:
+def iterative_refinement(initial_content: str, target_score: float = 8.0, max_iterations: int = 5) -> list[RefinementResult]:
     """
     Basic iterative refinement until quality target is met.
 
@@ -112,13 +103,15 @@ def iterative_refinement(
 
         # Check if target met
         if assessment.score >= target_score:
-            results.append(RefinementResult(
-                iteration=i + 1,
-                content=current_content,
-                improvements=["Target quality achieved"],
-                quality_score=assessment.score,
-                needs_further_refinement=False
-            ))
+            results.append(
+                RefinementResult(
+                    iteration=i + 1,
+                    content=current_content,
+                    improvements=["Target quality achieved"],
+                    quality_score=assessment.score,
+                    needs_further_refinement=False,
+                )
+            )
             break
 
         # Refine based on assessment
@@ -127,7 +120,7 @@ def iterative_refinement(
             iteration=i + 1,
             quality_score=assessment.score,
             weaknesses=assessment.weaknesses,
-            suggestions=assessment.suggestions
+            suggestions=assessment.suggestions,
         )
 
         results.append(refinement)
@@ -137,6 +130,7 @@ def iterative_refinement(
 
 
 # Iterative validation and correction
+
 
 class ValidationResult(BaseModel):
     """Model for validation results."""
@@ -188,20 +182,12 @@ def validate_content(content: str, requirements: list[str]):
     Make minimal changes to fix issues while preserving intent.
     """
 )
-def correct_issues(
-    content: str,
-    errors: list[str],
-    warnings: list[str]
-):
+def correct_issues(content: str, errors: list[str], warnings: list[str]):
     """Correct identified issues."""
     pass
 
 
-def iterative_validation(
-    content: str,
-    requirements: list[str],
-    max_iterations: int = 3
-) -> dict:
+def iterative_validation(content: str, requirements: list[str], max_iterations: int = 3) -> dict:
     """
     Iterative validation and correction until compliant.
 
@@ -223,16 +209,9 @@ def iterative_validation(
 
     for i in range(max_iterations):
         # Validate current content
-        validation = validate_content(
-            content=current_content,
-            requirements=requirements
-        )
+        validation = validate_content(content=current_content, requirements=requirements)
 
-        validation_history.append({
-            "iteration": i + 1,
-            "validation": validation,
-            "content": current_content
-        })
+        validation_history.append({"iteration": i + 1, "validation": validation, "content": current_content})
 
         # Check if valid
         if validation.is_valid and validation.compliance_score >= 0.95:
@@ -240,22 +219,19 @@ def iterative_validation(
 
         # Correct issues
         if validation.errors or validation.warnings:
-            correction = correct_issues(
-                content=current_content,
-                errors=validation.errors,
-                warnings=validation.warnings
-            )
+            correction = correct_issues(content=current_content, errors=validation.errors, warnings=validation.warnings)
             current_content = correction.content
 
     return {
         "final_content": current_content,
         "iterations": len(validation_history),
         "final_validation": validation_history[-1]["validation"],
-        "history": validation_history
+        "history": validation_history,
     }
 
 
 # Iterative convergence optimization
+
 
 class OptimizationState(BaseModel):
     """Model for optimization state."""
@@ -287,21 +263,13 @@ class OptimizationState(BaseModel):
     Provide optimized solution with score and convergence status.
     """
 )
-def optimize_step(
-    current_solution: str,
-    objective: str,
-    iteration: int,
-    score_history: list[float]
-) -> BaseDynamicConfig:
+def optimize_step(current_solution: str, objective: str, iteration: int, score_history: list[float]) -> BaseDynamicConfig:
     """Single optimization step."""
     return {}
 
 
 def iterative_convergence(
-    initial_solution: str,
-    objective: str,
-    convergence_threshold: float = 0.01,
-    max_iterations: int = 10
+    initial_solution: str, objective: str, convergence_threshold: float = 0.01, max_iterations: int = 10
 ) -> list[OptimizationState]:
     """
     Iterative optimization until convergence.
@@ -327,10 +295,7 @@ def iterative_convergence(
     for i in range(max_iterations):
         # Optimize
         state = optimize_step(
-            current_solution=current_solution,
-            objective=objective,
-            iteration=i + 1,
-            score_history=score_history
+            current_solution=current_solution, objective=objective, iteration=i + 1, score_history=score_history
         )
 
         states.append(state)
@@ -352,6 +317,7 @@ def iterative_convergence(
 
 
 # Advanced iterative with feedback loop
+
 
 class FeedbackLoop(BaseModel):
     """Model for feedback loop results."""
@@ -378,25 +344,20 @@ class FeedbackLoop(BaseModel):
     Apply learned patterns to improve output.
     """
 )
-def process_with_learning(
-    input_data: str,
-    learnings: list[dict]
-) -> BaseDynamicConfig:
+def process_with_learning(input_data: str, learnings: list[dict]) -> BaseDynamicConfig:
     """Process input with accumulated learnings."""
     formatted_learnings = []
     for learning in learnings:
-        formatted_learnings.append([
-            f"Iteration {learning['iteration']}:",
-            f"Feedback: {learning['feedback']}",
-            f"Adaptation: {learning['adaptation']}",
-            ""
-        ])
+        formatted_learnings.append(
+            [
+                f"Iteration {learning['iteration']}:",
+                f"Feedback: {learning['feedback']}",
+                f"Adaptation: {learning['adaptation']}",
+                "",
+            ]
+        )
 
-    return {
-        "computed_fields": {
-            "learnings": formatted_learnings
-        }
-    }
+    return {"computed_fields": {"learnings": formatted_learnings}}
 
 
 @lilypad.trace(versioning="automatic")
@@ -413,21 +374,12 @@ def process_with_learning(
     Analyze performance and suggest adaptation.
     """
 )
-def generate_feedback(
-    iteration: int,
-    input_data: str,
-    output: str,
-    target: str
-):
+def generate_feedback(iteration: int, input_data: str, output: str, target: str):
     """Generate feedback and adaptation strategy."""
     pass
 
 
-def iterative_feedback_loop(
-    inputs: list[str],
-    target: str,
-    initial_learnings: list[dict] = None
-) -> list[FeedbackLoop]:
+def iterative_feedback_loop(inputs: list[str], target: str, initial_learnings: list[dict] = None) -> list[FeedbackLoop]:
     """
     Iterative processing with feedback and learning.
 
@@ -452,25 +404,15 @@ def iterative_feedback_loop(
 
     for i, input_data in enumerate(inputs):
         # Process with current learnings
-        output = process_with_learning(
-            input_data=input_data,
-            learnings=learnings
-        )
+        output = process_with_learning(input_data=input_data, learnings=learnings)
 
         # Generate feedback
-        feedback_loop = generate_feedback(
-            iteration=i + 1,
-            input_data=input_data,
-            output=output.content,
-            target=target
-        )
+        feedback_loop = generate_feedback(iteration=i + 1, input_data=input_data, output=output.content, target=target)
 
         # Store learning
-        learnings.append({
-            "iteration": feedback_loop.iteration,
-            "feedback": feedback_loop.feedback,
-            "adaptation": feedback_loop.adaptation
-        })
+        learnings.append(
+            {"iteration": feedback_loop.iteration, "feedback": feedback_loop.feedback, "adaptation": feedback_loop.adaptation}
+        )
 
         results.append(feedback_loop)
 

@@ -31,5 +31,5 @@ __all__ = [
     "get_database_info",
     "cleanup_old_state",
     "get_async_session",
-    "get_sync_engine"
+    "get_sync_engine",
 ]

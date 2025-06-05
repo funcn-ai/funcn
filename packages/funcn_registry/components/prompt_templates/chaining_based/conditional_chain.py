@@ -13,6 +13,7 @@ from pydantic import BaseModel, Field
 
 # Basic conditional routing
 
+
 class ContentType(str, Enum):
     """Content type enumeration."""
 
@@ -73,11 +74,7 @@ def classify_content(content: str):
     Enhance while maintaining the original intent.
     """
 )
-def process_by_type(
-    content: str,
-    content_type: ContentType,
-    processing_instructions: str
-):
+def process_by_type(content: str, content_type: ContentType, processing_instructions: str):
     """Process content based on its type."""
     pass
 
@@ -105,20 +102,21 @@ def conditional_basic(content: str) -> ProcessedContent:
         ContentType.TECHNICAL: "Add code examples, clarify technical terms, improve structure",
         ContentType.CREATIVE: "Enhance imagery, improve flow, add emotional depth",
         ContentType.ANALYTICAL: "Add data visualizations, strengthen arguments, clarify insights",
-        ContentType.EDUCATIONAL: "Add examples, improve clarity, include practice exercises"
+        ContentType.EDUCATIONAL: "Add examples, improve clarity, include practice exercises",
     }
 
     # Step 3: Process based on classification
     processed = process_by_type(
         content=content,
         content_type=classification.content_type,
-        processing_instructions=processing_map[classification.content_type]
+        processing_instructions=processing_map[classification.content_type],
     )
 
     return processed
 
 
 # Advanced conditional branching
+
 
 class ComplexityLevel(str, Enum):
     """Complexity level enumeration."""
@@ -185,19 +183,13 @@ def assess_complexity(topic: str, context: str):
     """
 )
 def create_adapted_explanation(
-    topic: str,
-    complexity_level: ComplexityLevel,
-    audience_profile: str,
-    adaptation_guidelines: list[str]
+    topic: str, complexity_level: ComplexityLevel, audience_profile: str, adaptation_guidelines: list[str]
 ):
     """Create complexity-adapted explanation."""
     pass
 
 
-def conditional_branching(
-    topic: str,
-    context: str = "general audience"
-) -> AdaptedResponse:
+def conditional_branching(topic: str, context: str = "general audience") -> AdaptedResponse:
     """
     Conditional branching based on complexity assessment.
 
@@ -224,8 +216,8 @@ def conditional_branching(
                 "Use everyday language",
                 "Include relatable examples",
                 "Avoid jargon",
-                "Focus on practical applications"
-            ]
+                "Focus on practical applications",
+            ],
         },
         ComplexityLevel.MODERATE: {
             "profile": "educated audience with some domain knowledge",
@@ -233,8 +225,8 @@ def conditional_branching(
                 "Balance technical accuracy with clarity",
                 "Define key terms",
                 "Use analogies for complex concepts",
-                "Include some technical details"
-            ]
+                "Include some technical details",
+            ],
         },
         ComplexityLevel.COMPLEX: {
             "profile": "professionals or advanced students",
@@ -242,8 +234,8 @@ def conditional_branching(
                 "Include technical depth",
                 "Reference relevant theories",
                 "Discuss nuances and edge cases",
-                "Assume foundational knowledge"
-            ]
+                "Assume foundational knowledge",
+            ],
         },
         ComplexityLevel.EXPERT: {
             "profile": "domain experts and researchers",
@@ -251,9 +243,9 @@ def conditional_branching(
                 "Focus on cutting-edge aspects",
                 "Include mathematical formulations",
                 "Discuss open problems",
-                "Reference recent research"
-            ]
-        }
+                "Reference recent research",
+            ],
+        },
     }
 
     # Get adaptation strategy
@@ -264,13 +256,14 @@ def conditional_branching(
         topic=topic,
         complexity_level=complexity.level,
         audience_profile=strategy["profile"],
-        adaptation_guidelines=strategy["guidelines"]
+        adaptation_guidelines=strategy["guidelines"],
     )
 
     return adapted
 
 
 # Dynamic conditional flow
+
 
 class DecisionPoint(BaseModel):
     """Model for decision points in conditional flow."""
@@ -302,22 +295,14 @@ class DecisionPoint(BaseModel):
     """
 )
 def make_decision(
-    context: str,
-    decision_id: str,
-    question: str,
-    options: dict[str, str],
-    previous_decisions: list[str]
+    context: str, decision_id: str, question: str, options: dict[str, str], previous_decisions: list[str]
 ) -> BaseDynamicConfig:
     """Make a decision at a conditional branch point."""
     formatted_options = []
     for key, desc in options.items():
         formatted_options.append([f"- {key}: {desc}"])
 
-    return {
-        "computed_fields": {
-            "options": formatted_options
-        }
-    }
+    return {"computed_fields": {"options": formatted_options}}
 
 
 @lilypad.trace(versioning="automatic")
@@ -335,32 +320,16 @@ def make_decision(
     Provide comprehensive output for this action.
     """
 )
-def execute_action(
-    decision_path: list[DecisionPoint],
-    action_type: str,
-    context: str
-) -> BaseDynamicConfig:
+def execute_action(decision_path: list[DecisionPoint], action_type: str, context: str) -> BaseDynamicConfig:
     """Execute action based on decision path."""
     formatted_path = []
     for dp in decision_path:
-        formatted_path.append([
-            f"Decision {dp.decision_id}:",
-            f"Q: {dp.question}",
-            f"A: {dp.selected} - {dp.reasoning}",
-            ""
-        ])
+        formatted_path.append([f"Decision {dp.decision_id}:", f"Q: {dp.question}", f"A: {dp.selected} - {dp.reasoning}", ""])
 
-    return {
-        "computed_fields": {
-            "decision_path": formatted_path
-        }
-    }
+    return {"computed_fields": {"decision_path": formatted_path}}
 
 
-def conditional_dynamic(
-    context: str,
-    decision_tree: dict[str, dict]
-) -> dict:
+def conditional_dynamic(context: str, decision_tree: dict[str, dict]) -> dict:
     """
     Dynamic conditional flow with decision tree.
 
@@ -390,7 +359,7 @@ def conditional_dynamic(
             decision_id=current_node,
             question=node["question"],
             options=node["options"],
-            previous_decisions=previous_decisions
+            previous_decisions=previous_decisions,
         )
 
         decision_path.append(decision)
@@ -401,13 +370,11 @@ def conditional_dynamic(
 
     # Execute final action
     final_action = execute_action(
-        decision_path=decision_path,
-        action_type=decision_tree.get("final_action", "summary"),
-        context=context
+        decision_path=decision_path, action_type=decision_tree.get("final_action", "summary"), context=context
     )
 
     return {
         "decision_path": decision_path,
         "final_result": final_action.content,
-        "path_summary": " -> ".join([d.selected for d in decision_path])
+        "path_summary": " -> ".join([d.selected for d in decision_path]),
     }

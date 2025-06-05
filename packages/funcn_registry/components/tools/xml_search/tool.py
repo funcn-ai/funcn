@@ -51,20 +51,15 @@ def validate_xml_input(file_path: str | None, xml_content: str | None) -> str | 
     return file_path
 
 
-def build_element_info(
-    element: etree._Element,
-    parent_map: dict,
-    tree: etree.ElementTree,
-    xpath: str = ""
-) -> XMLElement:
+def build_element_info(element: etree._Element, parent_map: dict, tree: etree.ElementTree, xpath: str = "") -> XMLElement:
     """Build XMLElement from lxml element."""
     parent = parent_map.get(element)
 
     # Get namespace
     namespace = None
     if element.tag.startswith('{'):
-        namespace = element.tag[1:element.tag.index('}')]
-        tag = element.tag[element.tag.index('}')+1:]
+        namespace = element.tag[1 : element.tag.index('}')]
+        tag = element.tag[element.tag.index('}') + 1 :]
     else:
         tag = element.tag
 
@@ -81,7 +76,7 @@ def build_element_info(
         line_number=line_number,
         children_count=len(element),
         parent_tag=parent.tag if parent is not None else None,
-        namespace=namespace
+        namespace=namespace,
     )
 
 
@@ -99,10 +94,7 @@ async def load_xml(file_path: str | None, xml_content: str | None) -> etree._Ele
         return etree.fromstring(xml_content.encode('utf-8'), parser)
 
 
-async def validate_xml_against_schema(
-    root: etree._Element,
-    xsd_schema_path: str | None
-) -> list[str]:
+async def validate_xml_against_schema(root: etree._Element, xsd_schema_path: str | None) -> list[str]:
     """Validate XML against schema if provided."""
     errors = []
 
@@ -122,11 +114,7 @@ async def validate_xml_against_schema(
     return errors
 
 
-def search_by_xpath(
-    root: etree._Element,
-    xpath_query: str,
-    namespace_aware: bool
-) -> list[etree._Element]:
+def search_by_xpath(root: etree._Element, xpath_query: str, namespace_aware: bool) -> list[etree._Element]:
     """Execute XPath query."""
     if not xpath_query:
         return []
@@ -148,10 +136,7 @@ def search_by_xpath(
 
 
 def search_by_text(
-    root: etree._Element,
-    search_text: str,
-    tag_filter: list[str] | None,
-    case_sensitive: bool
+    root: etree._Element, search_text: str, tag_filter: list[str] | None, case_sensitive: bool
 ) -> list[etree._Element]:
     """Search for elements containing specific text."""
     if not search_text:
@@ -185,10 +170,7 @@ def search_by_text(
 
 
 def search_by_attributes(
-    root: etree._Element,
-    attribute_search: dict[str, str],
-    tag_filter: list[str] | None,
-    case_sensitive: bool
+    root: etree._Element, attribute_search: dict[str, str], tag_filter: list[str] | None, case_sensitive: bool
 ) -> list[etree._Element]:
     """Search for elements with specific attributes."""
     if not attribute_search:
@@ -227,11 +209,7 @@ def search_by_attributes(
     return matches
 
 
-def filter_by_depth(
-    elements: list[etree._Element],
-    root: etree._Element,
-    max_depth: int | None
-) -> list[etree._Element]:
+def filter_by_depth(elements: list[etree._Element], root: etree._Element, max_depth: int | None) -> list[etree._Element]:
     """Filter elements by maximum depth."""
     if max_depth is None:
         return elements
@@ -263,7 +241,7 @@ async def process_xml(
     case_sensitive: bool = True,
     include_children: bool = True,
     max_depth: int | None = None,
-    pretty_print: bool = False
+    pretty_print: bool = False,
 ) -> XMLSearchResult:
     """Process XML data with various search and validation options.
 
@@ -359,27 +337,19 @@ async def process_xml(
             root_element=root_tag,
             error=None,
             search_time=search_time,
-            validation_errors=validation_errors
+            validation_errors=validation_errors,
         )
 
     except Exception as e:
         search_time = asyncio.get_event_loop().time() - start_time
         return XMLSearchResult(
-            success=False,
-            file_path=file_path,
-            total_matches=0,
-            error=str(e),
-            search_time=search_time,
-            root_element=None
+            success=False, file_path=file_path, total_matches=0, error=str(e), search_time=search_time, root_element=None
         )
 
 
 # Convenience functions
 async def search_xml_xpath(
-    file_path: str | None = None,
-    xml_content: str | None = None,
-    xpath: str = "//",
-    namespaces: bool = True
+    file_path: str | None = None, xml_content: str | None = None, xpath: str = "//", namespaces: bool = True
 ) -> XMLSearchResult:
     """Execute XPath query on XML.
 
@@ -392,12 +362,7 @@ async def search_xml_xpath(
     Returns:
         XMLSearchResult with matching elements
     """
-    return await process_xml(
-        file_path=file_path,
-        xml_content=xml_content,
-        xpath_query=xpath,
-        namespace_aware=namespaces
-    )
+    return await process_xml(file_path=file_path, xml_content=xml_content, xpath_query=xpath, namespace_aware=namespaces)
 
 
 async def find_xml_elements(
@@ -405,7 +370,7 @@ async def find_xml_elements(
     xml_content: str | None = None,
     tag_names: list[str] = None,
     containing_text: str | None = None,
-    attributes: dict[str, str] | None = None
+    attributes: dict[str, str] | None = None,
 ) -> XMLSearchResult:
     """Find XML elements by tag, text, or attributes.
 
@@ -424,14 +389,11 @@ async def find_xml_elements(
         xml_content=xml_content,
         tag_filter=tag_names,
         search_text=containing_text,
-        attribute_search=attributes
+        attribute_search=attributes,
     )
 
 
-async def validate_xml_file(
-    file_path: str,
-    xsd_schema_path: str | None = None
-) -> XMLSearchResult:
+async def validate_xml_file(file_path: str, xsd_schema_path: str | None = None) -> XMLSearchResult:
     """Validate XML file against schema.
 
     Args:
@@ -441,8 +403,4 @@ async def validate_xml_file(
     Returns:
         XMLSearchResult with validation results
     """
-    return await process_xml(
-        file_path=file_path,
-        validate=True,
-        xsd_schema_path=xsd_schema_path
-    )
+    return await process_xml(file_path=file_path, validate=True, xsd_schema_path=xsd_schema_path)

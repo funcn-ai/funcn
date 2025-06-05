@@ -17,6 +17,7 @@ from urllib.parse import urlparse
 
 class GitSearchType(str):
     """Enumeration of search types."""
+
     CODE = "code"
     FILE = "file"
     COMMIT = "commit"
@@ -31,7 +32,9 @@ class GitRepoSearchArgs(BaseModel):
     query: str = Field(..., description="Search query or pattern")
     search_type: str = Field(default=GitSearchType.CODE, description="Type of search: 'code', 'file', 'commit', or 'pattern'")
     file_pattern: str | None = Field(None, description="File pattern to filter by (e.g., '*.py', '*.js')")
-    branch: str | None = Field(None, description="Branch to search in (default: current branch for local, default branch for GitHub)")
+    branch: str | None = Field(
+        None, description="Branch to search in (default: current branch for local, default branch for GitHub)"
+    )
     max_results: int = Field(default=50, description="Maximum number of results to return")
     case_sensitive: bool = Field(default=False, description="Whether the search should be case sensitive")
     regex: bool = Field(default=False, description="Whether to use regex for pattern matching")
@@ -119,7 +122,7 @@ async def search_git_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             repository=args.github_repo or args.repo_path or "unknown",
             branch=None,
             total_matches=0,
-            error=f"Error searching repository: {str(e)}"
+            error=f"Error searching repository: {str(e)}",
         )
 
 
@@ -136,7 +139,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 repository=args.github_repo or "unknown",
                 branch=None,
                 total_matches=0,
-                error="GITHUB_TOKEN environment variable not set"
+                error="GITHUB_TOKEN environment variable not set",
             )
 
         g = Github(github_token)
@@ -170,8 +173,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
 
                         # Find matching lines
                         pattern = re.compile(
-                            args.query if args.regex else re.escape(args.query),
-                            0 if args.case_sensitive else re.IGNORECASE
+                            args.query if args.regex else re.escape(args.query), 0 if args.case_sensitive else re.IGNORECASE
                         )
 
                         for line_num, line in enumerate(lines, 1):
@@ -179,22 +181,26 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                                 context_start = max(0, line_num - 1 - args.context_lines)
                                 context_end = min(len(lines), line_num + args.context_lines)
 
-                                code_matches.append(CodeMatch(
-                                    file_path=result.path,
-                                    line_number=line_num,
-                                    line_content=line.strip(),
-                                    context_before=lines[context_start:line_num-1] if args.include_context else [],
-                                    context_after=lines[line_num:context_end] if args.include_context else []
-                                ))
+                                code_matches.append(
+                                    CodeMatch(
+                                        file_path=result.path,
+                                        line_number=line_num,
+                                        line_content=line.strip(),
+                                        context_before=lines[context_start : line_num - 1] if args.include_context else [],
+                                        context_after=lines[line_num:context_end] if args.include_context else [],
+                                    )
+                                )
                 except Exception:
                     # If we can't get content, just add basic info
-                    code_matches.append(CodeMatch(
-                        file_path=result.path,
-                        line_number=0,
-                        line_content="[Content unavailable]",
-                        context_before=[],
-                        context_after=[]
-                    ))
+                    code_matches.append(
+                        CodeMatch(
+                            file_path=result.path,
+                            line_number=0,
+                            line_content="[Content unavailable]",
+                            context_before=[],
+                            context_after=[],
+                        )
+                    )
 
             return GitRepoSearchResponse(
                 success=True,
@@ -203,8 +209,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 repository=args.github_repo or "unknown",
                 branch=branch,
                 total_matches=len(code_matches),
-                code_matches=code_matches[:args.max_results],
-                error=None
+                code_matches=code_matches[: args.max_results],
+                error=None,
             )
 
         elif args.search_type == GitSearchType.FILE:
@@ -218,12 +224,14 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                     contents.extend(repo.get_contents(file_content.path, ref=branch))
                 else:
                     # Check if file matches
-                    if args.query.lower() in file_content.path.lower() and (not args.file_pattern or Path(file_content.path).match(args.file_pattern)):
-                        file_matches.append(FileMatch(
-                                file_path=file_content.path,
-                                file_size=file_content.size,
-                                last_modified=file_content.last_modified
-                            ))
+                    if args.query.lower() in file_content.path.lower() and (
+                        not args.file_pattern or Path(file_content.path).match(args.file_pattern)
+                    ):
+                        file_matches.append(
+                            FileMatch(
+                                file_path=file_content.path, file_size=file_content.size, last_modified=file_content.last_modified
+                            )
+                        )
 
             return GitRepoSearchResponse(
                 success=True,
@@ -232,8 +240,8 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 repository=args.github_repo or "unknown",
                 branch=branch,
                 total_matches=len(file_matches),
-                file_matches=file_matches[:args.max_results],
-                error=None
+                file_matches=file_matches[: args.max_results],
+                error=None,
             )
 
         elif args.search_type == GitSearchType.COMMIT:
@@ -241,23 +249,22 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             commits = repo.get_commits()
             commit_matches = []
 
-            pattern = re.compile(
-                args.query if args.regex else re.escape(args.query),
-                0 if args.case_sensitive else re.IGNORECASE
-            )
+            pattern = re.compile(args.query if args.regex else re.escape(args.query), 0 if args.case_sensitive else re.IGNORECASE)
 
             for i, commit in enumerate(commits):
                 if i >= args.max_results * 2:  # Check more commits than max_results
                     break
 
                 if pattern.search(commit.commit.message):
-                    commit_matches.append(CommitMatch(
-                        commit_hash=commit.sha,
-                        author=commit.commit.author.name,
-                        date=commit.commit.author.date.isoformat(),
-                        message=commit.commit.message,
-                        files_changed=[f.filename for f in commit.files] if commit.files else []
-                    ))
+                    commit_matches.append(
+                        CommitMatch(
+                            commit_hash=commit.sha,
+                            author=commit.commit.author.name,
+                            date=commit.commit.author.date.isoformat(),
+                            message=commit.commit.message,
+                            files_changed=[f.filename for f in commit.files] if commit.files else [],
+                        )
+                    )
 
                     if len(commit_matches) >= args.max_results:
                         break
@@ -270,7 +277,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 branch=branch,
                 total_matches=len(commit_matches),
                 commit_matches=commit_matches,
-                error=None
+                error=None,
             )
 
         else:
@@ -281,7 +288,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 repository=args.github_repo or "unknown",
                 branch=None,
                 total_matches=0,
-                error=f"Search type {args.search_type} not supported for GitHub repositories"
+                error=f"Search type {args.search_type} not supported for GitHub repositories",
             )
 
     except GithubException as e:
@@ -292,7 +299,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             repository=args.github_repo or "unknown",
             branch=None,
             total_matches=0,
-            error=f"GitHub API error: {str(e)}"
+            error=f"GitHub API error: {str(e)}",
         )
     except Exception as e:
         return GitRepoSearchResponse(
@@ -302,7 +309,7 @@ async def _search_github_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             repository=args.github_repo or "unknown",
             branch=None,
             total_matches=0,
-            error=f"Error searching GitHub repository: {str(e)}"
+            error=f"Error searching GitHub repository: {str(e)}",
         )
 
 
@@ -318,7 +325,7 @@ async def _search_local_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 repository="",
                 branch=None,
                 total_matches=0,
-                error="repo_path is required for local repository search"
+                error="repo_path is required for local repository search",
             )
 
         repo_path = Path(args.repo_path)
@@ -330,7 +337,7 @@ async def _search_local_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
                 repository=str(repo_path),
                 branch=None,
                 total_matches=0,
-                error="Not a valid Git repository"
+                error="Not a valid Git repository",
             )
 
         # Run search in thread pool
@@ -346,7 +353,7 @@ async def _search_local_repo(args: GitRepoSearchArgs) -> GitRepoSearchResponse:
             repository=args.repo_path or "unknown",
             branch=None,
             total_matches=0,
-            error=f"Error searching local repository: {str(e)}"
+            error=f"Error searching local repository: {str(e)}",
         )
 
 
@@ -376,12 +383,7 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                 grep_args.extend(['--', args.file_pattern])
 
             try:
-                result = subprocess.run(
-                    grep_args,
-                    cwd=repo_path,
-                    capture_output=True,
-                    text=True
-                )
+                result = subprocess.run(grep_args, cwd=repo_path, capture_output=True, text=True)
 
                 code_matches = []
                 if result.returncode == 0:
@@ -407,21 +409,20 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                             if file_path not in current_matches:
                                 current_matches[file_path] = []
 
-                            current_matches[file_path].append({
-                                'line_number': line_num,
-                                'content': content
-                            })
+                            current_matches[file_path].append({'line_number': line_num, 'content': content})
 
                     # Convert to CodeMatch objects
                     for file_path, matches in current_matches.items():
-                        for match in matches[:args.max_results // max(len(current_matches), 1)]:
-                            code_matches.append(CodeMatch(
-                                file_path=file_path,
-                                line_number=match['line_number'],
-                                line_content=match['content'].strip(),
-                                context_before=[],
-                                context_after=[]
-                            ))
+                        for match in matches[: args.max_results // max(len(current_matches), 1)]:
+                            code_matches.append(
+                                CodeMatch(
+                                    file_path=file_path,
+                                    line_number=match['line_number'],
+                                    line_content=match['content'].strip(),
+                                    context_before=[],
+                                    context_after=[],
+                                )
+                            )
 
                 return GitRepoSearchResponse(
                     success=True,
@@ -430,8 +431,8 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                     repository=str(repo_path),
                     branch=branch,
                     total_matches=len(code_matches),
-                    code_matches=code_matches[:args.max_results],
-                    error=None
+                    code_matches=code_matches[: args.max_results],
+                    error=None,
                 )
 
             except subprocess.SubprocessError as e:
@@ -442,26 +443,28 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                     repository=str(repo_path),
                     branch=None,
                     total_matches=0,
-                    error=f"Git grep error: {str(e)}"
+                    error=f"Git grep error: {str(e)}",
                 )
 
         elif args.search_type == GitSearchType.FILE:
             # Search for files
             file_matches = []
-            pattern = re.compile(
-                args.query if args.regex else re.escape(args.query),
-                0 if args.case_sensitive else re.IGNORECASE
-            )
+            pattern = re.compile(args.query if args.regex else re.escape(args.query), 0 if args.case_sensitive else re.IGNORECASE)
 
             for item in repo_path.rglob('*'):
-                if (item.is_file() and '.git' not in str(item) and
-                    pattern.search(str(item.relative_to(repo_path))) and
-                    (not args.file_pattern or item.match(args.file_pattern))):
-                            file_matches.append(FileMatch(
-                                file_path=str(item.relative_to(repo_path)),
-                                file_size=item.stat().st_size,
-                                last_modified=str(item.stat().st_mtime)
-                            ))
+                if (
+                    item.is_file()
+                    and '.git' not in str(item)
+                    and pattern.search(str(item.relative_to(repo_path)))
+                    and (not args.file_pattern or item.match(args.file_pattern))
+                ):
+                    file_matches.append(
+                        FileMatch(
+                            file_path=str(item.relative_to(repo_path)),
+                            file_size=item.stat().st_size,
+                            last_modified=str(item.stat().st_mtime),
+                        )
+                    )
 
             return GitRepoSearchResponse(
                 success=True,
@@ -470,27 +473,26 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                 repository=str(repo_path),
                 branch=branch,
                 total_matches=len(file_matches),
-                file_matches=file_matches[:args.max_results],
-                error=None
+                file_matches=file_matches[: args.max_results],
+                error=None,
             )
 
         elif args.search_type == GitSearchType.COMMIT:
             # Search in commit history
             commit_matches = []
-            pattern = re.compile(
-                args.query if args.regex else re.escape(args.query),
-                0 if args.case_sensitive else re.IGNORECASE
-            )
+            pattern = re.compile(args.query if args.regex else re.escape(args.query), 0 if args.case_sensitive else re.IGNORECASE)
 
             for commit in repo.iter_commits(branch, max_count=args.max_results * 2):
                 if pattern.search(commit.message):
-                    commit_matches.append(CommitMatch(
-                        commit_hash=commit.hexsha,
-                        author=commit.author.name,
-                        date=commit.authored_datetime.isoformat(),
-                        message=commit.message,
-                        files_changed=list(commit.stats.files.keys())
-                    ))
+                    commit_matches.append(
+                        CommitMatch(
+                            commit_hash=commit.hexsha,
+                            author=commit.author.name,
+                            date=commit.authored_datetime.isoformat(),
+                            message=commit.message,
+                            files_changed=list(commit.stats.files.keys()),
+                        )
+                    )
 
                     if len(commit_matches) >= args.max_results:
                         break
@@ -503,7 +505,7 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
                 branch=branch,
                 total_matches=len(commit_matches),
                 commit_matches=commit_matches,
-                error=None
+                error=None,
             )
 
         # Default return if search_type doesn't match any condition
@@ -514,7 +516,7 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
             repository=str(repo_path),
             branch=None,
             total_matches=0,
-            error=f"Unsupported search type: {args.search_type}"
+            error=f"Unsupported search type: {args.search_type}",
         )
 
     except Exception as e:
@@ -525,5 +527,5 @@ def _perform_local_search(repo_path: Path, args: GitRepoSearchArgs) -> GitRepoSe
             repository=str(repo_path),
             branch=None,
             total_matches=0,
-            error=f"Error performing search: {str(e)}"
+            error=f"Error performing search: {str(e)}",
         )

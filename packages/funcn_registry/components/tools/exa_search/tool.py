@@ -12,6 +12,7 @@ from typing import Any, Optional
 
 class ExaCategory(str, Enum):
     """Valid Exa search categories."""
+
     COMPANY = "company"
     RESEARCH_PAPER = "research paper"
     NEWS = "news"
@@ -117,13 +118,15 @@ async def exa_search(args: SearchArgs) -> SearchResponse:
     api_key = os.environ.get("EXA_API_KEY")
     if not api_key:
         return SearchResponse(
-            results=[SearchResult(
-                title="API Key Missing",
-                url="",
-                snippet="EXA_API_KEY environment variable is required. Get your API key from https://exa.ai"
-            )],
+            results=[
+                SearchResult(
+                    title="API Key Missing",
+                    url="",
+                    snippet="EXA_API_KEY environment variable is required. Get your API key from https://exa.ai",
+                )
+            ],
             query=args.query,
-            provider="exa"
+            provider="exa",
         )
 
     try:
@@ -131,6 +134,7 @@ async def exa_search(args: SearchArgs) -> SearchResponse:
 
         # Run synchronous Exa SDK in thread pool
         import asyncio
+
         def _search():
             return exa.search(
                 query=args.query,
@@ -148,31 +152,26 @@ async def exa_search(args: SearchArgs) -> SearchResponse:
         # Convert to unified format
         results = []
         for item in result.results:
-            results.append(SearchResult(
-                title=item.title or "",
-                url=item.url,
-                snippet=getattr(item, 'text', '') or "",  # Exa might include text in basic search
-                published_date=item.published_date,
-                author=item.author,
-                score=item.score
-            ))
+            results.append(
+                SearchResult(
+                    title=item.title or "",
+                    url=item.url,
+                    snippet=getattr(item, 'text', '') or "",  # Exa might include text in basic search
+                    published_date=item.published_date,
+                    author=item.author,
+                    score=item.score,
+                )
+            )
 
-        return SearchResponse(
-            results=results,
-            query=args.query,
-            provider="exa",
-            autoprompt_string=result.autoprompt_string
-        )
+        return SearchResponse(results=results, query=args.query, provider="exa", autoprompt_string=result.autoprompt_string)
 
     except Exception as e:
         return SearchResponse(
-            results=[SearchResult(
-                title=f"Search Error for: {args.query}",
-                url="",
-                snippet=f"Error performing Exa search: {str(e)}"
-            )],
+            results=[
+                SearchResult(title=f"Search Error for: {args.query}", url="", snippet=f"Error performing Exa search: {str(e)}")
+            ],
             query=args.query,
-            provider="exa"
+            provider="exa",
         )
 
 
@@ -185,19 +184,16 @@ async def exa_find_similar(args: FindSimilarArgs) -> SearchResponse:
     api_key = os.environ.get("EXA_API_KEY")
     if not api_key:
         return SearchResponse(
-            results=[SearchResult(
-                title="API Key Missing",
-                url="",
-                snippet="EXA_API_KEY environment variable is required"
-            )],
+            results=[SearchResult(title="API Key Missing", url="", snippet="EXA_API_KEY environment variable is required")],
             query=f"Similar to: {args.url}",
-            provider="exa"
+            provider="exa",
         )
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _find_similar():
             return exa.find_similar(
                 url=args.url,
@@ -213,31 +209,26 @@ async def exa_find_similar(args: FindSimilarArgs) -> SearchResponse:
         # Convert to unified format
         results = []
         for item in result.results:
-            results.append(SearchResult(
-                title=item.title or "",
-                url=item.url,
-                snippet="",  # Basic find_similar doesn't include text
-                published_date=item.published_date,
-                author=item.author,
-                score=item.score
-            ))
+            results.append(
+                SearchResult(
+                    title=item.title or "",
+                    url=item.url,
+                    snippet="",  # Basic find_similar doesn't include text
+                    published_date=item.published_date,
+                    author=item.author,
+                    score=item.score,
+                )
+            )
 
         return SearchResponse(
-            results=results,
-            query=f"Similar to: {args.url}",
-            provider="exa",
-            autoprompt_string=result.autoprompt_string
+            results=results, query=f"Similar to: {args.url}", provider="exa", autoprompt_string=result.autoprompt_string
         )
 
     except Exception as e:
         return SearchResponse(
-            results=[SearchResult(
-                title="Error finding similar pages",
-                url="",
-                snippet=f"Error: {str(e)}"
-            )],
+            results=[SearchResult(title="Error finding similar pages", url="", snippet=f"Error: {str(e)}")],
             query=f"Similar to: {args.url}",
-            provider="exa"
+            provider="exa",
         )
 
 
@@ -253,18 +244,16 @@ async def exa_answer(args: AnswerArgs) -> AnswerResponse:
         return AnswerResponse(
             answer="EXA_API_KEY environment variable is required. Get your API key from https://exa.ai",
             citations=[],
-            query=args.query
+            query=args.query,
         )
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _answer():
-            return exa.answer(
-                query=args.query,
-                text=args.include_citations
-            )
+            return exa.answer(query=args.query, text=args.include_citations)
 
         result = await asyncio.to_thread(_answer)
 
@@ -272,23 +261,17 @@ async def exa_answer(args: AnswerArgs) -> AnswerResponse:
         citations = []
         if hasattr(result, 'citations'):
             for citation in result.citations:
-                citations.append(AnswerCitation(
-                    url=citation.url,
-                    title=citation.title,
-                    published_date=citation.published_date,
-                    author=citation.author,
-                    text=getattr(citation, 'text', None)
-                ))
+                citations.append(
+                    AnswerCitation(
+                        url=citation.url,
+                        title=citation.title,
+                        published_date=citation.published_date,
+                        author=citation.author,
+                        text=getattr(citation, 'text', None),
+                    )
+                )
 
-        return AnswerResponse(
-            answer=result.answer,
-            citations=citations,
-            query=args.query
-        )
+        return AnswerResponse(answer=result.answer, citations=citations, query=args.query)
 
     except Exception as e:
-        return AnswerResponse(
-            answer=f"Error getting answer: {str(e)}",
-            citations=[],
-            query=args.query
-        )
+        return AnswerResponse(answer=f"Error getting answer: {str(e)}", citations=[], query=args.query)

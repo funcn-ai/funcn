@@ -52,7 +52,7 @@ class SalesIntelligenceResponse(BaseModel):
     provider="openai",
     model="gpt-4o-mini",
     response_model=SalesIntelligenceResponse,
-    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else []
+    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else [],
 )
 @prompt_template(
     """
@@ -104,7 +104,7 @@ async def sales_intelligence_agent(
     company_stage: str | None = None,
     additional_requirements: list[str] | None = None,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> SalesIntelligenceResponse:
     """
     Find targeted sales prospects using Exa websets.
@@ -129,44 +129,23 @@ async def sales_intelligence_agent(
 
 
 # Convenience functions for common sales searches
-async def find_sales_leaders(
-    company_size: str,
-    location: str,
-    **kwargs
-) -> SalesIntelligenceResponse:
+async def find_sales_leaders(company_size: str, location: str, **kwargs) -> SalesIntelligenceResponse:
     """Find heads of sales at companies matching criteria."""
-    return await sales_intelligence_agent(
-        role_or_company="Head of Sales",
-        company_size=company_size,
-        location=location,
-        **kwargs
-    )
+    return await sales_intelligence_agent(role_or_company="Head of Sales", company_size=company_size, location=location, **kwargs)
 
 
-async def find_marketing_agencies(
-    location: str,
-    max_employees: int = 50,
-    **kwargs
-) -> SalesIntelligenceResponse:
+async def find_marketing_agencies(location: str, max_employees: int = 50, **kwargs) -> SalesIntelligenceResponse:
     """Find marketing agencies in a specific location."""
     return await sales_intelligence_agent(
-        role_or_company="Marketing agency",
-        company_size=f"less than {max_employees} employees",
-        location=location,
-        **kwargs
+        role_or_company="Marketing agency", company_size=f"less than {max_employees} employees", location=location, **kwargs
     )
 
 
-async def find_startup_executives(
-    role: str,
-    funding_stage: str,
-    year: int = 2024,
-    **kwargs
-) -> SalesIntelligenceResponse:
+async def find_startup_executives(role: str, funding_stage: str, year: int = 2024, **kwargs) -> SalesIntelligenceResponse:
     """Find executives at startups that raised funding."""
     return await sales_intelligence_agent(
         role_or_company=role,
         company_stage=f"{funding_stage} in {year}",
         additional_requirements=[f"Must have a {role} position filled"],
-        **kwargs
+        **kwargs,
     )

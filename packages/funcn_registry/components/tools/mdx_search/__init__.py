@@ -17,5 +17,5 @@ __all__ = [
     "search_mdx_with_metadata",
     "MDXSearchResult",
     "MDXMatch",
-    "MDXComponent"
+    "MDXComponent",
 ]

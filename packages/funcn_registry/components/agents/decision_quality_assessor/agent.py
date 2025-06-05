@@ -11,6 +11,7 @@ from typing import Optional
 
 class DecisionType(str, Enum):
     """Types of decisions to assess."""
+
     STRATEGIC = "strategic"
     OPERATIONAL = "operational"
     FINANCIAL = "financial"
@@ -27,6 +28,7 @@ class DecisionType(str, Enum):
 
 class BiasType(str, Enum):
     """Types of cognitive biases to check for."""
+
     CONFIRMATION_BIAS = "confirmation_bias"
     ANCHORING_BIAS = "anchoring_bias"
     AVAILABILITY_HEURISTIC = "availability_heuristic"
@@ -46,6 +48,7 @@ class BiasType(str, Enum):
 
 class QualityDimension(str, Enum):
     """Dimensions of decision quality."""
+
     INFORMATION_QUALITY = "information_quality"
     ALTERNATIVE_GENERATION = "alternative_generation"
     STAKEHOLDER_CONSIDERATION = "stakeholder_consideration"
@@ -62,6 +65,7 @@ class QualityDimension(str, Enum):
 
 class DecisionContext(BaseModel):
     """Context surrounding a decision."""
+
     decision_type: DecisionType = Field(..., description="Type of decision being made")
     stakeholders: list[str] = Field(..., description="Key stakeholders affected")
     constraints: list[str] = Field(..., description="Constraints and limitations")
@@ -76,6 +80,7 @@ class DecisionContext(BaseModel):
 
 class BiasAnalysis(BaseModel):
     """Analysis of potential cognitive biases."""
+
     bias_type: BiasType = Field(..., description="Type of bias identified")
     evidence: list[str] = Field(..., description="Evidence of this bias")
     severity: float = Field(..., description="Severity of bias impact (0-1)")
@@ -87,6 +92,7 @@ class BiasAnalysis(BaseModel):
 
 class QualityAssessment(BaseModel):
     """Assessment of decision quality across dimensions."""
+
     dimension: QualityDimension = Field(..., description="Quality dimension assessed")
     score: float = Field(..., description="Quality score for this dimension (0-1)")
     strengths: list[str] = Field(..., description="Strengths in this dimension")
@@ -99,6 +105,7 @@ class QualityAssessment(BaseModel):
 
 class DecisionAnalysis(BaseModel):
     """Comprehensive analysis of decision alternatives."""
+
     alternative: str = Field(..., description="Decision alternative being analyzed")
     pros: list[str] = Field(..., description="Advantages of this alternative")
     cons: list[str] = Field(..., description="Disadvantages of this alternative")
@@ -114,6 +121,7 @@ class DecisionAnalysis(BaseModel):
 
 class DecisionFramework(BaseModel):
     """Framework recommendations for decision-making."""
+
     recommended_framework: str = Field(..., description="Recommended decision framework")
     framework_rationale: str = Field(..., description="Why this framework is appropriate")
     key_steps: list[str] = Field(..., description="Key steps in the framework")
@@ -123,6 +131,7 @@ class DecisionFramework(BaseModel):
 
 class DecisionQuality(BaseModel):
     """Complete decision quality assessment."""
+
     decision_description: str = Field(..., description="Description of the decision")
     context: DecisionContext = Field(..., description="Decision context")
     alternatives_analysis: list[DecisionAnalysis] = Field(..., description="Analysis of alternatives")
@@ -189,11 +198,7 @@ class DecisionQuality(BaseModel):
     """
 )
 def analyze_decision_context(
-    decision: str,
-    background: str = "",
-    stakeholders: str = "",
-    constraints: str = "",
-    timeline: str = ""
+    decision: str, background: str = "", stakeholders: str = "", constraints: str = "", timeline: str = ""
 ) -> DecisionContext:
     """Analyze and structure the decision context."""
     pass
@@ -244,10 +249,7 @@ def analyze_decision_context(
     """
 )
 def analyze_decision_alternatives(
-    decision_context: DecisionContext,
-    alternatives: list[str],
-    evaluation_criteria: str = "",
-    success_metrics: str = ""
+    decision_context: DecisionContext, alternatives: list[str], evaluation_criteria: str = "", success_metrics: str = ""
 ) -> BaseDynamicConfig:
     """Analyze decision alternatives comprehensively."""
     return {
@@ -310,10 +312,7 @@ def analyze_decision_alternatives(
     """
 )
 def assess_decision_quality_dimensions(
-    decision_context: DecisionContext,
-    decision_process: str,
-    information_available: str = "",
-    alternatives_considered: str = ""
+    decision_context: DecisionContext, decision_process: str, information_available: str = "", alternatives_considered: str = ""
 ) -> BaseDynamicConfig:
     """Assess decision quality across multiple dimensions."""
     return {
@@ -378,10 +377,7 @@ def assess_decision_quality_dimensions(
     """
 )
 def analyze_cognitive_biases(
-    decision_context: DecisionContext,
-    decision_process: str,
-    information_sources: str = "",
-    decision_makers: str = ""
+    decision_context: DecisionContext, decision_process: str, information_sources: str = "", decision_makers: str = ""
 ) -> BaseDynamicConfig:
     """Analyze potential cognitive biases affecting the decision."""
     return {
@@ -437,9 +433,7 @@ def analyze_cognitive_biases(
     """
 )
 def recommend_decision_framework(
-    decision_context: DecisionContext,
-    quality_assessment: list[QualityAssessment],
-    key_challenges: str = ""
+    decision_context: DecisionContext, quality_assessment: list[QualityAssessment], key_challenges: str = ""
 ) -> BaseDynamicConfig:
     """Recommend appropriate decision-making framework."""
     return {
@@ -508,7 +502,7 @@ def synthesize_decision_quality(
     context_analysis: DecisionContext,
     alternatives_analysis: list[DecisionAnalysis],
     quality_assessments: list[QualityAssessment],
-    bias_analysis: list[BiasAnalysis]
+    bias_analysis: list[BiasAnalysis],
 ) -> BaseDynamicConfig:
     """Synthesize complete decision quality assessment."""
     return {
@@ -533,7 +527,7 @@ async def decision_quality_assessor(
     information_sources: str = "",
     decision_makers: str = "",
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> DecisionQuality:
     """
     Assess the quality of decisions using structured analysis and bias detection.
@@ -566,11 +560,7 @@ async def decision_quality_assessor(
     # Step 1: Analyze decision context
     print("Analyzing decision context...")
     context = await analyze_decision_context(
-        decision=decision,
-        background=background,
-        stakeholders=stakeholders,
-        constraints=constraints,
-        timeline=timeline
+        decision=decision, background=background, stakeholders=stakeholders, constraints=constraints, timeline=timeline
     )
     print(f"Context analysis complete - Type: {context.decision_type.value}")
 
@@ -580,7 +570,7 @@ async def decision_quality_assessor(
         decision_context=context,
         alternatives=alternatives,
         evaluation_criteria=evaluation_criteria,
-        success_metrics=", ".join(context.success_metrics)
+        success_metrics=", ".join(context.success_metrics),
     )
     print(f"Analyzed {len(alternatives_analysis)} alternatives")
 
@@ -590,7 +580,7 @@ async def decision_quality_assessor(
         decision_context=context,
         decision_process=decision_process,
         information_available=background + "\n" + information_sources,
-        alternatives_considered=", ".join(alternatives)
+        alternatives_considered=", ".join(alternatives),
     )
     print(f"Assessed {len(quality_assessments)} quality dimensions")
 
@@ -600,7 +590,7 @@ async def decision_quality_assessor(
         decision_context=context,
         decision_process=decision_process,
         information_sources=information_sources,
-        decision_makers=decision_makers
+        decision_makers=decision_makers,
     )
 
     # Filter for significant biases
@@ -619,7 +609,7 @@ async def decision_quality_assessor(
     framework_recommendation = await recommend_decision_framework(
         decision_context=context,
         quality_assessment=quality_assessments,
-        key_challenges=", ".join(key_challenges[:5])  # Top 5 challenges
+        key_challenges=", ".join(key_challenges[:5]),  # Top 5 challenges
     )
 
     # Step 6: Synthesize quality assessment
@@ -629,7 +619,7 @@ async def decision_quality_assessor(
         context_analysis=context,
         alternatives_analysis=alternatives_analysis,
         quality_assessments=quality_assessments,
-        bias_analysis=bias_analysis
+        bias_analysis=bias_analysis,
     )
 
     # Add framework recommendation
@@ -639,11 +629,7 @@ async def decision_quality_assessor(
     return quality_assessment
 
 
-async def decision_quality_assessor_stream(
-    decision: str,
-    background: str = "",
-    **kwargs
-) -> AsyncGenerator[str, None]:
+async def decision_quality_assessor_stream(decision: str, background: str = "", **kwargs) -> AsyncGenerator[str, None]:
     """Stream the decision quality assessment process."""
 
     yield "Starting decision quality assessment...\n\n"
@@ -686,9 +672,7 @@ async def decision_quality_assessor_stream(
         yield "## Cognitive Biases Detected\n\n"
         # Show only significant biases
         significant_biases = sorted(
-            [b for b in assessment.bias_analysis if b.severity > 0.3],
-            key=lambda x: x.severity,
-            reverse=True
+            [b for b in assessment.bias_analysis if b.severity > 0.3], key=lambda x: x.severity, reverse=True
         )
         for bias in significant_biases[:3]:
             yield f"**{bias.bias_type.value.replace('_', ' ').title()}**\n"

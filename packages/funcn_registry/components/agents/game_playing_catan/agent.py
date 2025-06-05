@@ -13,6 +13,7 @@ from typing import Any, Optional
 
 class Resource(str, Enum):
     """Resources in Catan."""
+
     WOOD = "wood"
     BRICK = "brick"
     SHEEP = "sheep"
@@ -23,6 +24,7 @@ class Resource(str, Enum):
 
 class DevelopmentCard(str, Enum):
     """Development cards in Catan."""
+
     KNIGHT = "knight"
     VICTORY_POINT = "victory_point"
     ROAD_BUILDING = "road_building"
@@ -32,6 +34,7 @@ class DevelopmentCard(str, Enum):
 
 class CatanPhase(str, Enum):
     """Game phases in Catan."""
+
     SETUP_FIRST_SETTLEMENT = "setup_first_settlement"
     SETUP_FIRST_ROAD = "setup_first_road"
     SETUP_SECOND_SETTLEMENT = "setup_second_settlement"
@@ -48,6 +51,7 @@ class CatanPhase(str, Enum):
 
 class BuildingType(str, Enum):
     """Types of buildings in Catan."""
+
     SETTLEMENT = "settlement"
     CITY = "city"
     ROAD = "road"
@@ -55,6 +59,7 @@ class BuildingType(str, Enum):
 
 class ActionType(str, Enum):
     """Types of actions in Catan."""
+
     BUILD_SETTLEMENT = "build_settlement"
     BUILD_CITY = "build_city"
     BUILD_ROAD = "build_road"
@@ -72,12 +77,14 @@ class ActionType(str, Enum):
 
 class PlayerType(str, Enum):
     """Types of players."""
+
     HUMAN = "human"
     AI = "ai"
 
 
 class HexTile(BaseModel):
     """A hex tile on the Catan board."""
+
     position: tuple[int, int] = Field(..., description="Hex coordinates (q, r)")
     resource: Resource = Field(..., description="Resource type of this hex")
     number_token: int | None = Field(None, description="Number token (2-12, None for desert)")
@@ -86,6 +93,7 @@ class HexTile(BaseModel):
 
 class Intersection(BaseModel):
     """An intersection where settlements/cities can be built."""
+
     position: tuple[int, int, int] = Field(..., description="Intersection coordinates")
     building: BuildingType | None = Field(None, description="Building at this intersection")
     owner: int | None = Field(None, description="Player who owns the building")
@@ -95,6 +103,7 @@ class Intersection(BaseModel):
 
 class Edge(BaseModel):
     """An edge where roads can be built."""
+
     start: tuple[int, int, int] = Field(..., description="Start intersection")
     end: tuple[int, int, int] = Field(..., description="End intersection")
     has_road: bool = Field(default=False, description="Whether there's a road")
@@ -103,6 +112,7 @@ class Edge(BaseModel):
 
 class TradeOffer(BaseModel):
     """A trade offer between players."""
+
     proposing_player: int = Field(..., description="Player making the offer")
     target_player: int | None = Field(None, description="Specific target player (None for all)")
     offering: dict[Resource, int] = Field(..., description="Resources being offered")
@@ -113,6 +123,7 @@ class TradeOffer(BaseModel):
 
 class CatanPlayer(BaseModel):
     """A player in Catan."""
+
     player_id: int = Field(..., description="Player ID (0-3)")
     name: str = Field(..., description="Player name")
     player_type: PlayerType = Field(..., description="Human or AI")
@@ -133,6 +144,7 @@ class CatanPlayer(BaseModel):
 
 class CatanState(BaseModel):
     """Current state of the Catan game."""
+
     board: list[HexTile] = Field(..., description="All hex tiles on the board")
     intersections: list[Intersection] = Field(..., description="All intersections")
     edges: list[Edge] = Field(..., description="All edges")
@@ -148,6 +160,7 @@ class CatanState(BaseModel):
 
 class CatanAction(BaseModel):
     """An action taken by a player."""
+
     player_id: int = Field(..., description="Player taking the action")
     action_type: ActionType = Field(..., description="Type of action")
     position: tuple[int, int, int] | None = Field(None, description="Position for building")
@@ -161,6 +174,7 @@ class CatanAction(BaseModel):
 
 class StrategicAnalysis(BaseModel):
     """Strategic analysis of the game state."""
+
     resource_scarcity: dict[Resource, float] = Field(..., description="Scarcity score per resource (0-1)")
     player_threats: dict[int, float] = Field(..., description="Threat level per player (0-1)")
     expansion_opportunities: list[tuple[int, int, int]] = Field(..., description="Best expansion spots")
@@ -172,6 +186,7 @@ class StrategicAnalysis(BaseModel):
 
 class CatanGame(BaseModel):
     """Complete game state and history."""
+
     game_id: str = Field(..., description="Unique game identifier")
     current_state: CatanState = Field(..., description="Current game state")
     players: list[CatanPlayer] = Field(..., description="All players")
@@ -240,7 +255,7 @@ def analyze_catan_strategy(
     turn_number: int,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Analyze the strategic situation for a Catan player."""
     return {
@@ -296,7 +311,7 @@ def develop_trade_proposals(
     available_ports: list[str],
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> list[TradeOffer]:
     """Develop trade proposals for the current situation."""
     pass
@@ -353,7 +368,7 @@ def plan_building_action(
     victory_points: int,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Plan the best building action for the current turn."""
     return {
@@ -407,7 +422,7 @@ def handle_robber_action(
     strategic_goals: str,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> CatanAction:
     """Decide where to move the robber and who to steal from."""
     pass
@@ -462,7 +477,7 @@ def plan_complete_turn(
     victory_points: int,
     personality_prompt: str = PERSONALITY_PROMPTS["balanced"],
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Plan all actions for the current turn."""
     return {
@@ -473,11 +488,7 @@ def plan_complete_turn(
     }
 
 
-async def process_human_catan_input(
-    game: CatanGame,
-    human_player: CatanPlayer,
-    phase: CatanPhase
-) -> CatanAction:
+async def process_human_catan_input(game: CatanGame, human_player: CatanPlayer, phase: CatanPhase) -> CatanAction:
     """Process human player input for their turn."""
     print(f"\n{human_player.name}'s turn - {phase.value}")
     print(f"Victory Points: {human_player.victory_points}/10")
@@ -496,7 +507,7 @@ async def process_human_catan_input(
             target_player=None,
             development_card=None,
             trade_offer=None,
-            reasoning=f"Rolled {dice1 + dice2}"
+            reasoning=f"Rolled {dice1 + dice2}",
         )
 
     elif phase == CatanPhase.MAIN_TURN:
@@ -517,7 +528,7 @@ async def process_human_catan_input(
             action_type = {
                 "road": ActionType.BUILD_ROAD,
                 "settlement": ActionType.BUILD_SETTLEMENT,
-                "city": ActionType.BUILD_CITY
+                "city": ActionType.BUILD_CITY,
             }.get(build_type, ActionType.BUILD_ROAD)
 
             return CatanAction(
@@ -529,7 +540,7 @@ async def process_human_catan_input(
                 target_player=None,
                 development_card=None,
                 trade_offer=None,
-                reasoning=f"Building {build_type}"
+                reasoning=f"Building {build_type}",
             )
 
         elif choice == "5":
@@ -542,7 +553,7 @@ async def process_human_catan_input(
                 target_player=None,
                 development_card=None,
                 trade_offer=None,
-                reasoning="Ending turn"
+                reasoning="Ending turn",
             )
 
         # Simplified - other actions would be implemented similarly
@@ -555,7 +566,7 @@ async def process_human_catan_input(
             target_player=None,
             development_card=None,
             trade_offer=None,
-            reasoning="Default end turn"
+            reasoning="Default end turn",
         )
 
     # Default action
@@ -568,7 +579,7 @@ async def process_human_catan_input(
         target_player=None,
         development_card=None,
         trade_offer=None,
-        reasoning="Default end turn"
+        reasoning="Default end turn",
     )
 
 
@@ -578,7 +589,7 @@ async def catan_game_agent(
     action_history: list[CatanAction] = None,
     game_id: str = "catan_001",
     llm_provider: str = "openai",
-    default_model: str = "gpt-4o"
+    default_model: str = "gpt-4o",
 ) -> CatanGame:
     """
     Run a turn of Catan with multiple AI models and human players.
@@ -611,24 +622,17 @@ async def catan_game_agent(
         # Human player input
         action = await process_human_catan_input(
             CatanGame(
-                game_id=game_id,
-                current_state=game_state,
-                players=players,
-                action_history=action_history,
-                strategic_analyses={}
+                game_id=game_id, current_state=game_state, players=players, action_history=action_history, strategic_analyses={}
             ),
             current_player,
-            game_state.phase
+            game_state.phase,
         )
         action_history.append(action)
     else:
         # AI player with specific model
         model = current_player.model or default_model
         provider = current_player.provider or llm_provider
-        personality_prompt = PERSONALITY_PROMPTS.get(
-            current_player.personality or "balanced",
-            PERSONALITY_PROMPTS["balanced"]
-        )
+        personality_prompt = PERSONALITY_PROMPTS.get(current_player.personality or "balanced", PERSONALITY_PROMPTS["balanced"])
 
         # Step 1: Strategic analysis
         print(f"  {current_player.name} analyzing board...")
@@ -636,12 +640,12 @@ async def catan_game_agent(
             player_id=current_player.player_id,
             game_state=game_state,
             player_resources=dict(current_player.resources),
-            opponent_analysis=f"{len(players)-1} opponents",
+            opponent_analysis=f"{len(players) - 1} opponents",
             board_position=f"Turn {game_state.turn_number}",
             turn_number=game_state.turn_number,
             personality_prompt=personality_prompt,
             provider=provider,
-            model=model
+            model=model,
         )
 
         # Step 2: Handle specific phase
@@ -657,7 +661,7 @@ async def catan_game_agent(
                 target_player=None,
                 development_card=None,
                 trade_offer=None,
-                reasoning=f"Rolled {dice1 + dice2}"
+                reasoning=f"Rolled {dice1 + dice2}",
             )
             action_history.append(action)
             game_state.dice_roll = (dice1, dice2)
@@ -673,7 +677,7 @@ async def catan_game_agent(
                 strategic_goals="Block leading player",
                 personality_prompt=personality_prompt,
                 provider=provider,
-                model=model
+                model=model,
             )
             action_history.append(action)
 
@@ -690,7 +694,7 @@ async def catan_game_agent(
                 available_ports=[],  # Would check actual ports
                 personality_prompt=personality_prompt,
                 provider=provider,
-                model=model
+                model=model,
             )
 
             # Plan complete turn
@@ -704,7 +708,7 @@ async def catan_game_agent(
                 victory_points=current_player.victory_points,
                 personality_prompt=personality_prompt,
                 provider=provider,
-                model=model
+                model=model,
             )
 
             # Execute first action (simplified)
@@ -712,17 +716,19 @@ async def catan_game_agent(
                 action_history.append(turn_actions[0])
             else:
                 # Default to end turn
-                action_history.append(CatanAction(
-                    player_id=current_player.player_id,
-                    action_type=ActionType.END_TURN,
-                    position=None,
-                    edge=None,
-                    resources=None,
-                    target_player=None,
-                    development_card=None,
-                    trade_offer=None,
-                    reasoning="No beneficial actions available"
-                ))
+                action_history.append(
+                    CatanAction(
+                        player_id=current_player.player_id,
+                        action_type=ActionType.END_TURN,
+                        position=None,
+                        edge=None,
+                        resources=None,
+                        target_player=None,
+                        development_card=None,
+                        trade_offer=None,
+                        reasoning="No beneficial actions available",
+                    )
+                )
 
     # Create updated game
     strategic_analyses = {
@@ -735,7 +741,7 @@ async def catan_game_agent(
             trade_opportunities=[],
             development_card_strategy="",
             blocking_opportunities=[],
-            win_probability=0.25
+            win_probability=0.25,
         )
     }
 
@@ -744,7 +750,7 @@ async def catan_game_agent(
         current_state=game_state,
         players=players,
         action_history=action_history,
-        strategic_analyses=strategic_analyses
+        strategic_analyses=strategic_analyses,
     )
 
     # Check for winner
@@ -758,11 +764,7 @@ async def catan_game_agent(
     return updated_game
 
 
-async def catan_game_stream(
-    game_state: CatanState,
-    players: list[CatanPlayer],
-    **kwargs
-) -> AsyncGenerator[str, None]:
+async def catan_game_stream(game_state: CatanState, players: list[CatanPlayer], **kwargs) -> AsyncGenerator[str, None]:
     """Stream the Catan game turn with live updates."""
 
     yield f"**Settlers of Catan - Turn {game_state.turn_number}**\n\n"

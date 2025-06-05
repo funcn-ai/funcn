@@ -20,5 +20,5 @@ __all__ = [
     "find_marketing_agencies",
     "find_startup_executives",
     "SalesTarget",
-    "SalesIntelligenceResponse"
+    "SalesIntelligenceResponse",
 ]
