@@ -16,9 +16,9 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -52,13 +52,13 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'scrub_pii')
         assert callable(module.scrub_pii)
@@ -76,31 +76,26 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'PIIEntity')
         assert hasattr(module, 'PIIDetectionResponse')
         assert hasattr(module, 'ScrubbedTextResponse')
-        
+
         # Test basic model instantiation
         PIIEntity = module.PIIEntity
         entity = PIIEntity(
-            text="john.smith@email.com",
-            entity_type="email",
-            start_index=20,
-            end_index=40,
-            confidence=0.95,
-            replacement="[EMAIL]"
+            text="john.smith@email.com", entity_type="email", start_index=20, end_index=40, confidence=0.95, replacement="[EMAIL]"
         )
         assert entity.entity_type == "email"
         assert entity.confidence == 0.95
-        
+
         # Test ScrubbedTextResponse model
         ScrubbedTextResponse = module.ScrubbedTextResponse
         scrubbed = ScrubbedTextResponse(
@@ -108,7 +103,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
             scrubbed_text="[NAME] works at [COMPANY]",
             entities_removed=[entity],
             scrubbing_method="redact",
-            reversible=False
+            reversible=False,
         )
         assert len(scrubbed.entities_removed) == 1
         assert scrubbed.scrubbing_method == "redact"
@@ -118,12 +113,13 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         """Test basic structure of scrub_pii_from_text function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -136,14 +132,14 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         ScrubbedTextResponse = module.ScrubbedTextResponse
-        
+
         # PII scrubbing should return a ScrubbedTextResponse
         assert isinstance(output, ScrubbedTextResponse)
         assert hasattr(output, "original_text")
@@ -159,14 +155,13 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test detect_pii_regex
         func = module.detect_pii_regex
         assert callable(func)
@@ -174,30 +169,31 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         assert 'text' in params
-        
+
         # Test detect_pii_llm (decorated function)
         func = module.detect_pii_llm
         assert callable(func)
-        
+
         # Test quick_scrub
         func = module.quick_scrub
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_scrubbing_methods(self):
         """Test that various scrubbing methods are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for scrubbing methods
         import inspect
+
         source = inspect.getsource(module)
         assert 'mask' in source.lower()
         assert 'redact' in source.lower()
@@ -209,15 +205,16 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         """Test that various PII types are detected."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent",
-            "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for PII type support
         import inspect
+
         source = inspect.getsource(module)
         assert 'email' in source.lower()
         assert 'phone' in source.lower()

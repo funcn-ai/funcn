@@ -16,9 +16,9 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -52,13 +52,13 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'extract_enhanced_knowledge_graph')
         assert callable(module.extract_enhanced_knowledge_graph)
@@ -76,13 +76,13 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'Entity')
         assert hasattr(module, 'Relationship')
@@ -91,25 +91,19 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         assert hasattr(module, 'RelationshipExtraction')
         assert hasattr(module, 'ValidationReport')
         assert hasattr(module, 'EnhancedKnowledgeGraph')
-        
+
         # Test basic model instantiation
         Entity = module.Entity
         entity = Entity(
-            id="entity_1",
-            name="Apple Inc.",
-            type="Organization",
-            properties={"founded": "1976", "industry": "Technology"}
+            id="entity_1", name="Apple Inc.", type="Organization", properties={"founded": "1976", "industry": "Technology"}
         )
         assert entity.name == "Apple Inc."
         assert entity.type == "Organization"
-        
+
         # Test Relationship model
         Relationship = module.Relationship
         rel = Relationship(
-            source_id="entity_1",
-            target_id="entity_2",
-            relationship_type="founded_by",
-            properties={"year": "1976"}
+            source_id="entity_1", target_id="entity_2", relationship_type="founded_by", properties={"year": "1976"}
         )
         assert rel.relationship_type == "founded_by"
 
@@ -118,12 +112,13 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         """Test basic structure of extract_enhanced_knowledge_graph function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -138,14 +133,14 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         EnhancedKnowledgeGraph = module.EnhancedKnowledgeGraph
-        
+
         # Enhanced knowledge graph should return an EnhancedKnowledgeGraph
         assert isinstance(output, EnhancedKnowledgeGraph)
         assert hasattr(output, "entities")
@@ -162,14 +157,13 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test plan_extraction
         func = module.plan_extraction
         assert callable(func)
@@ -178,31 +172,32 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'text_preview' in params
         assert 'domain' in params
-        
+
         # Test extract_entities_with_reasoning
         func = module.extract_entities_with_reasoning
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test validate_consistency
         func = module.validate_consistency
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_advanced_extraction_features(self):
         """Test that the agent has advanced extraction features."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for advanced features
         import inspect
+
         source = inspect.getsource(module)
         assert 'reasoning' in source.lower() or 'chain-of-thought' in source.lower()
         assert 'multipass' in source or 'multi-pass' in source
@@ -214,15 +209,16 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         """Test that different domains are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for domain handling
         import inspect
+
         source = inspect.getsource(module)
         assert 'domain' in source
         # Check for various domain examples

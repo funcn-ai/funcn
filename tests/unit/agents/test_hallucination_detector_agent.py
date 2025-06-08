@@ -16,9 +16,9 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -49,13 +49,13 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions mentioned in component.json
         assert hasattr(module, 'detect_hallucinations')
         assert callable(module.detect_hallucinations)
@@ -69,33 +69,29 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'ExtractedClaim')
         assert hasattr(module, 'ExtractedClaimsResponse')
         assert hasattr(module, 'ClaimVerification')
         assert hasattr(module, 'HallucinationDetectionResponse')
-        
+
         # Test basic model instantiation
         ExtractedClaim = module.ExtractedClaim
-        claim = ExtractedClaim(
-            claim="Test claim"
-        )
+        claim = ExtractedClaim(claim="Test claim")
         assert claim.claim == "Test claim"
-        
+
         # Test ExtractedClaimsResponse
         ExtractedClaimsResponse = module.ExtractedClaimsResponse
-        claims_response = ExtractedClaimsResponse(
-            claims=["Claim 1", "Claim 2"]
-        )
+        claims_response = ExtractedClaimsResponse(claims=["Claim 1", "Claim 2"])
         assert len(claims_response.claims) == 2
-        
+
         # Test ClaimVerification model
         ClaimVerification = module.ClaimVerification
         verification = ClaimVerification(
@@ -104,13 +100,13 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
             confidence_score=0.85,
             supporting_sources=["http://example.com"],
             refuting_sources=[],
-            summary="Claim is supported"
+            summary="Claim is supported",
         )
         assert verification.claim == "Test claim"
         assert verification.assessment == "supported"
         assert verification.confidence_score == 0.85
         assert len(verification.supporting_sources) == 1
-        
+
         # Test HallucinationDetectionResponse model
         HallucinationDetectionResponse = module.HallucinationDetectionResponse
         result = HallucinationDetectionResponse(
@@ -118,7 +114,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
             claims_verified=[verification],
             overall_assessment="mostly accurate",
             hallucination_score=0.1,
-            summary="Text appears to be factual"
+            summary="Text appears to be factual",
         )
         assert result.claims_extracted == 2
         assert len(result.claims_verified) == 1
@@ -129,12 +125,13 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         """Test basic structure of detect_hallucinations function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -146,14 +143,14 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         HallucinationDetectionResponse = module.HallucinationDetectionResponse
-        
+
         # Hallucination detector should return a HallucinationDetectionResponse
         assert isinstance(output, HallucinationDetectionResponse)
         assert hasattr(output, "claims_extracted")
@@ -171,14 +168,13 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test detect_hallucinations_quick
         func = module.detect_hallucinations_quick
         assert callable(func)
@@ -186,7 +182,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         assert 'text' in params
-        
+
         # Test verify_single_statement
         func = module.verify_single_statement
         assert callable(func)
@@ -195,23 +191,24 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'statement' in params
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_exa_search_integration(self):
         """Test that the agent properly integrates with exa_search tool."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check that the exa_search imports are attempted
         import inspect
+
         source = inspect.getsource(module)
         assert 'from exa_search_tools' in source or 'import exa_search_tools' in source or 'exa_search' in source
-        
+
         # Verify the agent uses search functionality
         source = inspect.getsource(module.detect_hallucinations)
         assert 'search' in source.lower() or 'exa' in source.lower() or 'verify' in source.lower()
@@ -221,15 +218,16 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         """Test that hallucination scoring is properly implemented."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent",
-            "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check that scoring logic exists
         import inspect
+
         source = inspect.getsource(module)
         assert 'hallucination_score' in source
         assert 'confidence' in source or 'score' in source

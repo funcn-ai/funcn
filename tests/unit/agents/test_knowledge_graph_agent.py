@@ -16,9 +16,9 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -52,13 +52,13 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'extract_knowledge_graph')
         assert callable(module.extract_knowledge_graph)
@@ -82,13 +82,13 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'Entity')
         assert hasattr(module, 'Relationship')
@@ -96,25 +96,16 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         assert hasattr(module, 'EntityResponse')
         assert hasattr(module, 'RelationshipResponse')
         assert hasattr(module, 'EnrichmentResponse')
-        
+
         # Test basic model instantiation
         Entity = module.Entity
-        entity = Entity(
-            name="Marie Curie",
-            type="Person",
-            properties={"profession": "Scientist", "nationality": "Polish-French"}
-        )
+        entity = Entity(name="Marie Curie", type="Person", properties={"profession": "Scientist", "nationality": "Polish-French"})
         assert entity.name == "Marie Curie"
         assert entity.type == "Person"
-        
+
         # Test Relationship model
         Relationship = module.Relationship
-        rel = Relationship(
-            source="Marie Curie",
-            relationship="discovered",
-            target="Radium",
-            properties={"year": "1898"}
-        )
+        rel = Relationship(source="Marie Curie", relationship="discovered", target="Radium", properties={"year": "1898"})
         assert rel.source == "Marie Curie"
         assert rel.relationship == "discovered"
         assert rel.target == "Radium"
@@ -124,12 +115,13 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         """Test basic structure of extract_knowledge_graph function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -144,14 +136,14 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         KnowledgeGraph = module.KnowledgeGraph
-        
+
         # Knowledge graph agent should return a KnowledgeGraph
         assert isinstance(output, KnowledgeGraph)
         assert hasattr(output, "entities")
@@ -166,14 +158,13 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test extract_entities
         func = module.extract_entities
         assert callable(func)
@@ -181,12 +172,12 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         assert 'text' in params
-        
+
         # Test extract_relationships
         func = module.extract_relationships
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test extract_triples
         func = module.extract_triples
         assert callable(func)
@@ -195,20 +186,21 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'text' in params
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_output_format_support(self):
         """Test that multiple output formats are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for output format support
         import inspect
+
         source = inspect.getsource(module)
         assert 'graph' in source.lower()
         assert 'triples' in source or 'triple' in source
@@ -220,15 +212,16 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         """Test that the agent supports entity enrichment."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent",
-            "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for enrichment features
         import inspect
+
         source = inspect.getsource(module)
         assert 'enrich' in source.lower()
         assert 'properties' in source or 'attributes' in source

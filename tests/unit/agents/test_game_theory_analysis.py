@@ -16,9 +16,9 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -52,13 +52,13 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions mentioned in component.json
         assert hasattr(module, 'analyze_strategic_situation')
         assert callable(module.analyze_strategic_situation)
@@ -78,49 +78,49 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'Player')
         assert hasattr(module, 'Strategy')
         assert hasattr(module, 'PayoffEntry')
         assert hasattr(module, 'Equilibrium')
         assert hasattr(module, 'GameTheoryAnalysis')
-        
+
         # Test basic model instantiation
         Player = module.Player
         player = Player(
             name="Company A",
             objectives=["Maximize profit", "Maintain market share"],
             constraints=["Budget limit", "Regulatory compliance"],
-            available_strategies=["High price", "Low price"]
+            available_strategies=["High price", "Low price"],
         )
         assert player.name == "Company A"
         assert len(player.objectives) == 2
         assert len(player.available_strategies) == 2
-        
+
         # Test Strategy model
         Strategy = module.Strategy
         strategy = Strategy(
             player="Company A",
             action="Set high price",
             description="Premium pricing strategy",
-            conditions=["Market leader position"]
+            conditions=["Market leader position"],
         )
         assert strategy.player == "Company A"
         assert strategy.action == "Set high price"
-        
+
         # Test PayoffEntry model
         PayoffEntry = module.PayoffEntry
         payoff = PayoffEntry(
             strategies={"Company A": "High price", "Company B": "Low price"},
             payoffs={"Company A": 50.0, "Company B": 70.0},
-            outcome_description="B captures market share"
+            outcome_description="B captures market share",
         )
         assert payoff.payoffs["Company A"] == 50.0
         assert payoff.payoffs["Company B"] == 70.0
@@ -130,12 +130,13 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         """Test basic structure of analyze_strategic_situation function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -150,14 +151,14 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         GameTheoryAnalysis = module.GameTheoryAnalysis
-        
+
         # Game theory analysis should return a GameTheoryAnalysis
         assert isinstance(output, GameTheoryAnalysis)
         assert hasattr(output, "situation_summary")
@@ -181,14 +182,13 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test identify_players_and_strategies
         func = module.identify_players_and_strategies
         assert callable(func)
@@ -197,7 +197,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'situation' in params
         assert 'players' in params
-        
+
         # Test construct_payoff_matrix
         func = module.construct_payoff_matrix
         assert callable(func)
@@ -206,7 +206,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'players' in params
         assert 'strategies' in params
-        
+
         # Test find_equilibria
         func = module.find_equilibria
         assert callable(func)
@@ -215,26 +215,27 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'payoff_matrix' in params
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_game_theory_concepts(self):
         """Test that key game theory concepts are implemented."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for game theory concepts
         import inspect
+
         source = inspect.getsource(module)
         assert 'nash' in source.lower() or 'equilibrium' in source.lower()
         assert 'payoff' in source.lower()
         assert 'strategy' in source.lower() or 'strategies' in source.lower()
         assert 'dominant' in source or 'dominated' in source
-        
+
         # Verify analysis capabilities
         assert 'cooperative' in source or 'non-cooperative' in source or 'zero-sum' in source
 
@@ -243,15 +244,16 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         """Test that analysis depth levels are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis",
-            "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for depth level support
         import inspect
+
         source = inspect.getsource(module)
         assert 'comprehensive' in source or 'detailed' in source
         assert 'standard' in source or 'basic' in source

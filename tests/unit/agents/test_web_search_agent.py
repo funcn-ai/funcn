@@ -16,9 +16,9 @@ class TestWebSearchAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -49,13 +49,13 @@ class TestWebSearchAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions mentioned in component.json
         assert hasattr(module, 'web_search_agent')
         assert callable(module.web_search_agent)
@@ -76,17 +76,17 @@ class TestWebSearchAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'WebSearchResponse')
         assert hasattr(module, 'SearchProvider')
-        
+
         # Test basic model instantiation
         WebSearchResponse = module.WebSearchResponse
         response = WebSearchResponse(
@@ -94,12 +94,12 @@ class TestWebSearchAgent(BaseAgentTest):
             sources=["http://example.com"],
             search_queries=["query 1"],
             search_providers=["duckduckgo"],
-            privacy_note="No tracking"
+            privacy_note="No tracking",
         )
         assert response.answer == "Test answer"
         assert len(response.sources) == 1
         assert len(response.search_providers) == 1
-        
+
         # Test SearchProvider is defined as a Literal type
         assert 'SearchProvider' in dir(module)
 
@@ -108,12 +108,13 @@ class TestWebSearchAgent(BaseAgentTest):
         """Test basic structure of web_search_agent function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         # Note: web_search_agent is not async, it returns a BaseDynamicConfig
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -127,9 +128,9 @@ class TestWebSearchAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -140,7 +141,7 @@ class TestWebSearchAgent(BaseAgentTest):
         assert 'call_params' in output
         assert 'computed_fields' in output
         assert 'metadata' in output
-        
+
         # Check computed fields
         computed = output.get('computed_fields', {})
         assert 'question' in computed
@@ -153,14 +154,13 @@ class TestWebSearchAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test web_search_private
         func = module.web_search_private
         assert callable(func)
@@ -168,7 +168,7 @@ class TestWebSearchAgent(BaseAgentTest):
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         assert 'question' in params
-        
+
         # Test web_search_ai
         func = module.web_search_ai
         assert callable(func)
@@ -176,7 +176,7 @@ class TestWebSearchAgent(BaseAgentTest):
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         assert 'question' in params
-        
+
         # Test web_search_comprehensive
         func = module.web_search_comprehensive
         assert callable(func)
@@ -185,26 +185,27 @@ class TestWebSearchAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'question' in params
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_multi_provider_support(self):
         """Test that the agent supports multiple search providers."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check that multiple providers are mentioned
         import inspect
+
         source = inspect.getsource(module)
         assert 'duckduckgo' in source.lower()
         assert 'qwant' in source.lower()
         assert 'exa' in source.lower()
         assert 'nimble' in source.lower()
-        
+
         # Check for provider selection logic
         assert 'auto' in source or 'provider' in source
 
@@ -213,15 +214,16 @@ class TestWebSearchAgent(BaseAgentTest):
         """Test that the agent integrates with search tools."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent",
-            "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for search tool imports
         import inspect
+
         source = inspect.getsource(module)
         assert 'duckduckgo_search' in source or 'search_tools' in source
         assert 'qwant' in source or 'exa' in source or 'nimble' in source

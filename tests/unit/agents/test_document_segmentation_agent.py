@@ -16,9 +16,9 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -55,13 +55,13 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'segment_document')
         assert callable(module.segment_document)
@@ -85,39 +85,30 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'DocumentSegment')
         assert hasattr(module, 'DocumentStructure')
         assert hasattr(module, 'SegmentationResult')
-        
+
         # Test basic model instantiation
         DocumentSegment = module.DocumentSegment
         segment = DocumentSegment(
-            id="seg_1",
-            content="This is segment content",
-            start_char=0,
-            end_char=22,
-            metadata={"type": "introduction"}
+            id="seg_1", content="This is segment content", start_char=0, end_char=22, metadata={"type": "introduction"}
         )
         assert segment.id == "seg_1"
         assert segment.content == "This is segment content"
         assert segment.start_char == 0
-        
+
         # Test optional summary field
         segment_with_summary = DocumentSegment(
-            id="seg_2",
-            content="Long content here",
-            start_char=23,
-            end_char=40,
-            metadata={},
-            summary="Brief summary"
+            id="seg_2", content="Long content here", start_char=23, end_char=40, metadata={}, summary="Brief summary"
         )
         assert segment_with_summary.summary == "Brief summary"
 
@@ -126,12 +117,13 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         """Test basic structure of segment_document function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -147,14 +139,14 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         SegmentationResult = module.SegmentationResult
-        
+
         # Document segmentation should return a SegmentationResult
         assert isinstance(output, SegmentationResult)
         assert hasattr(output, "segments")
@@ -171,14 +163,13 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test analyze_document_structure
         func = module.analyze_document_structure
         assert callable(func)
@@ -186,12 +177,12 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
         assert 'document' in params
-        
+
         # Test segment_semantically
         func = module.segment_semantically
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test chunk_for_embedding
         func = module.chunk_for_embedding
         assert callable(func)
@@ -201,20 +192,21 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         assert 'text' in params
         assert 'chunk_size' in params
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_segmentation_strategies(self):
         """Test that multiple segmentation strategies are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for different strategies
         import inspect
+
         source = inspect.getsource(module)
         assert 'structural' in source or 'structure' in source
         assert 'semantic' in source
@@ -226,15 +218,16 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         """Test that the agent supports embedding optimization."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent",
-            "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for embedding-related features
         import inspect
+
         source = inspect.getsource(module)
         assert 'embedding' in source.lower() or 'vector' in source.lower()
         assert 'overlap' in source

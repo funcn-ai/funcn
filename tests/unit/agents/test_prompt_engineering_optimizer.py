@@ -16,9 +16,9 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -55,13 +55,13 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'prompt_engineering_optimizer')
         assert callable(module.prompt_engineering_optimizer)
@@ -85,20 +85,20 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'PromptAnalysis')
         assert hasattr(module, 'PromptVariant')
         assert hasattr(module, 'TestResult')
         assert hasattr(module, 'ABTestComparison')
         assert hasattr(module, 'OptimizedPromptResult')
-        
+
         # Test basic model instantiation
         PromptAnalysis = module.PromptAnalysis
         analysis = PromptAnalysis(
@@ -107,18 +107,18 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
             improvement_areas=["Add specificity"],
             clarity_score=0.8,
             specificity_score=0.6,
-            effectiveness_score=0.7
+            effectiveness_score=0.7,
         )
         assert analysis.clarity_score == 0.8
         assert len(analysis.strengths) == 2
-        
+
         # Test PromptVariant model
         PromptVariant = module.PromptVariant
         variant = PromptVariant(
             variant_id="v1",
             prompt_text="Enhanced prompt text",
             optimization_technique="few-shot",
-            expected_improvement="Better accuracy"
+            expected_improvement="Better accuracy",
         )
         assert variant.variant_id == "v1"
         assert variant.optimization_technique == "few-shot"
@@ -128,12 +128,13 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         """Test basic structure of prompt_engineering_optimizer function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -149,14 +150,14 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         OptimizedPromptResult = module.OptimizedPromptResult
-        
+
         # Optimizer should return an OptimizedPromptResult
         assert isinstance(output, OptimizedPromptResult)
         assert hasattr(output, "original_prompt")
@@ -173,43 +174,43 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test analyze_prompt_effectiveness - not async
         func = module.analyze_prompt_effectiveness
         assert callable(func)
         assert not inspect.iscoroutinefunction(func)
-        
+
         # Test generate_prompt_variants - not async
         func = module.generate_prompt_variants
         assert callable(func)
         assert not inspect.iscoroutinefunction(func)
-        
+
         # Test run_variant_tests - async
         func = module.run_variant_tests
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_optimization_techniques(self):
         """Test that various optimization techniques are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for optimization techniques
         import inspect
+
         source = inspect.getsource(module)
         assert 'few-shot' in source or 'few_shot' in source
         assert 'chain-of-thought' in source or 'chain_of_thought' in source
@@ -221,15 +222,16 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         """Test that A/B testing is supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer",
-            "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for A/B testing features
         import inspect
+
         source = inspect.getsource(module)
         assert 'ab_test' in source.lower() or 'a/b' in source.lower()
         assert 'compare' in source

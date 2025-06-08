@@ -16,9 +16,9 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -33,7 +33,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
                     {"name": "Player 1", "type": "strategic", "model": "gpt-4o"},
                     {"name": "Player 2", "type": "aggressive", "model": "gpt-4o"},
                     {"name": "Player 3", "type": "balanced", "model": "gpt-4o"},
-                    {"name": "Player 4", "type": "human", "model": None}
+                    {"name": "Player 4", "type": "human", "model": None},
                 ],
                 "action_history": [],
                 "game_id": "test_game_001",
@@ -42,7 +42,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
                 "game_state": None,
                 "players": [
                     {"name": "AI", "type": "aggressive", "model": "gpt-4o"},
-                    {"name": "Human", "type": "human", "model": None}
+                    {"name": "Human", "type": "human", "model": None},
                 ],
                 "action_history": [],
                 "game_id": "test_game_002",
@@ -52,7 +52,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
                 "players": [
                     {"name": "Player 1", "type": "balanced", "model": "gpt-4o"},
                     {"name": "Player 2", "type": "strategic", "model": "claude-3-5-sonnet-20241022"},
-                    {"name": "Player 3", "type": "aggressive", "model": "gpt-4o"}
+                    {"name": "Player 3", "type": "aggressive", "model": "gpt-4o"},
                 ],
                 "action_history": [],
                 "game_id": "test_game_003",
@@ -64,13 +64,13 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'catan_game_agent')
         assert callable(module.catan_game_agent)
@@ -84,13 +84,13 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the models exist
         assert hasattr(module, 'CatanState')
         assert hasattr(module, 'CatanPlayer')
@@ -100,12 +100,12 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         assert hasattr(module, 'BuildingType')
         assert hasattr(module, 'DevelopmentCard')
         assert hasattr(module, 'CatanPhase')
-        
+
         # Test basic enum instantiation
         Resource = module.Resource
         assert Resource.WOOD == "wood"
         assert Resource.BRICK == "brick"
-        
+
         # Test CatanPhase enum
         CatanPhase = module.CatanPhase
         assert CatanPhase.ROLL_DICE == "roll_dice"
@@ -116,12 +116,13 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         """Test basic structure of catan_game_agent function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -136,14 +137,14 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         CatanGame = module.CatanGame
-        
+
         # Game playing agent should return a CatanGame
         assert isinstance(output, CatanGame)
         assert hasattr(output, "game_id")
@@ -160,14 +161,13 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test process_human_catan_input
         func = module.process_human_catan_input
         assert callable(func)
@@ -176,27 +176,28 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         params = list(sig.parameters.keys())
         assert 'game' in params
         assert 'human_player' in params
-        
+
         # Test catan_game_stream
         func = module.catan_game_stream
         assert callable(func)
         # It's an async generator, not a coroutine function
         assert inspect.isasyncgenfunction(func)
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_game_mechanics(self):
         """Test that Catan game mechanics are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for Catan-specific features
         import inspect
+
         source = inspect.getsource(module)
         assert 'settlement' in source.lower()
         assert 'road' in source.lower()
@@ -211,15 +212,16 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         """Test that different player types are supported."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan",
-            "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for player type support
         import inspect
+
         source = inspect.getsource(module)
         assert 'strategic' in source.lower() or 'strategy' in source.lower()
         assert 'aggressive' in source.lower() or 'offensive' in source.lower()

@@ -16,9 +16,9 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         """Get the main agent function."""
         # Import directly without triggering __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -53,13 +53,13 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         """Test that all required agent functions are present."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Main functions found in the agent
         assert hasattr(module, 'multi_source_news_verification')
         assert callable(module.multi_source_news_verification)
@@ -81,26 +81,26 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         """Test that response models have correct structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that the enums exist
         assert hasattr(module, 'CredibilityLevel')
         assert hasattr(module, 'VerificationStatus')
         assert hasattr(module, 'BiasDirection')
         assert hasattr(module, 'MisinformationType')
         assert hasattr(module, 'ClaimType')
-        
+
         # Test enum values
         assert module.CredibilityLevel.HIGH == "high"
         assert module.VerificationStatus.VERIFIED == "verified"
         assert module.BiasDirection.CENTER == "center"
-        
-        # Test models exist  
+
+        # Test models exist
         assert hasattr(module, 'SourceCredibilityAssessment')
         assert hasattr(module, 'ContentAnalysisReport')
         assert hasattr(module, 'ClaimVerificationResult')
@@ -112,12 +112,13 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         """Test basic structure of multi_source_news_verification function."""
         # Import the function
         func = self.get_component_function()
-        
+
         # Test that function exists and is callable
         import inspect
+
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
@@ -137,14 +138,14 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         NewsVerificationResult = module.NewsVerificationResult
-        
+
         # News verification should return a NewsVerificationResult
         assert isinstance(output, NewsVerificationResult)
         assert hasattr(output, "headline")
@@ -161,47 +162,47 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
-        
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test assess_source_credibility - not async
         func = module.assess_source_credibility
         assert callable(func)
         assert not inspect.iscoroutinefunction(func)
-        
+
         # Test analyze_news_content - not async
         func = module.analyze_news_content
         assert callable(func)
         assert not inspect.iscoroutinefunction(func)
-        
+
         # Test fact_check_claims - not async
         func = module.fact_check_claims
         assert callable(func)
         assert not inspect.iscoroutinefunction(func)
 
-    @pytest.mark.unit 
+    @pytest.mark.unit
     def test_multi_tool_integration(self):
         """Test that the agent integrates multiple verification tools."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check for tool classes
         assert hasattr(module, 'WebSearchTool')
         assert hasattr(module, 'ExaNewsVerificationTool')
-        
+
         # Check for verification capabilities
         import inspect
+
         source = inspect.getsource(module)
         assert 'credibility' in source.lower()
         assert 'fact_check' in source or 'fact-check' in source
@@ -211,18 +212,18 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         """Test that verification enums are properly defined."""
         # Use direct import to avoid __init__.py chain
         import importlib.util
+
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification",
-            "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Check CredibilityLevel values
         credibility_values = [e.value for e in module.CredibilityLevel]
         assert "high" in credibility_values
         assert "low" in credibility_values
-        
+
         # Check VerificationStatus values
         verification_values = [e.value for e in module.VerificationStatus]
         assert "verified" in verification_values
