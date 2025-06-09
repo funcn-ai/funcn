@@ -21,7 +21,9 @@ def search(
     with RegistryHandler(cfg) as rh:
         index = rh.fetch_index(source_alias=source)
 
-    results = [comp for comp in index.components if keyword.lower() in comp.name.lower() or keyword.lower() in comp.description.lower()]
+    results = [
+        comp for comp in index.components if keyword.lower() in comp.name.lower() or keyword.lower() in comp.description.lower()
+    ]
 
     if not results:
         console.print(f"[yellow]No components matching '{keyword}' found.")

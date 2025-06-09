@@ -101,6 +101,7 @@ Any breaking changes or migration guidance.
 - Links to relevant documentation
 """
 
+
 def generate_funcn_md(component_json: dict, existing_readme: str = None) -> str:
     """Generate funcn.md content from component.json data using type-specific templates."""
 
@@ -117,11 +118,9 @@ def generate_funcn_md(component_json: dict, existing_readme: str = None) -> str:
     # Format authors
     authors_list = component_json.get("authors", [])
     if authors_list:
-        authors = ", ".join([
-            f"{a.get('name', '')} <{a.get('email', '')}>" if a.get('email')
-            else a.get('name', '')
-            for a in authors_list
-        ])
+        authors = ", ".join(
+            [f"{a.get('name', '')} <{a.get('email', '')}>" if a.get('email') else a.get('name', '') for a in authors_list]
+        )
     else:
         authors = "Funcn Project <info@funcn.ai>"
 
@@ -296,15 +295,17 @@ print(result)
         migration_notes=migration_notes,
         key_benefits=key_benefits,
         related_components=related_components,
-        references=references
+        references=references,
     )
 
     # Clean up markdown spacing issues
     return _clean_markdown_spacing(formatted_content)
 
+
 def generate_template_funcn_md(component_name: str) -> str:
     """Generate a template funcn.md for new components."""
     return TEMPLATE_FUNCN_MD.format(component_name=component_name)
+
 
 def merge_with_existing_funcn_md(existing_content: str, new_content: str, component_data: dict) -> str:
     """
@@ -331,7 +332,7 @@ def merge_with_existing_funcn_md(existing_content: str, new_content: str, compon
         "**Environment Variables:**",
         "**Registry Dependencies:**",
         "## Integration with Mirascope",
-        "## Troubleshooting"  # This often contains auto-generated post_add_instructions
+        "## Troubleshooting",  # This often contains auto-generated post_add_instructions
     }
 
     # Sections that should be preserved if they contain user customizations
@@ -346,7 +347,7 @@ def merge_with_existing_funcn_md(existing_content: str, new_content: str, compon
         "### Multi-Provider Usage",
         "### Error Handling",
         "### Batch Processing",
-        "## Migration Notes"
+        "## Migration Notes",
     }
 
     # Parse both documents into sections
@@ -419,7 +420,7 @@ def merge_with_existing_funcn_md(existing_content: str, new_content: str, compon
         "## API Reference",
         "## Advanced Examples",
         "## Troubleshooting",
-        "## Migration Notes"
+        "## Migration Notes",
     ]
 
     # Add sections in order, then add any remaining sections
@@ -613,6 +614,7 @@ def _appears_customized_description(description: str, component_data: dict) -> b
 
     return False
 
+
 def _clean_markdown_spacing(content: str) -> str:
     """
     Clean up markdown spacing issues to fix linting problems.
@@ -629,28 +631,26 @@ def _clean_markdown_spacing(content: str) -> str:
         is_list_item = line.strip().startswith('- ') or line.strip().startswith('* ')
 
         # Check if previous line exists and is not a list item
-        prev_line = lines[i-1] if i > 0 else ""
+        prev_line = lines[i - 1] if i > 0 else ""
         prev_is_list = prev_line.strip().startswith('- ') or prev_line.strip().startswith('* ')
         prev_is_empty = prev_line.strip() == ""
         prev_is_header = prev_line.startswith('#')
 
         # Check if next line exists and is not a list item
-        next_line = lines[i+1] if i < len(lines) - 1 else ""
+        next_line = lines[i + 1] if i < len(lines) - 1 else ""
         next_is_list = next_line.strip().startswith('- ') or next_line.strip().startswith('* ')
         next_is_empty = next_line.strip() == ""
         next_is_header = next_line.startswith('#')
 
         # MD032: Add blank line before list if needed
-        if (is_list_item and not prev_is_list and not prev_is_empty and
-            not prev_is_header and prev_line.strip() != ""):
+        if is_list_item and not prev_is_list and not prev_is_empty and not prev_is_header and prev_line.strip() != "":
             cleaned_lines.append("")
 
         # Add the current line
         cleaned_lines.append(line)
 
         # MD032: Add blank line after list if needed
-        if (is_list_item and not next_is_list and not next_is_empty and
-            not next_is_header and next_line.strip() != ""):
+        if is_list_item and not next_is_list and not next_is_empty and not next_is_header and next_line.strip() != "":
             cleaned_lines.append("")
 
     # MD012: Remove multiple consecutive blank lines

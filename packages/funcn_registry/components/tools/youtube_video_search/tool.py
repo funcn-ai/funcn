@@ -65,7 +65,7 @@ class VideoInfo(BaseModel):
             published_at=published_at,
             thumbnail_url=snippet.get("thumbnails", {}).get("high", {}).get("url"),
             video_url=f"https://www.youtube.com/watch?v={video_id}",
-            has_transcript=False
+            has_transcript=False,
         )
 
 
@@ -90,7 +90,7 @@ async def search_youtube_videos(
     channel_id: str | None = None,
     video_duration: Literal["short", "medium", "long"] | None = None,
     region_code: str = "US",
-    language: str = "en"
+    language: str = "en",
 ) -> VideoSearchResult:
     """Search YouTube videos using the YouTube Data API.
 
@@ -120,7 +120,7 @@ async def search_youtube_videos(
             "order": order,
             "regionCode": region_code,
             "relevanceLanguage": language,
-            "key": api_key
+            "key": api_key,
         }
 
         # Add optional filters
@@ -151,25 +151,15 @@ async def search_youtube_videos(
             total_results=data.get("pageInfo", {}).get("totalResults", len(videos)),
             videos=videos,
             error=None,
-            next_page_token=data.get("nextPageToken")
+            next_page_token=data.get("nextPageToken"),
         )
 
     except Exception as e:
-        return VideoSearchResult(
-            success=False,
-            query=query,
-            total_results=0,
-            videos=[],
-            error=str(e),
-            next_page_token=None
-        )
+        return VideoSearchResult(success=False, query=query, total_results=0, videos=[], error=str(e), next_page_token=None)
 
 
 async def get_video_transcript(
-    video_id: str,
-    languages: list[str] | None = None,
-    preserve_formatting: bool = True,
-    include_timestamps: bool = True
+    video_id: str, languages: list[str] | None = None, preserve_formatting: bool = True, include_timestamps: bool = True
 ) -> tuple[bool, list[TranscriptSegment], str | None]:
     """Get transcript for a YouTube video.
 
@@ -223,10 +213,7 @@ async def get_video_transcript(
         segments = []
         for item in transcript_data:
             segment = TranscriptSegment(
-                text=item["text"],
-                start=item["start"],
-                duration=item["duration"],
-                end=item["start"] + item["duration"]
+                text=item["text"], start=item["start"], duration=item["duration"], end=item["start"] + item["duration"]
             )
             segments.append(segment)
 
@@ -246,11 +233,7 @@ async def get_video_transcript(
 
 
 async def search_videos_with_transcript(
-    query: str,
-    api_key: str,
-    transcript_search: str | None = None,
-    max_results: int = 10,
-    languages: list[str] | None = None
+    query: str, api_key: str, transcript_search: str | None = None, max_results: int = 10, languages: list[str] | None = None
 ) -> list[dict[str, Any]]:
     """Search YouTube videos and include transcript search.
 
@@ -276,10 +259,7 @@ async def search_videos_with_transcript(
         video_data = video.dict()
 
         # Get transcript
-        success, segments, error = await get_video_transcript(
-            video.video_id,
-            languages=languages
-        )
+        success, segments, error = await get_video_transcript(video.video_id, languages=languages)
 
         video_data["has_transcript"] = success
         video_data["transcript_error"] = error
@@ -311,11 +291,7 @@ async def search_videos_with_transcript(
 
 
 async def analyze_video_content(
-    video_id: str,
-    api_key: str,
-    include_stats: bool = True,
-    include_comments: bool = False,
-    max_comments: int = 100
+    video_id: str, api_key: str, include_stats: bool = True, include_comments: bool = False, max_comments: int = 100
 ) -> dict[str, Any]:
     """Analyze video content including metadata, transcript, and optionally comments.
 
@@ -329,22 +305,14 @@ async def analyze_video_content(
     Returns:
         Dictionary with comprehensive video analysis
     """
-    analysis = {
-        "video_id": video_id,
-        "success": False,
-        "error": None
-    }
+    analysis = {"video_id": video_id, "success": False, "error": None}
 
     try:
         # Get video details
         async with httpx.AsyncClient() as client:
             # Video details request
             video_url = "https://www.googleapis.com/youtube/v3/videos"
-            video_params: dict[str, str] = {
-                "part": "snippet,contentDetails,statistics",
-                "id": video_id,
-                "key": api_key
-            }
+            video_params: dict[str, str] = {"part": "snippet,contentDetails,statistics", "id": video_id, "key": api_key}
 
             response = await client.get(video_url, params=video_params)
             response.raise_for_status()
@@ -358,16 +326,18 @@ async def analyze_video_content(
             snippet = video_item.get("snippet", {})
 
             # Parse video info
-            analysis.update({
-                "success": True,
-                "title": snippet.get("title"),
-                "description": snippet.get("description"),
-                "channel": snippet.get("channelTitle"),
-                "published_at": snippet.get("publishedAt"),
-                "tags": snippet.get("tags", []),
-                "category_id": snippet.get("categoryId"),
-                "duration": video_item.get("contentDetails", {}).get("duration")
-            })
+            analysis.update(
+                {
+                    "success": True,
+                    "title": snippet.get("title"),
+                    "description": snippet.get("description"),
+                    "channel": snippet.get("channelTitle"),
+                    "published_at": snippet.get("publishedAt"),
+                    "tags": snippet.get("tags", []),
+                    "category_id": snippet.get("categoryId"),
+                    "duration": video_item.get("contentDetails", {}).get("duration"),
+                }
+            )
 
             # Add statistics if requested
             if include_stats:
@@ -375,7 +345,7 @@ async def analyze_video_content(
                 analysis["statistics"] = {
                     "view_count": int(stats.get("viewCount", 0)),
                     "like_count": int(stats.get("likeCount", 0)),
-                    "comment_count": int(stats.get("commentCount", 0))
+                    "comment_count": int(stats.get("commentCount", 0)),
                 }
 
             # Get transcript
@@ -387,13 +357,10 @@ async def analyze_video_content(
                     "segment_count": len(segments),
                     "total_duration": segments[-1].end if segments else 0,
                     "full_text": " ".join(s.text for s in segments),
-                    "word_count": sum(len(s.text.split()) for s in segments)
+                    "word_count": sum(len(s.text.split()) for s in segments),
                 }
             else:
-                analysis["transcript"] = {
-                    "available": False,
-                    "error": error
-                }
+                analysis["transcript"] = {"available": False, "error": error}
 
             # Get comments if requested
             if include_comments:
@@ -403,7 +370,7 @@ async def analyze_video_content(
                     "videoId": video_id,
                     "maxResults": min(max_comments, 100),
                     "order": "relevance",
-                    "key": api_key
+                    "key": api_key,
                 }
 
                 try:
@@ -414,23 +381,18 @@ async def analyze_video_content(
                     comments = []
                     for item in comments_data.get("items", []):
                         comment = item["snippet"]["topLevelComment"]["snippet"]
-                        comments.append({
-                            "author": comment.get("authorDisplayName"),
-                            "text": comment.get("textDisplay"),
-                            "likes": comment.get("likeCount", 0),
-                            "published_at": comment.get("publishedAt")
-                        })
+                        comments.append(
+                            {
+                                "author": comment.get("authorDisplayName"),
+                                "text": comment.get("textDisplay"),
+                                "likes": comment.get("likeCount", 0),
+                                "published_at": comment.get("publishedAt"),
+                            }
+                        )
 
-                    analysis["comments"] = {
-                        "available": True,
-                        "count": len(comments),
-                        "comments": comments
-                    }
+                    analysis["comments"] = {"available": True, "count": len(comments), "comments": comments}
                 except Exception as e:
-                    analysis["comments"] = {
-                        "available": False,
-                        "error": f"Could not retrieve comments: {str(e)}"
-                    }
+                    analysis["comments"] = {"available": False, "error": f"Could not retrieve comments: {str(e)}"}
 
         return analysis
 

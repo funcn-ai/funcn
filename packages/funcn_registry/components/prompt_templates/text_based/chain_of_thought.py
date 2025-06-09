@@ -71,7 +71,7 @@ def chain_of_thought_basic(question: str):
     provider="openai",
     model="gpt-4o-mini",
     response_model=MathSolution,
-    call_params={"temperature": 0.1}  # Low temperature for mathematical accuracy
+    call_params={"temperature": 0.1},  # Low temperature for mathematical accuracy
 )
 @prompt_template(
     """
@@ -110,6 +110,7 @@ def chain_of_thought_math(problem: str):
 
 
 # Advanced CoT with dynamic reasoning paths
+
 
 class ComplexReasoning(BaseModel):
     """Model for complex reasoning tasks."""
@@ -159,7 +160,7 @@ def chain_of_thought_reasoning(
     context: str = "",
     approach_a: str = "Direct analytical approach",
     approach_b: str = "Comparative analysis",
-    approach_c: str = "First principles thinking"
+    approach_c: str = "First principles thinking",
 ):
     """
     Complex reasoning with multiple paths.
@@ -182,6 +183,7 @@ def chain_of_thought_reasoning(
 
 
 # CoT with self-correction
+
 
 class SelfCorrectingReasoning(BaseModel):
     """Model for self-correcting reasoning."""
@@ -243,12 +245,9 @@ def chain_of_thought_self_correcting(problem: str):
 
 # CoT with examples
 
+
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    call_params={"temperature": 0.2}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", call_params={"temperature": 0.2})
 @prompt_template(
     """
     Let me show you how to think through problems step by step.
@@ -290,6 +289,7 @@ def chain_of_thought_with_example(question: str):
 
 # Dynamic CoT with computed steps
 
+
 @lilypad.trace(versioning="automatic")
 @llm.call(provider="openai", model="gpt-4o-mini")
 @prompt_template(
@@ -306,11 +306,7 @@ def chain_of_thought_with_example(question: str):
     Work through each step methodically and show your thinking.
     """
 )
-def chain_of_thought_dynamic(
-    problem: str,
-    problem_type: str,
-    considerations: list[str] = None
-) -> BaseDynamicConfig:
+def chain_of_thought_dynamic(problem: str, problem_type: str, considerations: list[str] = None) -> BaseDynamicConfig:
     """
     Dynamic chain-of-thought with computed reasoning steps.
 
@@ -336,28 +332,24 @@ def chain_of_thought_dynamic(
             ["Step 1: Identify the premises", "What facts are we given?"],
             ["Step 2: Determine the logical relationships", "How do the facts connect?"],
             ["Step 3: Apply logical rules", "What can we deduce?"],
-            ["Step 4: Draw conclusions", "What follows logically?"]
+            ["Step 4: Draw conclusions", "What follows logically?"],
         ],
         "mathematical": [
             ["Step 1: Identify what to find", "What is the unknown?"],
             ["Step 2: List given information", "What do we know?"],
             ["Step 3: Choose a method", "What approach will work?"],
             ["Step 4: Execute calculations", "Work through the math"],
-            ["Step 5: Verify the answer", "Does it make sense?"]
+            ["Step 5: Verify the answer", "Does it make sense?"],
         ],
         "analytical": [
             ["Step 1: Define the problem", "What exactly are we analyzing?"],
             ["Step 2: Gather relevant data", "What information is important?"],
             ["Step 3: Identify patterns", "What trends or relationships exist?"],
             ["Step 4: Draw insights", "What do the patterns tell us?"],
-            ["Step 5: Make recommendations", "What actions follow?"]
-        ]
+            ["Step 5: Make recommendations", "What actions follow?"],
+        ],
     }
 
     reasoning_steps = step_templates.get(problem_type, step_templates["analytical"])
 
-    return {
-        "computed_fields": {
-            "reasoning_steps": reasoning_steps
-        }
-    }
+    return {"computed_fields": {"reasoning_steps": reasoning_steps}}

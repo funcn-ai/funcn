@@ -26,9 +26,20 @@ except ImportError:
 
 
 ResearchField = Literal[
-    "computer_science", "physics", "chemistry", "biology", "medicine",
-    "engineering", "mathematics", "economics", "psychology", "sociology",
-    "environmental_science", "materials_science", "neuroscience", "other"
+    "computer_science",
+    "physics",
+    "chemistry",
+    "biology",
+    "medicine",
+    "engineering",
+    "mathematics",
+    "economics",
+    "psychology",
+    "sociology",
+    "environmental_science",
+    "materials_science",
+    "neuroscience",
+    "other",
 ]
 
 PublicationVenue = Literal["journal", "conference", "arxiv", "preprint", "thesis", "any"]
@@ -41,7 +52,9 @@ class ResearchPaperQuery(BaseModel):
     field: ResearchField | None = Field(None, description="Academic field")
     author_requirements: list[str] = Field(default_factory=list, description="Author qualifications (e.g., 'PhD', 'from MIT')")
     publication_venue: PublicationVenue | None = Field("any", description="Type of publication venue")
-    journal_requirements: list[str] = Field(default_factory=list, description="Journal requirements (e.g., 'major US journal', 'impact factor > 5')")
+    journal_requirements: list[str] = Field(
+        default_factory=list, description="Journal requirements (e.g., 'major US journal', 'impact factor > 5')"
+    )
     time_period: str | None = Field(None, description="Publication time period")
     methodology_focus: str | None = Field(None, description="Specific methodology or approach")
     citation_threshold: int | None = Field(None, description="Minimum citation count")
@@ -64,7 +77,7 @@ class AcademicResearchResponse(BaseModel):
     provider="openai",
     model="gpt-4o-mini",
     response_model=AcademicResearchResponse,
-    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else []
+    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else [],
 )
 @prompt_template(
     """
@@ -143,7 +156,7 @@ async def academic_research_agent(
     methodology_focus: str | None = None,
     citation_threshold: int | None = None,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> AcademicResearchResponse:
     """
     Find academic research papers using Exa websets.
@@ -172,48 +185,29 @@ async def academic_research_agent(
 
 # Convenience functions for common research searches
 async def find_papers_by_methodology(
-    field: ResearchField,
-    methodology: str,
-    disagree_with: str | None = None,
-    **kwargs
+    field: ResearchField, methodology: str, disagree_with: str | None = None, **kwargs
 ) -> AcademicResearchResponse:
     """Find papers focused on specific methodologies or contrarian views."""
     topic = f"{methodology} in {field}"
     if disagree_with:
         topic = f"papers that disagree with {disagree_with} methodology"
 
-    return await academic_research_agent(
-        topic=topic,
-        field=field,
-        methodology_focus=methodology,
-        **kwargs
-    )
+    return await academic_research_agent(topic=topic, field=field, methodology_focus=methodology, **kwargs)
 
 
 async def find_papers_by_author_credentials(
-    topic: str,
-    author_degree: str = "PhD",
-    institution_type: str | None = None,
-    **kwargs
+    topic: str, author_degree: str = "PhD", institution_type: str | None = None, **kwargs
 ) -> AcademicResearchResponse:
     """Find papers by authors with specific credentials."""
     author_reqs = [f"author with {author_degree}"]
     if institution_type:
         author_reqs.append(f"from {institution_type}")
 
-    return await academic_research_agent(
-        topic=topic,
-        author_requirements=author_reqs,
-        **kwargs
-    )
+    return await academic_research_agent(topic=topic, author_requirements=author_reqs, **kwargs)
 
 
 async def find_high_impact_papers(
-    topic: str,
-    field: ResearchField,
-    min_citations: int = 100,
-    journal_tier: str = "top tier",
-    **kwargs
+    topic: str, field: ResearchField, min_citations: int = 100, journal_tier: str = "top tier", **kwargs
 ) -> AcademicResearchResponse:
     """Find highly cited papers in top journals."""
     return await academic_research_agent(
@@ -221,21 +215,14 @@ async def find_high_impact_papers(
         field=field,
         journal_requirements=[f"published in {journal_tier} journal"],
         citation_threshold=min_citations,
-        **kwargs
+        **kwargs,
     )
 
 
 async def find_emerging_research(
-    field: ResearchField,
-    year: int = 2024,
-    venue: PublicationVenue = "arxiv",
-    **kwargs
+    field: ResearchField, year: int = 2024, venue: PublicationVenue = "arxiv", **kwargs
 ) -> AcademicResearchResponse:
     """Find recent research in emerging areas."""
     return await academic_research_agent(
-        topic=f"emerging research in {field}",
-        field=field,
-        publication_venue=venue,
-        time_period=f"published in {year}",
-        **kwargs
+        topic=f"emerging research in {field}", field=field, publication_venue=venue, time_period=f"published in {year}", **kwargs
     )

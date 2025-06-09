@@ -2,11 +2,4 @@
 
 from .tool import CodeMatch, CommitMatch, FileMatch, GitRepoSearchArgs, GitRepoSearchResponse, search_git_repo
 
-__all__ = [
-    "GitRepoSearchArgs",
-    "GitRepoSearchResponse",
-    "CodeMatch",
-    "FileMatch",
-    "CommitMatch",
-    "search_git_repo"
-]
+__all__ = ["GitRepoSearchArgs", "GitRepoSearchResponse", "CodeMatch", "FileMatch", "CommitMatch", "search_git_repo"]

@@ -17,5 +17,5 @@ __all__ = [
     "full_text_search",
     "get_table_data",
     "PGSearchResult",
-    "QueryResult"
+    "QueryResult",
 ]

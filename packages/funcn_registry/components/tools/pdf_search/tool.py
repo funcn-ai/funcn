@@ -50,11 +50,7 @@ async def search_pdf_content(args: PDFSearchArgs) -> PDFSearchResponse:
         # Validate file exists
         file_path = Path(args.file_path)
         if not file_path.exists():
-            return PDFSearchResponse(
-                results=[],
-                total_pages=0,
-                error=f"PDF file not found: {args.file_path}"
-            )
+            return PDFSearchResponse(results=[], total_pages=0, error=f"PDF file not found: {args.file_path}")
 
         # Run PDF extraction in thread pool to avoid blocking
         loop = asyncio.get_event_loop()
@@ -63,11 +59,7 @@ async def search_pdf_content(args: PDFSearchArgs) -> PDFSearchResponse:
         return results
 
     except Exception as e:
-        return PDFSearchResponse(
-            results=[],
-            total_pages=0,
-            error=f"Error searching PDF: {str(e)}"
-        )
+        return PDFSearchResponse(results=[], total_pages=0, error=f"Error searching PDF: {str(e)}")
 
 
 def _extract_and_search(file_path: Path, args: PDFSearchArgs) -> PDFSearchResponse:
@@ -115,7 +107,7 @@ def _extract_and_search(file_path: Path, args: PDFSearchArgs) -> PDFSearchRespon
                         # Try different word combinations
                         query_words = len(args.query.split())
                         for i in range(len(words) - query_words + 1):
-                            substring = " ".join(words[i:i + query_words])
+                            substring = " ".join(words[i : i + query_words])
                             score = fuzz.ratio(args.query.lower(), substring.lower())
                             if score > best_score:
                                 best_score = score
@@ -135,26 +127,15 @@ def _extract_and_search(file_path: Path, args: PDFSearchArgs) -> PDFSearchRespon
                         if end < len(chunk):
                             context_text = context_text + "..."
 
-                        results.append(PDFSearchResult(
-                            page_number=page_num,
-                            match_score=match_score,
-                            text=context_text,
-                            excerpt=best_match
-                        ))
+                        results.append(
+                            PDFSearchResult(page_number=page_num, match_score=match_score, text=context_text, excerpt=best_match)
+                        )
 
         # Sort by match score and limit results
         results.sort(key=lambda x: x.match_score, reverse=True)
-        results = results[:args.max_results]
+        results = results[: args.max_results]
 
-        return PDFSearchResponse(
-            results=results,
-            total_pages=total_pages,
-            error=None
-        )
+        return PDFSearchResponse(results=results, total_pages=total_pages, error=None)
 
     except Exception as e:
-        return PDFSearchResponse(
-            results=[],
-            total_pages=0,
-            error=f"Error processing PDF: {str(e)}"
-        )
+        return PDFSearchResponse(results=[], total_pages=0, error=f"Error processing PDF: {str(e)}")

@@ -22,5 +22,5 @@ __all__ = [
     "find_ml_engineers",
     "find_consultants_bankers",
     "CandidateProfile",
-    "RecruitingSearchResponse"
+    "RecruitingSearchResponse",
 ]

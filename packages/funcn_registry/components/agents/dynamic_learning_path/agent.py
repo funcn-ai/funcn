@@ -11,6 +11,7 @@ from typing import Optional
 
 class LearningStyle(str, Enum):
     """Different learning style preferences."""
+
     VISUAL = "visual"
     AUDITORY = "auditory"
     KINESTHETIC = "kinesthetic"
@@ -20,6 +21,7 @@ class LearningStyle(str, Enum):
 
 class SkillLevel(str, Enum):
     """Skill proficiency levels."""
+
     BEGINNER = "beginner"
     NOVICE = "novice"
     INTERMEDIATE = "intermediate"
@@ -29,6 +31,7 @@ class SkillLevel(str, Enum):
 
 class ResourceType(str, Enum):
     """Types of learning resources."""
+
     VIDEO = "video"
     ARTICLE = "article"
     BOOK = "book"
@@ -45,6 +48,7 @@ class ResourceType(str, Enum):
 
 class SkillAssessment(BaseModel):
     """Assessment of current skill levels."""
+
     skill: str = Field(..., description="Name of the skill")
     current_level: SkillLevel = Field(..., description="Current proficiency level")
     confidence: float = Field(..., description="Confidence in assessment (0-1)")
@@ -55,6 +59,7 @@ class SkillAssessment(BaseModel):
 
 class LearningGoal(BaseModel):
     """Specific learning goal with timeline."""
+
     goal: str = Field(..., description="Clear, specific learning goal")
     target_level: SkillLevel = Field(..., description="Target proficiency level")
     timeline: str = Field(..., description="Realistic timeline to achieve goal")
@@ -66,6 +71,7 @@ class LearningGoal(BaseModel):
 
 class LearningResource(BaseModel):
     """Individual learning resource."""
+
     title: str = Field(..., description="Resource title")
     type: ResourceType = Field(..., description="Type of resource")
     url: str | None = Field(None, description="URL if available")
@@ -81,6 +87,7 @@ class LearningResource(BaseModel):
 
 class LearningModule(BaseModel):
     """A module within the learning path."""
+
     module_name: str = Field(..., description="Name of the learning module")
     learning_goals: list[str] = Field(..., description="Goals addressed by this module")
     resources: list[LearningResource] = Field(..., description="Resources for this module")
@@ -93,6 +100,7 @@ class LearningModule(BaseModel):
 
 class LearningPath(BaseModel):
     """Complete personalized learning path."""
+
     path_name: str = Field(..., description="Name of the learning path")
     description: str = Field(..., description="Overview of the learning path")
     target_audience: str = Field(..., description="Who this path is designed for")
@@ -142,10 +150,7 @@ class LearningPath(BaseModel):
     """
 )
 def assess_current_skills(
-    background: str,
-    experience: str,
-    learning_goals: str,
-    self_assessment: str = ""
+    background: str, experience: str, learning_goals: str, self_assessment: str = ""
 ) -> list[SkillAssessment]:
     """Assess learner's current skill levels."""
     pass
@@ -188,7 +193,7 @@ def design_learning_goals(
     desired_outcomes: str,
     available_time: str,
     learning_preferences: str = "",
-    constraints: str = ""
+    constraints: str = "",
 ) -> BaseDynamicConfig:
     """Design specific learning goals based on assessment."""
     return {
@@ -251,7 +256,7 @@ def curate_learning_resources(
     learning_style: str,
     time_constraints: str = "",
     topics: str = "",
-    budget: str = "Mixed"
+    budget: str = "Mixed",
 ) -> BaseDynamicConfig:
     """Curate appropriate learning resources."""
     return {
@@ -312,7 +317,7 @@ def design_learning_path(
     learner_profile: str,
     time_constraints: str = "",
     success_criteria: str = "",
-    career_goals: str = ""
+    career_goals: str = "",
 ) -> BaseDynamicConfig:
     """Design comprehensive learning path."""
     return {
@@ -345,12 +350,7 @@ def design_learning_path(
     Suggest adjustments to optimize their learning journey.
     """
 )
-def generate_adaptive_recommendations(
-    progress: str,
-    challenges: str,
-    learning_path: str,
-    time_spent: str
-) -> str:
+def generate_adaptive_recommendations(progress: str, challenges: str, learning_path: str, time_spent: str) -> str:
     """Generate adaptive recommendations based on progress."""
     pass
 
@@ -365,7 +365,7 @@ async def dynamic_learning_path_generator(
     budget: str = "Mixed",
     career_goals: str = "",
     llm_provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> LearningPath:
     """
     Generate a personalized, adaptive learning path based on individual needs and goals.
@@ -392,10 +392,7 @@ async def dynamic_learning_path_generator(
     # Step 1: Assess current skills
     print("Assessing current skill levels...")
     current_skills = await assess_current_skills(
-        background=background,
-        experience=experience,
-        learning_goals=learning_goals,
-        self_assessment=""
+        background=background, experience=experience, learning_goals=learning_goals, self_assessment=""
     )
     print(f"Assessed {len(current_skills)} skill areas")
 
@@ -406,7 +403,7 @@ async def dynamic_learning_path_generator(
         desired_outcomes=learning_goals,
         available_time=available_time,
         learning_preferences=learning_style.value,
-        constraints=constraints
+        constraints=constraints,
     )
     print(f"Created {len(specific_goals)} specific goals")
 
@@ -428,7 +425,7 @@ async def dynamic_learning_path_generator(
         learning_style=learning_style.value,
         time_constraints=available_time,
         topics=learning_goals,
-        budget=budget
+        budget=budget,
     )
     print(f"Found {len(resources)} learning resources")
 
@@ -447,7 +444,7 @@ async def dynamic_learning_path_generator(
         learner_profile=learner_profile,
         time_constraints=available_time,
         success_criteria=learning_goals,
-        career_goals=career_goals
+        career_goals=career_goals,
     )
 
     print("Dynamic learning path generated!")
@@ -455,11 +452,7 @@ async def dynamic_learning_path_generator(
 
 
 async def dynamic_learning_path_stream(
-    background: str,
-    experience: str,
-    learning_goals: str,
-    available_time: str,
-    **kwargs
+    background: str, experience: str, learning_goals: str, available_time: str, **kwargs
 ) -> AsyncGenerator[str, None]:
     """Stream the learning path generation process."""
 
@@ -469,9 +462,7 @@ async def dynamic_learning_path_stream(
     yield f"**Available Time:** {available_time}\n\n"
 
     # Generate the learning path
-    learning_path = await dynamic_learning_path_generator(
-        background, experience, learning_goals, available_time, **kwargs
-    )
+    learning_path = await dynamic_learning_path_generator(background, experience, learning_goals, available_time, **kwargs)
 
     yield f"## {learning_path.path_name}\n\n"
     yield f"{learning_path.description}\n\n"

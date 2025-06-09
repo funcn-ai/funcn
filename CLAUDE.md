@@ -402,3 +402,8 @@ pytest -n auto
 ```
 
 See `.claude/testing-standards.md` for detailed testing patterns and examples.
+
+## Important Notes
+
+- Do not use emojis
+- Avoid writing  "🤖 Generated with Claude Code" when making commits or PRs

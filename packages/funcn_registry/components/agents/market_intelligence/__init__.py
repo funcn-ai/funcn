@@ -26,5 +26,5 @@ __all__ = [
     "MarketIntelligenceQuery",
     "MarketIntelligenceResponse",
     "MarketSegment",
-    "InvestmentStage"
+    "InvestmentStage",
 ]

@@ -38,6 +38,7 @@ Base: DeclarativeMeta = declarative_base()
 
 class AgentState(Base):
     """SQLAlchemy model for agent state storage."""
+
     __tablename__ = 'agent_state'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
@@ -69,7 +70,17 @@ class SQLAlchemyConfig(BaseModel):
 
     @validator('database_url')
     def validate_url(cls, v):
-        if not any(v.startswith(prefix) for prefix in ['sqlite://', 'postgresql://', 'mysql://', 'sqlite+aiosqlite://', 'postgresql+asyncpg://', 'mysql+aiomysql://']):
+        if not any(
+            v.startswith(prefix)
+            for prefix in [
+                'sqlite://',
+                'postgresql://',
+                'mysql://',
+                'sqlite+aiosqlite://',
+                'postgresql+asyncpg://',
+                'mysql+aiomysql://',
+            ]
+        ):
             raise ValueError("Unsupported database URL format")
         return v
 
@@ -120,12 +131,10 @@ async def get_async_session(config: SQLAlchemyConfig) -> AsyncIterator[AsyncSess
             max_overflow=config.max_overflow,
             pool_timeout=config.pool_timeout,
             pool_recycle=config.pool_recycle,
-            poolclass=NullPool if 'sqlite' in async_url else QueuePool
+            poolclass=NullPool if 'sqlite' in async_url else QueuePool,
         )
         _engine_cache[config.database_url] = engine
-        _async_session_cache[config.database_url] = async_sessionmaker(
-            engine, class_=AsyncSession, expire_on_commit=False
-        )
+        _async_session_cache[config.database_url] = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
     async with _async_session_cache[config.database_url]() as session:
         yield session
@@ -141,7 +150,7 @@ def get_sync_engine(config: SQLAlchemyConfig) -> Engine:
             max_overflow=config.max_overflow,
             pool_timeout=config.pool_timeout,
             pool_recycle=config.pool_recycle,
-            poolclass=NullPool if 'sqlite' in config.database_url else QueuePool
+            poolclass=NullPool if 'sqlite' in config.database_url else QueuePool,
         )
         _engine_cache[f"{config.database_url}_sync"] = engine
 
@@ -163,9 +172,7 @@ async def create_tables(config: SQLAlchemyConfig) -> SQLAlchemyQueryResult:
         if config.use_async:
             # For async, we need to run create_all in sync mode
             engine = get_sync_engine(config)
-            await asyncio.get_event_loop().run_in_executor(
-                None, Base.metadata.create_all, engine
-            )
+            await asyncio.get_event_loop().run_in_executor(None, Base.metadata.create_all, engine)
         else:
             engine = get_sync_engine(config)
             Base.metadata.create_all(engine)
@@ -173,21 +180,13 @@ async def create_tables(config: SQLAlchemyConfig) -> SQLAlchemyQueryResult:
         execution_time = asyncio.get_event_loop().time() - start_time
 
         return SQLAlchemyQueryResult(
-            success=True,
-            operation="create_tables",
-            rows_affected=0,
-            error=None,
-            execution_time=execution_time
+            success=True, operation="create_tables", rows_affected=0, error=None, execution_time=execution_time
         )
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return SQLAlchemyQueryResult(
-            success=False,
-            operation="create_tables",
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
+            success=False, operation="create_tables", rows_affected=0, error=str(e), execution_time=execution_time
         )
 
 
@@ -197,7 +196,7 @@ async def store_agent_state(
     key: str,
     value: Any,
     conversation_id: str | None = None,
-    metadata: dict[str, Any] | None = None
+    metadata: dict[str, Any] | None = None,
 ) -> SQLAlchemyQueryResult:
     """Store or update agent state using SQLAlchemy.
 
@@ -223,11 +222,7 @@ async def store_agent_state(
         async with get_async_session(config) as session:
             # Check if record exists
             stmt = select(AgentState).where(
-                and_(
-                    AgentState.agent_id == agent_id,
-                    AgentState.conversation_id == conversation_id,
-                    AgentState.key == key
-                )
+                and_(AgentState.agent_id == agent_id, AgentState.conversation_id == conversation_id, AgentState.key == key)
             )
             result = await session.execute(stmt)
             existing = result.scalar_one_or_none()
@@ -247,7 +242,7 @@ async def store_agent_state(
                     key=key,
                     value=value_json,
                     data_type=data_type,
-                    metadata=metadata_json
+                    metadata=metadata_json,
                 )
                 session.add(new_state)
                 rows_affected = 1
@@ -261,26 +256,18 @@ async def store_agent_state(
                 operation="store_agent_state",
                 rows_affected=rows_affected,
                 error=None,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return SQLAlchemyQueryResult(
-            success=False,
-            operation="store_agent_state",
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
+            success=False, operation="store_agent_state", rows_affected=0, error=str(e), execution_time=execution_time
         )
 
 
 async def get_agent_state(
-    config: SQLAlchemyConfig,
-    agent_id: str,
-    key: str | None = None,
-    conversation_id: str | None = None,
-    limit: int = 100
+    config: SQLAlchemyConfig, agent_id: str, key: str | None = None, conversation_id: str | None = None, limit: int = 100
 ) -> SQLAlchemyQueryResult:
     """Retrieve agent state using SQLAlchemy.
 
@@ -326,7 +313,7 @@ async def get_agent_state(
                     'data_type': record.data_type,
                     'created_at': record.created_at.isoformat(),
                     'updated_at': record.updated_at.isoformat(),
-                    'metadata': record.metadata
+                    'metadata': record.metadata,
                 }
 
                 # Deserialize JSON values
@@ -348,25 +335,18 @@ async def get_agent_state(
                 results=results,
                 rows_affected=len(results),
                 error=None,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return SQLAlchemyQueryResult(
-            success=False,
-            operation="get_agent_state",
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
+            success=False, operation="get_agent_state", rows_affected=0, error=str(e), execution_time=execution_time
         )
 
 
 async def delete_agent_state(
-    config: SQLAlchemyConfig,
-    agent_id: str,
-    key: str | None = None,
-    conversation_id: str | None = None
+    config: SQLAlchemyConfig, agent_id: str, key: str | None = None, conversation_id: str | None = None
 ) -> SQLAlchemyQueryResult:
     """Delete agent state using SQLAlchemy.
 
@@ -402,17 +382,13 @@ async def delete_agent_state(
                 operation="delete_agent_state",
                 rows_affected=result.rowcount,
                 error=None,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return SQLAlchemyQueryResult(
-            success=False,
-            operation="delete_agent_state",
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
+            success=False, operation="delete_agent_state", rows_affected=0, error=str(e), execution_time=execution_time
         )
 
 
@@ -423,7 +399,7 @@ async def query_agent_history(
     start_date: datetime | None = None,
     end_date: datetime | None = None,
     limit: int = 100,
-    offset: int = 0
+    offset: int = 0,
 ) -> SQLAlchemyQueryResult:
     """Query agent state history with advanced filtering.
 
@@ -472,7 +448,7 @@ async def query_agent_history(
                     'data_type': record.data_type,
                     'created_at': record.created_at.isoformat(),
                     'updated_at': record.updated_at.isoformat(),
-                    'metadata': record.metadata
+                    'metadata': record.metadata,
                 }
 
                 # Deserialize JSON values
@@ -494,17 +470,13 @@ async def query_agent_history(
                 results=results,
                 rows_affected=len(results),
                 error=None,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return SQLAlchemyQueryResult(
-            success=False,
-            operation="query_agent_history",
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
+            success=False, operation="query_agent_history", rows_affected=0, error=str(e), execution_time=execution_time
         )
 
 
@@ -528,30 +500,22 @@ async def get_database_info(config: SQLAlchemyConfig) -> DatabaseInfo:
                     text("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'")
                 )
             elif dialect == 'postgresql':
-                result = await session.execute(
-                    text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'")
-                )
+                result = await session.execute(text("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))
             elif dialect == 'mysql':
-                result = await session.execute(
-                    text("SHOW TABLES")
-                )
+                result = await session.execute(text("SHOW TABLES"))
             else:
                 result = None
 
             tables = [row[0] for row in result] if result else []
 
             # Get agent state count
-            count_result = await session.execute(
-                select(func.count()).select_from(AgentState)
-            )
+            count_result = await session.execute(select(func.count()).select_from(AgentState))
             agent_state_count = count_result.scalar() or 0
 
             # Get database size (dialect-specific)
             database_size = None
             if dialect == 'postgresql':
-                size_result = await session.execute(
-                    text("SELECT pg_database_size(current_database())")
-                )
+                size_result = await session.execute(text("SELECT pg_database_size(current_database())"))
                 size_bytes = size_result.scalar()
                 if size_bytes:
                     database_size = f"{size_bytes / 1024 / 1024:.2f} MB"
@@ -561,17 +525,14 @@ async def get_database_info(config: SQLAlchemyConfig) -> DatabaseInfo:
                 dialect=dialect,
                 tables=tables,
                 agent_state_count=agent_state_count,
-                database_size=database_size
+                database_size=database_size,
             )
 
     except Exception as e:
         raise RuntimeError(f"Failed to get database info: {str(e)}") from e
 
 
-async def cleanup_old_state(
-    config: SQLAlchemyConfig,
-    days_to_keep: int = 30
-) -> SQLAlchemyQueryResult:
+async def cleanup_old_state(config: SQLAlchemyConfig, days_to_keep: int = 30) -> SQLAlchemyQueryResult:
     """Clean up old agent state records.
 
     Args:
@@ -598,17 +559,13 @@ async def cleanup_old_state(
                 operation="cleanup_old_state",
                 rows_affected=result.rowcount,
                 error=None,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
         return SQLAlchemyQueryResult(
-            success=False,
-            operation="cleanup_old_state",
-            rows_affected=0,
-            error=str(e),
-            execution_time=execution_time
+            success=False, operation="cleanup_old_state", rows_affected=0, error=str(e), execution_time=execution_time
         )
 
 

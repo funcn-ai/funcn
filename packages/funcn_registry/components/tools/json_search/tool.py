@@ -66,10 +66,7 @@ async def search_json_content(args: JSONSearchArgs) -> JSONSearchResponse:
             file_path = Path(args.file_path)
             if not file_path.exists():
                 return JSONSearchResponse(
-                    results=[],
-                    total_elements=0,
-                    search_scope="file",
-                    error=f"JSON file not found: {args.file_path}"
+                    results=[], total_elements=0, search_scope="file", error=f"JSON file not found: {args.file_path}"
                 )
 
             with open(file_path, encoding='utf-8') as f:
@@ -84,19 +81,9 @@ async def search_json_content(args: JSONSearchArgs) -> JSONSearchResponse:
         return results
 
     except json.JSONDecodeError as e:
-        return JSONSearchResponse(
-            results=[],
-            total_elements=0,
-            search_scope="error",
-            error=f"Invalid JSON format: {str(e)}"
-        )
+        return JSONSearchResponse(results=[], total_elements=0, search_scope="error", error=f"Invalid JSON format: {str(e)}")
     except Exception as e:
-        return JSONSearchResponse(
-            results=[],
-            total_elements=0,
-            search_scope="error",
-            error=f"Error searching JSON: {str(e)}"
-        )
+        return JSONSearchResponse(results=[], total_elements=0, search_scope="error", error=f"Error searching JSON: {str(e)}")
 
 
 def _search_json(json_data: Any, args: JSONSearchArgs) -> JSONSearchResponse:
@@ -115,10 +102,7 @@ def _search_json(json_data: Any, args: JSONSearchArgs) -> JSONSearchResponse:
                 search_scope = f"JSONPath: {args.json_path}"
             except JSONPathError as e:
                 return JSONSearchResponse(
-                    results=[],
-                    total_elements=0,
-                    search_scope="error",
-                    error=f"Invalid JSONPath expression: {str(e)}"
+                    results=[], total_elements=0, search_scope="error", error=f"Invalid JSONPath expression: {str(e)}"
                 )
         else:
             # Search entire document
@@ -182,32 +166,20 @@ def _search_json(json_data: Any, args: JSONSearchArgs) -> JSONSearchResponse:
                 if '.' in path_str:
                     key = path_str.split('.')[-1].split('[')[0]
 
-                results.append(JSONSearchResult(
-                    path=path_str if args.include_path else "",
-                    value=value,
-                    match_score=match_score,
-                    context=context,
-                    key=key
-                ))
+                results.append(
+                    JSONSearchResult(
+                        path=path_str if args.include_path else "", value=value, match_score=match_score, context=context, key=key
+                    )
+                )
 
         # Sort by match score and limit results
         results.sort(key=lambda x: x.match_score, reverse=True)
-        results = results[:args.max_results]
+        results = results[: args.max_results]
 
-        return JSONSearchResponse(
-            results=results,
-            total_elements=total_elements,
-            search_scope=search_scope,
-            error=None
-        )
+        return JSONSearchResponse(results=results, total_elements=total_elements, search_scope=search_scope, error=None)
 
     except Exception as e:
-        return JSONSearchResponse(
-            results=[],
-            total_elements=0,
-            search_scope="error",
-            error=f"Error during search: {str(e)}"
-        )
+        return JSONSearchResponse(results=[], total_elements=0, search_scope="error", error=f"Error during search: {str(e)}")
 
 
 def _flatten_json(data: Any, parent_path: str = "$") -> list[tuple[str, Any]]:

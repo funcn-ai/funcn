@@ -46,12 +46,7 @@ def validate_connection_string(connection_string: str) -> str:
 
 async def create_pool(connection_string: str, pool_size: int = 10, query_timeout: int = 30) -> Pool:
     """Create a connection pool."""
-    return await asyncpg.create_pool(
-        connection_string,
-        min_size=1,
-        max_size=pool_size,
-        command_timeout=query_timeout
-    )
+    return await asyncpg.create_pool(connection_string, min_size=1, max_size=pool_size, command_timeout=query_timeout)
 
 
 def build_search_query(
@@ -63,7 +58,7 @@ def build_search_query(
     use_full_text_search: bool,
     order_by: str | None,
     limit: int,
-    offset: int
+    offset: int,
 ) -> tuple[str, list[Any]]:
     """Build SQL query based on search parameters."""
     if not table_name:
@@ -146,7 +141,7 @@ async def get_table_schema(conn: asyncpg.Connection, table_name: str) -> dict[st
                 "type": col["data_type"],
                 "nullable": col["is_nullable"] == "YES",
                 "default": col["column_default"],
-                "max_length": col["character_maximum_length"]
+                "max_length": col["character_maximum_length"],
             }
             for col in columns
         ]
@@ -167,7 +162,7 @@ async def execute_postgres_query(
     search_columns: list[str] | None = None,
     query_timeout: int = 30,
     return_schema: bool = False,
-    pool_size: int = 10
+    pool_size: int = 10,
 ) -> PGSearchResult:
     """Execute a PostgreSQL query or search operation.
 
@@ -210,8 +205,15 @@ async def execute_postgres_query(
                     params: list[Any] = []
                 else:
                     sql_query, params = build_search_query(
-                        table_name, columns, search_text, search_columns,
-                        where_conditions, use_full_text_search, order_by, limit, offset
+                        table_name,
+                        columns,
+                        search_text,
+                        search_columns,
+                        where_conditions,
+                        use_full_text_search,
+                        order_by,
+                        limit,
+                        offset,
                     )
 
                 # Execute query
@@ -237,7 +239,7 @@ async def execute_postgres_query(
                     results=results,
                     execution_time=execution_time,
                     metadata=metadata,
-                    error=None
+                    error=None,
                 )
 
         finally:
@@ -245,21 +247,11 @@ async def execute_postgres_query(
 
     except Exception as e:
         execution_time = asyncio.get_event_loop().time() - start_time
-        return PGSearchResult(
-            success=False,
-            query=query or "",
-            total_rows=0,
-            execution_time=execution_time,
-            error=str(e)
-        )
+        return PGSearchResult(success=False, query=query or "", total_rows=0, execution_time=execution_time, error=str(e))
 
 
 # Convenience functions
-async def query_postgres(
-    connection_string: str,
-    query: str,
-    limit: int = 100
-) -> PGSearchResult:
+async def query_postgres(connection_string: str, query: str, limit: int = 100) -> PGSearchResult:
     """Execute a PostgreSQL query.
 
     Args:
@@ -270,19 +262,11 @@ async def query_postgres(
     Returns:
         PGSearchResult with query results
     """
-    return await execute_postgres_query(
-        connection_string=connection_string,
-        query=query,
-        limit=limit
-    )
+    return await execute_postgres_query(connection_string=connection_string, query=query, limit=limit)
 
 
 async def search_table(
-    connection_string: str,
-    table_name: str,
-    search_text: str,
-    search_columns: list[str],
-    limit: int = 50
+    connection_string: str, table_name: str, search_text: str, search_columns: list[str], limit: int = 50
 ) -> PGSearchResult:
     """Search for text in specific table columns.
 
@@ -301,16 +285,12 @@ async def search_table(
         table_name=table_name,
         search_text=search_text,
         search_columns=search_columns,
-        limit=limit
+        limit=limit,
     )
 
 
 async def full_text_search(
-    connection_string: str,
-    table_name: str,
-    search_text: str,
-    search_columns: list[str],
-    limit: int = 50
+    connection_string: str, table_name: str, search_text: str, search_columns: list[str], limit: int = 50
 ) -> PGSearchResult:
     """Perform PostgreSQL full-text search.
 
@@ -330,7 +310,7 @@ async def full_text_search(
         search_text=search_text,
         search_columns=search_columns,
         use_full_text_search=True,
-        limit=limit
+        limit=limit,
     )
 
 
@@ -340,7 +320,7 @@ async def get_table_data(
     where_conditions: dict[str, Any] | None = None,
     columns: list[str] | None = None,
     order_by: str | None = None,
-    limit: int = 100
+    limit: int = 100,
 ) -> PGSearchResult:
     """Get data from a PostgreSQL table with filtering.
 
@@ -362,5 +342,5 @@ async def get_table_data(
         columns=columns,
         order_by=order_by,
         limit=limit,
-        return_schema=True
+        return_schema=True,
     )

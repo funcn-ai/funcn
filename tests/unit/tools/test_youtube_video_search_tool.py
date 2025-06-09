@@ -55,7 +55,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build") as mock_build:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build"
+        ) as mock_build:
             mock_youtube = Mock()
             mock_build.return_value = mock_youtube
             mock_search = Mock()
@@ -75,7 +77,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
         """Test search that returns no results."""
         mock_search_results = {"items": []}
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build") as mock_build:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build"
+        ) as mock_build:
             mock_youtube = Mock()
             mock_build.return_value = mock_youtube
             mock_search = Mock()
@@ -94,14 +98,16 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
             {"text": "Functions are reusable blocks of code.", "start": 7.5, "duration": 3.8},
         ]
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript") as mock_get_transcript:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript"
+        ) as mock_get_transcript:
             mock_get_transcript.return_value = mock_transcript
 
             result = get_video_transcript("abc123")
 
             assert result["video_id"] == "abc123"
             assert result["transcript"] == (
-                "Welcome to this Python tutorial. " "Today we'll learn about functions. " "Functions are reusable blocks of code."
+                "Welcome to this Python tutorial. Today we'll learn about functions. Functions are reusable blocks of code."
             )
             assert result["segments"] == mock_transcript
             assert result["duration"] > 0
@@ -113,7 +119,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
             {"text": "Aujourd'hui, nous apprendrons les fonctions.", "start": 3.5, "duration": 4.0},
         ]
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript") as mock_get_transcript:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript"
+        ) as mock_get_transcript:
             mock_get_transcript.return_value = mock_transcript
 
             result = get_video_transcript("abc123", languages=["fr"])
@@ -123,7 +131,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
 
     def test_get_transcript_not_available(self):
         """Test handling when transcript is not available."""
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript") as mock_get_transcript:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript"
+        ) as mock_get_transcript:
             mock_get_transcript.side_effect = Exception("No transcript available")
 
             with pytest.raises(Exception) as exc_info:
@@ -133,7 +143,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
 
     def test_search_with_api_error(self):
         """Test handling of YouTube API errors."""
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build") as mock_build:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build"
+        ) as mock_build:
             mock_build.side_effect = Exception("API quota exceeded")
 
             with pytest.raises(Exception) as exc_info:
@@ -143,12 +155,14 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
 
     def test_search_with_invalid_max_results(self):
         """Test search with invalid max_results parameter."""
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build") as mock_build:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build"
+        ) as mock_build:
             mock_youtube = Mock()
             mock_build.return_value = mock_youtube
             mock_search = Mock()
             mock_youtube.search.return_value = mock_search
-            
+
             # YouTube API has a max limit of 50 results per request
             mock_search.list.side_effect = Exception("Invalid max_results value")
 
@@ -173,7 +187,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build") as mock_build:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build"
+        ) as mock_build:
             mock_youtube = Mock()
             mock_build.return_value = mock_youtube
             mock_search = Mock()
@@ -192,7 +208,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
             {"text": "Part 3", "start": 25.8, "duration": 8.7},
         ]
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript") as mock_get_transcript:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript"
+        ) as mock_get_transcript:
             mock_get_transcript.return_value = mock_transcript
 
             result = get_video_transcript("test123")
@@ -205,7 +223,9 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
         """Test handling of empty transcript."""
         mock_transcript = []
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript") as mock_get_transcript:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.YouTubeTranscriptApi.get_transcript"
+        ) as mock_get_transcript:
             mock_get_transcript.return_value = mock_transcript
 
             result = get_video_transcript("empty123")
@@ -227,14 +247,16 @@ class TestYoutubeVideoSearchTool(BaseToolTest):
                         "publishedAt": "2024-02-01T12:00:00Z",
                         "thumbnails": {
                             "default": {"url": "https://example.com/thumb.jpg"},
-                            "high": {"url": "https://example.com/thumb_hq.jpg"}
+                            "high": {"url": "https://example.com/thumb_hq.jpg"},
                         },
                     },
                 }
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build") as mock_build:
+        with patch(
+            "packages.funcn_registry.components.tools.youtube_video_search_tool.tool.googleapiclient.discovery.build"
+        ) as mock_build:
             mock_youtube = Mock()
             mock_build.return_value = mock_youtube
             mock_search = Mock()

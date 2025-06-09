@@ -14,9 +14,7 @@ CONFIG_ENV_VAR = "FUNCN_CONFIG_FILE"
 GLOBAL_CONFIG_DIR = Path.home() / ".config" / "funcn"
 GLOBAL_CONFIG_PATH = GLOBAL_CONFIG_DIR / "config.json"
 PROJECT_CONFIG_FILENAME = ".funcnrc.json"
-DEFAULT_REGISTRY_URL = (
-    "https://raw.githubusercontent.com/greyhaven-ai/funcn_registry/main/index.json"
-)
+DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/greyhaven-ai/funcn_registry/main/index.json"
 
 
 class ComponentPaths(BaseModel):
