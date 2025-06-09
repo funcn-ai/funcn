@@ -1,9 +1,17 @@
-# Funcn Development Context
+# CLAUDE.md
 
-## Project Overview
-This is a Funcn AI framework project that provides reusable components for LLM-powered applications.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Technical Stack
+**IMPORTANT**: When creating git commits, DO NOT include "Generated with Claude Code" or "Co-Authored-By: Claude" attributions. Keep commit messages clean and professional without AI attribution.
+
+## Funcn Development Context
+
+### Project Overview
+
+Funcn is a production-ready component library for Mirascope-powered AI applications. It follows a "copy-and-paste" philosophy similar to shadcn/ui - components are not traditional dependencies but code you copy into your project and customize.
+
+#### Technical Stack
+
 - **Language**: Python 3.12+
 - **LLM Framework**: Mirascope
 - **Data Validation**: Pydantic
@@ -13,6 +21,7 @@ This is a Funcn AI framework project that provides reusable components for LLM-p
 ## Development Principles
 
 ### Mirascope Best Practices
+
 1. **Prompt Templates**: Always use `@prompt_template` decorators
 2. **Response Models**: Define Pydantic models for structured LLM outputs
 3. **Async Patterns**: Use `async def` for all LLM calls and tools
@@ -20,12 +29,14 @@ This is a Funcn AI framework project that provides reusable components for LLM-p
 5. **Error Handling**: Implement comprehensive validation and error recovery
 
 ### Component Architecture
+
 - Each component has a `component.json` manifest
 - Components can depend on other registry components
 - Include comprehensive documentation and examples
 - Follow semantic versioning
 
 ### Code Quality Standards
+
 - Type hints for all function parameters and returns
 - Google-style docstrings
 - Comprehensive unit tests
@@ -112,6 +123,7 @@ This is a Funcn AI framework project that provides reusable components for LLM-p
 ## Common Patterns
 
 ### Basic Agent Structure
+
 ```python
 from mirascope.core import BaseModel, prompt_template
 from mirascope.integrations.openai import OpenAICall
@@ -126,6 +138,7 @@ def my_agent(question: str): ...
 ```
 
 ### Tool Implementation
+
 ```python
 from mirascope.core import tool
 
