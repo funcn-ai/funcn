@@ -53,7 +53,7 @@ class RecruitingSearchResponse(BaseModel):
     provider="openai",
     model="gpt-4o-mini",
     response_model=RecruitingSearchResponse,
-    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else []
+    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else [],
 )
 @prompt_template(
     """
@@ -108,7 +108,7 @@ async def recruiting_assistant_agent(
     industry_experience: str | None = None,
     additional_qualifications: list[str] | None = None,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> RecruitingSearchResponse:
     """
     Find qualified candidates using Exa websets.
@@ -137,62 +137,44 @@ async def recruiting_assistant_agent(
 
 # Convenience functions for common recruiting searches
 async def find_engineers_with_opensource(
-    skills: list[str],
-    startup_experience: bool = True,
-    **kwargs
+    skills: list[str], startup_experience: bool = True, **kwargs
 ) -> RecruitingSearchResponse:
     """Find engineers with open source contributions."""
     experience = ["startup experience"] if startup_experience else []
     experience.append("contributed to open source projects")
 
-    return await recruiting_assistant_agent(
-        role="Engineer",
-        skills=skills,
-        experience=experience,
-        **kwargs
-    )
+    return await recruiting_assistant_agent(role="Engineer", skills=skills, experience=experience, **kwargs)
 
 
-async def find_sales_professionals(
-    industry: str,
-    location: str,
-    role: str = "SDR",
-    **kwargs
-) -> RecruitingSearchResponse:
+async def find_sales_professionals(industry: str, location: str, role: str = "SDR", **kwargs) -> RecruitingSearchResponse:
     """Find sales professionals with specific industry experience."""
     return await recruiting_assistant_agent(
         role=role,
         industry_experience=f"selling {industry} products",
         location=location,
         experience=[f"experience in {industry} sales"],
-        **kwargs
+        **kwargs,
     )
 
 
 async def find_ml_engineers(
-    education_level: str = "PhD",
-    university_ranking: str = "top 20 US university",
-    **kwargs
+    education_level: str = "PhD", university_ranking: str = "top 20 US university", **kwargs
 ) -> RecruitingSearchResponse:
     """Find ML engineers or researchers with strong academic backgrounds."""
     return await recruiting_assistant_agent(
         role="ML Software Engineer or Computer Science PhD student",
         education=f"{education_level} from {university_ranking}",
         skills=["machine learning", "deep learning", "neural networks"],
-        **kwargs
+        **kwargs,
     )
 
 
-async def find_consultants_bankers(
-    min_years: int = 2,
-    education: str = "Ivy League",
-    **kwargs
-) -> RecruitingSearchResponse:
+async def find_consultants_bankers(min_years: int = 2, education: str = "Ivy League", **kwargs) -> RecruitingSearchResponse:
     """Find investment bankers or consultants with elite education."""
     return await recruiting_assistant_agent(
         role="Investment Banker or Consultant",
         education=f"attended {education}",
         experience=[f"at their role for over {min_years} years"],
         skills=["financial modeling", "strategic analysis", "client management"],
-        **kwargs
+        **kwargs,
     )

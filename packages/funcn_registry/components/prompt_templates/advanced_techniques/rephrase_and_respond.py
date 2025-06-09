@@ -12,6 +12,7 @@ from pydantic import BaseModel, Field
 
 # Rephrase and answer
 
+
 class RephrasedResponse(BaseModel):
     """Model for rephrased response."""
 
@@ -62,10 +63,7 @@ async def rephrase_question(question: str):
     Provide a comprehensive answer.
     """
 )
-async def answer_rephrased(
-    original_question: str,
-    rephrased_versions: list[str]
-):
+async def answer_rephrased(original_question: str, rephrased_versions: list[str]):
     """Answer using the best rephrased version."""
     pass
 
@@ -87,10 +85,7 @@ async def rephrase_and_answer(question: str) -> RephrasedResponse:
     """
     # Generate rephrasings
     rephrase_response = await rephrase_question(question)
-    rephrased_versions = [
-        r.strip() for r in rephrase_response.content.split('\n')
-        if r.strip()
-    ][:3]
+    rephrased_versions = [r.strip() for r in rephrase_response.content.split('\n') if r.strip()][:3]
 
     # Answer using rephrasings
     response = await answer_rephrased(question, rephrased_versions)
@@ -99,6 +94,7 @@ async def rephrase_and_answer(question: str) -> RephrasedResponse:
 
 
 # Clarity-focused rephrasing
+
 
 class ClarityAnalysis(BaseModel):
     """Model for clarity analysis."""
@@ -154,6 +150,7 @@ def rephrase_for_clarity(text: str):
 
 # Multi-perspective rephrasing
 
+
 class MultiPerspectiveRephrase(BaseModel):
     """Model for multi-perspective rephrasing."""
 
@@ -182,10 +179,7 @@ class MultiPerspectiveRephrase(BaseModel):
     Then create a comprehensive version that incorporates insights from all perspectives.
     """
 )
-def rephrase_multi_perspective(
-    text: str,
-    perspectives: list[str] = None
-):
+def rephrase_multi_perspective(text: str, perspectives: list[str] = None):
     """
     Rephrase from multiple perspectives.
 
@@ -207,6 +201,7 @@ def rephrase_multi_perspective(
 
 
 # Context-aware rephrasing
+
 
 class ContextualRephrase(BaseModel):
     """Model for contextual rephrasing."""
@@ -237,11 +232,7 @@ class ContextualRephrase(BaseModel):
     List what contextual elements you added.
     """
 )
-def rephrase_with_context(
-    text: str,
-    context: str,
-    purpose: str = "general communication"
-):
+def rephrase_with_context(text: str, context: str, purpose: str = "general communication"):
     """
     Context-aware rephrasing.
 
@@ -262,6 +253,7 @@ def rephrase_with_context(
 
 
 # Advanced iterative rephrasing
+
 
 class IterativeRephrase(BaseModel):
     """Model for iterative rephrasing."""
@@ -290,20 +282,13 @@ class IterativeRephrase(BaseModel):
     """
 )
 async def iterative_improvement(
-    current_version: str,
-    iteration: int,
-    improvement_focus: list[str],
-    feedback: str = "Initial version"
+    current_version: str, iteration: int, improvement_focus: list[str], feedback: str = "Initial version"
 ) -> BaseDynamicConfig:
     """Single iteration of improvement."""
     return {}
 
 
-async def iterative_rephrase(
-    text: str,
-    max_iterations: int = 3,
-    quality_threshold: float = 0.9
-) -> IterativeRephrase:
+async def iterative_rephrase(text: str, max_iterations: int = 3, quality_threshold: float = 0.9) -> IterativeRephrase:
     """
     Iteratively improve rephrasing.
 
@@ -323,11 +308,7 @@ async def iterative_rephrase(
     iterations: list[dict] = []
     current_version = text
     quality_progression = []
-    improvement_focuses = [
-        ["clarity", "conciseness"],
-        ["precision", "flow"],
-        ["impact", "memorability"]
-    ]
+    improvement_focuses = [["clarity", "conciseness"], ["precision", "flow"], ["impact", "memorability"]]
 
     for i in range(max_iterations):
         # Improve version
@@ -335,7 +316,7 @@ async def iterative_rephrase(
             current_version=current_version,
             iteration=i + 1,
             improvement_focus=improvement_focuses[i % len(improvement_focuses)],
-            feedback=iterations[-1]["feedback"] if iterations else "Initial version"
+            feedback=iterations[-1]["feedback"] if iterations else "Initial version",
         )
 
         # Simulate quality scoring
@@ -343,13 +324,15 @@ async def iterative_rephrase(
         quality = min(quality, 1.0)
         quality_progression.append(quality)
 
-        iterations.append({
-            "iteration": i + 1,
-            "version": improvement.content,
-            "improvements": improvement_focuses[i % len(improvement_focuses)],
-            "quality": quality,
-            "feedback": "Improved clarity and flow"  # Simplified
-        })
+        iterations.append(
+            {
+                "iteration": i + 1,
+                "version": improvement.content,
+                "improvements": improvement_focuses[i % len(improvement_focuses)],
+                "quality": quality,
+                "feedback": "Improved clarity and flow",  # Simplified
+            }
+        )
 
         current_version = improvement.content
 
@@ -361,5 +344,5 @@ async def iterative_rephrase(
         iterations=iterations,
         final_version=current_version,
         total_improvements=len(iterations),
-        quality_progression=quality_progression
+        quality_progression=quality_progression,
     )

@@ -63,9 +63,7 @@ def run_mcp_agent(
             f"[bold red]Error: MCP server entrypoint 'mcp_server.py' not found for agent '{agent_name}' "
             f"at {mcp_server_file}.[/bold red]"
         )
-        console.print(
-            f"Ensure the agent '{agent_name}' is correctly structured and includes an 'mcp_server.py' file."
-        )
+        console.print(f"Ensure the agent '{agent_name}' is correctly structured and includes an 'mcp_server.py' file.")
         raise typer.Exit(code=1)
 
     console.print(f"[cyan]Attempting to run agent '{agent_name}' using MCP ({mode.lower()} mode)...[/cyan]")
@@ -75,14 +73,7 @@ def run_mcp_agent(
 
     server_params = StdioServerParameters(
         command="uv",
-        args=[
-            "run",
-            "python",
-            str(mcp_server_file),
-            "--mode", mode.lower(),
-            "--host", final_host,
-            "--port", str(final_port)
-        ],
+        args=["run", "python", str(mcp_server_file), "--mode", mode.lower(), "--host", final_host, "--port", str(final_port)],
         env=None,
     )
 
@@ -91,11 +82,11 @@ def run_mcp_agent(
             client_context = None
             if mode.lower() in ("http", "sse"):
                 # Allow some time for the server to start
-                await asyncio.sleep(2) # TODO: Make this more robust, e.g., with retries or health check
+                await asyncio.sleep(2)  # TODO: Make this more robust, e.g., with retries or health check
                 url = f"http://{final_host}:{final_port}"
                 console.print(f"[cyan]Connecting to SSE client at: {url}[/cyan]")
                 client_context = sse_client(url)
-            else: # stdio mode
+            else:  # stdio mode
                 client_context = stdio_client(server_params)
 
             async with client_context as client:
@@ -126,7 +117,9 @@ def run_mcp_agent(
 
                 except Exception as e:
                     console.print(f"[bold red]Error interacting with MCP server: {e}[/bold red]")
-                    console.print("This might happen if the agent doesn't expose prompts/tools as expected, or an issue within the agent itself.")
+                    console.print(
+                        "This might happen if the agent doesn't expose prompts/tools as expected, or an issue within the agent itself."
+                    )
 
         except ConnectionRefusedError:
             console.print(f"[bold red]Error: Connection refused by MCP server for agent '{agent_name}'.[/bold red]")
@@ -153,6 +146,7 @@ if __name__ == "__main__":
             "stream": False,
         }
         import json
+
         with open(dummy_config_path, "w") as f:
             json.dump(dummy_config_content, f, indent=2)
         print(f"Created dummy {dummy_config_path} for testing.")
@@ -180,7 +174,9 @@ if __name__ == "__main__":
         try:
             run_mcp_agent(agent_name=test_agent_name, mode="stdio")
         except SystemExit as e:
-            console.print(f"[yellow]Script exited with code {e.code}. This is expected if errors are caught by Typer.Exit.[/yellow]")
+            console.print(
+                f"[yellow]Script exited with code {e.code}. This is expected if errors are caught by Typer.Exit.[/yellow]"
+            )
         except Exception as e:
             console.print(f"[bold red]Test run failed: {e}[/bold red]")
     else:

@@ -26,7 +26,9 @@ except ImportError:
 
 
 SourcingCategory = Literal["manufacturer", "supplier", "software", "service", "tool", "platform", "solution"]
-Industry = Literal["chemical", "textile", "electronics", "automotive", "pharmaceutical", "food", "technology", "logistics", "other"]
+Industry = Literal[
+    "chemical", "textile", "electronics", "automotive", "pharmaceutical", "food", "technology", "logistics", "other"
+]
 
 
 class SourcingRequirements(BaseModel):
@@ -59,7 +61,7 @@ class SourcingSearchResponse(BaseModel):
     provider="openai",
     model="gpt-4o-mini",
     response_model=SourcingSearchResponse,
-    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else []
+    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else [],
 )
 @prompt_template(
     """
@@ -132,7 +134,7 @@ async def sourcing_assistant_agent(
     certifications: list[str] | None = None,
     budget_range: str | None = None,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> SourcingSearchResponse:
     """
     Find suppliers and solutions using Exa websets.
@@ -160,10 +162,7 @@ async def sourcing_assistant_agent(
 
 # Convenience functions for common sourcing searches
 async def find_sustainable_manufacturers(
-    product_type: str,
-    location: str,
-    certifications: list[str] | None = None,
-    **kwargs
+    product_type: str, location: str, certifications: list[str] | None = None, **kwargs
 ) -> SourcingSearchResponse:
     """Find manufacturers with sustainability focus."""
     certs = certifications or []
@@ -175,16 +174,11 @@ async def find_sustainable_manufacturers(
         location_preference=location,
         sustainability_required=True,
         certifications=certs,
-        **kwargs
+        **kwargs,
     )
 
 
-async def find_low_moq_suppliers(
-    product_type: str,
-    max_moq: str,
-    regions: list[str],
-    **kwargs
-) -> SourcingSearchResponse:
+async def find_low_moq_suppliers(product_type: str, max_moq: str, regions: list[str], **kwargs) -> SourcingSearchResponse:
     """Find suppliers with low minimum order quantities."""
     location = " or ".join(regions)
 
@@ -194,15 +188,12 @@ async def find_low_moq_suppliers(
         location_preference=location,
         moq_requirements=f"Maximum MOQ: {max_moq}",
         specifications=["Low minimum order quantity", "Flexible ordering"],
-        **kwargs
+        **kwargs,
     )
 
 
 async def find_software_solutions(
-    solution_type: str,
-    features: list[str],
-    industry: str | None = None,
-    **kwargs
+    solution_type: str, features: list[str], industry: str | None = None, **kwargs
 ) -> SourcingSearchResponse:
     """Find software solutions with specific features."""
     specs = features.copy()
@@ -210,26 +201,15 @@ async def find_software_solutions(
         specs.append(f"Industry focus: {industry}")
 
     return await sourcing_assistant_agent(
-        product_type=f"{solution_type} software",
-        category="software",
-        specifications=specs,
-        **kwargs
+        product_type=f"{solution_type} software", category="software", specifications=specs, **kwargs
     )
 
 
-async def find_ai_productivity_tools(
-    use_case: str,
-    **kwargs
-) -> SourcingSearchResponse:
+async def find_ai_productivity_tools(use_case: str, **kwargs) -> SourcingSearchResponse:
     """Find AI tools for productivity enhancement."""
     return await sourcing_assistant_agent(
         product_type="AI productivity tools",
         category="tool",
-        specifications=[
-            f"Use case: {use_case}",
-            "Agentic AI capabilities",
-            "Automation features",
-            "Integration capabilities"
-        ],
-        **kwargs
+        specifications=[f"Use case: {use_case}", "Agentic AI capabilities", "Automation features", "Integration capabilities"],
+        **kwargs,
     )

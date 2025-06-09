@@ -6,7 +6,7 @@ This document outlines the standard workflow for making code changes in the Func
 
 **NEVER make changes directly on the main branch.** Always follow this workflow:
 
-1. Create a Linear issue
+1. Create a Linear project (for complex features) or standalone issue
 2. Create and checkout the topic branch
 3. Make changes in the feature branch
 4. Create a pull request
@@ -14,59 +14,69 @@ This document outlines the standard workflow for making code changes in the Func
 
 ## Step-by-Step Workflow
 
-### 1. Create Linear Issue with Sub-Issues
+### 1. Create Linear Project and Issues
 
-Before starting any work, create an issue in Linear and break it down into sub-issues for complex tasks:
+Before starting any work, create a project in Linear (or use an existing one) and organize your work with focused issues:
 
 ```python
-# Create main issue
-main_issue = mcp_linear.create_issue(
-    title="Add new PDF parsing tool component",
-    description="Implement a tool that can parse PDFs and extract text content",
-    teamId="TEAM_ID"  # Optional, defaults to your team
-)
+# Check for existing project or create new one
+projects = mcp_linear.list_projects(teamId="TEAM_ID", includeArchived=False)
+project = next((p for p in projects if "PDF" in p.name and not p.completedAt), None)
 
-# Break down into sub-issues for better organization
-sub_issues = [
+if not project:
+    project = mcp_linear.create_project(
+        name="PDF Parsing Tool Implementation",
+        description="Implement tools for PDF parsing and text extraction",
+        teamId="TEAM_ID"
+    )
+
+# Create focused issues within the project
+issues = [
     mcp_linear.create_issue(
         title="Create PDF parser tool structure",
         description="Set up component.json, tool.py, and basic structure",
-        parentId=main_issue.id
+        projectId=project.id,
+        teamId="TEAM_ID"
     ),
     mcp_linear.create_issue(
         title="Implement PDF text extraction",
         description="Add core functionality to extract text from PDFs",
-        parentId=main_issue.id
+        projectId=project.id,
+        teamId="TEAM_ID"
     ),
     mcp_linear.create_issue(
         title="Add error handling and validation",
         description="Handle corrupted PDFs, encrypted files, etc.",
-        parentId=main_issue.id
+        projectId=project.id,
+        teamId="TEAM_ID"
     ),
     mcp_linear.create_issue(
         title="Write tests for PDF parser",
         description="Add unit tests and test fixtures",
-        parentId=main_issue.id
+        projectId=project.id,
+        teamId="TEAM_ID"
     ),
     mcp_linear.create_issue(
         title="Update documentation",
         description="Add funcn.md and update component registry",
-        parentId=main_issue.id
+        projectId=project.id,
+        teamId="TEAM_ID"
     )
 ]
 
-# Get the git branch name for the main issue
-branch_name = mcp_linear.get_issue_git_branch_name(issueId=main_issue.id)
-# Returns: jayscambler/issue-123
+# Get git branch names for each issue
+branch_names = [mcp_linear.get_issue_git_branch_name(issueId=issue.id) for issue in issues]
+# Returns: ['jayscambler/issue-123', 'jayscambler/issue-124', ...]
 ```
 
-#### Why Use Sub-Issues?
+#### Why Use Projects with Multiple Issues?
 
-1. **Smaller, Focused Commits**: Each sub-issue represents a logical commit
-2. **Progress Tracking**: See completion percentage on main issue
-3. **Parallel Work**: Multiple developers can work on different sub-issues
-4. **Code Review**: Easier to review smaller, focused changes
+1. **Organized Work**: Projects group related issues together
+2. **Progress Tracking**: See overall progress in project view
+3. **Parallel Work**: Multiple developers can work on different issues
+4. **Code Review**: Each issue gets its own PR for focused review
 5. **Rollback Safety**: Can revert specific features without affecting others
+6. **Flexible Organization**: Issues can be added to projects as work evolves
 
 #### Available Linear MCP Commands
 
@@ -118,38 +128,49 @@ git push -u origin jayscambler/issue-123
 
 ### 3. Make Changes with Sub-Issue Commits
 
-Work through sub-issues systematically, making focused commits:
+Work through issues systematically, creating separate branches for each:
 
 ```bash
-# Work on first sub-issue
-# Update sub-issue status
-mcp_linear.update_issue(issueId=sub_issues[0].id, stateId="in_progress")
+# Work on first issue
+issue = issues[0]  # "Create PDF parser tool structure"
 
-# Make changes for "Create PDF parser tool structure"
+# Create and switch to issue branch
+branch_name = mcp_linear.get_issue_git_branch_name(issueId=issue.id)
+git checkout -b {branch_name}
+
+# Update issue status
+mcp_linear.update_issue(issueId=issue.id, stateId="in_progress")
+
+# Make changes for this issue
 # ... edit files ...
 
-# Commit with sub-issue reference
+# Commit with issue reference
 git add .
-git commit -m "feat: Create PDF parser tool structure #SUB-123
+git commit -m "feat: Create PDF parser tool structure #ISSUE-123
 
 - Set up component.json with metadata
 - Create tool.py with basic structure
 - Add __init__.py for exports"
 
-# Update sub-issue to completed
-mcp_linear.update_issue(issueId=sub_issues[0].id, stateId="completed")
+# Push and create PR
+git push -u origin {branch_name}
+gh pr create --title "ISSUE-123: Create PDF parser tool structure" \
+  --body "Implements basic structure for PDF parser tool"
 
-# Continue with next sub-issue
-mcp_linear.update_issue(issueId=sub_issues[1].id, stateId="in_progress")
-# ... make changes ...
-git commit -m "feat: Implement PDF text extraction #SUB-124"
+# Update issue to review status
+mcp_linear.update_issue(issueId=issue.id, stateId="in_review")
+
+# After PR is merged, move to next issue
+git checkout main
+git pull
+# Repeat process for next issue
 ```
 
-#### Best Practices for Sub-Issue Commits
+#### Best Practices for Issue-Based Development
 
-1. **One Sub-Issue = One Commit** (when possible)
-2. **Reference Sub-Issue ID** in commit message
-3. **Update Status** as you progress
+1. **One Issue = One Branch/PR** for clean separation
+2. **Reference Issue ID** in commit messages and PR titles
+3. **Update Status** as you progress through the workflow
 4. **Test After Each Sub-Issue** before moving to next
 5. **Push Regularly** to save progress
 
@@ -272,17 +293,22 @@ When working with Claude Code:
 3. Use worktrees when comparing implementations
 4. Ask Claude to create PR when changes are complete
 
-### Example Claude Code Workflow with Sub-Issues
+### Example Claude Code Workflow with Projects
 
 ```python
-# 1. Create main Linear issue
-main_issue = mcp_linear.create_issue(
-    title="Add PDF parsing tool component",
-    description="Create a new tool component for parsing PDF files"
-)
+# 1. Check for existing project or create new one
+projects = mcp_linear.list_projects(teamId="TEAM_ID", includeArchived=False)
+project = next((p for p in projects if "PDF" in p.name and not p.completedAt), None)
 
-# 2. Create sub-issues for organization (like TODOs)
-sub_tasks = [
+if not project:
+    project = mcp_linear.create_project(
+        name="PDF Parsing Tool",
+        description="Create a new tool component for parsing PDF files",
+        teamId="TEAM_ID"
+    )
+
+# 2. Create focused issues within the project
+tasks = [
     {"title": "Set up component structure", "desc": "Create component.json and basic files"},
     {"title": "Implement PDF parsing", "desc": "Core PDF text extraction logic"},
     {"title": "Add error handling", "desc": "Handle edge cases and invalid PDFs"},
@@ -290,49 +316,54 @@ sub_tasks = [
     {"title": "Documentation", "desc": "Create funcn.md and examples"}
 ]
 
-sub_issues = []
-for task in sub_tasks:
-    sub = mcp_linear.create_issue(
+issues = []
+for task in tasks:
+    issue = mcp_linear.create_issue(
         title=task["title"],
         description=task["desc"],
-        parentId=main_issue.id
+        projectId=project.id,
+        teamId="TEAM_ID"
     )
-    sub_issues.append(sub)
+    issues.append(issue)
 
-# 3. Get branch name and checkout
-branch_name = mcp_linear.get_issue_git_branch_name(issueId=main_issue.id)
-# git checkout -b jayscambler/fun-123
-
-# 4. Work through sub-issues systematically
-for i, sub_issue in enumerate(sub_issues):
-    # Update status
-    mcp_linear.update_issue(issueId=sub_issue.id, stateId="in_progress")
+# 3. Work through issues with separate branches
+for i, issue in enumerate(issues):
+    # Get branch name and checkout
+    branch_name = mcp_linear.get_issue_git_branch_name(issueId=issue.id)
+    # git checkout -b jayscambler/fun-123
     
-    # Make focused changes for this sub-issue
+    # Update status
+    mcp_linear.update_issue(issueId=issue.id, stateId="in_progress")
+    
+    # Make focused changes for this issue
     # ... implement specific feature ...
     
-    # Commit with sub-issue reference
-    # git commit -m "feat: {sub_issue.title} #{sub_issue.identifier}"
+    # Commit with issue reference
+    # git commit -m "feat: {issue.title} #{issue.identifier}"
     
-    # Mark complete
-    mcp_linear.update_issue(issueId=sub_issue.id, stateId="completed")
+    # Create PR for this issue
+    # gh pr create --title "{issue.identifier}: {issue.title}"
     
-    # Add progress comment on main issue
-    mcp_linear.create_comment(
-        issueId=main_issue.id,
-        body=f"Completed: {sub_issue.title} ({i+1}/{len(sub_issues)})"
+    # After merge, mark complete
+    mcp_linear.update_issue(issueId=issue.id, stateId="completed")
+    
+    # Add progress comment on project
+    mcp_linear.update_project(
+        id=project.id,
+        description=project.description + f"\n- ✅ Completed: {issue.title}"
     )
 ```
 
-#### Parallel TODOs and Linear Sub-Issues
+#### Parallel TODOs and Linear Issues
 
 Use both systems together:
-- **Linear Sub-Issues**: For commits and external tracking
+
+- **Linear Issues**: For PRs and external tracking
 - **Claude TODOs**: For fine-grained task management during coding
 
 ```python
-# Linear sub-issue: "Implement PDF parsing"
-# Claude TODOs for this sub-issue:
+# Linear issue: "Implement PDF parsing"
+# Claude TODOs for this issue:
 todos = [
     "Research PDF parsing libraries",
     "Install and configure PyPDF2",

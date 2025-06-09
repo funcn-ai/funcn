@@ -25,7 +25,9 @@ except ImportError:
     WebsetCriteria = None
 
 
-MarketSegment = Literal["fintech", "agrotech", "biotech", "cleantech", "edtech", "healthtech", "proptech", "insurtech", "regtech", "other"]
+MarketSegment = Literal[
+    "fintech", "agrotech", "biotech", "cleantech", "edtech", "healthtech", "proptech", "insurtech", "regtech", "other"
+]
 InvestmentStage = Literal["pre-seed", "seed", "series-a", "series-b", "series-c", "later-stage", "ipo", "acquisition"]
 
 
@@ -58,7 +60,7 @@ class MarketIntelligenceResponse(BaseModel):
     provider="openai",
     model="gpt-4o-mini",
     response_model=MarketIntelligenceResponse,
-    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else []
+    tools=[create_webset, get_webset_status, list_webset_items] if create_webset else [],
 )
 @prompt_template(
     """
@@ -124,7 +126,7 @@ async def market_intelligence_agent(
     investor_criteria: list[str] | None = None,
     signal_keywords: list[str] | None = None,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> MarketIntelligenceResponse:
     """
     Track market intelligence and investment opportunities using Exa websets.
@@ -150,63 +152,39 @@ async def market_intelligence_agent(
 
 
 # Convenience functions for common market intelligence searches
-async def track_stealth_founders(
-    year: int = 2025,
-    **kwargs
-) -> MarketIntelligenceResponse:
+async def track_stealth_founders(year: int = 2025, **kwargs) -> MarketIntelligenceResponse:
     """Track LinkedIn profiles that changed to 'Stealth Founder' status."""
     return await market_intelligence_agent(
-        signal_keywords=["Stealth Founder", "Stealth Mode", "Building something new"],
-        time_period=str(year),
-        **kwargs
+        signal_keywords=["Stealth Founder", "Stealth Mode", "Building something new"], time_period=str(year), **kwargs
     )
 
 
 async def find_funded_startups(
-    segment: MarketSegment,
-    stage: InvestmentStage,
-    year: int = 2024,
-    investor_type: str | None = None,
-    **kwargs
+    segment: MarketSegment, stage: InvestmentStage, year: int = 2024, investor_type: str | None = None, **kwargs
 ) -> MarketIntelligenceResponse:
     """Find startups that raised funding in a specific segment."""
     investor_criteria = [f"raised from {investor_type}"] if investor_type else []
 
     return await market_intelligence_agent(
-        segment=segment,
-        investment_stage=stage,
-        time_period=str(year),
-        investor_criteria=investor_criteria,
-        **kwargs
+        segment=segment, investment_stage=stage, time_period=str(year), investor_criteria=investor_criteria, **kwargs
     )
 
 
 async def analyze_company_changes(
-    keywords: list[str],
-    segment: MarketSegment | None = None,
-    **kwargs
+    keywords: list[str], segment: MarketSegment | None = None, **kwargs
 ) -> MarketIntelligenceResponse:
     """Analyze companies mentioning specific changes in reports."""
     return await market_intelligence_agent(
-        segment=segment,
-        signal_keywords=keywords,
-        company_type="established companies with financial reports",
-        **kwargs
+        segment=segment, signal_keywords=keywords, company_type="established companies with financial reports", **kwargs
     )
 
 
-async def find_emerging_technologies(
-    tech_focus: str,
-    hardware_focused: bool = False,
-    **kwargs
-) -> MarketIntelligenceResponse:
+async def find_emerging_technologies(tech_focus: str, hardware_focused: bool = False, **kwargs) -> MarketIntelligenceResponse:
     """Find companies working on emerging technologies."""
     company_type = f"{tech_focus} companies"
     if hardware_focused:
         company_type += " focused on hardware solutions"
 
     return await market_intelligence_agent(
-        company_type=company_type,
-        signal_keywords=[tech_focus, "innovation", "breakthrough", "patent"],
-        **kwargs
+        company_type=company_type, signal_keywords=[tech_focus, "innovation", "breakthrough", "patent"], **kwargs
     )

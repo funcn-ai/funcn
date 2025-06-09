@@ -49,7 +49,7 @@ async def example_unified_agent_basic():
     question = "What is Mirascope and how does it help with LLM development?"
     response = await web_search_agent(
         question=question,
-        search_provider="auto"  # Let the agent choose the best provider
+        search_provider="auto",  # Let the agent choose the best provider
     )
 
     print(f"Question: {question}")
@@ -73,16 +73,13 @@ async def example_provider_strategies():
         ("duckduckgo", "Fast, comprehensive search"),
         ("qwant", "Privacy-focused, no tracking"),
         ("auto", "Intelligent provider selection"),
-        ("all", "Multi-provider comprehensive search")
+        ("all", "Multi-provider comprehensive search"),
     ]
 
     for strategy, description in strategies:
         print(f"\n--- Strategy: {strategy} ({description}) ---")
         try:
-            response = await web_search_agent(
-                question=question,
-                search_provider=strategy
-            )
+            response = await web_search_agent(question=question, search_provider=strategy)
             print(f"Providers used: {response.search_providers}")
             print(f"Answer length: {len(response.answer)} characters")
             print(f"Sources: {len(response.sources)}")
@@ -128,11 +125,7 @@ async def example_streaming_agent():
     print("-" * 50)
 
     async for chunk in web_search_agent_stream(
-        question=question,
-        search_provider="auto",
-        privacy_mode=False,
-        provider="openai",
-        model="gpt-4o-mini"
+        question=question, search_provider="auto", privacy_mode=False, provider="openai", model="gpt-4o-mini"
     ):
         print(chunk, end="", flush=True)
     print("\n")
@@ -160,7 +153,7 @@ async def example_multi_provider_llm():
                     search_provider="auto",  # Let agent choose search provider
                     llm_provider=llm_provider,
                     model=model,
-                    privacy_mode=True  # Prefer privacy-focused search
+                    privacy_mode=True,  # Prefer privacy-focused search
                 )
                 print(f"Search providers used: {response.search_providers}")
                 print(f"Answer length: {len(response.answer)} characters")
@@ -183,7 +176,7 @@ async def example_advanced_configuration():
     locales = [
         ("en_US", "What are the latest AI developments?"),
         ("fr_FR", "Quelles sont les dernières nouvelles en IA?"),
-        ("de_DE", "Was sind die neuesten KI-Entwicklungen?")
+        ("de_DE", "Was sind die neuesten KI-Entwicklungen?"),
     ]
 
     for locale, question in locales:
@@ -194,7 +187,7 @@ async def example_advanced_configuration():
                 question=question,
                 search_provider="qwant",  # Qwant supports multiple locales
                 locale=locale,
-                privacy_mode=True
+                privacy_mode=True,
             )
             print(f"Answer preview: {response.answer[:100]}...")
             print(f"Sources: {len(response.sources)}")

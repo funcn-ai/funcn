@@ -46,18 +46,13 @@ class MemoryAgent:
             key=key,
             value=value,
             conversation_id=conversation_id,
-            metadata={"timestamp": datetime.utcnow().isoformat()}
+            metadata={"timestamp": datetime.utcnow().isoformat()},
         )
         return result.success
 
     async def recall(self, key: str, conversation_id: str = None):
         """Retrieve information from memory."""
-        result = await get_agent_state(
-            db_path=self.db_path,
-            agent_id=self.agent_id,
-            key=key,
-            conversation_id=conversation_id
-        )
+        result = await get_agent_state(db_path=self.db_path, agent_id=self.agent_id, key=key, conversation_id=conversation_id)
         if result.success and result.results:
             return result.results[0]['value']
         return None
@@ -65,10 +60,7 @@ class MemoryAgent:
     async def get_history(self, conversation_id: str = None):
         """Get conversation history."""
         result = await query_agent_history(
-            db_path=self.db_path,
-            agent_id=self.agent_id,
-            conversation_id=conversation_id,
-            limit=10
+            db_path=self.db_path, agent_id=self.agent_id, conversation_id=conversation_id, limit=10
         )
         return result.results if result.success else []
 
@@ -86,7 +78,7 @@ class ConversationAgent:
             max_overflow=10,
             pool_timeout=30,
             pool_recycle=3600,
-            use_async=True
+            use_async=True,
         )
         self.initialized = False
 
@@ -108,17 +100,14 @@ class ConversationAgent:
             key="conversation_context",
             value=context,
             conversation_id=conversation_id,
-            metadata={"last_updated": datetime.utcnow().isoformat()}
+            metadata={"last_updated": datetime.utcnow().isoformat()},
         )
         return result.success
 
     async def get_context(self, conversation_id: str):
         """Get current conversation context."""
         result = await sa_get_state(
-            config=self.config,
-            agent_id=self.agent_id,
-            key="conversation_context",
-            conversation_id=conversation_id
+            config=self.config, agent_id=self.agent_id, key="conversation_context", conversation_id=conversation_id
         )
         if result.success and result.results:
             return result.results[0]['value']
@@ -127,26 +116,18 @@ class ConversationAgent:
     async def get_conversation_history(self, conversation_id: str, days_back: int = 7):
         """Get conversation history for the past N days."""
         from datetime import timedelta
+
         start_date = datetime.utcnow() - timedelta(days=days_back)
 
         result = await sa_query_history(
-            config=self.config,
-            agent_id=self.agent_id,
-            conversation_id=conversation_id,
-            start_date=start_date,
-            limit=100
+            config=self.config, agent_id=self.agent_id, conversation_id=conversation_id, start_date=start_date, limit=100
         )
         return result.results if result.success else []
 
 
 # Example 3: Mirascope Agent with Built-in Memory
 @llm.call(provider="openai", model="gpt-4o-mini", tools=[store_agent_state, get_agent_state])
-async def intelligent_assistant(
-    user_input: str,
-    user_id: str,
-    conversation_id: str,
-    db_path: str = "assistant_memory.db"
-):
+async def intelligent_assistant(user_input: str, user_id: str, conversation_id: str, db_path: str = "assistant_memory.db"):
     """An intelligent assistant that can remember information across conversations."""
 
     # The agent can use the tools directly to store and retrieve information
@@ -190,14 +171,7 @@ async def main():
     await agent2.initialize()
 
     # Update conversation context
-    context = {
-        "topic": "weather",
-        "location": "New York",
-        "user_preferences": {
-            "units": "fahrenheit",
-            "detail_level": "summary"
-        }
-    }
+    context = {"topic": "weather", "location": "New York", "user_preferences": {"units": "fahrenheit", "detail_level": "summary"}}
     await agent2.update_context("conv_002", context)
 
     # Retrieve context
@@ -217,7 +191,7 @@ async def main():
     response = await intelligent_assistant(
         user_input="Please remember that my favorite programming language is Python",
         user_id="user_123",
-        conversation_id="conv_003"
+        conversation_id="conv_003",
     )
     print(f"Assistant response: {response.content}")
 

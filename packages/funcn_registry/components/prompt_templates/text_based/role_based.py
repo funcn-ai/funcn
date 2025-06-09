@@ -55,7 +55,7 @@ def role_based_expert(
     expertise: str = "business strategy consultant",
     years_experience: int = 15,
     specializations: list[str] = None,
-    approach: str = "data-driven and pragmatic"
+    approach: str = "data-driven and pragmatic",
 ):
     """
     Expert role-based analysis with configurable expertise.
@@ -107,7 +107,7 @@ def role_based_creative(
     creative_role: str = "renowned author",
     style_descriptor: str = "vivid and emotionally resonant",
     influences: list[str] = None,
-    creative_philosophy: str = "art should challenge and inspire"
+    creative_philosophy: str = "art should challenge and inspire",
 ):
     """
     Creative role-based content generation.
@@ -138,6 +138,7 @@ def role_based_creative(
 
 # Advanced role-based with dynamic persona
 
+
 class AnalyticalReport(BaseModel):
     """Model for analytical reports."""
 
@@ -154,7 +155,7 @@ class AnalyticalReport(BaseModel):
     provider="openai",
     model="gpt-4o-mini",
     response_model=AnalyticalReport,
-    call_params={"temperature": 0.2}  # Lower for analytical consistency
+    call_params={"temperature": 0.2},  # Lower for analytical consistency
 )
 @prompt_template(
     """
@@ -182,7 +183,7 @@ def role_based_analytical(
     analyst_type: str = "senior data analyst",
     domains: list[str] = None,
     framework: str = "evidence-based statistical analysis",
-    priorities: list[str] = None
+    priorities: list[str] = None,
 ) -> BaseDynamicConfig:
     """
     Analytical role-based reporting with dynamic configuration.
@@ -218,6 +219,7 @@ def role_based_analytical(
 
 # Multi-role collaboration example
 
+
 class CollaborativeResponse(BaseModel):
     """Model for multi-role collaborative responses."""
 
@@ -246,10 +248,7 @@ class CollaborativeResponse(BaseModel):
     Consider all viewpoints fairly and provide a nuanced conclusion.
     """
 )
-def role_based_multi_perspective(
-    question: str,
-    roles: list[tuple[str, str]] = None
-) -> BaseDynamicConfig:
+def role_based_multi_perspective(question: str, roles: list[tuple[str, str]] = None) -> BaseDynamicConfig:
     """
     Multi-role perspective analysis for complex questions.
 
@@ -270,32 +269,21 @@ def role_based_multi_perspective(
             ("Economist", "Focus on market efficiency and economic impact"),
             ("Ethicist", "Consider moral implications and fairness"),
             ("Technologist", "Evaluate technical feasibility and innovation"),
-            ("Sociologist", "Analyze social impact and community effects")
+            ("Sociologist", "Analyze social impact and community effects"),
         ]
 
     role_perspectives = []
     for role, focus in roles:
-        role_perspectives.append([
-            f"As a {role} ({focus}):",
-            "Consider the implications from this perspective.",
-            ""
-        ])
+        role_perspectives.append([f"As a {role} ({focus}):", "Consider the implications from this perspective.", ""])
 
-    return {
-        "computed_fields": {
-            "role_perspectives": role_perspectives
-        }
-    }
+    return {"computed_fields": {"role_perspectives": role_perspectives}}
 
 
 # Adaptive role with context awareness
 
+
 @lilypad.trace(versioning="automatic")
-@llm.call(
-    provider="openai",
-    model="gpt-4o-mini",
-    call_params={"temperature": 0.5}
-)
+@llm.call(provider="openai", model="gpt-4o-mini", call_params={"temperature": 0.5})
 @prompt_template(
     """
     SYSTEM: You are a {adaptive_role}.
@@ -315,7 +303,7 @@ def role_based_adaptive(
     context_type: str,
     audience_level: str = "intermediate",
     formality: str = "professional",
-    time_constraint: str = "standard"
+    time_constraint: str = "standard",
 ) -> BaseDynamicConfig:
     """
     Adaptive role-based response with context awareness.
@@ -341,13 +329,9 @@ def role_based_adaptive(
         "business": "business strategy consultant",
         "academic": "research professor",
         "creative": "creative director",
-        "general": "knowledgeable assistant"
+        "general": "knowledgeable assistant",
     }
 
     adaptive_role = role_mapping.get(context_type, "expert advisor")
 
-    return {
-        "computed_fields": {
-            "adaptive_role": adaptive_role
-        }
-    }
+    return {"computed_fields": {"adaptive_role": adaptive_role}}

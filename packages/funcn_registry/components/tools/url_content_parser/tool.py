@@ -43,7 +43,7 @@ async def parse_url_content(args: URLParseArgs) -> str:
 
             # Truncate if needed
             if len(text) > args.max_chars:
-                text = text[:args.max_chars] + "..."
+                text = text[: args.max_chars] + "..."
 
             return text
 

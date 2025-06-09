@@ -14,6 +14,7 @@ from typing import Any
 
 # Basic parallel execution
 
+
 class Perspective(BaseModel):
     """Model for different perspectives."""
 
@@ -71,10 +72,7 @@ async def parallel_basic(topic: str) -> list[Perspective]:
     viewpoints = ["technical", "business", "ethical", "user experience"]
 
     # Create tasks for parallel execution
-    tasks = [
-        analyze_perspective(topic=topic, viewpoint=viewpoint)
-        for viewpoint in viewpoints
-    ]
+    tasks = [analyze_perspective(topic=topic, viewpoint=viewpoint) for viewpoint in viewpoints]
 
     # Execute all tasks in parallel
     perspectives = await asyncio.gather(*tasks)
@@ -83,6 +81,7 @@ async def parallel_basic(topic: str) -> list[Perspective]:
 
 
 # Parallel aggregation pattern
+
 
 @lilypad.trace(versioning="automatic")
 @llm.call(provider="openai", model="gpt-4o-mini", response_model=AggregatedAnalysis)
@@ -101,26 +100,21 @@ async def parallel_basic(topic: str) -> list[Perspective]:
     4. Creating a balanced synthesis
     """
 )
-async def aggregate_perspectives(
-    topic: str,
-    perspectives: list[Perspective]
-) -> BaseDynamicConfig:
+async def aggregate_perspectives(topic: str, perspectives: list[Perspective]) -> BaseDynamicConfig:
     """Aggregate multiple perspectives into unified analysis."""
     perspectives_text = []
     for p in perspectives:
-        perspectives_text.append([
-            f"{p.viewpoint} perspective:",
-            p.analysis,
-            f"Key points: {', '.join(p.key_points)}",
-            f"Confidence: {p.confidence}",
-            ""
-        ])
+        perspectives_text.append(
+            [
+                f"{p.viewpoint} perspective:",
+                p.analysis,
+                f"Key points: {', '.join(p.key_points)}",
+                f"Confidence: {p.confidence}",
+                "",
+            ]
+        )
 
-    return {
-        "computed_fields": {
-            "perspectives_text": perspectives_text
-        }
-    }
+    return {"computed_fields": {"perspectives_text": perspectives_text}}
 
 
 async def parallel_aggregation(topic: str) -> AggregatedAnalysis:
@@ -142,15 +136,13 @@ async def parallel_aggregation(topic: str) -> AggregatedAnalysis:
     perspectives = await parallel_basic(topic)
 
     # Aggregate the results
-    aggregated = await aggregate_perspectives(
-        topic=topic,
-        perspectives=perspectives
-    )
+    aggregated = await aggregate_perspectives(topic=topic, perspectives=perspectives)
 
     return aggregated
 
 
 # Advanced async parallel processing
+
 
 class ResearchResult(BaseModel):
     """Model for research results."""
@@ -204,17 +196,9 @@ async def validate_claim(claim: str, research_results: list[ResearchResult]) -> 
     """Validate a claim against research."""
     findings = []
     for r in research_results:
-        findings.append([
-            f"From {r.source} (reliability: {r.reliability}):",
-            *r.findings,
-            ""
-        ])
+        findings.append([f"From {r.source} (reliability: {r.reliability}):", *r.findings, ""])
 
-    return {
-        "computed_fields": {
-            "findings": findings
-        }
-    }
+    return {"computed_fields": {"findings": findings}}
 
 
 async def parallel_async(query: str, claim: str) -> dict[str, Any]:
@@ -233,40 +217,23 @@ async def parallel_async(query: str, claim: str) -> dict[str, Any]:
     Returns:
         Dict with research and validation results
     """
-    sources = [
-        "academic literature",
-        "industry reports",
-        "expert opinions",
-        "case studies"
-    ]
+    sources = ["academic literature", "industry reports", "expert opinions", "case studies"]
 
     # Phase 1: Parallel research
-    research_tasks = [
-        research_source(query=query, source=source)
-        for source in sources
-    ]
+    research_tasks = [research_source(query=query, source=source) for source in sources]
     research_results = await asyncio.gather(*research_tasks)
 
     # Filter high-quality results
-    quality_results = [
-        r for r in research_results
-        if r.reliability > 0.7 and r.relevance > 0.6
-    ]
+    quality_results = [r for r in research_results if r.reliability > 0.7 and r.relevance > 0.6]
 
     # Phase 2: Validate claim against research
-    validation = await validate_claim(
-        claim=claim,
-        research_results=quality_results
-    )
+    validation = await validate_claim(claim=claim, research_results=quality_results)
 
-    return {
-        "research": research_results,
-        "quality_research": quality_results,
-        "validation": validation
-    }
+    return {"research": research_results, "quality_research": quality_results, "validation": validation}
 
 
 # Parallel with dynamic task generation
+
 
 @lilypad.trace(versioning="automatic")
 @llm.call(provider="openai", model="gpt-4o-mini")
@@ -279,19 +246,12 @@ async def parallel_async(query: str, claim: str) -> dict[str, Any]:
     Provide high-quality output following all requirements.
     """
 )
-async def dynamic_task(
-    input_data: str,
-    task_type: str,
-    requirements: list[str]
-):
+async def dynamic_task(input_data: str, task_type: str, requirements: list[str]):
     """Execute a dynamically defined task."""
     pass
 
 
-async def parallel_dynamic_tasks(
-    input_data: str,
-    task_configs: list[dict[str, Any]]
-) -> list[Any]:
+async def parallel_dynamic_tasks(input_data: str, task_configs: list[dict[str, Any]]) -> list[Any]:
     """
     Parallel execution with dynamic task generation.
 
@@ -310,11 +270,7 @@ async def parallel_dynamic_tasks(
     tasks = []
 
     for config in task_configs:
-        task = dynamic_task(
-            input_data=input_data,
-            task_type=config["type"],
-            requirements=config.get("requirements", [])
-        )
+        task = dynamic_task(input_data=input_data, task_type=config["type"], requirements=config.get("requirements", []))
         tasks.append(task)
 
     results = await asyncio.gather(*tasks)

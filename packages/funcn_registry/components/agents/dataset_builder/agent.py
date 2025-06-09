@@ -42,6 +42,7 @@ except ImportError:
 # Response models
 class DatasetRequirements(BaseModel):
     """Requirements for the dataset to build."""
+
     topic: str = Field(..., description="Main topic or theme of the dataset")
     entity_type: str = Field(..., description="Type of entities to collect (company, person, article, etc)")
     search_queries: list[str] = Field(..., description="Search queries to use")
@@ -52,6 +53,7 @@ class DatasetRequirements(BaseModel):
 
 class DatasetPlan(BaseModel):
     """Plan for building the dataset."""
+
     name: str = Field(..., description="Name for the webset")
     description: str = Field(..., description="Description of what this dataset contains")
     search_config: dict[str, Any] = Field(..., description="Search configuration for the webset")
@@ -63,6 +65,7 @@ class DatasetPlan(BaseModel):
 
 class DatasetStatus(BaseModel):
     """Current status of dataset building."""
+
     webset_id: str = Field(..., description="ID of the webset")
     status: str = Field(..., description="Current status: running, completed, idle")
     items_found: int = Field(..., description="Number of items found so far")
@@ -73,6 +76,7 @@ class DatasetStatus(BaseModel):
 
 class DatasetAnalysis(BaseModel):
     """Analysis of the built dataset."""
+
     total_items: int = Field(..., description="Total number of items collected")
     data_quality_score: float = Field(..., description="Quality score 0-1")
     key_insights: list[str] = Field(..., description="Key insights from the dataset")
@@ -82,6 +86,7 @@ class DatasetAnalysis(BaseModel):
 
 class DatasetBuilderResponse(BaseModel):
     """Complete response from dataset builder."""
+
     webset_id: str = Field(..., description="ID of the created webset")
     name: str = Field(..., description="Name of the dataset")
     status: DatasetStatus = Field(..., description="Current status")
@@ -249,7 +254,7 @@ async def build_dataset(
     wait_for_completion: bool = True,
     max_wait_minutes: int = 30,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> DatasetBuilderResponse:
     """
     Build a curated dataset using Exa Websets.
@@ -283,7 +288,7 @@ async def build_dataset(
         search_queries=search_queries or [f"{topic} {entity_type}"],
         criteria=criteria or ["High relevance to topic", "Verified information", "Recent data"],
         enrichments=enrichments or ["summary", "key_facts", "category", "relevance_score"],
-        target_count=target_count
+        target_count=target_count,
     )
 
     # Step 1: Create plan
@@ -334,21 +339,11 @@ async def build_dataset(
         export_result = await export_webset(export_args)
         export_url = export_result.get("download_url")
 
-    return DatasetBuilderResponse(
-        webset_id=webset_id,
-        name=plan.name,
-        status=status,
-        export_url=export_url,
-        analysis=analysis
-    )
+    return DatasetBuilderResponse(webset_id=webset_id, name=plan.name, status=status, export_url=export_url, analysis=analysis)
 
 
 # Convenience functions for specific dataset types
-async def build_company_dataset(
-    industry: str,
-    criteria: list[str] | None = None,
-    **kwargs
-) -> DatasetBuilderResponse:
+async def build_company_dataset(industry: str, criteria: list[str] | None = None, **kwargs) -> DatasetBuilderResponse:
     """
     Build a dataset of companies in a specific industry.
 
@@ -359,11 +354,7 @@ async def build_company_dataset(
     - Recent news
     - Key products/services
     """
-    default_criteria = [
-        f"Company operates in {industry}",
-        "Active business operations",
-        "Publicly available information"
-    ]
+    default_criteria = [f"Company operates in {industry}", "Active business operations", "Publicly available information"]
 
     default_enrichments = [
         "company_description",
@@ -371,7 +362,7 @@ async def build_company_dataset(
         "headquarters_location",
         "employee_count",
         "recent_news",
-        "key_products"
+        "key_products",
     ]
 
     return await build_dataset(
@@ -379,15 +370,11 @@ async def build_company_dataset(
         entity_type="company",
         criteria=criteria or default_criteria,
         enrichments=default_enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
-async def build_research_dataset(
-    research_topic: str,
-    time_range: str = "last 2 years",
-    **kwargs
-) -> DatasetBuilderResponse:
+async def build_research_dataset(research_topic: str, time_range: str = "last 2 years", **kwargs) -> DatasetBuilderResponse:
     """
     Build a dataset of research papers and articles.
 
@@ -401,23 +388,12 @@ async def build_research_dataset(
     search_queries = [
         f"{research_topic} research papers",
         f"{research_topic} academic studies",
-        f"{research_topic} peer reviewed"
+        f"{research_topic} peer reviewed",
     ]
 
-    criteria = [
-        f"Published within {time_range}",
-        "Academic or research source",
-        "Peer-reviewed or credible publication"
-    ]
+    criteria = [f"Published within {time_range}", "Academic or research source", "Peer-reviewed or credible publication"]
 
-    enrichments = [
-        "abstract",
-        "key_findings",
-        "methodology",
-        "authors",
-        "publication_date",
-        "journal_name"
-    ]
+    enrichments = ["abstract", "key_findings", "methodology", "authors", "publication_date", "journal_name"]
 
     return await build_dataset(
         topic=research_topic,
@@ -425,15 +401,11 @@ async def build_research_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
-async def build_market_dataset(
-    market_segment: str,
-    data_types: list[str] | None = None,
-    **kwargs
-) -> DatasetBuilderResponse:
+async def build_market_dataset(market_segment: str, data_types: list[str] | None = None, **kwargs) -> DatasetBuilderResponse:
     """
     Build a market analysis dataset.
 
@@ -447,29 +419,19 @@ async def build_market_dataset(
 
     search_queries = [f"{market_segment} market {dt}" for dt in data_types]
 
-    enrichments = [
-        "market_size",
-        "growth_rate",
-        "key_players",
-        "trends",
-        "opportunities",
-        "challenges"
-    ]
+    enrichments = ["market_size", "growth_rate", "key_players", "trends", "opportunities", "challenges"]
 
     return await build_dataset(
         topic=f"{market_segment} market analysis",
         entity_type="article",
         search_queries=search_queries,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_competitor_dataset(
-    company_name: str,
-    industry: str | None = None,
-    aspects: list[str] | None = None,
-    **kwargs
+    company_name: str, industry: str | None = None, aspects: list[str] | None = None, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build a competitor analysis dataset.
@@ -487,14 +449,12 @@ async def build_competitor_dataset(
     if industry:
         search_queries.append(f"{company_name} competitors in {industry}")
 
-    search_queries.extend([
-        f"{company_name} competitor {aspect}" for aspect in aspects
-    ])
+    search_queries.extend([f"{company_name} competitor {aspect}" for aspect in aspects])
 
     criteria = [
         "Recent information (last 6 months preferred)",
         "From credible business sources",
-        "Direct competitor or market analysis"
+        "Direct competitor or market analysis",
     ]
 
     enrichments = [
@@ -503,7 +463,7 @@ async def build_competitor_dataset(
         "product_comparison",
         "market_share",
         "recent_activities",
-        "strengths_weaknesses"
+        "strengths_weaknesses",
     ]
 
     return await build_dataset(
@@ -512,15 +472,12 @@ async def build_competitor_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_influencer_dataset(
-    niche: str,
-    platforms: list[str] | None = None,
-    min_followers: int = 10000,
-    **kwargs
+    niche: str, platforms: list[str] | None = None, min_followers: int = 10000, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build a social media influencer dataset.
@@ -534,16 +491,14 @@ async def build_influencer_dataset(
     """
     platforms = platforms or ["instagram", "twitter", "linkedin", "youtube", "tiktok"]
 
-    search_queries = [
-        f"{niche} influencers {platform}" for platform in platforms
-    ]
+    search_queries = [f"{niche} influencers {platform}" for platform in platforms]
     search_queries.append(f"top {niche} content creators")
 
     criteria = [
         f"Minimum {min_followers:,} followers on at least one platform",
         f"Active in {niche} content",
         "Regular posting schedule",
-        "Authentic engagement"
+        "Authentic engagement",
     ]
 
     enrichments = [
@@ -554,7 +509,7 @@ async def build_influencer_dataset(
         "content_themes",
         "brand_partnerships",
         "contact_info",
-        "audience_demographics"
+        "audience_demographics",
     ]
 
     return await build_dataset(
@@ -563,15 +518,12 @@ async def build_influencer_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_news_trends_dataset(
-    topic: str,
-    time_period: str = "last 7 days",
-    sources: list[str] | None = None,
-    **kwargs
+    topic: str, time_period: str = "last 7 days", sources: list[str] | None = None, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build a news and trends dataset.
@@ -589,14 +541,10 @@ async def build_news_trends_dataset(
         f"{topic} news {time_period}",
         f"{topic} trending",
         f"{topic} latest developments",
-        f"{topic} breaking news"
+        f"{topic} breaking news",
     ]
 
-    criteria = [
-        f"Published within {time_period}",
-        "From reputable news sources",
-        "Significant news value or viral content"
-    ]
+    criteria = [f"Published within {time_period}", "From reputable news sources", "Significant news value or viral content"]
 
     enrichments = [
         "headline",
@@ -606,7 +554,7 @@ async def build_news_trends_dataset(
         "key_people_mentioned",
         "geographic_focus",
         "related_topics",
-        "social_shares"
+        "social_shares",
     ]
 
     return await build_dataset(
@@ -615,15 +563,12 @@ async def build_news_trends_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_investment_dataset(
-    sector: str,
-    investment_stage: str | None = None,
-    geography: str | None = None,
-    **kwargs
+    sector: str, investment_stage: str | None = None, geography: str | None = None, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build an investment opportunities dataset.
@@ -638,7 +583,7 @@ async def build_investment_dataset(
     search_queries = [
         f"{sector} startups seeking funding",
         f"{sector} recent funding rounds",
-        f"{sector} investment opportunities"
+        f"{sector} investment opportunities",
     ]
 
     if investment_stage:
@@ -647,11 +592,7 @@ async def build_investment_dataset(
     if geography:
         search_queries = [f"{q} {geography}" for q in search_queries]
 
-    criteria = [
-        f"Company in {sector} sector",
-        "Credible funding information",
-        "Recent activity (last 12 months)"
-    ]
+    criteria = [f"Company in {sector} sector", "Credible funding information", "Recent activity (last 12 months)"]
 
     if investment_stage:
         criteria.append(f"Relevant to {investment_stage} stage")
@@ -665,7 +606,7 @@ async def build_investment_dataset(
         "business_model",
         "growth_metrics",
         "leadership_team",
-        "market_opportunity"
+        "market_opportunity",
     ]
 
     return await build_dataset(
@@ -674,15 +615,12 @@ async def build_investment_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_talent_dataset(
-    role: str,
-    skills: list[str] | None = None,
-    experience_level: str | None = None,
-    **kwargs
+    role: str, skills: list[str] | None = None, experience_level: str | None = None, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build a recruiting/talent dataset.
@@ -694,15 +632,10 @@ async def build_talent_dataset(
     - Current position
     - Contact information
     """
-    search_queries = [
-        f"{role} professionals",
-        f"{role} experts"
-    ]
+    search_queries = [f"{role} professionals", f"{role} experts"]
 
     if skills:
-        search_queries.extend([
-            f"{role} with {skill} experience" for skill in skills
-        ])
+        search_queries.extend([f"{role} with {skill} experience" for skill in skills])
 
     if experience_level:
         search_queries.append(f"{experience_level} {role}")
@@ -710,7 +643,7 @@ async def build_talent_dataset(
     criteria = [
         f"Professional working as {role} or similar",
         "Publicly available professional information",
-        "Active in the field"
+        "Active in the field",
     ]
 
     if experience_level:
@@ -725,7 +658,7 @@ async def build_talent_dataset(
         "education",
         "notable_achievements",
         "linkedin_url",
-        "contact_possibility"
+        "contact_possibility",
     ]
 
     return await build_dataset(
@@ -734,15 +667,12 @@ async def build_talent_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_product_launch_dataset(
-    product_category: str,
-    time_frame: str = "last 3 months",
-    competitors: list[str] | None = None,
-    **kwargs
+    product_category: str, time_frame: str = "last 3 months", competitors: list[str] | None = None, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build a product launch tracking dataset.
@@ -757,18 +687,16 @@ async def build_product_launch_dataset(
     search_queries = [
         f"new {product_category} launches {time_frame}",
         f"{product_category} product announcements",
-        f"latest {product_category} releases"
+        f"latest {product_category} releases",
     ]
 
     if competitors:
-        search_queries.extend([
-            f"{company} {product_category} launch" for company in competitors
-        ])
+        search_queries.extend([f"{company} {product_category} launch" for company in competitors])
 
     criteria = [
         f"Product launch within {time_frame}",
         f"Related to {product_category}",
-        "Official announcement or credible coverage"
+        "Official announcement or credible coverage",
     ]
 
     enrichments = [
@@ -780,7 +708,7 @@ async def build_product_launch_dataset(
         "target_market",
         "differentiators",
         "initial_reception",
-        "marketing_approach"
+        "marketing_approach",
     ]
 
     return await build_dataset(
@@ -789,15 +717,12 @@ async def build_product_launch_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
 
 
 async def build_location_dataset(
-    business_type: str,
-    geography: str,
-    criteria_list: list[str] | None = None,
-    **kwargs
+    business_type: str, geography: str, criteria_list: list[str] | None = None, **kwargs
 ) -> DatasetBuilderResponse:
     """
     Build a location/real estate opportunity dataset.
@@ -813,14 +738,14 @@ async def build_location_dataset(
         f"best locations for {business_type} in {geography}",
         f"{business_type} market analysis {geography}",
         f"{geography} demographic data for {business_type}",
-        f"{business_type} location factors {geography}"
+        f"{business_type} location factors {geography}",
     ]
 
     criteria = criteria_list or [
         f"Relevant to {business_type} location decisions",
         f"Within {geography} area",
         "Recent data (last 2 years)",
-        "Credible source"
+        "Credible source",
     ]
 
     enrichments = [
@@ -832,7 +757,7 @@ async def build_location_dataset(
         "growth_rate",
         "real_estate_costs",
         "business_climate",
-        "opportunity_score"
+        "opportunity_score",
     ]
 
     return await build_dataset(
@@ -841,5 +766,5 @@ async def build_location_dataset(
         search_queries=search_queries,
         criteria=criteria,
         enrichments=enrichments,
-        **kwargs
+        **kwargs,
     )
