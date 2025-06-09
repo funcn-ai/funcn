@@ -1,17 +1,9 @@
-# CLAUDE.md
+# Funcn Development Context
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+## Project Overview
+This is a Funcn AI framework project that provides reusable components for LLM-powered applications.
 
-**IMPORTANT**: When creating git commits, DO NOT include "Generated with Claude Code" or "Co-Authored-By: Claude" attributions. Keep commit messages clean and professional without AI attribution.
-
-## Funcn Development Context
-
-### Project Overview
-
-Funcn is a production-ready component library for Mirascope-powered AI applications. It follows a "copy-and-paste" philosophy similar to shadcn/ui - components are not traditional dependencies but code you copy into your project and customize.
-
-#### Technical Stack
-
+## Technical Stack
 - **Language**: Python 3.12+
 - **LLM Framework**: Mirascope
 - **Data Validation**: Pydantic
@@ -21,7 +13,6 @@ Funcn is a production-ready component library for Mirascope-powered AI applicati
 ## Development Principles
 
 ### Mirascope Best Practices
-
 1. **Prompt Templates**: Always use `@prompt_template` decorators
 2. **Response Models**: Define Pydantic models for structured LLM outputs
 3. **Async Patterns**: Use `async def` for all LLM calls and tools
@@ -29,14 +20,12 @@ Funcn is a production-ready component library for Mirascope-powered AI applicati
 5. **Error Handling**: Implement comprehensive validation and error recovery
 
 ### Component Architecture
-
 - Each component has a `component.json` manifest
 - Components can depend on other registry components
 - Include comprehensive documentation and examples
 - Follow semantic versioning
 
 ### Code Quality Standards
-
 - Type hints for all function parameters and returns
 - Google-style docstrings
 - Comprehensive unit tests
@@ -123,7 +112,6 @@ Funcn is a production-ready component library for Mirascope-powered AI applicati
 ## Common Patterns
 
 ### Basic Agent Structure
-
 ```python
 from mirascope.core import BaseModel, prompt_template
 from mirascope.integrations.openai import OpenAICall
@@ -138,121 +126,12 @@ def my_agent(question: str): ...
 ```
 
 ### Tool Implementation
-
 ```python
-from lilypad import trace
+from mirascope.core import tool
 
-@trace()  # Added when --with-lilypad flag is used
-@llm.call(provider="{{provider}}", model="{{model}}")
-@prompt_template("Analyze: {text}")
-async def analyze_text(text: str) -> str:
-    ...
+@tool
+def search_web(query: str) -> str:
+    """Search the web for information."""
+    # Implementation here
+    return "search results"
 ```
-
-### Testing Components
-
-```python
-# tests/test_my_agent.py
-import pytest
-from agents.my_agent import my_agent
-
-@pytest.mark.asyncio
-async def test_my_agent():
-    result = await my_agent("test input")
-    assert result.confidence > 0.5
-    assert len(result.summary) > 0
-
-@pytest.mark.unit
-def test_tool_function():
-    from tools.my_tool import my_function
-    result = my_function("query")
-    assert isinstance(result, list)
-```
-
-## Development Workflow
-
-**CRITICAL**: Follow the Linear issue → Sub-issues → Branch → Commits → PR workflow:
-
-1. **Create Linear Issue with Sub-Issues**: Break complex tasks into smaller sub-issues
-2. **Checkout Feature Branch**: Use Linear's branch name from main issue
-3. **Work Through Sub-Issues**: One commit per sub-issue for clean history
-4. **Update Status**: Mark sub-issues complete as you progress
-5. **Create Pull Request**: Reference all completed sub-issues
-
-See `.claude/development-workflow.md` for detailed workflow instructions.
-
-### Task Organization Strategy
-
-**Use Two-Level Task Management:**
-
-- **Linear Sub-Issues**: For commit-level work (external tracking)
-- **Claude TODOs**: For fine-grained task tracking during coding
-
-Example workflow:
-```python
-# Create main issue and sub-issues
-main = mcp_linear.create_issue(title="Add PDF parser tool")
-subs = [
-    mcp_linear.create_issue(title="Setup structure", parentId=main.id),
-    mcp_linear.create_issue(title="Core parsing", parentId=main.id),
-    mcp_linear.create_issue(title="Error handling", parentId=main.id),
-    mcp_linear.create_issue(title="Tests", parentId=main.id)
-]
-
-# Work through each sub-issue with focused commits
-git checkout -b jayscambler/fun-123
-git commit -m "feat: Setup structure #FUN-124"
-git commit -m "feat: Core parsing #FUN-125"
-git commit -m "feat: Error handling #FUN-126"
-git commit -m "test: Add PDF parser tests #FUN-127"
-```
-
-## Pre-commit Compliance
-
-**CRITICAL**: All Python code MUST pass pre-commit hooks. Before generating code:
-
-1. Review `.claude/code-standards.md` for style guidelines
-2. Apply fixes from `.claude/pre-commit-quick-fixes.md` automatically
-3. Ensure: proper imports, line length ≤130, docstrings first, no debug statements
-4. When editing existing files, match their existing style
-
-Key points to remember:
-
-- Line length: 130 characters maximum
-- Imports: Sort by type (stdlib, third-party, local) and alphabetically
-- No unused imports or variables (use _ prefix if needed)
-- End files with single newline
-- Use ruff's fix-only mode expectations
-
-## Testing Standards
-
-**IMPORTANT**: Follow the 80/20 testing rule - focus on the critical paths:
-
-1. **Test Structure**: Organize tests by type (unit/integration/e2e)
-2. **Coverage Target**: 80% overall, 90%+ for core business logic
-3. **Test Priorities**:
-   - Happy path first (most important)
-   - Common error cases
-   - Critical edge cases only
-4. **Skip Testing**: Trivial getters, framework code, generated code
-
-Quick testing checklist:
-```bash
-# Run specific test types
-pytest -m unit              # Fast unit tests only
-pytest -m integration       # Integration tests
-pytest -m "not slow"        # Skip slow tests
-
-# Run with coverage
-pytest --cov=funcn_cli --cov-report=html
-
-# Run tests in parallel
-pytest -n auto
-```
-
-See `.claude/testing-standards.md` for detailed testing patterns and examples.
-
-## Important Notes
-
-- Do not use emojis
-- Avoid writing  "🤖 Generated with Claude Code" when making commits or PRs

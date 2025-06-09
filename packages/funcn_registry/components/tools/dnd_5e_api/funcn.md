@@ -187,47 +187,17 @@ No API key is required. All functions are async and should be awaited.
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Function Signature
-
-The main tool function follows this pattern:
+### Tool Chaining
 
 ```python
-async def tool_function(args: ToolArgs) -> ToolResult:
-    """
-    Tool description and usage.
+# Chain multiple tools together
+from funcn_registry.tools import tool1, tool2
 
-    Args:
-        args: Structured input parameters
-
-    Returns:
-        Structured result with typed fields
-
-    Raises:
-        ToolError: When operation fails
-    """
+async def chained_workflow(input_data):
+    result1 = await tool1(input_data)
+    result2 = await tool2(result1.output)
+    return result2
 ```
-
-### Using with Mirascope Agents
-
-```python
-from mirascope.core import llm, prompt_template
-from dnd_5e_api import tool_function
-
-@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
-@prompt_template("Use the tool to help answer: {query}")
-def agent_with_tool(query: str): ...
-
-response = agent_with_tool("your question")
-if response.tool:
-    result = response.tool.call()
-    print(result)
-```
-
-### Common Issues
-
-- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
-- **API Limits**: Implement rate limiting and retry logic for external APIs
-- **Timeout Issues**: Adjust timeout settings for slow operations
 
 ### Error Handling
 
@@ -255,14 +225,44 @@ async def batch_process(inputs):
     return results
 ```
 
-### Tool Chaining
+### Using with Mirascope Agents
 
 ```python
-# Chain multiple tools together
-from funcn_registry.tools import tool1, tool2
+from mirascope.core import llm, prompt_template
+from dnd_5e_api import tool_function
 
-async def chained_workflow(input_data):
-    result1 = await tool1(input_data)
-    result2 = await tool2(result1.output)
-    return result2
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
+@prompt_template("Use the tool to help answer: {query}")
+def agent_with_tool(query: str): ...
+
+response = agent_with_tool("your question")
+if response.tool:
+    result = response.tool.call()
+    print(result)
 ```
+
+### Function Signature
+
+The main tool function follows this pattern:
+
+```python
+async def tool_function(args: ToolArgs) -> ToolResult:
+    """
+    Tool description and usage.
+
+    Args:
+        args: Structured input parameters
+
+    Returns:
+        Structured result with typed fields
+
+    Raises:
+        ToolError: When operation fails
+    """
+```
+
+### Common Issues
+
+- **Input Validation Errors**: Ensure input parameters match the ToolArgs model
+- **API Limits**: Implement rate limiting and retry logic for external APIs
+- **Timeout Issues**: Adjust timeout settings for slow operations
