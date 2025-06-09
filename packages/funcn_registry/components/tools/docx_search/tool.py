@@ -58,18 +58,20 @@ def extract_metadata(doc: Document) -> dict[str, Any]:
 
     try:
         core_props = doc.core_properties
-        metadata.update({
-            "title": core_props.title,
-            "author": core_props.author,
-            "subject": core_props.subject,
-            "keywords": core_props.keywords,
-            "created": core_props.created.isoformat() if core_props.created else None,
-            "modified": core_props.modified.isoformat() if core_props.modified else None,
-            "last_modified_by": core_props.last_modified_by,
-            "revision": core_props.revision,
-            "category": core_props.category,
-            "comments": core_props.comments
-        })
+        metadata.update(
+            {
+                "title": core_props.title,
+                "author": core_props.author,
+                "subject": core_props.subject,
+                "keywords": core_props.keywords,
+                "created": core_props.created.isoformat() if core_props.created else None,
+                "modified": core_props.modified.isoformat() if core_props.modified else None,
+                "last_modified_by": core_props.last_modified_by,
+                "revision": core_props.revision,
+                "category": core_props.category,
+                "comments": core_props.comments,
+            }
+        )
     except Exception:
         pass
 
@@ -77,11 +79,7 @@ def extract_metadata(doc: Document) -> dict[str, Any]:
 
 
 def search_in_text(
-    text: str,
-    search_text: str | None,
-    regex_pattern: str | None,
-    case_sensitive: bool,
-    start_offset: int = 0
+    text: str, search_text: str | None, regex_pattern: str | None, case_sensitive: bool, start_offset: int = 0
 ) -> list[tuple[int, int]]:
     """Search for matches in text and return positions."""
     if not text:
@@ -127,21 +125,14 @@ def extract_table_text(table: Table) -> list[list[dict[str, Any]]]:
         row_text = []
         for col_idx, cell in enumerate(row.cells):
             cell_text = ' '.join(paragraph.text for paragraph in cell.paragraphs)
-            row_text.append({
-                "row": row_idx,
-                "col": col_idx,
-                "text": cell_text
-            })
+            row_text.append({"row": row_idx, "col": col_idx, "text": cell_text})
         table_data.append(row_text)
 
     return table_data
 
 
 def should_include_section(
-    paragraph: Paragraph,
-    style_filter: str | None,
-    extract_headings: bool,
-    heading_level: int | None
+    paragraph: Paragraph, style_filter: str | None, extract_headings: bool, heading_level: int | None
 ) -> bool:
     """Check if a section should be included based on filters."""
     if style_filter and paragraph.style.name != style_filter:
@@ -168,7 +159,7 @@ async def process_docx_document(
     style_filter: str | None = None,
     max_context_chars: int = 200,
     extract_metadata_flag: bool = True,
-    include_comments: bool = False
+    include_comments: bool = False,
 ) -> DOCXSearchResult:
     """Process the DOCX document and search for content.
 
@@ -227,7 +218,7 @@ async def process_docx_document(
                     style=paragraph.style.name,
                     heading_level=paragraph_heading_level,
                     table_info=None,
-                    match_positions=matches
+                    match_positions=matches,
                 )
                 matching_sections.append(section)
 
@@ -253,12 +244,8 @@ async def process_docx_document(
                                 section_type="table",
                                 style=None,
                                 heading_level=None,
-                                table_info={
-                                    "table_index": table_idx,
-                                    "row": cell_data["row"],
-                                    "col": cell_data["col"]
-                                },
-                                match_positions=matches
+                                table_info={"table_index": table_idx, "row": cell_data["row"], "col": cell_data["col"]},
+                                match_positions=matches,
                             )
                             matching_sections.append(section)
 
@@ -276,7 +263,7 @@ async def process_docx_document(
             search_time=search_time,
             total_paragraphs=len(doc.paragraphs),
             total_tables=table_count,
-            total_words=total_words
+            total_words=total_words,
         )
 
     except Exception as e:
@@ -291,16 +278,13 @@ async def process_docx_document(
             search_time=search_time,
             total_paragraphs=0,
             total_tables=0,
-            total_words=0
+            total_words=0,
         )
 
 
 # Convenience functions
 async def search_docx(
-    file_path: str,
-    search_text: str,
-    case_sensitive: bool = False,
-    include_tables: bool = True
+    file_path: str, search_text: str, case_sensitive: bool = False, include_tables: bool = True
 ) -> DOCXSearchResult:
     """Search for text in a DOCX file.
 
@@ -314,17 +298,11 @@ async def search_docx(
         DOCXSearchResult with matching sections
     """
     return await process_docx_document(
-        file_path=file_path,
-        search_text=search_text,
-        case_sensitive=case_sensitive,
-        include_tables=include_tables
+        file_path=file_path, search_text=search_text, case_sensitive=case_sensitive, include_tables=include_tables
     )
 
 
-async def extract_docx_headings(
-    file_path: str,
-    heading_level: int | None = None
-) -> DOCXSearchResult:
+async def extract_docx_headings(file_path: str, heading_level: int | None = None) -> DOCXSearchResult:
     """Extract all headings from a DOCX file.
 
     Args:
@@ -334,18 +312,10 @@ async def extract_docx_headings(
     Returns:
         DOCXSearchResult with heading sections
     """
-    return await process_docx_document(
-        file_path=file_path,
-        extract_headings=True,
-        heading_level=heading_level
-    )
+    return await process_docx_document(file_path=file_path, extract_headings=True, heading_level=heading_level)
 
 
-async def search_docx_with_regex(
-    file_path: str,
-    pattern: str,
-    include_tables: bool = True
-) -> DOCXSearchResult:
+async def search_docx_with_regex(file_path: str, pattern: str, include_tables: bool = True) -> DOCXSearchResult:
     """Search DOCX file using regular expression.
 
     Args:
@@ -356,8 +326,4 @@ async def search_docx_with_regex(
     Returns:
         DOCXSearchResult with matching sections
     """
-    return await process_docx_document(
-        file_path=file_path,
-        regex_pattern=pattern,
-        include_tables=include_tables
-    )
+    return await process_docx_document(file_path=file_path, regex_pattern=pattern, include_tables=include_tables)

@@ -53,6 +53,7 @@ from typing import Any, Optional, Union
 
 class PlayerType(str, Enum):
     """Types of players in the game."""
+
     HUMAN = "human"
     AI = "ai"
     DM = "dm"
@@ -60,6 +61,7 @@ class PlayerType(str, Enum):
 
 class CharacterClass(str, Enum):
     """D&D character classes."""
+
     BARBARIAN = "barbarian"
     BARD = "bard"
     CLERIC = "cleric"
@@ -76,6 +78,7 @@ class CharacterClass(str, Enum):
 
 class ActionType(str, Enum):
     """Types of actions players can take."""
+
     MOVEMENT = "movement"
     ATTACK = "attack"
     SPELL = "spell"
@@ -93,6 +96,7 @@ class ActionType(str, Enum):
 
 class GamePhase(str, Enum):
     """Current phase of the game."""
+
     EXPLORATION = "exploration"
     COMBAT = "combat"
     ROLEPLAY = "roleplay"
@@ -104,6 +108,7 @@ class GamePhase(str, Enum):
 
 class DiceType(str, Enum):
     """Types of dice in D&D."""
+
     D4 = "d4"
     D6 = "d6"
     D8 = "d8"
@@ -115,12 +120,14 @@ class DiceType(str, Enum):
 
 class RestType(str, Enum):
     """Types of rest in D&D."""
+
     SHORT = "short"
     LONG = "long"
 
 
 class SkillType(str, Enum):
     """D&D 5e skills."""
+
     ACROBATICS = "acrobatics"
     ANIMAL_HANDLING = "animal-handling"
     ARCANA = "arcana"
@@ -143,6 +150,7 @@ class SkillType(str, Enum):
 
 class AbilityType(str, Enum):
     """D&D ability scores."""
+
     STRENGTH = "strength"
     DEXTERITY = "dexterity"
     CONSTITUTION = "constitution"
@@ -153,6 +161,7 @@ class AbilityType(str, Enum):
 
 class DiceRoll(BaseModel):
     """Result of a dice roll."""
+
     dice_type: DiceType = Field(..., description="Type of dice rolled")
     num_dice: int = Field(..., description="Number of dice rolled")
     rolls: list[int] = Field(..., description="Individual roll results")
@@ -167,17 +176,14 @@ class DiceRoll(BaseModel):
 
 class Position(BaseModel):
     """Position on the battle grid."""
+
     x: int = Field(..., description="X coordinate")
     y: int = Field(..., description="Y coordinate")
     z: int = Field(0, description="Z coordinate (elevation)")
 
     def distance_to(self, other: Position) -> float:
         """Calculate distance to another position."""
-        return math.sqrt(
-            (self.x - other.x) ** 2 +
-            (self.y - other.y) ** 2 +
-            (self.z - other.z) ** 2
-        ) * 5  # 5 feet per square
+        return math.sqrt((self.x - other.x) ** 2 + (self.y - other.y) ** 2 + (self.z - other.z) ** 2) * 5  # 5 feet per square
 
     def is_adjacent(self, other: Position) -> bool:
         """Check if positions are adjacent (including diagonals)."""
@@ -186,6 +192,7 @@ class Position(BaseModel):
 
 class CharacterStats(BaseModel):
     """D&D character ability scores."""
+
     strength: int = Field(..., description="Strength score")
     dexterity: int = Field(..., description="Dexterity score")
     constitution: int = Field(..., description="Constitution score")
@@ -206,6 +213,7 @@ class CharacterStats(BaseModel):
 
 class SpellSlots(BaseModel):
     """Spell slot tracking."""
+
     level_1: int = Field(0, description="1st level slots")
     level_2: int = Field(0, description="2nd level slots")
     level_3: int = Field(0, description="3rd level slots")
@@ -247,6 +255,7 @@ class SpellSlots(BaseModel):
 
 class InventoryItem(BaseModel):
     """An item in inventory."""
+
     name: str = Field(..., description="Item name")
     quantity: int = Field(1, description="Number of items")
     weight: float = Field(0, description="Weight per item")
@@ -259,6 +268,7 @@ class InventoryItem(BaseModel):
 
 class CharacterCondition(BaseModel):
     """A condition affecting a character."""
+
     name: str = Field(..., description="Condition name")
     description: str = Field(..., description="Condition effects")
     duration_rounds: int | None = Field(None, description="Duration in rounds")
@@ -269,6 +279,7 @@ class CharacterCondition(BaseModel):
 
 class CharacterSheet(BaseModel):
     """Complete D&D character sheet."""
+
     name: str = Field(..., description="Character name")
     race: str = Field(..., description="Character race")
     character_class: CharacterClass = Field(..., description="Character class")
@@ -371,10 +382,26 @@ class CharacterSheet(BaseModel):
     def get_xp_for_next_level(self) -> int:
         """Get XP required for next level."""
         xp_thresholds = {
-            1: 0, 2: 300, 3: 900, 4: 2700, 5: 6500,
-            6: 14000, 7: 23000, 8: 34000, 9: 48000, 10: 64000,
-            11: 85000, 12: 100000, 13: 120000, 14: 140000, 15: 165000,
-            16: 195000, 17: 225000, 18: 265000, 19: 305000, 20: 355000
+            1: 0,
+            2: 300,
+            3: 900,
+            4: 2700,
+            5: 6500,
+            6: 14000,
+            7: 23000,
+            8: 34000,
+            9: 48000,
+            10: 64000,
+            11: 85000,
+            12: 100000,
+            13: 120000,
+            14: 140000,
+            15: 165000,
+            16: 195000,
+            17: 225000,
+            18: 265000,
+            19: 305000,
+            20: 355000,
         }
         if self.level >= 20:
             return 0
@@ -419,6 +446,7 @@ class CharacterSheet(BaseModel):
 
 class CombatantInfo(BaseModel):
     """Information about a combatant in battle."""
+
     name: str = Field(..., description="Combatant name")
     position: Position = Field(..., description="Current position")
     initiative: int = Field(..., description="Initiative roll result")
@@ -433,6 +461,7 @@ class CombatantInfo(BaseModel):
 
 class BattleMap(BaseModel):
     """Battle map tracking positions."""
+
     width: int = Field(20, description="Map width in squares")
     height: int = Field(20, description="Map height in squares")
     combatants: dict[str, CombatantInfo] = Field(default_factory=dict, description="Combatant positions")
@@ -467,6 +496,7 @@ class BattleMap(BaseModel):
 
 class PlayerCharacter(BaseModel):
     """A player character in the game."""
+
     character: CharacterSheet = Field(..., description="Character sheet")
     player_type: PlayerType = Field(..., description="Human or AI player")
     model: str | None = Field(None, description="AI model if AI player")
@@ -479,6 +509,7 @@ class PlayerCharacter(BaseModel):
 
 class PlayerAction(BaseModel):
     """An action taken by a player."""
+
     player_name: str = Field(..., description="Name of the acting player")
     action_type: ActionType = Field(..., description="Type of action")
     description: str = Field(..., description="Detailed description of the action")
@@ -492,6 +523,7 @@ class PlayerAction(BaseModel):
 
 class CombatAction(BaseModel):
     """A combat-specific action."""
+
     attacker: str = Field(..., description="Name of the attacker")
     target: str = Field(..., description="Name of the target")
     attack_type: str = Field(..., description="Type of attack")
@@ -506,6 +538,7 @@ class CombatAction(BaseModel):
 
 class RoleplayExchange(BaseModel):
     """A roleplay dialogue exchange."""
+
     speaker: str = Field(..., description="Who is speaking")
     dialogue: str = Field(..., description="What they say")
     tone: str = Field(..., description="Tone of delivery")
@@ -517,6 +550,7 @@ class RoleplayExchange(BaseModel):
 
 class GameEvent(BaseModel):
     """A significant game event."""
+
     event_type: str = Field(..., description="Type of event")
     description: str = Field(..., description="Detailed description")
     participants: list[str] = Field(..., description="Characters involved")
@@ -528,6 +562,7 @@ class GameEvent(BaseModel):
 
 class EncounterInfo(BaseModel):
     """Information about an encounter."""
+
     name: str = Field(..., description="Encounter name")
     difficulty: str = Field(..., description="Encounter difficulty")
     enemies: list[str] = Field(..., description="Enemy types")
@@ -538,6 +573,7 @@ class EncounterInfo(BaseModel):
 
 class GameState(BaseModel):
     """Current state of the D&D game."""
+
     session_id: str = Field(..., description="Unique session identifier")
     campaign_name: str = Field(..., description="Name of the campaign")
     current_phase: GamePhase = Field(..., description="Current game phase")
@@ -566,6 +602,7 @@ class GameState(BaseModel):
 
 class DMResponse(BaseModel):
     """Dungeon Master's response to player actions."""
+
     narration: str = Field(..., description="Narrative description")
     dice_rolls: list[DiceRoll] = Field(default_factory=list, description="DM's dice rolls")
     npc_actions: list[PlayerAction] = Field(default_factory=list, description="NPC actions")
@@ -582,6 +619,7 @@ class DMResponse(BaseModel):
 
 class HumanInputRequest(BaseModel):
     """Request for human input during gameplay."""
+
     request_type: str = Field(..., description="Type of input needed")
     prompt: str = Field(..., description="Prompt for the human player")
     context: str = Field(..., description="Context for the decision")
@@ -621,12 +659,8 @@ async def initialize_campaign_database(campaign_name: str, db_path: str | None =
         db_path,
         agent_id="campaign",
         key="metadata",
-        value={
-            "campaign_name": campaign_name,
-            "created_at": datetime.now().isoformat(),
-            "version": "1.0"
-        },
-        table_name="game_state"
+        value={"campaign_name": campaign_name, "created_at": datetime.now().isoformat(), "version": "1.0"},
+        table_name="game_state",
     )
 
     return db_path
@@ -657,9 +691,9 @@ async def save_game_state(game_state: GameState, db_path: str) -> None:
             "phase": game_state.current_phase.value,
             "location": game_state.location,
             "combat_round": game_state.combat_round,
-            "days_elapsed": game_state.days_elapsed
+            "days_elapsed": game_state.days_elapsed,
         },
-        table_name="game_state"
+        table_name="game_state",
     )
 
     # Save each character sheet
@@ -675,9 +709,9 @@ async def save_game_state(game_state: GameState, db_path: str) -> None:
                 "level": character["level"],
                 "class": character["character_class"],
                 "hp": f"{character['hit_points']}/{character['max_hit_points']}",
-                "xp": character["experience_points"]
+                "xp": character["experience_points"],
             },
-            table_name="character_sheets"
+            table_name="character_sheets",
         )
 
     # Save recent events
@@ -688,12 +722,8 @@ async def save_game_state(game_state: GameState, db_path: str) -> None:
             key=f"{event.timestamp.isoformat()}_{event.event_type}",
             value=event.model_dump(),
             conversation_id=game_state.session_id,
-            metadata={
-                "event_type": event.event_type,
-                "location": event.location,
-                "participants": ",".join(event.participants)
-            },
-            table_name="game_events"
+            metadata={"event_type": event.event_type, "location": event.location, "participants": ",".join(event.participants)},
+            table_name="game_events",
         )
 
 
@@ -709,11 +739,7 @@ async def load_game_state(session_id: str, db_path: str) -> GameState | None:
     """
     # Load main game state
     result = await get_agent_state(
-        db_path,
-        agent_id="game",
-        key="current_state",
-        conversation_id=session_id,
-        table_name="game_state"
+        db_path, agent_id="game", key="current_state", conversation_id=session_id, table_name="game_state"
     )
 
     if not result.success or not result.results:
@@ -722,12 +748,7 @@ async def load_game_state(session_id: str, db_path: str) -> GameState | None:
     state_data = result.results[0]["value"]
 
     # Load character sheets
-    char_result = await get_agent_state(
-        db_path,
-        agent_id="character",
-        conversation_id=session_id,
-        table_name="character_sheets"
-    )
+    char_result = await get_agent_state(db_path, agent_id="character", conversation_id=session_id, table_name="character_sheets")
 
     if char_result.success and char_result.results:
         # Reconstruct PlayerCharacter objects
@@ -770,8 +791,10 @@ async def load_game_state(session_id: str, db_path: str) -> GameState | None:
                 provider=player_data.get("provider"),
                 personality_prompt=player_data.get("personality_prompt"),
                 is_active=player_data.get("is_active", True),
-                last_action_time=datetime.fromisoformat(player_data["last_action_time"]) if player_data.get("last_action_time") else None,
-                position=player_data.get("position")
+                last_action_time=datetime.fromisoformat(player_data["last_action_time"])
+                if player_data.get("last_action_time")
+                else None,
+                position=player_data.get("position"),
             )
             active_players.append(player)
 
@@ -797,12 +820,7 @@ async def load_game_state(session_id: str, db_path: str) -> GameState | None:
         state_data["current_encounter"] = EncounterInfo(**state_data["current_encounter"])
 
     # Reconstruct recent events
-    event_result = await get_agent_state(
-        db_path,
-        agent_id="event",
-        conversation_id=session_id,
-        table_name="game_events"
-    )
+    event_result = await get_agent_state(db_path, agent_id="event", conversation_id=session_id, table_name="game_events")
 
     if event_result.success and event_result.results:
         events = []
@@ -816,11 +834,7 @@ async def load_game_state(session_id: str, db_path: str) -> GameState | None:
 
 
 async def save_combat_log(
-    session_id: str,
-    combat_round: int,
-    actions: list[PlayerAction],
-    dm_response: DMResponse,
-    db_path: str
+    session_id: str, combat_round: int, actions: list[PlayerAction], dm_response: DMResponse, db_path: str
 ) -> None:
     """Save combat log entry to database.
 
@@ -842,12 +856,8 @@ async def save_combat_log(
             "dm_response": dm_response.model_dump(),
         },
         conversation_id=session_id,
-        metadata={
-            "round": combat_round,
-            "num_actions": len(actions),
-            "xp_awarded": sum(dm_response.xp_awards.values())
-        },
-        table_name="combat_logs"
+        metadata={"round": combat_round, "num_actions": len(actions), "xp_awarded": sum(dm_response.xp_awards.values())},
+        table_name="combat_logs",
     )
 
 
@@ -870,7 +880,7 @@ async def get_campaign_sessions(db_path: str) -> list[dict[str, Any]]:
         WHERE agent_id = 'game'
         GROUP BY conversation_id
         ORDER BY last_played DESC
-        """
+        """,
     )
 
     if result.success and result.results:
@@ -878,23 +888,21 @@ async def get_campaign_sessions(db_path: str) -> list[dict[str, Any]]:
         for row in result.results:
             # Get the actual game state for more details
             state_result = await get_agent_state(
-                db_path,
-                agent_id="game",
-                key="current_state",
-                conversation_id=row["conversation_id"],
-                table_name="game_state"
+                db_path, agent_id="game", key="current_state", conversation_id=row["conversation_id"], table_name="game_state"
             )
 
             if state_result.success and state_result.results:
                 metadata = state_result.results[0].get("metadata", {})
-                sessions.append({
-                    "session_id": row["conversation_id"],
-                    "last_played": row["last_played"],
-                    "num_saves": row["num_saves"],
-                    "location": metadata.get("location", "Unknown"),
-                    "phase": metadata.get("phase", "Unknown"),
-                    "days_elapsed": metadata.get("days_elapsed", 0)
-                })
+                sessions.append(
+                    {
+                        "session_id": row["conversation_id"],
+                        "last_played": row["last_played"],
+                        "num_saves": row["num_saves"],
+                        "location": metadata.get("location", "Unknown"),
+                        "phase": metadata.get("phase", "Unknown"),
+                        "days_elapsed": metadata.get("days_elapsed", 0),
+                    }
+                )
 
         return sessions
 
@@ -945,7 +953,7 @@ async def roll_ability_check(
     disadvantage: bool = False,
     proficiency_bonus: int = 0,
     is_proficient: bool = False,
-    has_expertise: bool = False
+    has_expertise: bool = False,
 ) -> str:
     """
     Roll an ability check with proper modifiers.
@@ -982,7 +990,7 @@ async def roll_ability_check(
         modifier=total_modifier,
         purpose=f"{character_name}'s {purpose}",
         advantage=advantage,
-        disadvantage=disadvantage
+        disadvantage=disadvantage,
     )
 
     # Add details about modifiers
@@ -1005,7 +1013,7 @@ async def roll_saving_throw(
     is_proficient: bool = False,
     advantage: bool = False,
     disadvantage: bool = False,
-    bonus: int = 0
+    bonus: int = 0,
 ) -> str:
     """
     Roll a saving throw against a DC.
@@ -1037,7 +1045,7 @@ async def roll_saving_throw(
         modifier=total_modifier,
         purpose=f"{character_name}'s {ability.title()} save vs DC {dc}",
         advantage=advantage,
-        disadvantage=disadvantage
+        disadvantage=disadvantage,
     )
 
     # Determine success
@@ -1066,7 +1074,7 @@ async def roll_attack(
     advantage: bool = False,
     disadvantage: bool = False,
     critical_range: int = 20,
-    weapon_name: str = "weapon"
+    weapon_name: str = "weapon",
 ) -> str:
     """
     Roll a complete attack with hit and damage.
@@ -1093,7 +1101,7 @@ async def roll_attack(
         modifier=attack_bonus,
         purpose=f"{attacker_name}'s attack roll",
         advantage=advantage,
-        disadvantage=disadvantage
+        disadvantage=disadvantage,
     )
 
     # Check for critical
@@ -1135,7 +1143,7 @@ async def roll_attack(
             dice_type=ToolDiceType(die_type),
             num_dice=num_dice * (2 if is_critical else 1),
             modifier=modifier_part,
-            purpose=f"Damage ({damage_type})"
+            purpose=f"Damage ({damage_type})",
         )
 
         output.append(format_roll_result(damage_result))
@@ -1154,7 +1162,7 @@ async def calculate_movement(
     base_speed: int,
     movement_used: int = 0,
     difficult_terrain: bool = False,
-    dash_action: bool = False
+    dash_action: bool = False,
 ) -> str:
     """
     Calculate movement cost and validity.
@@ -1210,7 +1218,7 @@ async def check_spell_requirements(
     spell_level: int,
     available_slots: dict[int, int],
     components_available: list[str],
-    concentration_active: bool = False
+    concentration_active: bool = False,
 ) -> str:
     """
     Check if a spell can be cast.
@@ -1283,7 +1291,7 @@ async def apply_condition(
     condition_name: str,
     duration_rounds: int | None = None,
     save_dc: int | None = None,
-    save_ability: str | None = None
+    save_ability: str | None = None,
 ) -> str:
     """
     Apply a condition to a character.
@@ -1319,11 +1327,7 @@ async def apply_condition(
 
 
 @tool
-async def calculate_encounter_xp(
-    monster_names: list[str],
-    party_size: int,
-    party_levels: list[int]
-) -> str:
+async def calculate_encounter_xp(monster_names: list[str], party_size: int, party_levels: list[int]) -> str:
     """
     Calculate XP for an encounter.
 
@@ -1349,14 +1353,7 @@ async def calculate_encounter_xp(
 
     # Calculate encounter multiplier
     num_monsters = len(monster_names)
-    multipliers = {
-        1: 1.0,
-        2: 1.5,
-        (3, 6): 2.0,
-        (7, 10): 2.5,
-        (11, 14): 3.0,
-        (15, float('inf')): 4.0
-    }
+    multipliers = {1: 1.0, 2: 1.5, (3, 6): 2.0, (7, 10): 2.5, (11, 14): 3.0, (15, float('inf')): 4.0}
 
     multiplier = 1.0
     for key, value in multipliers.items():
@@ -1398,7 +1395,7 @@ async def calculate_encounter_xp(
         17: (2000, 3900, 5900, 8800),
         18: (2100, 4200, 6300, 9500),
         19: (2400, 4900, 7300, 10900),
-        20: (2800, 5700, 8500, 12700)
+        20: (2800, 5700, 8500, 12700),
     }
 
     party_thresholds = thresholds.get(avg_level, thresholds[20])  # Default to level 20 if beyond
@@ -1421,7 +1418,9 @@ async def calculate_encounter_xp(
     output.append(f"Multiplier: x{multiplier} ({num_monsters} monsters, {party_size} party members)")
     output.append(f"Adjusted XP: {adjusted_xp}")
     output.append(f"\n**Difficulty: {difficulty}**")
-    output.append(f"Party thresholds - Easy: {total_thresholds[0]}, Medium: {total_thresholds[1]}, Hard: {total_thresholds[2]}, Deadly: {total_thresholds[3]}")
+    output.append(
+        f"Party thresholds - Easy: {total_thresholds[0]}, Medium: {total_thresholds[1]}, Hard: {total_thresholds[2]}, Deadly: {total_thresholds[3]}"
+    )
     output.append(f"\nXP per character: {total_xp // party_size}")
 
     return "\n".join(output)
@@ -1437,7 +1436,7 @@ async def manage_rest(
     hit_die_size: int,
     con_modifier: int,
     spell_slots_used: dict[int, int] | None = None,
-    exhaustion_level: int = 0
+    exhaustion_level: int = 0,
 ) -> str:
     """
     Handle short or long rest mechanics.
@@ -1508,12 +1507,7 @@ async def manage_rest(
 # Existing tool functions remain the same
 @tool
 async def roll_for_action(
-    dice_type: str,
-    num_dice: int = 1,
-    modifier: int = 0,
-    purpose: str = "",
-    advantage: bool = False,
-    disadvantage: bool = False
+    dice_type: str, num_dice: int = 1, modifier: int = 0, purpose: str = "", advantage: bool = False, disadvantage: bool = False
 ) -> str:
     """
     Roll dice for any game action.
@@ -1539,7 +1533,7 @@ async def roll_for_action(
         modifier=modifier,
         purpose=purpose,
         advantage=advantage,
-        disadvantage=disadvantage
+        disadvantage=disadvantage,
     )
 
     # Format and return the result
@@ -1764,7 +1758,9 @@ async def lookup_magic_item(item_name: str) -> str:
 
 
 @tool
-async def search_content(content_type: str, query: str = "", level: int | None = None, school: str | None = None, challenge_rating: float | None = None) -> str:
+async def search_content(
+    content_type: str, query: str = "", level: int | None = None, school: str | None = None, challenge_rating: float | None = None
+) -> str:
     """
     Search D&D 5e content with filters.
 
@@ -1820,7 +1816,7 @@ async def search_content(content_type: str, query: str = "", level: int | None =
         lookup_condition,
         lookup_skill,
         lookup_magic_item,
-        search_content
+        search_content,
     ],
 )
 @prompt_template(
@@ -1913,7 +1909,7 @@ def generate_dm_response(
     campaign_tone: str = "Classic fantasy adventure with mystery elements",
     dm_style: str = "Engaging storyteller who balances combat, roleplay, and exploration",
     provider: str = "openai",
-    model: str = "gpt-4o"
+    model: str = "gpt-4o",
 ) -> BaseDynamicConfig:
     """Generate DM response to game situation."""
     return {
@@ -1937,7 +1933,7 @@ def generate_dm_response(
         check_spell_requirements,
         lookup_spell,
         lookup_equipment,
-        lookup_skill
+        lookup_skill,
     ],
 )
 @prompt_template(
@@ -2037,7 +2033,7 @@ def generate_ai_player_action(
     enemies_visible: str,
     available_options: str,
     provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> BaseDynamicConfig:
     """Generate AI player action."""
     return {}
@@ -2090,16 +2086,13 @@ def generate_character_dialogue(
     character_goal: str,
     emotional_state: str,
     provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> BaseDynamicConfig:
     """Generate in-character dialogue."""
     return {}
 
 
-async def wait_for_human_input(
-    request: HumanInputRequest,
-    timeout: int | None = None
-) -> str | None:
+async def wait_for_human_input(request: HumanInputRequest, timeout: int | None = None) -> str | None:
     """Wait for human input with optional timeout and interrupt capability."""
     print(f"\n{request.prompt}")
     if request.context:
@@ -2121,10 +2114,7 @@ async def wait_for_human_input(
             print(f"You have {timeout} seconds to respond...")
             # Use asyncio to handle timeout properly
             try:
-                response = await asyncio.wait_for(
-                    asyncio.get_event_loop().run_in_executor(None, input, "> "),
-                    timeout=timeout
-                )
+                response = await asyncio.wait_for(asyncio.get_event_loop().run_in_executor(None, input, "> "), timeout=timeout)
                 return response
             except TimeoutError:
                 print("\nTime's up! Moving on...")
@@ -2142,12 +2132,7 @@ async def wait_for_human_input(
         return None
 
 
-async def process_player_turn(
-    player: PlayerCharacter,
-    game_state: GameState,
-    dm_prompt: str,
-    party_status: str
-) -> PlayerAction:
+async def process_player_turn(player: PlayerCharacter, game_state: GameState, dm_prompt: str, party_status: str) -> PlayerAction:
     """Process a single player's turn."""
     if player.player_type == PlayerType.HUMAN:
         # Human player turn
@@ -2163,10 +2148,10 @@ async def process_player_turn(
                 "Roleplay/speak",
                 "Investigate",
                 "Help another player",
-                "Custom action"
+                "Custom action",
             ],
             time_limit=120,  # 2 minutes
-            can_interrupt=True
+            can_interrupt=True,
         )
 
         human_input = await wait_for_human_input(request)
@@ -2178,7 +2163,7 @@ async def process_player_turn(
                 description="*interrupts the current scene*",
                 target=None,
                 target_position=None,
-                success=True
+                success=True,
             )
 
         # Parse human input into action
@@ -2212,7 +2197,7 @@ async def process_player_turn(
             description=description,
             target=None,
             target_position=None,
-            success=True
+            success=True,
         )
 
     else:
@@ -2291,7 +2276,7 @@ async def process_player_turn(
             enemies_visible=enemies_visible_str,
             available_options="Any appropriate action",
             provider=player.provider or "openai",
-            model=player.model or "gpt-4o-mini"
+            model=player.model or "gpt-4o-mini",
         )
 
         # Add a small delay for AI players to make it feel more natural
@@ -2334,10 +2319,18 @@ async def handle_level_up(character: CharacterSheet) -> dict[str, Any]:
     character.hit_dice_remaining += 1
 
     # Update spell slots for casters
-    if (character.character_class in [CharacterClass.WIZARD, CharacterClass.SORCERER,
-                                     CharacterClass.CLERIC, CharacterClass.DRUID,
-                                     CharacterClass.BARD, CharacterClass.WARLOCK] and
-        character.spell_slots):
+    if (
+        character.character_class
+        in [
+            CharacterClass.WIZARD,
+            CharacterClass.SORCERER,
+            CharacterClass.CLERIC,
+            CharacterClass.DRUID,
+            CharacterClass.BARD,
+            CharacterClass.WARLOCK,
+        ]
+        and character.spell_slots
+    ):
         # Full spell slot progression table
         # Full caster progression (Wizard, Sorcerer, Cleric, Druid, Bard)
         full_caster_slots = {
@@ -2357,10 +2350,50 @@ async def handle_level_up(character: CharacterSheet) -> dict[str, Any]:
             14: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 2, "level_6": 1, "level_7": 1},
             15: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 2, "level_6": 1, "level_7": 1, "level_8": 1},
             16: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 2, "level_6": 1, "level_7": 1, "level_8": 1},
-            17: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 2, "level_6": 1, "level_7": 1, "level_8": 1, "level_9": 1},
-            18: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 3, "level_6": 1, "level_7": 1, "level_8": 1, "level_9": 1},
-            19: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 3, "level_6": 2, "level_7": 1, "level_8": 1, "level_9": 1},
-            20: {"level_1": 4, "level_2": 3, "level_3": 3, "level_4": 3, "level_5": 3, "level_6": 2, "level_7": 2, "level_8": 1, "level_9": 1},
+            17: {
+                "level_1": 4,
+                "level_2": 3,
+                "level_3": 3,
+                "level_4": 3,
+                "level_5": 2,
+                "level_6": 1,
+                "level_7": 1,
+                "level_8": 1,
+                "level_9": 1,
+            },
+            18: {
+                "level_1": 4,
+                "level_2": 3,
+                "level_3": 3,
+                "level_4": 3,
+                "level_5": 3,
+                "level_6": 1,
+                "level_7": 1,
+                "level_8": 1,
+                "level_9": 1,
+            },
+            19: {
+                "level_1": 4,
+                "level_2": 3,
+                "level_3": 3,
+                "level_4": 3,
+                "level_5": 3,
+                "level_6": 2,
+                "level_7": 1,
+                "level_8": 1,
+                "level_9": 1,
+            },
+            20: {
+                "level_1": 4,
+                "level_2": 3,
+                "level_3": 3,
+                "level_4": 3,
+                "level_5": 3,
+                "level_6": 2,
+                "level_7": 2,
+                "level_8": 1,
+                "level_9": 1,
+            },
         }
 
         # Warlock has different progression (Pact Magic)
@@ -2399,14 +2432,11 @@ async def handle_level_up(character: CharacterSheet) -> dict[str, Any]:
         "hp_increase": hp_increase,
         "new_max_hp": character.max_hit_points,
         "proficiency_bonus": character.proficiency_bonus,
-        "features": f"Check class features for level {character.level}"
+        "features": f"Check class features for level {character.level}",
     }
 
 
-async def award_experience(
-    game_state: GameState,
-    xp_awards: dict[str, int]
-) -> list[tuple[str, dict[str, Any]]]:
+async def award_experience(game_state: GameState, xp_awards: dict[str, int]) -> list[tuple[str, dict[str, Any]]]:
     """Award XP to characters and handle level ups."""
     level_ups = []
 
@@ -2427,11 +2457,7 @@ async def award_experience(
     return level_ups
 
 
-async def run_combat_round(
-    game_state: GameState,
-    dm_provider: str,
-    dm_model: str
-) -> tuple[list[PlayerAction], DMResponse]:
+async def run_combat_round(game_state: GameState, dm_provider: str, dm_model: str) -> tuple[list[PlayerAction], DMResponse]:
     """Run a single round of combat."""
     actions = []
 
@@ -2448,8 +2474,7 @@ async def run_combat_round(
     for character_name in game_state.combat_order:
         # Find the player
         current_player: PlayerCharacter | None = next(
-            (p for p in game_state.active_players if p.character.name == character_name),
-            None
+            (p for p in game_state.active_players if p.character.name == character_name), None
         )
 
         if current_player:
@@ -2459,10 +2484,7 @@ async def run_combat_round(
 
                 # Death saving throw
                 death_save_roll = tool_roll_dice(
-                    dice_type=ToolDiceType.D20,
-                    num_dice=1,
-                    modifier=0,
-                    purpose=f"{character_name}'s death saving throw"
+                    dice_type=ToolDiceType.D20, num_dice=1, modifier=0, purpose=f"{character_name}'s death saving throw"
                 )
 
                 if death_save_roll.total >= 10:
@@ -2495,7 +2517,9 @@ async def run_combat_round(
             # Show character status
             print(f"\n{character_name}'s turn:")
             print(f"  HP: {current_player.character.hit_points}/{current_player.character.max_hit_points}")
-            print(f"  Position: ({current_player.position.x}, {current_player.position.y})") if current_player.position else print("  Position: Unknown")
+            print(
+                f"  Position: ({current_player.position.x}, {current_player.position.y})"
+            ) if current_player.position else print("  Position: Unknown")
             print(f"  Movement: {current_player.character.movement_remaining} ft")
             if current_player.character.conditions:
                 print(f"  Conditions: {', '.join([c.name for c in current_player.character.conditions])}")
@@ -2504,14 +2528,12 @@ async def run_combat_round(
                 current_player,
                 game_state,
                 "You are in combat! Choose your action.",
-                f"{len([p for p in game_state.active_players if p.character.hit_points > 0])} allies standing"
+                f"{len([p for p in game_state.active_players if p.character.hit_points > 0])} allies standing",
             )
 
             # Process movement if specified
             if action.target_position and current_player.position and game_state.battle_map:
-                movement_cost = game_state.battle_map.calculate_movement_cost(
-                    current_player.position, action.target_position
-                )
+                movement_cost = game_state.battle_map.calculate_movement_cost(current_player.position, action.target_position)
 
                 if movement_cost <= current_player.character.movement_remaining:
                     # Update position
@@ -2525,9 +2547,13 @@ async def run_combat_round(
                         if combatant_info:
                             combatant_info.position = action.target_position
 
-                    action.consequences.append(f"Moved from ({old_pos.x}, {old_pos.y}) to ({action.target_position.x}, {action.target_position.y})")
+                    action.consequences.append(
+                        f"Moved from ({old_pos.x}, {old_pos.y}) to ({action.target_position.x}, {action.target_position.y})"
+                    )
                 else:
-                    action.consequences.append(f"Not enough movement! Need {movement_cost} ft, have {current_player.character.movement_remaining} ft")
+                    action.consequences.append(
+                        f"Not enough movement! Need {movement_cost} ft, have {current_player.character.movement_remaining} ft"
+                    )
 
             # Track resource usage
             if action.action_type == ActionType.ATTACK:
@@ -2557,14 +2583,14 @@ async def run_combat_round(
                     save_mod = current_player.character.stats.get_saving_throw_modifier(
                         condition.save_ability.value,
                         current_player.character.proficiency_bonus,
-                        condition.save_ability in current_player.character.saving_throw_proficiencies
+                        condition.save_ability in current_player.character.saving_throw_proficiencies,
                     )
 
                     save_result = tool_roll_dice(
                         dice_type=ToolDiceType.D20,
                         num_dice=1,
                         modifier=save_mod,
-                        purpose=f"{character_name}'s {condition.save_ability.value} save vs {condition.name}"
+                        purpose=f"{character_name}'s {condition.save_ability.value} save vs {condition.name}",
                     )
 
                     if save_result.total >= condition.save_dc:
@@ -2579,7 +2605,7 @@ async def run_combat_round(
         current_phase=GamePhase.COMBAT,
         special_considerations=f"Combat round {game_state.combat_round}. Resolve all actions in initiative order. Track HP changes and conditions.",
         provider=dm_provider,
-        model=dm_model
+        model=dm_model,
     )
 
     # Apply any XP awards
@@ -2597,7 +2623,7 @@ async def run_roleplay_scene(
     game_state: GameState,
     dm_provider: str,
     dm_model: str,
-    scene_duration: int = 300  # 5 minutes default
+    scene_duration: int = 300,  # 5 minutes default
 ) -> tuple[list[RoleplayExchange], DMResponse]:
     """Run a roleplay scene with dynamic interactions."""
     exchanges = []
@@ -2614,7 +2640,7 @@ async def run_roleplay_scene(
         current_phase=GamePhase.ROLEPLAY,
         special_considerations="Set the scene for roleplay",
         provider=dm_provider,
-        model=dm_model
+        model=dm_model,
     )
 
     print(f"\nDM: {initial_response.narration}")
@@ -2630,7 +2656,7 @@ async def run_roleplay_scene(
                     context="Roleplay scene in progress",
                     options=[],
                     time_limit=10,  # Quick timeout to keep scene flowing
-                    can_interrupt=True
+                    can_interrupt=True,
                 )
 
                 human_input = await wait_for_human_input(request)
@@ -2648,7 +2674,7 @@ async def run_roleplay_scene(
                         actions=None,
                         target_audience=[p.character.name for p in game_state.active_players],
                         requires_response=True,
-                        skill_check=None
+                        skill_check=None,
                     )
                     exchanges.append(exchange)
 
@@ -2656,10 +2682,12 @@ async def run_roleplay_scene(
         for player in game_state.active_players:
             if player.player_type == PlayerType.AI and len(exchanges) > 0 and random.random() < 0.3:
                 # Only respond 30% of the time to avoid overwhelming dialogue
-                recent_dialogue = "\n".join([
-                    f"{ex.speaker}: {ex.dialogue}"
-                    for ex in exchanges[-3:]  # Last 3 exchanges
-                ])
+                recent_dialogue = "\n".join(
+                    [
+                        f"{ex.speaker}: {ex.dialogue}"
+                        for ex in exchanges[-3:]  # Last 3 exchanges
+                    ]
+                )
 
                 ai_dialogue = generate_character_dialogue(
                     character_name=player.character.name,
@@ -2673,7 +2701,7 @@ async def run_roleplay_scene(
                     character_goal="Contribute to the conversation",
                     emotional_state="Normal",
                     provider=player.provider or "openai",
-                    model=player.model or "gpt-4o-mini"
+                    model=player.model or "gpt-4o-mini",
                 )
 
                 exchanges.append(ai_dialogue)
@@ -2689,7 +2717,7 @@ async def run_roleplay_scene(
         current_phase=GamePhase.ROLEPLAY,
         special_considerations=f"Conclude roleplay scene with {len(exchanges)} exchanges",
         provider=dm_provider,
-        model=dm_model
+        model=dm_model,
     )
 
     return exchanges, dm_response
@@ -2699,7 +2727,7 @@ async def initialize_combat(
     game_state: GameState,
     dm_provider: str,
     dm_model: str,
-    enemies: list[tuple[str, str]] = None  # List of (name, monster_type)
+    enemies: list[tuple[str, str]] = None,  # List of (name, monster_type)
 ) -> tuple[list[str], BattleMap]:
     """Initialize combat by rolling initiative and setting up the battle map."""
     print("\n⚔️ COMBAT INITIATED! ⚔️")
@@ -2713,7 +2741,7 @@ async def initialize_combat(
         height=30,  # 150 feet
         combatants={},
         obstacles=[],
-        difficult_terrain=[]
+        difficult_terrain=[],
     )
 
     # Roll initiative for players
@@ -2724,9 +2752,7 @@ async def initialize_combat(
 
         # Roll initiative
         init_roll = tool_roll_dice(
-            dice_type=ToolDiceType.D20,
-            modifier=init_mod,
-            purpose=f"Initiative for {player.character.name}"
+            dice_type=ToolDiceType.D20, modifier=init_mod, purpose=f"Initiative for {player.character.name}"
         )
 
         initiative_order.append((player.character.name, init_roll.total))
@@ -2746,7 +2772,7 @@ async def initialize_combat(
             has_acted=False,
             ac=player.character.armor_class,
             current_hp=player.character.hit_points,
-            max_hp=player.character.max_hit_points
+            max_hp=player.character.max_hit_points,
         )
 
     # Roll initiative for enemies
@@ -2758,11 +2784,7 @@ async def initialize_combat(
 
                 # Calculate initiative
                 dex_mod = (monster.dexterity - 10) // 2
-                init_roll = tool_roll_dice(
-                    dice_type=ToolDiceType.D20,
-                    modifier=dex_mod,
-                    purpose=f"Initiative for {enemy_name}"
-                )
+                init_roll = tool_roll_dice(dice_type=ToolDiceType.D20, modifier=dex_mod, purpose=f"Initiative for {enemy_name}")
 
                 initiative_order.append((enemy_name, init_roll.total))
                 print(format_roll_result(init_roll))
@@ -2780,17 +2802,13 @@ async def initialize_combat(
                     has_acted=False,
                     ac=monster.armor_class[0]["value"] if isinstance(monster.armor_class, list) else monster.armor_class,
                     current_hp=monster.hit_points,
-                    max_hp=monster.hit_points
+                    max_hp=monster.hit_points,
                 )
 
             except ValueError as e:
                 print(f"Error loading {monster_type}: {e}")
                 # Use default stats
-                init_roll = tool_roll_dice(
-                    dice_type=ToolDiceType.D20,
-                    modifier=0,
-                    purpose=f"Initiative for {enemy_name}"
-                )
+                init_roll = tool_roll_dice(dice_type=ToolDiceType.D20, modifier=0, purpose=f"Initiative for {enemy_name}")
 
                 initiative_order.append((enemy_name, init_roll.total))
 
@@ -2804,7 +2822,7 @@ async def initialize_combat(
                     has_acted=False,
                     ac=12,  # Default AC
                     current_hp=20,  # Default HP
-                    max_hp=20
+                    max_hp=20,
                 )
 
     # Sort by initiative (highest first)
@@ -2845,7 +2863,7 @@ async def dnd_game_master(
     enable_persistence: bool = True,
     db_path: str | None = None,
     load_session_id: str | None = None,
-    auto_save_interval: int = 300  # Auto-save every 5 minutes
+    auto_save_interval: int = 300,  # Auto-save every 5 minutes
 ) -> GameState:
     """
     Run a D&D game session with human and AI players.
@@ -2915,13 +2933,13 @@ async def dnd_game_master(
             session_xp_earned={},
             game_time="Morning",
             days_elapsed=0,
-            long_rest_available=True
+            long_rest_available=True,
         )
 
         # Add quest hooks if provided
         if quest_hooks:
             for i, hook in enumerate(quest_hooks):
-                game_state.quest_status[f"quest_{i+1}"] = f"Available: {hook}"
+                game_state.quest_status[f"quest_{i + 1}"] = f"Available: {hook}"
 
     # Initialize database if persistence is enabled
     if enable_persistence:
@@ -2959,7 +2977,7 @@ async def dnd_game_master(
                     player,
                     game_state,
                     "What would you like to do?",
-                    f"{len([p for p in game_state.active_players if p.character.hit_points > 0])} allies standing"
+                    f"{len([p for p in game_state.active_players if p.character.hit_points > 0])} allies standing",
                 )
                 actions.append(action)
 
@@ -2973,7 +2991,7 @@ async def dnd_game_master(
                 model=dm_model,
                 campaign_name=campaign_name,
                 campaign_tone=campaign_tone,
-                dm_style=dm_style
+                dm_style=dm_style,
             )
 
             print(f"\nDM: {dm_response.narration}")
@@ -3000,9 +3018,7 @@ async def dnd_game_master(
                                 enemies.append((name, monster_type))
 
                     if enemies:
-                        initiative_order, battle_map = await initialize_combat(
-                            game_state, dm_provider, dm_model, enemies
-                        )
+                        initiative_order, battle_map = await initialize_combat(game_state, dm_provider, dm_model, enemies)
                         game_state.combat_order = initiative_order
                         game_state.battle_map = battle_map
 
@@ -3010,11 +3026,7 @@ async def dnd_game_master(
                         monster_types = [e[1] for e in enemies]
                         party_levels = [p.character.level for p in game_state.active_players]
 
-                        xp_calc = await calculate_encounter_xp(
-                            monster_types,
-                            len(game_state.active_players),
-                            party_levels
-                        )
+                        xp_calc = await calculate_encounter_xp(monster_types, len(game_state.active_players), party_levels)
 
                         # Set encounter info
                         game_state.current_encounter = EncounterInfo(
@@ -3023,28 +3035,18 @@ async def dnd_game_master(
                             enemies=monster_types,
                             total_xp=0,  # Will be calculated
                             environment=game_state.location,
-                            objectives=["Survive the encounter"]
+                            objectives=["Survive the encounter"],
                         )
 
         elif current_phase == GamePhase.COMBAT and enable_combat:
             # Run combat round
-            actions, dm_response = await run_combat_round(
-                game_state,
-                dm_provider,
-                dm_model
-            )
+            actions, dm_response = await run_combat_round(game_state, dm_provider, dm_model)
 
             print(f"\nDM: {dm_response.narration}")
 
             # Save combat log if persistence is enabled
             if enable_persistence and db_path:
-                await save_combat_log(
-                    game_state.session_id,
-                    game_state.combat_round,
-                    actions,
-                    dm_response,
-                    db_path
-                )
+                await save_combat_log(game_state.session_id, game_state.combat_round, actions, dm_response, db_path)
 
             # Check for combat end
             if "combat ends" in dm_response.narration.lower():
@@ -3053,11 +3055,7 @@ async def dnd_game_master(
 
         elif current_phase == GamePhase.ROLEPLAY and enable_roleplay:
             # Run roleplay scene
-            exchanges, dm_response = await run_roleplay_scene(
-                game_state,
-                dm_provider,
-                dm_model
-            )
+            exchanges, dm_response = await run_roleplay_scene(game_state, dm_provider, dm_model)
 
             print(f"\nDM: {dm_response.narration}")
 
@@ -3072,7 +3070,7 @@ async def dnd_game_master(
             location=game_state.location,
             timestamp=datetime.now(),
             consequences=dm_response.scene_changes.split(", ") if dm_response.scene_changes else [],
-            xp_awarded=dm_response.xp_awards
+            xp_awarded=dm_response.xp_awards,
         )
         game_state.recent_events.append(event)
 
@@ -3125,7 +3123,7 @@ async def dnd_game_master_stream(
     campaign_name: str = "The Lost Mines of Phandelver",
     players: list[PlayerCharacter] = None,
     create_sample_party: bool = True,
-    **kwargs
+    **kwargs,
 ) -> AsyncGenerator[str, None]:
     """Stream the D&D game session with real-time updates.
 
@@ -3145,10 +3143,24 @@ async def dnd_game_master_stream(
 
         # Create spell slots for casters
         wizard_spell_slots = SpellSlots(
-            level_1=4, level_2=2, level_3=0, level_4=0, level_5=0,
-            level_6=0, level_7=0, level_8=0, level_9=0,
-            level_1_used=0, level_2_used=0, level_3_used=0, level_4_used=0, level_5_used=0,
-            level_6_used=0, level_7_used=0, level_8_used=0, level_9_used=0
+            level_1=4,
+            level_2=2,
+            level_3=0,
+            level_4=0,
+            level_5=0,
+            level_6=0,
+            level_7=0,
+            level_8=0,
+            level_9=0,
+            level_1_used=0,
+            level_2_used=0,
+            level_3_used=0,
+            level_4_used=0,
+            level_5_used=0,
+            level_6_used=0,
+            level_7_used=0,
+            level_8_used=0,
+            level_9_used=0,
         )
 
         players = [
@@ -3159,10 +3171,7 @@ async def dnd_game_master_stream(
                     character_class=CharacterClass.FIGHTER,
                     level=3,
                     experience_points=900,
-                    stats=CharacterStats(
-                        strength=16, dexterity=12, constitution=15,
-                        intelligence=10, wisdom=13, charisma=8
-                    ),
+                    stats=CharacterStats(strength=16, dexterity=12, constitution=15, intelligence=10, wisdom=13, charisma=8),
                     hit_points=28,
                     max_hit_points=28,
                     temp_hit_points=0,
@@ -3179,9 +3188,36 @@ async def dnd_game_master_stream(
                     movement_remaining=25,
                     spell_slots=None,
                     inventory=[
-                        InventoryItem(name="Battleaxe", equipped=True, quantity=1, weight=4.0, attunement_required=False, attuned=False, magical=False, description="A sturdy battleaxe"),
-                        InventoryItem(name="Shield", equipped=True, quantity=1, weight=6.0, attunement_required=False, attuned=False, magical=False, description="A metal shield"),
-                        InventoryItem(name="Chain Mail", equipped=True, quantity=1, weight=55.0, attunement_required=False, attuned=False, magical=False, description="Heavy armor")
+                        InventoryItem(
+                            name="Battleaxe",
+                            equipped=True,
+                            quantity=1,
+                            weight=4.0,
+                            attunement_required=False,
+                            attuned=False,
+                            magical=False,
+                            description="A sturdy battleaxe",
+                        ),
+                        InventoryItem(
+                            name="Shield",
+                            equipped=True,
+                            quantity=1,
+                            weight=6.0,
+                            attunement_required=False,
+                            attuned=False,
+                            magical=False,
+                            description="A metal shield",
+                        ),
+                        InventoryItem(
+                            name="Chain Mail",
+                            equipped=True,
+                            quantity=1,
+                            weight=55.0,
+                            attunement_required=False,
+                            attuned=False,
+                            magical=False,
+                            description="Heavy armor",
+                        ),
                     ],
                     equipped_armor="Chain Mail",
                     equipped_weapons=["Battleaxe"],
@@ -3193,7 +3229,7 @@ async def dnd_game_master_stream(
                     personality_traits=["Gruff but loyal", "Loves a good fight"],
                     ideals=["Honor in battle"],
                     bonds=["My clan is everything"],
-                    flaws=["Too stubborn for my own good"]
+                    flaws=["Too stubborn for my own good"],
                 ),
                 player_type=PlayerType.AI,
                 model="gpt-4o-mini",
@@ -3201,7 +3237,7 @@ async def dnd_game_master_stream(
                 personality_prompt="Gruff dwarf warrior who speaks in a Scottish accent",
                 is_active=True,
                 last_action_time=None,
-                position=None
+                position=None,
             ),
             PlayerCharacter(
                 character=CharacterSheet(
@@ -3210,10 +3246,7 @@ async def dnd_game_master_stream(
                     character_class=CharacterClass.WIZARD,
                     level=3,
                     experience_points=900,
-                    stats=CharacterStats(
-                        strength=8, dexterity=14, constitution=12,
-                        intelligence=16, wisdom=13, charisma=10
-                    ),
+                    stats=CharacterStats(strength=8, dexterity=14, constitution=12, intelligence=16, wisdom=13, charisma=10),
                     hit_points=14,
                     max_hit_points=14,
                     temp_hit_points=0,
@@ -3232,9 +3265,36 @@ async def dnd_game_master_stream(
                     spells_known=["Magic Missile", "Shield", "Detect Magic", "Burning Hands", "Mage Armor"],
                     cantrips_known=["Fire Bolt", "Mage Hand", "Prestidigitation"],
                     inventory=[
-                        InventoryItem(name="Spellbook", equipped=True, quantity=1, weight=3.0, attunement_required=False, attuned=False, magical=False, description="A wizard's spellbook"),
-                        InventoryItem(name="Wand", equipped=True, magical=True, quantity=1, weight=1.0, attunement_required=False, attuned=False, description="A magical wand"),
-                        InventoryItem(name="Component Pouch", equipped=True, quantity=1, weight=2.0, attunement_required=False, attuned=False, magical=False, description="Spell components")
+                        InventoryItem(
+                            name="Spellbook",
+                            equipped=True,
+                            quantity=1,
+                            weight=3.0,
+                            attunement_required=False,
+                            attuned=False,
+                            magical=False,
+                            description="A wizard's spellbook",
+                        ),
+                        InventoryItem(
+                            name="Wand",
+                            equipped=True,
+                            magical=True,
+                            quantity=1,
+                            weight=1.0,
+                            attunement_required=False,
+                            attuned=False,
+                            description="A magical wand",
+                        ),
+                        InventoryItem(
+                            name="Component Pouch",
+                            equipped=True,
+                            quantity=1,
+                            weight=2.0,
+                            attunement_required=False,
+                            attuned=False,
+                            magical=False,
+                            description="Spell components",
+                        ),
                     ],
                     equipped_armor=None,
                     equipped_weapons=["Wand"],
@@ -3246,7 +3306,7 @@ async def dnd_game_master_stream(
                     personality_traits=["Curious about magic", "Cautious in combat"],
                     ideals=["Knowledge is power"],
                     bonds=["I seek lost magical knowledge"],
-                    flaws=["I overlook obvious solutions in favor of complicated ones"]
+                    flaws=["I overlook obvious solutions in favor of complicated ones"],
                 ),
                 player_type=PlayerType.AI,
                 model="claude-3-5-sonnet-20241022",
@@ -3254,8 +3314,8 @@ async def dnd_game_master_stream(
                 personality_prompt="Scholarly elf wizard who speaks eloquently",
                 is_active=True,
                 last_action_time=None,
-                position=None
-            )
+                position=None,
+            ),
         ]
     elif not players:
         yield "**No players provided!**\n"
@@ -3292,13 +3352,13 @@ async def dnd_game_master_stream(
         session_xp_earned={},
         game_time="Morning",
         days_elapsed=0,
-        long_rest_available=True
+        long_rest_available=True,
     )
 
     # Add quest hooks if provided
     if 'quest_hooks' in kwargs and kwargs['quest_hooks']:
         for i, hook in enumerate(kwargs['quest_hooks']):
-            game_state.quest_status[f"quest_{i+1}"] = f"Available: {hook}"
+            game_state.quest_status[f"quest_{i + 1}"] = f"Available: {hook}"
 
     # Generate opening scene
     dm_response = generate_dm_response(
@@ -3308,23 +3368,33 @@ async def dnd_game_master_stream(
         current_phase=GamePhase.EXPLORATION,
         special_considerations="Opening scene of the adventure",
         provider=kwargs.get("dm_provider", "openai"),
-        model=kwargs.get("dm_model", "gpt-4o")
+        model=kwargs.get("dm_model", "gpt-4o"),
     )
 
     yield f"**DM:** {dm_response.narration}\n\n"
 
     # Simulate a few turns
     for i in range(min(3, len(players))):  # Show up to 3 player turns
-        yield f"**Round {i+1}**\n\n"
+        yield f"**Round {i + 1}**\n\n"
 
         player = players[i % len(players)]
         if player.player_type == PlayerType.AI:
             # Prepare character data for the example
             position_str = "Not in combat"
             conditions_str = "None"
-            proficient_skills_str = ", ".join([s.value for s in player.character.skill_proficiencies]) if player.character.skill_proficiencies else "None"
-            saving_throws_str = ", ".join([s.value for s in player.character.saving_throw_proficiencies]) if player.character.saving_throw_proficiencies else "None"
-            available_attacks_str = ", ".join(player.character.equipped_weapons) if player.character.equipped_weapons else "Unarmed strike"
+            proficient_skills_str = (
+                ", ".join([s.value for s in player.character.skill_proficiencies])
+                if player.character.skill_proficiencies
+                else "None"
+            )
+            saving_throws_str = (
+                ", ".join([s.value for s in player.character.saving_throw_proficiencies])
+                if player.character.saving_throw_proficiencies
+                else "None"
+            )
+            available_attacks_str = (
+                ", ".join(player.character.equipped_weapons) if player.character.equipped_weapons else "Unarmed strike"
+            )
             spells_known_str = ", ".join(player.character.spells_known[:3]) if player.character.spells_known else "None"
 
             # Calculate spell slots string
@@ -3367,7 +3437,7 @@ async def dnd_game_master_stream(
                 enemies_visible="None",
                 available_options="Any appropriate action",
                 provider=player.provider or "openai",
-                model=player.model or "gpt-4o-mini"
+                model=player.model or "gpt-4o-mini",
             )
 
             yield f"**{player.character.name}:** {action.description}\n\n"
@@ -3413,7 +3483,7 @@ async def dnd_game_master_stream(
             skill="perception",
             modifier=example_player.character.stats.get_modifier("wisdom"),
             proficiency_bonus=example_player.character.proficiency_bonus,
-            is_proficient=SkillType.PERCEPTION in example_player.character.skill_proficiencies
+            is_proficient=SkillType.PERCEPTION in example_player.character.skill_proficiencies,
         )
         yield f"{example_check}\n"
 
@@ -3421,7 +3491,11 @@ async def dnd_game_master_stream(
         if example_player.character.equipped_weapons:
             yield "\n*Attack Roll:*\n"
             # Calculate attack bonus based on character
-            if example_player.character.character_class in [CharacterClass.FIGHTER, CharacterClass.BARBARIAN, CharacterClass.PALADIN]:
+            if example_player.character.character_class in [
+                CharacterClass.FIGHTER,
+                CharacterClass.BARBARIAN,
+                CharacterClass.PALADIN,
+            ]:
                 attack_stat = example_player.character.stats.get_modifier("strength")
             else:
                 attack_stat = example_player.character.stats.get_modifier("dexterity")
@@ -3434,7 +3508,7 @@ async def dnd_game_master_stream(
                 attack_bonus=attack_bonus,
                 damage_dice=f"1d8+{attack_stat}",
                 damage_type="slashing",
-                weapon_name=example_player.character.equipped_weapons[0]
+                weapon_name=example_player.character.equipped_weapons[0],
             )
             yield f"{example_attack}\n"
 
@@ -3445,7 +3519,7 @@ async def dnd_game_master_stream(
             from_position=(5, 10),
             to_position=(8, 13),
             base_speed=example_player.character.speed,
-            movement_used=0
+            movement_used=0,
         )
         yield f"{example_movement}\n"
 
@@ -3464,7 +3538,7 @@ def create_character(
     player_type: PlayerType = PlayerType.HUMAN,
     ai_model: str = None,
     ai_provider: str = None,
-    ai_personality: str = None
+    ai_personality: str = None,
 ) -> PlayerCharacter:
     """
     Helper function to create a D&D character easily.
@@ -3491,14 +3565,7 @@ def create_character(
 
     # Default stats if not provided (standard array)
     if stats is None:
-        stats = {
-            "strength": 15,
-            "dexterity": 14,
-            "constitution": 13,
-            "intelligence": 12,
-            "wisdom": 10,
-            "charisma": 8
-        }
+        stats = {"strength": 15, "dexterity": 14, "constitution": 13, "intelligence": 12, "wisdom": 10, "charisma": 8}
 
     # Create CharacterStats
     char_stats = CharacterStats(**stats)
@@ -3581,14 +3648,33 @@ def create_character(
 
     # Create spell slots for casters
     spell_slots = None
-    if character_class in [CharacterClass.WIZARD, CharacterClass.SORCERER,
-                          CharacterClass.CLERIC, CharacterClass.DRUID,
-                          CharacterClass.BARD, CharacterClass.WARLOCK]:
+    if character_class in [
+        CharacterClass.WIZARD,
+        CharacterClass.SORCERER,
+        CharacterClass.CLERIC,
+        CharacterClass.DRUID,
+        CharacterClass.BARD,
+        CharacterClass.WARLOCK,
+    ]:
         spell_slots = SpellSlots(
-            level_1=0, level_2=0, level_3=0, level_4=0, level_5=0,
-            level_6=0, level_7=0, level_8=0, level_9=0,
-            level_1_used=0, level_2_used=0, level_3_used=0, level_4_used=0, level_5_used=0,
-            level_6_used=0, level_7_used=0, level_8_used=0, level_9_used=0
+            level_1=0,
+            level_2=0,
+            level_3=0,
+            level_4=0,
+            level_5=0,
+            level_6=0,
+            level_7=0,
+            level_8=0,
+            level_9=0,
+            level_1_used=0,
+            level_2_used=0,
+            level_3_used=0,
+            level_4_used=0,
+            level_5_used=0,
+            level_6_used=0,
+            level_7_used=0,
+            level_8_used=0,
+            level_9_used=0,
         )
         # Initialize based on level (simplified)
         if level >= 1:
@@ -3640,7 +3726,7 @@ def create_character(
         personality_traits=personality,
         ideals=[],
         bonds=[],
-        flaws=[]
+        flaws=[],
     )
 
     # Create player character
@@ -3652,5 +3738,5 @@ def create_character(
         personality_prompt=ai_personality,
         is_active=True,
         last_action_time=None,
-        position=None
+        position=None,
     )

@@ -166,26 +166,6 @@ This agent detects and removes PII using hybrid approaches. Detection methods: '
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add pii_scrubbing_agent` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from pii_scrubbing_agent import pii_scrubbing_agent_custom
-
-result = await pii_scrubbing_agent_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -202,3 +182,23 @@ result_anthropic = await pii_scrubbing_agent(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from pii_scrubbing_agent import pii_scrubbing_agent_custom
+
+result = await pii_scrubbing_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add pii_scrubbing_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

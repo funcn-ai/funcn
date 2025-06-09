@@ -279,26 +279,6 @@ The agent provides transparent verification showing which tools were used and wh
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add multi_source_news_verification` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from multi_source_news_verification import multi_source_news_verification_custom
-
-result = await multi_source_news_verification_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -315,3 +295,23 @@ result_anthropic = await multi_source_news_verification(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from multi_source_news_verification import multi_source_news_verification_custom
+
+result = await multi_source_news_verification_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add multi_source_news_verification` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

@@ -106,13 +106,14 @@ async def exa_create_webset(args: CreateWebsetArgs) -> WebsetResponse:
             status="error",
             items_count=0,
             metadata={"error": "EXA_API_KEY environment variable is required"},
-            createdAt=None
+            createdAt=None,
         )
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _create():
             return exa.websets.create(params=args.model_dump())
 
@@ -126,17 +127,11 @@ async def exa_create_webset(args: CreateWebsetArgs) -> WebsetResponse:
             enrichments=result.enrichments,
             metadata=result.metadata,
             createdAt=result.created_at,
-            items_count=len(result.items) if hasattr(result, 'items') and result.items else 0
+            items_count=len(result.items) if hasattr(result, 'items') and result.items else 0,
         )
 
     except Exception as e:
-        return WebsetResponse(
-            id="error",
-            status="error",
-            items_count=0,
-            metadata={"error": str(e)},
-            createdAt=None
-        )
+        return WebsetResponse(id="error", status="error", items_count=0, metadata={"error": str(e)}, createdAt=None)
 
 
 # FUNCN_LILYPAD_DECORATOR_PLACEHOLDER
@@ -149,13 +144,14 @@ async def exa_get_webset(webset_id: str) -> WebsetResponse:
             status="error",
             items_count=0,
             metadata={"error": "EXA_API_KEY environment variable is required"},
-            createdAt=None
+            createdAt=None,
         )
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _get():
             return exa.websets.get(webset_id)
 
@@ -168,17 +164,11 @@ async def exa_get_webset(webset_id: str) -> WebsetResponse:
             enrichments=result.enrichments,
             metadata=result.metadata,
             createdAt=result.created_at,
-            items_count=len(result.items) if hasattr(result, 'items') and result.items else 0
+            items_count=len(result.items) if hasattr(result, 'items') and result.items else 0,
         )
 
     except Exception as e:
-        return WebsetResponse(
-            id=webset_id,
-            status="error",
-            items_count=0,
-            metadata={"error": str(e)},
-            createdAt=None
-        )
+        return WebsetResponse(id=webset_id, status="error", items_count=0, metadata={"error": str(e)}, createdAt=None)
 
 
 # FUNCN_LILYPAD_DECORATOR_PLACEHOLDER
@@ -186,16 +176,13 @@ async def exa_list_webset_items(webset_id: str, limit: int = 100) -> WebsetItems
     """List items in a webset."""
     api_key = os.environ.get("EXA_API_KEY")
     if not api_key:
-        return WebsetItemsResponse(
-            items=[],
-            has_more=False,
-            total_count=0
-        )
+        return WebsetItemsResponse(items=[], has_more=False, total_count=0)
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _list_items():
             return exa.websets.items.list(webset_id)
 
@@ -205,27 +192,23 @@ async def exa_list_webset_items(webset_id: str, limit: int = 100) -> WebsetItems
         items = []
         if hasattr(result, 'data') and result.data:
             for item in result.data[:limit]:
-                items.append(WebsetItem(
-                    id=item.id,
-                    url=item.properties.url if item.properties else None,
-                    properties=item.properties.__dict__ if item.properties else None,
-                    evaluations=item.evaluations,
-                    enrichments=item.enrichments,
-                    createdAt=item.created_at
-                ))
+                items.append(
+                    WebsetItem(
+                        id=item.id,
+                        url=item.properties.url if item.properties else None,
+                        properties=item.properties.__dict__ if item.properties else None,
+                        evaluations=item.evaluations,
+                        enrichments=item.enrichments,
+                        createdAt=item.created_at,
+                    )
+                )
 
         return WebsetItemsResponse(
-            items=items,
-            has_more=result.has_more if hasattr(result, 'has_more') else False,
-            total_count=len(items)
+            items=items, has_more=result.has_more if hasattr(result, 'has_more') else False, total_count=len(items)
         )
 
     except Exception as e:
-        return WebsetItemsResponse(
-            items=[],
-            has_more=False,
-            total_count=0
-        )
+        return WebsetItemsResponse(items=[], has_more=False, total_count=0)
 
 
 # FUNCN_LILYPAD_DECORATOR_PLACEHOLDER
@@ -238,13 +221,14 @@ async def exa_delete_webset(webset_id: str) -> WebsetResponse:
             status="error",
             items_count=0,
             metadata={"error": "EXA_API_KEY environment variable is required"},
-            createdAt=None
+            createdAt=None,
         )
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _delete():
             return exa.websets.delete(webset_id)
 
@@ -254,17 +238,11 @@ async def exa_delete_webset(webset_id: str) -> WebsetResponse:
             id=result.id,
             status="deleted",
             metadata={"deleted_at": result.updated_at if hasattr(result, 'updated_at') else None},
-            createdAt=None
+            createdAt=None,
         )
 
     except Exception as e:
-        return WebsetResponse(
-            id=webset_id,
-            status="error",
-            items_count=0,
-            metadata={"error": str(e)},
-            createdAt=None
-        )
+        return WebsetResponse(id=webset_id, status="error", items_count=0, metadata={"error": str(e)}, createdAt=None)
 
 
 # FUNCN_LILYPAD_DECORATOR_PLACEHOLDER
@@ -281,13 +259,14 @@ async def exa_wait_until_idle(webset_id: str, timeout: int = 300) -> WebsetRespo
             status="error",
             items_count=0,
             metadata={"error": "EXA_API_KEY environment variable is required"},
-            createdAt=None
+            createdAt=None,
         )
 
     try:
         exa = Exa(api_key)
 
         import asyncio
+
         def _wait():
             return exa.websets.wait_until_idle(webset_id)
 
@@ -300,14 +279,8 @@ async def exa_wait_until_idle(webset_id: str, timeout: int = 300) -> WebsetRespo
             enrichments=result.enrichments,
             metadata=result.metadata,
             createdAt=result.created_at,
-            items_count=len(result.items) if hasattr(result, 'items') and result.items else 0
+            items_count=len(result.items) if hasattr(result, 'items') and result.items else 0,
         )
 
     except Exception as e:
-        return WebsetResponse(
-            id=webset_id,
-            status="error",
-            items_count=0,
-            metadata={"error": str(e)},
-            createdAt=None
-        )
+        return WebsetResponse(id=webset_id, status="error", items_count=0, metadata={"error": str(e)}, createdAt=None)

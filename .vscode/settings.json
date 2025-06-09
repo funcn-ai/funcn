@@ -27,6 +27,19 @@
     "files.trimTrailingWhitespace": false,
     "editor.defaultFormatter": "DavidAnson.vscode-markdownlint"
   },
+  "files.exclude": {
+    "**/.claude/**": false
+  },
+  "markdownlint.ignore": [
+    ".claude",
+    ".claude/",
+    ".claude/**",
+    ".claude/**/*",
+    ".claude/**/*.md",
+    "**/.claude/**",
+    "**/.claude/**/*.md"
+  ],
+  "markdownlint.config": ".markdownlint.jsonc",
   "doppler.autocomplete.enable": false,
   "doppler.hover.enable": false,
 }

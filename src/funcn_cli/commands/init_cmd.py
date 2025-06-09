@@ -22,6 +22,7 @@ _FORCE_OPTION = typer.Option(False, "--force", "-f", help="Force overwrite of ex
 _CWD_OPTION = typer.Option(None, "--cwd", "-c", help="Working directory. Defaults to current directory.")
 _SILENT_OPTION = typer.Option(False, "--silent", "-s", help="Mute output.")
 
+
 def load_schema_defaults() -> dict[str, Any]:
     """Loads default values from the funcn.schema.json file."""
     schema_path = Path.cwd() / SCHEMA_FILE_NAME
@@ -55,6 +56,7 @@ def load_schema_defaults() -> dict[str, Any]:
                 if "default" in sub_prop_schema:
                     defaults[key][sub_key] = sub_prop_schema["default"]
     return defaults
+
 
 @app.callback(invoke_without_command=True)
 def init(
@@ -91,11 +93,9 @@ def init(
     # Prompt user to confirm or override base path
     if not (yes or defaults_flag):
         from rich.prompt import Prompt
+
         _print(f"Detected default base directory for funcn components: [cyan]{default_base}[/cyan]")
-        base_path_input = Prompt.ask(
-            "Base directory for funcn components (agents, tools, etc.)",
-            default=str(default_base)
-        )
+        base_path_input = Prompt.ask("Base directory for funcn components (agents, tools, etc.)", default=str(default_base))
         base_path = Path(base_path_input)
     else:
         base_path = default_base
@@ -103,7 +103,7 @@ def init(
     config_path = project_root / CONFIG_FILE_NAME
     schema_defaults = load_schema_defaults()
 
-    if not schema_defaults: # Should not happen if schema is well-formed and present
+    if not schema_defaults:  # Should not happen if schema is well-formed and present
         console.print("[bold red]Error: Could not load defaults from schema. Aborting.[/bold red]")
         raise typer.Exit(code=1)
 
@@ -131,18 +131,12 @@ def init(
         config_data["toolDirectory"] = str(base_path / "tools")
     else:
         _print("Starting interactive configuration...")
-        config_data["agentDirectory"] = Prompt.ask(
-            "Path to store agents", default=str(base_path / "agents")
-        )
-        config_data["evalDirectory"] = Prompt.ask(
-            "Path to store evals", default=str(base_path / "evals")
-        )
+        config_data["agentDirectory"] = Prompt.ask("Path to store agents", default=str(base_path / "agents"))
+        config_data["evalDirectory"] = Prompt.ask("Path to store evals", default=str(base_path / "evals"))
         config_data["promptTemplateDirectory"] = Prompt.ask(
             "Path to store prompt templates", default=str(base_path / "prompt_templates")
         )
-        config_data["toolDirectory"] = Prompt.ask(
-            "Path to store tools", default=str(base_path / "tools")
-        )
+        config_data["toolDirectory"] = Prompt.ask("Path to store tools", default=str(base_path / "tools"))
         config_data["responseModelDirectory"] = Prompt.ask(
             "Path to store response models", default=str(base_path / "response_models")
         )
@@ -173,7 +167,11 @@ def init(
             while True:
                 provider_choice = Prompt.ask(
                     "Enter number for provider",
-                    default=str(provider_list.index(schema_defaults.get("defaultProvider", "openai")) + 1 if schema_defaults.get("defaultProvider", "openai") in provider_list else 1)
+                    default=str(
+                        provider_list.index(schema_defaults.get("defaultProvider", "openai")) + 1
+                        if schema_defaults.get("defaultProvider", "openai") in provider_list
+                        else 1
+                    ),
                 )
                 try:
                     provider_idx = int(provider_choice) - 1
@@ -193,7 +191,11 @@ def init(
             while True:
                 model_choice = Prompt.ask(
                     "Enter number for model",
-                    default=str(model_list.index(schema_defaults.get("defaultModel", "gpt-4o-mini")) + 1 if schema_defaults.get("defaultModel", "gpt-4o-mini") in model_list else 1)
+                    default=str(
+                        model_list.index(schema_defaults.get("defaultModel", "gpt-4o-mini")) + 1
+                        if schema_defaults.get("defaultModel", "gpt-4o-mini") in model_list
+                        else 1
+                    ),
                 )
                 try:
                     model_idx = int(model_choice) - 1
@@ -236,7 +238,7 @@ def init(
         config_data["responseModelDirectory"],
     }
     for directory_str in directories_to_create:
-        if directory_str: # Ensure not empty
+        if directory_str:  # Ensure not empty
             dir_path = project_root / directory_str
             try:
                 dir_path.mkdir(parents=True, exist_ok=True)
@@ -247,17 +249,15 @@ def init(
 
     try:
         with open(config_path, "w") as f:
-            json.dump(config_data, f, indent=2) # Using indent 2 like shadcn
-        _print(
-            f":white_check_mark: [bold green]funcn initialised![/] Configuration saved to {config_path}"
-        )
+            json.dump(config_data, f, indent=2)  # Using indent 2 like shadcn
+        _print(f":white_check_mark: [bold green]funcn initialised![/] Configuration saved to {config_path}")
     except OSError as e:
         console.print(f"[bold red]Error writing configuration file {config_path}: {e}[/bold red]")
         raise typer.Exit(code=1) from e
 
     # Optionally also update .gitignore (if .funcn/ is still used or other patterns are needed)
     gitignore_path = project_root / ".gitignore"
-    gitignore_patterns_to_add = [".funcn/"] # Add other patterns if needed
+    gitignore_patterns_to_add = [".funcn/"]  # Add other patterns if needed
 
     try:
         if gitignore_path.exists():
@@ -286,9 +286,11 @@ def init(
     if not silent and Confirm.ask("Would you like to add components now?", default=False):
         _interactive_component_addition(project_root, silent)
 
+
 # ------------------------------------------------------------------
 # Interactive helper for adding components immediately after init
 # ------------------------------------------------------------------
+
 
 def _interactive_component_addition(project_root: Path, silent: bool) -> None:  # noqa: D401
     """Guide the user through adding one or more components interactively."""
@@ -325,5 +327,6 @@ def _interactive_component_addition(project_root: Path, silent: bool) -> None:  
 
     _iprint("\n[green]Done adding components.[/]")
 
-if __name__ == "__main__": # For testing the script directly
+
+if __name__ == "__main__":  # For testing the script directly
     app()

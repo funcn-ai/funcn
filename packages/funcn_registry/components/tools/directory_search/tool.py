@@ -173,7 +173,7 @@ async def search_directory(
             directories=[],
             error=str(e),
             search_time=search_time,
-            applied_filters={}
+            applied_filters={},
         )
 
 

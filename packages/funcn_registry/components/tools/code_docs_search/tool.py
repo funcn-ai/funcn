@@ -50,12 +50,7 @@ def validate_search_path(search_path: str) -> str:
 
 
 def calculate_relevance_score(
-    content: str,
-    file_path: str,
-    match_type: str,
-    search_query: str,
-    search_mode: str,
-    prioritize_readme: bool
+    content: str, file_path: str, match_type: str, search_query: str, search_mode: str, prioritize_readme: bool
 ) -> float:
     """Calculate relevance score for a match."""
     score = 0.5  # Base score
@@ -86,7 +81,7 @@ async def search_markdown_file(
     case_sensitive: bool,
     include_examples: bool,
     prioritize_readme: bool,
-    context_lines: int
+    context_lines: int,
 ) -> list[DocumentationMatch]:
     """Search in markdown files."""
     matches = []
@@ -101,7 +96,8 @@ async def search_markdown_file(
         for i, line in enumerate(lines):
             # Check headers
             if line.startswith('#') and matches_query(line, search_query, search_mode, case_sensitive):
-                matches.append(DocumentationMatch(
+                matches.append(
+                    DocumentationMatch(
                         file_path=str(file_path),
                         title=line.strip('#').strip(),
                         content=line,
@@ -111,8 +107,9 @@ async def search_markdown_file(
                         relevance_score=calculate_relevance_score(
                             line, str(file_path), "header", search_query, search_mode, prioritize_readme
                         ),
-                        context=get_context(lines, i, context_lines)
-                    ))
+                        context=get_context(lines, i, context_lines),
+                    )
+                )
 
             # Check code blocks
             if line.startswith('```'):
@@ -126,33 +123,37 @@ async def search_markdown_file(
 
                 code_content = '\n'.join(code_lines)
                 if include_examples and matches_query(code_content, search_query, search_mode, case_sensitive):
-                    matches.append(DocumentationMatch(
-                        file_path=str(file_path),
-                        title=None,
-                        content=code_content,
-                        match_type="code_example",
-                        language=language,
-                        line_number=i + 1,
-                        relevance_score=calculate_relevance_score(
-                            code_content, str(file_path), "example", search_query, search_mode, prioritize_readme
-                        ),
-                        context=get_context(lines, i, context_lines)
-                    ))
+                    matches.append(
+                        DocumentationMatch(
+                            file_path=str(file_path),
+                            title=None,
+                            content=code_content,
+                            match_type="code_example",
+                            language=language,
+                            line_number=i + 1,
+                            relevance_score=calculate_relevance_score(
+                                code_content, str(file_path), "example", search_query, search_mode, prioritize_readme
+                            ),
+                            context=get_context(lines, i, context_lines),
+                        )
+                    )
 
             # Check regular content
             elif matches_query(line, search_query, search_mode, case_sensitive):
-                matches.append(DocumentationMatch(
-                    file_path=str(file_path),
-                    title=None,
-                    content=line,
-                    match_type="content",
-                    language=None,
-                    line_number=i + 1,
-                    relevance_score=calculate_relevance_score(
-                        line, str(file_path), "content", search_query, search_mode, prioritize_readme
-                    ),
-                    context=get_context(lines, i, context_lines)
-                ))
+                matches.append(
+                    DocumentationMatch(
+                        file_path=str(file_path),
+                        title=None,
+                        content=line,
+                        match_type="content",
+                        language=None,
+                        line_number=i + 1,
+                        relevance_score=calculate_relevance_score(
+                            line, str(file_path), "content", search_query, search_mode, prioritize_readme
+                        ),
+                        context=get_context(lines, i, context_lines),
+                    )
+                )
 
     except Exception as e:
         # Skip files that can't be read
@@ -169,7 +170,7 @@ async def search_python_file(
     include_docstrings: bool,
     include_code_comments: bool,
     prioritize_readme: bool,
-    context_lines: int
+    context_lines: int,
 ) -> list[DocumentationMatch]:
     """Search in Python files for docstrings and comments."""
     matches = []
@@ -200,20 +201,27 @@ async def search_python_file(
                     node_type = "async_function"
                     node_name = node.name
 
-                if docstring and node_type and include_docstrings and matches_query(docstring, search_query, search_mode, case_sensitive):
-                    matches.append(DocumentationMatch(
-                        file_path=str(file_path),
-                        title=f"{node_type}: {node_name}",
-                        content=docstring,
-                        match_type=node_type,
-                        language="python",
-                        line_number=node.lineno if hasattr(node, 'lineno') else None,
-                        relevance_score=calculate_relevance_score(
-                            docstring, str(file_path), node_type, search_query, search_mode, prioritize_readme
-                        ),
-                        metadata={"name": node_name, "type": node_type},
-                        context=None
-                    ))
+                if (
+                    docstring
+                    and node_type
+                    and include_docstrings
+                    and matches_query(docstring, search_query, search_mode, case_sensitive)
+                ):
+                    matches.append(
+                        DocumentationMatch(
+                            file_path=str(file_path),
+                            title=f"{node_type}: {node_name}",
+                            content=docstring,
+                            match_type=node_type,
+                            language="python",
+                            line_number=node.lineno if hasattr(node, 'lineno') else None,
+                            relevance_score=calculate_relevance_score(
+                                docstring, str(file_path), node_type, search_query, search_mode, prioritize_readme
+                            ),
+                            metadata={"name": node_name, "type": node_type},
+                            context=None,
+                        )
+                    )
 
         except SyntaxError:
             # If AST parsing fails, fall back to regex
@@ -226,18 +234,20 @@ async def search_python_file(
                 if '#' in line:
                     comment = line.split('#', 1)[1].strip()
                     if matches_query(comment, search_query, search_mode, case_sensitive):
-                        matches.append(DocumentationMatch(
-                            file_path=str(file_path),
-                            title=None,
-                            content=comment,
-                            match_type="comment",
-                            language="python",
-                            line_number=i + 1,
-                            relevance_score=calculate_relevance_score(
-                                comment, str(file_path), "comment", search_query, search_mode, prioritize_readme
-                            ),
-                            context=get_context(lines, i, context_lines)
-                        ))
+                        matches.append(
+                            DocumentationMatch(
+                                file_path=str(file_path),
+                                title=None,
+                                content=comment,
+                                match_type="comment",
+                                language="python",
+                                line_number=i + 1,
+                                relevance_score=calculate_relevance_score(
+                                    comment, str(file_path), "comment", search_query, search_mode, prioritize_readme
+                                ),
+                                context=get_context(lines, i, context_lines),
+                            )
+                        )
 
     except Exception as e:
         # Skip files that can't be read
@@ -253,7 +263,7 @@ async def search_javascript_file(
     case_sensitive: bool,
     include_code_comments: bool,
     prioritize_readme: bool,
-    context_lines: int
+    context_lines: int,
 ) -> list[DocumentationMatch]:
     """Search in JavaScript/TypeScript files for JSDoc and comments."""
     matches = []
@@ -289,35 +299,39 @@ async def search_javascript_file(
                         else:
                             title = None
 
-                        matches.append(DocumentationMatch(
-                            file_path=str(file_path),
-                            title=title,
-                            content=jsdoc_content,
-                            match_type="jsdoc",
-                            language="javascript",
-                            line_number=jsdoc_start + 1,
-                            relevance_score=calculate_relevance_score(
-                                jsdoc_content, str(file_path), "jsdoc", search_query, search_mode, prioritize_readme
-                            ),
-                            context=None
-                        ))
+                        matches.append(
+                            DocumentationMatch(
+                                file_path=str(file_path),
+                                title=title,
+                                content=jsdoc_content,
+                                match_type="jsdoc",
+                                language="javascript",
+                                line_number=jsdoc_start + 1,
+                                relevance_score=calculate_relevance_score(
+                                    jsdoc_content, str(file_path), "jsdoc", search_query, search_mode, prioritize_readme
+                                ),
+                                context=None,
+                            )
+                        )
 
             # Search for regular comments
             if include_code_comments and '//' in line:
                 comment = line.split('//', 1)[1].strip()
                 if matches_query(comment, search_query, search_mode, case_sensitive):
-                    matches.append(DocumentationMatch(
-                        file_path=str(file_path),
-                        title=None,
-                        content=comment,
-                        match_type="comment",
-                        language="javascript",
-                        line_number=i + 1,
-                        relevance_score=calculate_relevance_score(
-                            comment, str(file_path), "comment", search_query, search_mode, prioritize_readme
-                        ),
-                        context=get_context(lines, i, context_lines)
-                    ))
+                    matches.append(
+                        DocumentationMatch(
+                            file_path=str(file_path),
+                            title=None,
+                            content=comment,
+                            match_type="comment",
+                            language="javascript",
+                            line_number=i + 1,
+                            relevance_score=calculate_relevance_score(
+                                comment, str(file_path), "comment", search_query, search_mode, prioritize_readme
+                            ),
+                            context=get_context(lines, i, context_lines),
+                        )
+                    )
 
     except Exception:
         pass
@@ -381,25 +395,29 @@ async def search_file(
     include_docstrings: bool,
     include_examples: bool,
     prioritize_readme: bool,
-    context_lines: int
+    context_lines: int,
 ) -> list[DocumentationMatch]:
     """Search in a single file based on its type."""
     extension = file_path.suffix.lower()[1:]  # Remove the dot
 
     if extension in ['md', 'markdown']:
         return await search_markdown_file(
-            file_path, search_query, search_mode, case_sensitive,
-            include_examples, prioritize_readme, context_lines
+            file_path, search_query, search_mode, case_sensitive, include_examples, prioritize_readme, context_lines
         )
     elif extension == 'py':
         return await search_python_file(
-            file_path, search_query, search_mode, case_sensitive,
-            include_docstrings, include_code_comments, prioritize_readme, context_lines
+            file_path,
+            search_query,
+            search_mode,
+            case_sensitive,
+            include_docstrings,
+            include_code_comments,
+            prioritize_readme,
+            context_lines,
         )
     elif extension in ['js', 'ts', 'jsx', 'tsx']:
         return await search_javascript_file(
-            file_path, search_query, search_mode, case_sensitive,
-            include_code_comments, prioritize_readme, context_lines
+            file_path, search_query, search_mode, case_sensitive, include_code_comments, prioritize_readme, context_lines
         )
     else:
         # Generic text search for other files
@@ -411,18 +429,20 @@ async def search_file(
             lines = content.split('\n')
             for i, line in enumerate(lines):
                 if matches_query(line, search_query, search_mode, case_sensitive):
-                    matches.append(DocumentationMatch(
-                        file_path=str(file_path),
-                        title=None,
-                        content=line,
-                        match_type="content",
-                        language=None,
-                        line_number=i + 1,
-                        relevance_score=calculate_relevance_score(
-                            line, str(file_path), "content", search_query, search_mode, prioritize_readme
-                        ),
-                        context=get_context(lines, i, context_lines)
-                    ))
+                    matches.append(
+                        DocumentationMatch(
+                            file_path=str(file_path),
+                            title=None,
+                            content=line,
+                            match_type="content",
+                            language=None,
+                            line_number=i + 1,
+                            relevance_score=calculate_relevance_score(
+                                line, str(file_path), "content", search_query, search_mode, prioritize_readme
+                            ),
+                            context=get_context(lines, i, context_lines),
+                        )
+                    )
         except Exception:
             pass
 
@@ -440,7 +460,7 @@ async def search_code_documentation(
     max_results: int = 50,
     context_lines: int = 3,
     prioritize_readme: bool = True,
-    case_sensitive: bool = False
+    case_sensitive: bool = False,
 ) -> CodeDocsSearchResult:
     """Search and analyze technical documentation including API docs, README files, and code comments.
 
@@ -486,11 +506,19 @@ async def search_code_documentation(
         # Search files concurrently
         tasks = []
         for file_path in files_to_search:
-            tasks.append(search_file(
-                file_path, search_query, search_mode, case_sensitive,
-                include_code_comments, include_docstrings, include_examples,
-                prioritize_readme, context_lines
-            ))
+            tasks.append(
+                search_file(
+                    file_path,
+                    search_query,
+                    search_mode,
+                    case_sensitive,
+                    include_code_comments,
+                    include_docstrings,
+                    include_examples,
+                    prioritize_readme,
+                    context_lines,
+                )
+            )
             searched_files += 1
 
         # Gather results
@@ -514,27 +542,19 @@ async def search_code_documentation(
             searched_files=searched_files,
             search_time=search_time,
             error=None,
-            file_types_searched=list(file_types_searched)
+            file_types_searched=list(file_types_searched),
         )
 
     except Exception as e:
         search_time = asyncio.get_event_loop().time() - start_time
         return CodeDocsSearchResult(
-            success=False,
-            search_query=search_query,
-            total_matches=0,
-            searched_files=0,
-            search_time=search_time,
-            error=str(e)
+            success=False, search_query=search_query, total_matches=0, searched_files=0, search_time=search_time, error=str(e)
         )
 
 
 # Convenience functions
 async def search_documentation(
-    query: str,
-    path: str = ".",
-    doc_types: list[str] | None = None,
-    max_results: int = 20
+    query: str, path: str = ".", doc_types: list[str] | None = None, max_results: int = 20
 ) -> CodeDocsSearchResult:
     """Search for documentation matching a query.
 
@@ -548,18 +568,11 @@ async def search_documentation(
         CodeDocsSearchResult with matches
     """
     return await search_code_documentation(
-        search_query=query,
-        search_path=path,
-        doc_types=doc_types or ["md", "rst", "txt"],
-        max_results=max_results
+        search_query=query, search_path=path, doc_types=doc_types or ["md", "rst", "txt"], max_results=max_results
     )
 
 
-async def find_code_examples(
-    topic: str,
-    path: str = ".",
-    languages: list[str] | None = None
-) -> CodeDocsSearchResult:
+async def find_code_examples(topic: str, path: str = ".", languages: list[str] | None = None) -> CodeDocsSearchResult:
     """Find code examples for a specific topic.
 
     Args:
@@ -572,19 +585,11 @@ async def find_code_examples(
     """
     doc_types = languages or ["py", "js", "ts", "java", "cpp", "go"]
     return await search_code_documentation(
-        search_query=topic,
-        search_path=path,
-        doc_types=doc_types,
-        include_examples=True,
-        search_mode="fuzzy"
+        search_query=topic, search_path=path, doc_types=doc_types, include_examples=True, search_mode="fuzzy"
     )
 
 
-async def search_api_docs(
-    api_name: str,
-    path: str = ".",
-    include_comments: bool = True
-) -> CodeDocsSearchResult:
+async def search_api_docs(api_name: str, path: str = ".", include_comments: bool = True) -> CodeDocsSearchResult:
     """Search for API documentation.
 
     Args:
@@ -600,5 +605,5 @@ async def search_api_docs(
         search_path=path,
         include_code_comments=include_comments,
         include_docstrings=True,
-        prioritize_readme=True
+        prioritize_readme=True,
     )

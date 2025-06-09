@@ -201,26 +201,6 @@ The agent provides explanations for all extractions, making results interpretabl
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add enhanced_knowledge_graph_agent` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from enhanced_knowledge_graph_agent import enhanced_knowledge_graph_agent_custom
-
-result = await enhanced_knowledge_graph_agent_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -237,3 +217,23 @@ result_anthropic = await enhanced_knowledge_graph_agent(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from enhanced_knowledge_graph_agent import enhanced_knowledge_graph_agent_custom
+
+result = await enhanced_knowledge_graph_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add enhanced_knowledge_graph_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

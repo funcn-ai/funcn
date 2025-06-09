@@ -14,6 +14,7 @@ from typing import Any, Literal, Optional
 # Response models for structured outputs
 class CodeAnalysis(BaseModel):
     """Analysis of generated code for safety and correctness."""
+
     is_safe: bool = Field(..., description="Whether the code is safe to execute")
     safety_concerns: list[str] = Field(default_factory=list, description="List of safety concerns if any")
     imports_used: list[str] = Field(default_factory=list, description="Python imports used in the code")
@@ -25,6 +26,7 @@ class CodeAnalysis(BaseModel):
 
 class GeneratedCode(BaseModel):
     """Generated code with metadata."""
+
     code: str = Field(..., description="The generated Python code")
     language: str = Field(default="python", description="Programming language")
     explanation: str = Field(..., description="Explanation of what the code does")
@@ -34,6 +36,7 @@ class GeneratedCode(BaseModel):
 
 class CodeExecutionResult(BaseModel):
     """Result of code execution."""
+
     success: bool = Field(..., description="Whether execution was successful")
     output: str | None = Field(default=None, description="Standard output from execution")
     error: str | None = Field(default=None, description="Error message if execution failed")
@@ -43,6 +46,7 @@ class CodeExecutionResult(BaseModel):
 
 class CodeGenerationResponse(BaseModel):
     """Complete response for code generation and execution."""
+
     task_description: str = Field(..., description="Description of the task")
     generated_code: GeneratedCode = Field(..., description="The generated code")
     code_analysis: CodeAnalysis = Field(..., description="Safety and complexity analysis")
@@ -52,11 +56,7 @@ class CodeGenerationResponse(BaseModel):
 
 # Tool for executing Python code safely
 @trace()
-async def execute_python_code(
-    code: str,
-    timeout: int = 30,
-    allowed_imports: list[str] | None = None
-) -> CodeExecutionResult:
+async def execute_python_code(code: str, timeout: int = 30, allowed_imports: list[str] | None = None) -> CodeExecutionResult:
     """
     Execute Python code in a sandboxed environment.
 
@@ -69,6 +69,7 @@ async def execute_python_code(
         CodeExecutionResult with output or error
     """
     import time
+
     start_time = time.time()
 
     try:
@@ -84,13 +85,13 @@ async def execute_python_code(
                             return CodeExecutionResult(
                                 success=False,
                                 error=f"Import '{alias.name}' is not allowed",
-                                execution_time=time.time() - start_time
+                                execution_time=time.time() - start_time,
                             )
                 elif isinstance(node, ast.ImportFrom) and node.module and node.module not in allowed_imports:
                     return CodeExecutionResult(
                         success=False,
                         error=f"Import from '{node.module}' is not allowed",
-                        execution_time=time.time() - start_time
+                        execution_time=time.time() - start_time,
                     )
 
         # Create a temporary file for the code
@@ -100,18 +101,13 @@ async def execute_python_code(
 
         try:
             # Execute the code with timeout
-            result = subprocess.run(
-                ['python', temp_file],
-                capture_output=True,
-                text=True,
-                timeout=timeout
-            )
+            result = subprocess.run(['python', temp_file], capture_output=True, text=True, timeout=timeout)
 
             return CodeExecutionResult(
                 success=result.returncode == 0,
                 output=result.stdout,
                 error=result.stderr if result.returncode != 0 else None,
-                execution_time=time.time() - start_time
+                execution_time=time.time() - start_time,
             )
         finally:
             # Clean up temporary file
@@ -119,16 +115,10 @@ async def execute_python_code(
 
     except subprocess.TimeoutExpired:
         return CodeExecutionResult(
-            success=False,
-            error=f"Code execution timed out after {timeout} seconds",
-            execution_time=timeout
+            success=False, error=f"Code execution timed out after {timeout} seconds", execution_time=timeout
         )
     except Exception as e:
-        return CodeExecutionResult(
-            success=False,
-            error=f"Execution error: {str(e)}",
-            execution_time=time.time() - start_time
-        )
+        return CodeExecutionResult(success=False, error=f"Execution error: {str(e)}", execution_time=time.time() - start_time)
 
 
 # Step 1: Generate code for the task
@@ -157,11 +147,7 @@ async def execute_python_code(
     Generate complete, runnable code that accomplishes the task.
     """
 )
-async def generate_code(
-    task: str,
-    requirements: str = "None specified",
-    constraints: str = "None specified"
-) -> GeneratedCode:
+async def generate_code(task: str, requirements: str = "None specified", constraints: str = "None specified") -> GeneratedCode:
     """Generate Python code for a given task."""
     ...
 
@@ -219,11 +205,7 @@ async def analyze_code_safety(code: str) -> CodeAnalysis:
     Return a list of recommendation strings.
     """
 )
-async def generate_recommendations(
-    task: str,
-    analysis: str,
-    execution_result: str
-) -> list[str]:
+async def generate_recommendations(task: str, analysis: str, execution_result: str) -> list[str]:
     """Generate recommendations for code improvement."""
     ...
 
@@ -237,7 +219,7 @@ async def generate_and_execute_code(
     safety_level: Literal["strict", "moderate", "permissive"] = "moderate",
     timeout: int = 30,
     llm_provider: str = "openai",
-    model: str = "gpt-4o-mini"
+    model: str = "gpt-4o-mini",
 ) -> CodeGenerationResponse:
     """
     Generate and optionally execute Python code for a given task.
@@ -259,11 +241,7 @@ async def generate_and_execute_code(
         CodeGenerationResponse with generated code and execution results
     """
     # Step 1: Generate code
-    generated_code = await generate_code(
-        task=task,
-        requirements=requirements,
-        constraints=constraints
-    )
+    generated_code = await generate_code(task=task, requirements=requirements, constraints=constraints)
 
     # Step 2: Analyze code safety
     code_analysis = await analyze_code_safety(generated_code.code)
@@ -271,11 +249,12 @@ async def generate_and_execute_code(
     # Step 3: Decide whether to execute based on safety level
     should_execute = auto_execute and code_analysis.is_safe
 
-    if safety_level == "strict" and (
-        code_analysis.has_file_operations or
-        code_analysis.has_network_operations or
-        code_analysis.has_system_calls
-    ) or safety_level == "moderate" and code_analysis.has_system_calls:
+    if (
+        safety_level == "strict"
+        and (code_analysis.has_file_operations or code_analysis.has_network_operations or code_analysis.has_system_calls)
+        or safety_level == "moderate"
+        and code_analysis.has_system_calls
+    ):
         should_execute = False
 
     # Step 4: Execute if appropriate
@@ -284,23 +263,14 @@ async def generate_and_execute_code(
         # Define allowed imports based on safety level
         allowed_imports = None
         if safety_level == "strict":
-            allowed_imports = [
-                "math", "random", "datetime", "json", "re",
-                "collections", "itertools", "functools"
-            ]
+            allowed_imports = ["math", "random", "datetime", "json", "re", "collections", "itertools", "functools"]
 
-        execution_result = await execute_python_code(
-            code=generated_code.code,
-            timeout=timeout,
-            allowed_imports=allowed_imports
-        )
+        execution_result = await execute_python_code(code=generated_code.code, timeout=timeout, allowed_imports=allowed_imports)
 
     # Step 5: Generate recommendations
     exec_result_str = str(execution_result.model_dump()) if execution_result else "Not executed"
     recommendations = await generate_recommendations(
-        task=task,
-        analysis=str(code_analysis.model_dump()),
-        execution_result=exec_result_str
+        task=task, analysis=str(code_analysis.model_dump()), execution_result=exec_result_str
     )
 
     return CodeGenerationResponse(
@@ -308,41 +278,28 @@ async def generate_and_execute_code(
         generated_code=generated_code,
         code_analysis=code_analysis,
         execution_result=execution_result,
-        recommendations=recommendations
+        recommendations=recommendations,
     )
 
 
 # Convenience functions
-async def generate_code_snippet(
-    task: str,
-    language: str = "python"
-) -> str:
+async def generate_code_snippet(task: str, language: str = "python") -> str:
     """
     Generate a simple code snippet without execution.
 
     Returns just the code as a string.
     """
-    result = await generate_and_execute_code(
-        task=task,
-        auto_execute=False
-    )
+    result = await generate_and_execute_code(task=task, auto_execute=False)
     return result.generated_code.code
 
 
-async def safe_execute_task(
-    task: str,
-    safety_level: Literal["strict", "moderate", "permissive"] = "strict"
-) -> dict[str, Any]:
+async def safe_execute_task(task: str, safety_level: Literal["strict", "moderate", "permissive"] = "strict") -> dict[str, Any]:
     """
     Generate and safely execute code for a task.
 
     Returns a simplified dictionary with results.
     """
-    result = await generate_and_execute_code(
-        task=task,
-        auto_execute=True,
-        safety_level=safety_level
-    )
+    result = await generate_and_execute_code(task=task, auto_execute=True, safety_level=safety_level)
 
     return {
         "code": result.generated_code.code,
@@ -350,5 +307,5 @@ async def safe_execute_task(
         "success": result.execution_result.success if result.execution_result else False,
         "output": result.execution_result.output if result.execution_result else None,
         "error": result.execution_result.error if result.execution_result else None,
-        "recommendations": result.recommendations
+        "recommendations": result.recommendations,
     }

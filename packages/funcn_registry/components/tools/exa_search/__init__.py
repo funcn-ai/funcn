@@ -23,5 +23,5 @@ __all__ = [
     "ExaCategory",
     "exa_search",
     "exa_find_similar",
-    "exa_answer"
+    "exa_answer",
 ]

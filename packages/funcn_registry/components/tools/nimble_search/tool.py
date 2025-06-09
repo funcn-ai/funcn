@@ -13,6 +13,7 @@ NIMBLE_TOKEN = os.getenv("NIMBLE_API_KEY", "")
 
 class NimbleSearchArgs(BaseModel):
     """Arguments for Nimble Web API search."""
+
     query: str = Field(..., description="The search query")
     parse: bool = Field(default=True, description="Whether to parse the results")
     render: bool = Field(default=True, description="Whether to render JavaScript")
@@ -22,6 +23,7 @@ class NimbleSearchArgs(BaseModel):
 
 class NimbleSERPSearchArgs(BaseModel):
     """Arguments for Nimble SERP API search."""
+
     query: str = Field(..., description="The search query")
     search_engine: str = Field(default="google_search", description="Search engine to use")
     parse: bool = Field(default=True, description="Whether to parse the results")
@@ -32,6 +34,7 @@ class NimbleSERPSearchArgs(BaseModel):
 
 class NimbleMapsSearchArgs(BaseModel):
     """Arguments for Nimble Maps API search."""
+
     query: str = Field(..., description="Search query for places")
     latitude: float | None = Field(None, description="Latitude for location-based search")
     longitude: float | None = Field(None, description="Longitude for location-based search")
@@ -117,11 +120,13 @@ def nimble_serp_search(args: NimbleSERPSearchArgs) -> dict[str, Any]:
             url = result.get("url", "")
             if url:
                 search_results["sources"].append(url)
-                search_results["results"].append({
-                    "title": result.get("title", ""),
-                    "url": url,
-                    "snippet": result.get("snippet", ""),
-                })
+                search_results["results"].append(
+                    {
+                        "title": result.get("title", ""),
+                        "url": url,
+                        "snippet": result.get("snippet", ""),
+                    }
+                )
 
         # Optionally fetch content from top URLs
         if len(search_results["sources"]) > 0:
@@ -244,16 +249,18 @@ def nimble_maps_search(args: NimbleMapsSearchArgs) -> dict[str, Any]:
 
         places = []
         for place in results[:10]:  # Limit to top 10 places
-            places.append({
-                "name": place.get("name", ""),
-                "address": place.get("address", ""),
-                "rating": place.get("rating", None),
-                "review_count": place.get("review_count", None),
-                "phone": place.get("phone", ""),
-                "website": place.get("website", ""),
-                "coordinates": place.get("coordinates", {}),
-                "place_id": place.get("place_id", ""),
-            })
+            places.append(
+                {
+                    "name": place.get("name", ""),
+                    "address": place.get("address", ""),
+                    "rating": place.get("rating", None),
+                    "review_count": place.get("review_count", None),
+                    "phone": place.get("phone", ""),
+                    "website": place.get("website", ""),
+                    "coordinates": place.get("coordinates", {}),
+                    "place_id": place.get("place_id", ""),
+                }
+            )
 
         return {
             "query": args.query,
