@@ -234,9 +234,7 @@ class TestDnd5eApiTool(BaseToolTest):
     async def test_api_error_handling(self):
         """Test handling of API errors."""
         with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(
-                side_effect=Exception("Connection error")
-            )
+            mock_session.return_value.__aenter__.return_value.get = AsyncMock(side_effect=Exception("Connection error"))
 
             with pytest.raises(Exception) as exc_info:
                 await get_monster_info("goblin")
@@ -346,9 +344,7 @@ class TestDnd5eApiTool(BaseToolTest):
     async def test_timeout_handling(self):
         """Test handling of request timeouts."""
         with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(
-                side_effect=TimeoutError("Request timeout")
-            )
+            mock_session.return_value.__aenter__.return_value.get = AsyncMock(side_effect=TimeoutError("Request timeout"))
 
             with pytest.raises(asyncio.TimeoutError) as exc_info:
                 await get_spell_info("fireball")
