@@ -149,26 +149,6 @@ The Dynamic Learning Path Generator creates personalized learning journeys. Conf
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add dynamic_learning_path` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from dynamic_learning_path import dynamic_learning_path_custom
-
-result = await dynamic_learning_path_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -185,3 +165,23 @@ result_anthropic = await dynamic_learning_path(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from dynamic_learning_path import dynamic_learning_path_custom
+
+result = await dynamic_learning_path_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add dynamic_learning_path` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

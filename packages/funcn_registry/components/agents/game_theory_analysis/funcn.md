@@ -153,26 +153,6 @@ The Game Theory Analysis agent helps analyze strategic interactions and conflict
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add game_theory_analysis` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from game_theory_analysis import game_theory_analysis_custom
-
-result = await game_theory_analysis_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -189,3 +169,23 @@ result_anthropic = await game_theory_analysis(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from game_theory_analysis import game_theory_analysis_custom
+
+result = await game_theory_analysis_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add game_theory_analysis` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

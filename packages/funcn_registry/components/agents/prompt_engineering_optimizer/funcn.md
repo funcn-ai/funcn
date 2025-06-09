@@ -172,26 +172,6 @@ The Prompt Engineering Optimizer helps you create high-performance prompts throu
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add prompt_engineering_optimizer` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from prompt_engineering_optimizer import prompt_engineering_optimizer_custom
-
-result = await prompt_engineering_optimizer_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -208,3 +188,23 @@ result_anthropic = await prompt_engineering_optimizer(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from prompt_engineering_optimizer import prompt_engineering_optimizer_custom
+
+result = await prompt_engineering_optimizer_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add prompt_engineering_optimizer` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

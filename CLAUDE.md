@@ -13,143 +13,35 @@ Funcn is a production-ready component library for Mirascope-powered AI applicati
 #### Technical Stack
 
 - **Language**: Python 3.12+
-- **LLM Framework**: Mirascope (multi-provider support)
-- **Data Validation**: Pydantic v2
+- **LLM Framework**: Mirascope
+- **Data Validation**: Pydantic
 - **Component System**: Funcn Registry
-- **Package Manager**: UV (fast Python package manager)
-- **Build System**: Task (taskfile.yml)
-- **Environment**: Devbox (reproducible dev environment)
-- **Code Quality**: Ruff (linting/formatting), Pre-commit hooks
-- **Testing**: Pytest with async support
-- **CLI**: Typer framework
 - **Observability**: Lilypad (optional)
-
-### Code Standards
-
-**IMPORTANT**: All generated code must follow the standards defined in:
-
-- `.claude/code-standards.md` - Comprehensive code style guide
-- `.claude/pre-commit-quick-fixes.md` - Common fixes to apply automatically
-- `.claude/development-workflow.md` - Linear issue tracking and branch management
-- `.claude/testing-standards.md` - Pytest testing patterns and coverage guidelines
-- `.claude/mirascope-lilypad-best-practices.md` - Mirascope patterns and Lilypad observability
-
-These standards ensure code passes all pre-commit hooks without manual cleanup and follows proper development workflow.
-
-## Development Commands
-
-### Initial Setup
-
-```bash
-# Install devbox and project dependencies
-task install
-
-# Enter development environment
-devbox shell
-```
-
-### Common Development Tasks
-
-```bash
-# Run tests
-task test
-pytest                           # Run all tests
-pytest tests/test_specific.py   # Run specific test file
-pytest -k "test_function_name"  # Run specific test by name
-pytest -m unit                  # Run tests by marker (unit, integration, e2e, benchmark)
-
-# Code quality
-task lint                       # Run ruff linter with fixes
-task format                     # Format code with ruff
-task pre-commit                 # Run all pre-commit hooks
-
-# UV package management
-task uv:sync                    # Sync dependencies with lockfile
-task uv:lock                    # Update lockfile
-task uv:update-deps            # Upgrade all dependencies
-
-# Cleanup
-task pyclean                    # Remove .pyc and __pycache__
-task pyclean dry-run          # Preview what would be cleaned
-```
-
-### Docker Commands
-
-```bash
-task docker:build              # Build development image
-task docker:up                 # Start services (includes Redis)
-task docker:down               # Stop services
-```
-
-## Project Architecture
-
-### Component Registry Structure
-
-```
-packages/funcn_registry/
-└── components/
-    ├── agents/              # AI agents with specific capabilities
-    ├── tools/               # Utility functions for agents
-    ├── prompt_templates/    # Reusable prompt patterns
-    ├── response_models/     # Pydantic models for structured outputs
-    └── evals/              # Evaluation frameworks
-```
-
-### Component Anatomy
-
-Each component follows a consistent structure:
-```
-component_name/
-├── component.json          # Metadata, dependencies, configuration
-├── agent.py/tool.py       # Main implementation
-├── funcn.md               # Documentation (copied to user's project)
-└── __init__.py            # Python package file
-```
-
-### CLI Tool (`funcn`)
-
-The CLI manages component installation:
-
-- Reads `funcn.json` for project configuration
-- Fetches components from the registry
-- Places files in configured directories
-- Applies template variables (provider, model)
-- Installs Python dependencies
-
-### Configuration Flow
-
-1. **funcn.json** - User's project configuration (directories, defaults)
-2. **component.json** - Component metadata (files, dependencies, template vars)
-3. **Template Variables** - Applied during installation ({{provider}}, {{model}})
 
 ## Development Principles
 
 ### Mirascope Best Practices
 
-1. **Decorators**: Use `@llm.call()` for LLM calls, `@prompt_template()` for prompts
-2. **Response Models**: Define Pydantic models for structured outputs
-3. **Async First**: Use `async def` for all LLM calls and tools
-4. **Multi-Provider**: Support all Mirascope providers (OpenAI, Anthropic, Google, etc.)
+1. **Prompt Templates**: Always use `@prompt_template` decorators
+2. **Response Models**: Define Pydantic models for structured LLM outputs
+3. **Async Patterns**: Use `async def` for all LLM calls and tools
+4. **Multi-Provider**: Support OpenAI, Anthropic, Google, etc.
 5. **Error Handling**: Implement comprehensive validation and error recovery
-6. **Tool Pattern**: Tools are functions, not classes
 
-### Component Requirements
+### Component Architecture
 
-- Must include `component.json` with proper metadata
-- Component names must have type suffix (`_agent`, `_tool`, etc.)
-- Include comprehensive `funcn.md` documentation
-- Support template variables for customization
+- Each component has a `component.json` manifest
+- Components can depend on other registry components
+- Include comprehensive documentation and examples
 - Follow semantic versioning
-- Test with multiple providers
 
 ### Code Quality Standards
 
 - Type hints for all function parameters and returns
 - Google-style docstrings
 - Comprehensive unit tests
-- Ruff formatting (130 char line length)
-- No unused imports (auto-fixed by ruff)
-- Proper async/await usage
+- PEP 8 code formatting
+- Proper logging and error handling
 
 ## Available Components
 
@@ -230,65 +122,22 @@ The CLI manages component installation:
 
 ## Common Patterns
 
-### Tool Implementation (Functional Pattern)
+### Basic Agent Structure
 
 ```python
-# tools/my_search/tool.py
-def search_function(query: str, limit: int = 10) -> list[str]:
-    """Search for items matching the query.
-    
-    Args:
-        query: The search query string
-        limit: Maximum number of results
-        
-    Returns:
-        List of matching results
-    """
-    # Implementation
-    results = []  # Your search logic here
-    return results[:limit]
+from mirascope.core import BaseModel, prompt_template
+from mirascope.integrations.openai import OpenAICall
 
-# Export the function
-__all__ = ["search_function"]
-```
-
-### Agent Using Tools
-
-```python
-# agents/research/agent.py
-from mirascope import llm, prompt_template
-from mirascope.core import BaseModel
-from tools.pdf_search import search_pdf_content
-from tools.web_search import search_web
-
-class ResearchOutput(BaseModel):
-    summary: str
-    sources: list[str]
+class ResponseModel(BaseModel):
+    answer: str
     confidence: float
 
-@llm.call(
-    provider="{{provider}}",
-    model="{{model}}",
-    response_model=ResearchOutput,
-    tools=[search_pdf_content, search_web]  # Tools passed here
-)
-@prompt_template("""
-Research the topic: {topic}
-
-Use the available tools to gather information from PDFs and the web.
-Provide a comprehensive summary with sources.
-""")
-async def research_agent(topic: str) -> ResearchOutput:
-    """Conducts research using multiple sources."""
-    ...
-
-# Usage
-result = await research_agent("quantum computing applications")
-if tool := result.tool:
-    tool_result = tool.call()  # Execute the tool the LLM wants to use
+@OpenAICall("gpt-4o-mini", response_model=ResponseModel)
+@prompt_template("Answer this question: {question}")
+def my_agent(question: str): ...
 ```
 
-### Component with Lilypad Observability
+### Tool Implementation
 
 ```python
 from lilypad import trace

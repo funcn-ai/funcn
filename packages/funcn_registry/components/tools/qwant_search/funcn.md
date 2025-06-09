@@ -142,6 +142,22 @@ async def tool_function(args: ToolArgs) -> ToolResult:
     """
 ```
 
+### Using with Mirascope Agents
+
+```python
+from mirascope.core import llm, prompt_template
+from qwant_search_tool import tool_function
+
+@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
+@prompt_template("Use the tool to help answer: {query}")
+def agent_with_tool(query: str): ...
+
+response = agent_with_tool("your question")
+if response.tool:
+    result = response.tool.call()
+    print(result)
+```
+
 ### Common Issues
 
 - **Input Validation Errors**: Ensure input parameters match the ToolArgs model
@@ -184,20 +200,4 @@ async def chained_workflow(input_data):
     result1 = await tool1(input_data)
     result2 = await tool2(result1.output)
     return result2
-```
-
-### Using with Mirascope Agents
-
-```python
-from mirascope.core import llm, prompt_template
-from qwant_search_tool import tool_function
-
-@llm.call(provider="openai", model="gpt-4o-mini", tools=[tool_function])
-@prompt_template("Use the tool to help answer: {query}")
-def agent_with_tool(query: str): ...
-
-response = agent_with_tool("your question")
-if response.tool:
-    result = response.tool.call()
-    print(result)
 ```
