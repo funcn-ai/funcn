@@ -147,26 +147,6 @@ The Multi-Agent Coordinator requires access to other specialized agents. Ensure 
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add multi_agent_coordinator` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from multi_agent_coordinator import multi_agent_coordinator_custom
-
-result = await multi_agent_coordinator_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -183,3 +163,23 @@ result_anthropic = await multi_agent_coordinator(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from multi_agent_coordinator import multi_agent_coordinator_custom
+
+result = await multi_agent_coordinator_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add multi_agent_coordinator` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

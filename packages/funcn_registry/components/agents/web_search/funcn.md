@@ -178,26 +178,6 @@ This unified agent requires 'duckduckgo_search_tools', 'qwant_search_tools', 'ex
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add web_search_agent` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from web_search_agent import web_search_agent_custom
-
-result = await web_search_agent_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -214,3 +194,23 @@ result_anthropic = await web_search_agent(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from web_search_agent import web_search_agent_custom
+
+result = await web_search_agent_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add web_search_agent` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries

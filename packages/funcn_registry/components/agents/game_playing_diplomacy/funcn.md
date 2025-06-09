@@ -194,26 +194,6 @@ For human participation, set PlayerType.HUMAN for those players.
 - [Mirascope Documentation](https://mirascope.com)
 - [Funcn Registry](https://github.com/funcn-ai/funcn)
 
-### Common Issues
-
-- **API Key Issues**: Ensure your LLM provider API key is set correctly
-- **Dependency Conflicts**: Run `funcn add game_playing_diplomacy` to reinstall dependencies
-- **Timeout Errors**: Increase timeout values for complex queries
-
-### Custom Configuration
-
-```python
-# Custom configuration example
-from game_playing_diplomacy import game_playing_diplomacy_custom
-
-result = await game_playing_diplomacy_custom(
-    query="your question",
-    custom_param="value",
-    max_retries=3,
-    timeout=30.0
-)
-```
-
 ### Multi-Provider Usage
 
 ```python
@@ -230,3 +210,23 @@ result_anthropic = await game_playing_diplomacy(
     model="claude-3-5-sonnet-20241022"
 )
 ```
+
+### Custom Configuration
+
+```python
+# Custom configuration example
+from game_playing_diplomacy import game_playing_diplomacy_custom
+
+result = await game_playing_diplomacy_custom(
+    query="your question",
+    custom_param="value",
+    max_retries=3,
+    timeout=30.0
+)
+```
+
+### Common Issues
+
+- **API Key Issues**: Ensure your LLM provider API key is set correctly
+- **Dependency Conflicts**: Run `funcn add game_playing_diplomacy` to reinstall dependencies
+- **Timeout Errors**: Increase timeout values for complex queries
