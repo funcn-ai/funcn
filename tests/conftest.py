@@ -6,7 +6,7 @@ import pytest
 import shutil
 import tempfile
 from funcn_cli.config_manager import ConfigManager
-from funcn_cli.core.models import Component, ComponentConfig, ComponentFile, DependencySpec, FuncnConfig
+from funcn_cli.core.models import ComponentManifest
 from pathlib import Path
 from typer.testing import CliRunner
 from typing import Any

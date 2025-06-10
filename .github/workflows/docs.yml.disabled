@@ -1,6 +1,8 @@
-name: Generate Documentation
-
-on:
+# TEMPORARILY DISABLED - This workflow is causing issues with PRs
+# To re-enable: remove the comments from lines 1-139
+# name: Generate Documentation
+#
+# on:
   push:
     branches:
       - main
