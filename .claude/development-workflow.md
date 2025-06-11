@@ -69,7 +69,7 @@ branch_names = [mcp_linear.get_issue_git_branch_name(issueId=issue.id) for issue
 # Returns: ['jayscambler/issue-123', 'jayscambler/issue-124', ...]
 ```
 
-#### Why Use Projects with Multiple Issues?
+#### Why Use Projects with Multiple Issues
 
 1. **Organized Work**: Projects group related issues together
 2. **Progress Tracking**: See overall progress in project view
@@ -81,6 +81,7 @@ branch_names = [mcp_linear.get_issue_git_branch_name(issueId=issue.id) for issue
 #### Available Linear MCP Commands
 
 **Issue Management:**
+
 - `create_issue` - Create a new Linear issue
 - `get_issue` - Get details of a specific issue
 - `update_issue` - Update an existing issue
@@ -89,15 +90,18 @@ branch_names = [mcp_linear.get_issue_git_branch_name(issueId=issue.id) for issue
 - `get_issue_git_branch_name` - Get the git branch name for an issue
 
 **Issue Metadata:**
+
 - `list_issue_statuses` - List available issue statuses
 - `get_issue_status` - Get details of a specific status
 - `list_issue_labels` - List available issue labels
 
 **Comments:**
+
 - `create_comment` - Add a comment to an issue
 - `list_comments` - List comments on an issue
 
 **Organization:**
+
 - `list_projects` - List all projects
 - `get_project` - Get project details
 - `create_project` - Create a new project
@@ -107,9 +111,11 @@ branch_names = [mcp_linear.get_issue_git_branch_name(issueId=issue.id) for issue
 - `get_user` - Get user details
 
 **Help:**
+
 - `search_documentation` - Search Linear documentation
 
 Example issue titles:
+
 - "Add new web scraping agent component"
 - "Fix type hints in component manager"
 - "Update documentation for MCP integration"
@@ -221,6 +227,7 @@ git worktree remove ../funcn-feature-123
 ```
 
 Benefits of worktrees:
+
 - Work on multiple features without stashing/switching
 - Compare different implementations side-by-side
 - Keep dependencies isolated between features
@@ -229,10 +236,12 @@ Benefits of worktrees:
 ## Best Practices
 
 ### Branch Naming
+
 - Always use Linear-generated branch names: `username/issue-number`
 - This maintains traceability between issues and code
 
 ### Commit Messages
+
 - Reference the Linear issue: "Fix type hints #123"
 - Use conventional commits when applicable:
   - `feat:` for new features
@@ -242,6 +251,7 @@ Benefits of worktrees:
   - `test:` for test additions/changes
 
 ### Before Creating PR
+
 1. Ensure all tests pass: `task test`
 2. Run linting: `task lint`
 3. Update documentation if needed
@@ -252,6 +262,7 @@ Benefits of worktrees:
    ```
 
 ### Worktree Guidelines
+
 - Name worktrees descriptively: `funcn-feature-description`
 - Keep worktrees in a parallel directory to main repo
 - Clean up worktrees after PR is merged
@@ -260,6 +271,7 @@ Benefits of worktrees:
 ## Emergency Procedures
 
 ### Reverting Changes
+
 If you need to quickly revert changes:
 
 ```bash
@@ -271,6 +283,7 @@ git revert <commit-hash>
 ```
 
 ### Switching Context
+
 If you need to quickly switch to another task:
 
 ```bash
@@ -288,6 +301,7 @@ cd ../funcn-urgent-fix
 ## Integration with Claude Code
 
 When working with Claude Code:
+
 1. Always start by asking to create a Linear issue
 2. Remind Claude to checkout the feature branch
 3. Use worktrees when comparing implementations

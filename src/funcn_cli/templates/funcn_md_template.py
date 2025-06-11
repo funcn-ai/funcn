@@ -128,10 +128,7 @@ def generate_funcn_md(component_json: dict, existing_readme: str = None) -> str:
 
     # Format dependencies
     registry_deps = component_json.get("registry_dependencies", [])
-    if registry_deps:
-        registry_dependencies = "\n".join([f"- `{dep}`" for dep in registry_deps])
-    else:
-        registry_dependencies = "- None"
+    registry_dependencies = "\n".join([f"- `{dep}`" for dep in registry_deps]) if registry_deps else "- None"
 
     python_deps = component_json.get("python_dependencies", [])
     if python_deps:
@@ -244,10 +241,7 @@ print(result)
         key_benefits = "- **High Performance**: Optimized for production use"
 
     # Related components (from registry dependencies)
-    if registry_deps:
-        related_components = "\n".join([f"- `{dep}`" for dep in registry_deps])
-    else:
-        related_components = "- None"
+    related_components = "\n".join([f"- `{dep}`" for dep in registry_deps]) if registry_deps else "- None"
 
     # References
     references = f"""- [Mirascope Documentation](https://mirascope.com)
@@ -592,10 +586,7 @@ def _appears_customized(section_content: str, component_data: dict) -> bool:
     has_auto_pattern = any(pattern in section_lower for pattern in auto_generated_patterns)
     has_substantial_content = len(section_content.strip()) > 10
 
-    if not has_auto_pattern and has_substantial_content:
-        return True
-
-    return False
+    return not has_auto_pattern and has_substantial_content
 
 
 def _appears_customized_description(description: str, component_data: dict) -> bool:

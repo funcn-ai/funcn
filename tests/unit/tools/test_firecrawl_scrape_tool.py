@@ -154,7 +154,8 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             mock_client.scrape_url = AsyncMock(return_value=mock_content)
 
             result = await scrape_url(
-                url="https://example.com/dynamic", wait_time=5000  # 5 second wait
+                url="https://example.com/dynamic",
+                wait_time=5000,  # 5 second wait
             )
 
             # Verify wait time was passed correctly

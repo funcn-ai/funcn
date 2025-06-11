@@ -209,9 +209,7 @@ class TestUrlContentParserTool(BaseToolTest):
     async def test_connection_error_handling(self):
         """Test handling of connection errors."""
         with patch("packages.funcn_registry.components.tools.url_content_parser_tool.tool.aiohttp.ClientSession") as mock_session:
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(
-                side_effect=Exception("Connection refused")
-            )
+            mock_session.return_value.__aenter__.return_value.get = AsyncMock(side_effect=Exception("Connection refused"))
 
             with pytest.raises(Exception) as exc_info:
                 await parse_url_content("https://unreachable.com")
@@ -288,9 +286,7 @@ class TestUrlContentParserTool(BaseToolTest):
     async def test_timeout_handling(self):
         """Test handling of request timeouts."""
         with patch("packages.funcn_registry.components.tools.url_content_parser_tool.tool.aiohttp.ClientSession") as mock_session:
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(
-                side_effect=TimeoutError("Request timeout")
-            )
+            mock_session.return_value.__aenter__.return_value.get = AsyncMock(side_effect=TimeoutError("Request timeout"))
 
             with pytest.raises(asyncio.TimeoutError) as exc_info:
                 await parse_url_content("https://slow-site.com")

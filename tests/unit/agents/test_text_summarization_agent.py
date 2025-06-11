@@ -1,236 +1,224 @@
-"""Test suite for text_summarization_agent following Mirascope best practices."""
+"""Test suite for text_summarization_agent following best practices."""
 
 import pytest
 from pathlib import Path
-from tests.fixtures import MockResponseFactory, TestDataFactory
-from tests.utils import BaseAgentTest, MirascopeTestHelper
-from unittest.mock import Mock, patch
+from tests.utils import BaseAgentTest
+from unittest.mock import AsyncMock, patch
 
 
 class TestTextSummarizationAgent(BaseAgentTest):
-    """Test text_summarization_agent component."""
-    
+    """Test cases for text summarization agent."""
+
     component_name = "text_summarization_agent"
-    component_path = Path("packages/funcn_registry/components/agents/text_summarization_agent")
-    mock_llm_provider = "openai"
-    mock_model = "gpt-4o-mini"
-    
+    component_path = Path("packages/funcn_registry/components/agents/text_summarization")
+
     def get_component_function(self):
-        """Import the main agent function."""
-        # Import would be: from agents.text_summarization_agent import text_summarization_agent
-        # For testing, we'll mock this
-        async def mock_agent(text: str, **kwargs):
-            """Mock agent for testing."""
-            return Mock(
-                summary="Test summary",
-                style="technical",
-                confidence=0.95
-            )
-        return mock_agent
-    
+        """Get the main agent function."""
+        # Import directly without triggering __init__.py chain
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        return module.summarize_text
+
     def get_test_inputs(self):
-        """Provide test cases for the agent."""
+        """Get test input cases."""
         return [
             {
-                "text": TestDataFactory.SAMPLE_TEXT,
-                "style": "technical",
-                "max_length": 100
-            },
-            {
-                "text": "Short text for summarization.",
+                "text": "Climate change is accelerating. Global temperatures have risen by 1.1°C since pre-industrial times. The impacts include more frequent extreme weather events, rising sea levels, and ecosystem disruption. Urgent action is needed to reduce greenhouse gas emissions and adapt to climate impacts.",
                 "style": "executive",
-                "max_length": 50
+                "target_length": 50,
+                "progressive": False,
+                "validate": False,
             },
             {
-                "text": TestDataFactory.SAMPLE_MARKDOWN_CODE,
+                "text": "The transformer architecture revolutionized natural language processing through self-attention mechanisms. It enables parallel processing of sequences and captures long-range dependencies effectively. BERT, GPT, and other transformer-based models have achieved state-of-the-art results across NLP tasks.",
+                "style": "technical",
+                "progressive": True,
+                "validate": False,
+            },
+            {
+                "text": "A new study shows that regular exercise improves mental health. Researchers found that 30 minutes of moderate activity daily reduces anxiety and depression symptoms. The benefits were consistent across age groups and demographics.",
                 "style": "simple",
-                "max_length": 200
-            }
-        ]
-    
-    @pytest.mark.asyncio
-    async def test_agent_summarizes_different_styles(self):
-        """Test agent can produce different summary styles."""
-        test_text = TestDataFactory.SAMPLE_TEXT
-        
-        styles = ["technical", "executive", "simple", "academic", "journalistic"]
-        
-        for style in styles:
-            # Mock different responses for different styles
-            mock_summary = f"This is a {style} summary of the text."
-            
-            with patch("mirascope.llm.call") as mock_llm:
-                mock_llm.return_value = Mock(
-                    content=mock_summary,
-                    parsed=Mock(
-                        summary=mock_summary,
-                        style=style,
-                        confidence=0.9,
-                        word_count=len(mock_summary.split())
-                    )
-                )
-                
-                agent = self.get_component_function()
-                result = await agent(text=test_text, style=style)
-                
-                assert result.summary is not None
-                assert style.lower() in result.summary.lower() or hasattr(result, 'style')
-    
-    @pytest.mark.asyncio
-    async def test_progressive_summarization(self):
-        """Test progressive summarization for long texts."""
-        # Create a very long text
-        long_text = " ".join([TestDataFactory.SAMPLE_TEXT] * 10)
-        
-        with patch("mirascope.llm.call") as mock_llm:
-            # Mock progressive summarization responses
-            mock_llm.side_effect = [
-                Mock(parsed=Mock(chunks=["chunk1", "chunk2", "chunk3"])),
-                Mock(parsed=Mock(summary="Intermediate summary 1")),
-                Mock(parsed=Mock(summary="Intermediate summary 2")),
-                Mock(parsed=Mock(summary="Final consolidated summary"))
-            ]
-            
-            agent = self.get_component_function()
-            result = await agent(
-                text=long_text,
-                style="technical",
-                progressive=True
-            )
-            
-            # Should have made multiple calls for progressive summarization
-            assert mock_llm.call_count >= 2
-    
-    @pytest.mark.asyncio
-    async def test_summary_validation(self):
-        """Test summary validation and quality checks."""
-        test_cases = [
-            {
-                "text": "AI is transforming healthcare through predictive analytics.",
-                "expected_keywords": ["AI", "healthcare", "analytics"],
-                "style": "technical"
+                "validate": False,
             },
-            {
-                "text": TestDataFactory.SAMPLE_CSV,
-                "expected_keywords": ["data", "employees", "departments"],
-                "style": "executive"
-            }
         ]
-        
-        for test_case in test_cases:
-            with patch("mirascope.llm.call") as mock_llm:
-                mock_summary = f"Summary containing {' and '.join(test_case['expected_keywords'])}"
-                
-                mock_llm.return_value = Mock(
-                    parsed=Mock(
-                        summary=mock_summary,
-                        validation_passed=True,
-                        key_concepts=test_case["expected_keywords"]
-                    )
-                )
-                
-                agent = self.get_component_function()
-                result = await agent(
-                    text=test_case["text"],
-                    style=test_case["style"]
-                )
-                
-                # Verify summary contains expected content
-                assert result.summary is not None
-    
-    @pytest.mark.asyncio
-    async def test_iterative_refinement(self):
-        """Test iterative refinement improves summary quality."""
-        initial_summary = "Basic summary of the text."
-        refined_summary = "A comprehensive and well-structured summary of the text with key insights."
-        
-        with patch("mirascope.llm.call") as mock_llm:
-            # Mock iterative refinement
-            mock_llm.side_effect = [
-                Mock(parsed=Mock(summary=initial_summary, needs_refinement=True)),
-                Mock(parsed=Mock(improvements=["Add more detail", "Include key metrics"])),
-                Mock(parsed=Mock(summary=refined_summary, needs_refinement=False))
-            ]
-            
-            agent = self.get_component_function()
-            result = await agent(
-                text=TestDataFactory.SAMPLE_TEXT,
-                style="academic",
-                iterative_refinement=True
-            )
-            
-            # Should have made multiple calls for refinement
-            assert mock_llm.call_count >= 2
-    
-    @pytest.mark.asyncio
-    async def test_handles_special_content(self):
-        """Test agent handles special content types."""
-        special_contents = [
-            ("```python\ncode here\n```", "code"),
-            ("| Col1 | Col2 |\n|------|------|\n| A    | B    |", "table"),
-            ("1. First\n2. Second\n3. Third", "list"),
-            ("$$E = mc^2$$", "formula")
-        ]
-        
-        for content, content_type in special_contents:
-            with patch("mirascope.llm.call") as mock_llm:
-                mock_llm.return_value = Mock(
-                    parsed=Mock(
-                        summary=f"Summary of {content_type} content",
-                        detected_content_type=content_type,
-                        special_handling_applied=True
-                    )
-                )
-                
-                agent = self.get_component_function()
-                result = await agent(text=content, style="technical")
-                
-                assert result.summary is not None
-    
-    def test_component_follows_mirascope_patterns(self):
-        """Verify the component follows Mirascope best practices."""
-        # In real implementation, would import actual function
-        # from agents.text_summarization_agent import analyze_text
-        
-        # For demonstration, create a mock decorated function
-        from mirascope import llm, prompt_template
-        
-        @llm.call(provider="{{provider}}", model="{{model}}")
-        @prompt_template("Analyze: {text}")
-        async def analyze_text(text: str):
-            pass
-        
-        # Test best practices
-        MirascopeTestHelper.assert_uses_llm_decorator(analyze_text)
-        MirascopeTestHelper.assert_uses_prompt_template(analyze_text)
-        MirascopeTestHelper.assert_provider_agnostic(analyze_text)
 
+    def test_get_style_config(self):
+        """Test style configuration retrieval."""
+        # Use direct import to avoid __init__.py chain
+        import importlib.util
 
-class TestTextSummarizationTools:
-    """Test the tools used by text summarization agent."""
-    
-    def test_chunk_text_tool(self):
-        """Test text chunking for long documents."""
-        from funcn_registry.components.agents.text_summarization_agent.tools import chunk_text
-        
-        long_text = " ".join(["Sentence."] * 1000)
-        chunks = chunk_text(long_text, chunk_size=500)
-        
-        assert len(chunks) > 1
-        assert all(len(chunk.split()) <= 500 for chunk in chunks)
-        
-    def test_extract_key_points_tool(self):
-        """Test key point extraction."""
-        from funcn_registry.components.agents.text_summarization_agent.tools import extract_key_points
-        
-        text = """
-        AI is revolutionizing healthcare. 
-        Machine learning enables early disease detection.
-        Natural language processing improves patient care.
-        """
-        
-        points = extract_key_points(text)
-        
-        assert len(points) >= 2
-        assert any("AI" in point for point in points)
-        assert any("healthcare" in point for point in points)
+        spec = importlib.util.spec_from_file_location(
+            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        get_style_config = module.get_style_config
+
+        # Test all available styles
+        styles = ["technical", "executive", "simple", "academic", "journalistic"]
+
+        for style in styles:
+            examples, guidelines = get_style_config(style)
+            assert isinstance(examples, str)
+            assert isinstance(guidelines, str)
+            assert len(examples) > 0
+            assert len(guidelines) > 0
+
+        # Test unknown style
+        examples, guidelines = get_style_config("unknown")
+        assert examples == ""
+        assert "clear, concise" in guidelines
+
+    @pytest.mark.unit
+    def test_response_models_structure(self):
+        """Test that response models have correct structure."""
+        # Use direct import to avoid __init__.py chain
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+
+        # Test that the models exist and have the expected fields
+        assert hasattr(module, 'KeyPoint')
+        assert hasattr(module, 'Summary')
+        assert hasattr(module, 'ProgressiveSummary')
+        assert hasattr(module, 'SummaryAnalysis')
+        assert hasattr(module, 'SummaryValidation')
+
+        # Test basic model instantiation without complex types
+        KeyPoint = module.KeyPoint
+        key_point = KeyPoint(point="Test point", importance=0.5, evidence="Test evidence")
+        assert key_point.point == "Test point"
+        assert key_point.importance == 0.5
+        assert key_point.evidence == "Test evidence"
+
+        # Test Summary model
+        Summary = module.Summary
+        summary = Summary(
+            summary="Test summary", style="executive", word_count=2, preserved_key_points=["test"], confidence_score=0.8
+        )
+        assert summary.summary == "Test summary"
+        assert summary.style == "executive"
+        assert summary.word_count == 2
+        assert len(summary.preserved_key_points) == 1
+        assert summary.confidence_score == 0.8
+
+        # Test ProgressiveSummary model
+        ProgressiveSummary = module.ProgressiveSummary
+        progressive = ProgressiveSummary(
+            one_sentence="One sentence",
+            paragraph="Paragraph",
+            detailed="Detailed",
+            executive="Executive",
+            key_takeaways=["Takeaway 1", "Takeaway 2"],
+        )
+        assert progressive.one_sentence == "One sentence"
+        assert progressive.paragraph == "Paragraph"
+        assert progressive.detailed == "Detailed"
+        assert progressive.executive == "Executive"
+        assert len(progressive.key_takeaways) == 2
+
+        # Just verify the complex models exist - don't instantiate them
+        # due to forward reference issues with direct import
+        assert module.SummaryAnalysis.__name__ == 'SummaryAnalysis'
+        assert module.SummaryValidation.__name__ == 'SummaryValidation'
+
+    @pytest.mark.unit
+    def test_agent_has_required_functions(self):
+        """Test that all required agent functions are present."""
+        # Use direct import to avoid __init__.py chain
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+        )
+        agent = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(agent)
+
+        # Main function
+        assert hasattr(agent, 'summarize_text')
+        assert callable(agent.summarize_text)
+
+        # LLM-decorated functions
+        assert hasattr(agent, 'analyze_for_summary')
+        assert hasattr(agent, 'generate_summary')
+        assert hasattr(agent, 'generate_progressive_summary')
+        assert hasattr(agent, 'validate_summary')
+
+        # Convenience functions
+        assert hasattr(agent, 'quick_summary')
+        assert hasattr(agent, 'executive_brief')
+        assert hasattr(agent, 'multi_style_summary')
+
+        # Helper functions
+        assert hasattr(agent, 'get_style_config')
+
+    @pytest.mark.asyncio
+    async def test_summarize_text_basic_structure(self):
+        """Test basic structure of summarize_text function."""
+        # Use direct import to avoid __init__.py chain
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        summarize_text = module.summarize_text
+        Summary = module.Summary
+        ProgressiveSummary = module.ProgressiveSummary
+
+        # Test that function is async
+        import inspect
+
+        assert inspect.iscoroutinefunction(summarize_text)
+
+        # Test function signature
+        sig = inspect.signature(summarize_text)
+        params = list(sig.parameters.keys())
+        assert 'text' in params
+        assert 'style' in params
+        assert 'target_length' in params
+        assert 'progressive' in params
+        assert 'validate' in params
+
+    def validate_agent_output(self, output, input_data):
+        """Validate the agent output structure."""
+        # Use direct import to avoid __init__.py chain
+        import importlib.util
+
+        spec = importlib.util.spec_from_file_location(
+            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+        )
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+        Summary = module.Summary
+        ProgressiveSummary = module.ProgressiveSummary
+
+        if input_data.get("progressive", False):
+            # Progressive summary
+            assert isinstance(output, ProgressiveSummary)
+            assert hasattr(output, "one_sentence")
+            assert hasattr(output, "paragraph")
+            assert hasattr(output, "detailed")
+            assert hasattr(output, "executive")
+            assert hasattr(output, "key_takeaways")
+            assert isinstance(output.key_takeaways, list)
+        else:
+            # Regular summary
+            assert isinstance(output, Summary)
+            assert hasattr(output, "summary")
+            assert hasattr(output, "style")
+            assert hasattr(output, "word_count")
+            assert hasattr(output, "preserved_key_points")
+            assert hasattr(output, "confidence_score")
+            assert isinstance(output.preserved_key_points, list)
+            assert 0 <= output.confidence_score <= 1

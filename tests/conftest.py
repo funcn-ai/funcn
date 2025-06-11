@@ -195,7 +195,7 @@ from pydantic import BaseModel
 
 class AgentResponse(BaseModel):
     """Response model for the test agent."""
-    
+
     result: str
     confidence: float
 
@@ -204,10 +204,10 @@ class AgentResponse(BaseModel):
 @prompt_template()
 async def test_agent(query: str) -> Messages.Type:
     """A test agent that processes queries.
-    
+
     Args:
         query: The input query to process
-        
+
     Returns:
         AgentResponse with result and confidence
     """
