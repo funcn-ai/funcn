@@ -6,7 +6,7 @@ import pytest
 import shutil
 import tempfile
 from funcn_cli.config_manager import ConfigManager
-from funcn_cli.core.models import ComponentManifest
+from funcn_cli.core.models import Author, ComponentManifest, FileMapping
 from pathlib import Path
 from typer.testing import CliRunner
 from typing import Any
@@ -54,64 +54,69 @@ def tmp_project_dir(tmp_path):
 
 @pytest.fixture
 def funcn_config():
-    """Create a sample FuncnConfig instance."""
-    return FuncnConfig(
-        directories={
+    """Create a sample funcn configuration dict."""
+    return {
+        "directories": {
             "agents": "src/agents",
             "tools": "src/tools",
             "prompt_templates": "src/prompts",
             "response_models": "src/models",
             "evals": "src/evals",
         },
-        provider="openai",
-        model="gpt-4",
-    )
+        "provider": "openai",
+        "model": "gpt-4",
+    }
 
 
 @pytest.fixture
 def sample_component():
-    """Create a sample Component instance for testing."""
-    return Component(
-        name="test_agent",
+    """Create a sample ComponentManifest instance for testing."""
+    return ComponentManifest(
+        name="test-agent",
         type="agent",
         version="0.1.0",
         description="A test agent for unit testing",
-        dependencies=["mirascope", "pydantic"],
-        author="Test Author",
+        authors=[Author(name="Test Author", email="test@example.com")],
+        license="MIT",
+        mirascope_version_min="1.24.0",
+        files_to_copy=[
+            FileMapping(source="agent.py", destination="agent.py"),
+            FileMapping(source="funcn.md", destination="funcn.md"),
+        ],
+        target_directory_key="agents",
+        python_dependencies=["mirascope>=1.24.0", "pydantic>=2.0.0"],
+        registry_dependencies=[],
+        environment_variables=[],
+        post_add_instructions="Test agent installed successfully!",
         tags=["test", "sample"],
-        mirascope_providers=["openai", "anthropic"],
-        config=ComponentConfig(
-            min_python_version="3.12",
-            dependencies=[
-                DependencySpec(name="mirascope", version=">=1.0.0"),
-                DependencySpec(name="pydantic", version=">=2.0.0"),
-            ],
-            files=[ComponentFile(src="agent.py", dest="agent.py"), ComponentFile(src="funcn.md", dest="funcn.md")],
-            template_variables=["provider", "model"],
-            post_install_message="Test agent installed successfully!",
-        ),
+        supports_lilypad=True,
+        template_variables={"provider": "openai", "model": "gpt-4"},
     )
 
 
 @pytest.fixture
 def sample_tool_component():
-    """Create a sample tool Component instance for testing."""
-    return Component(
-        name="test_tool",
+    """Create a sample tool ComponentManifest instance for testing."""
+    return ComponentManifest(
+        name="test-tool",
         type="tool",
         version="0.1.0",
         description="A test tool for unit testing",
-        dependencies=["requests"],
-        author="Test Author",
+        authors=[Author(name="Test Author", email="test@example.com")],
+        license="MIT",
+        mirascope_version_min="1.24.0",
+        files_to_copy=[
+            FileMapping(source="tool.py", destination="tool.py"),
+            FileMapping(source="funcn.md", destination="funcn.md"),
+        ],
+        target_directory_key="tools",
+        python_dependencies=["requests>=2.0.0"],
+        registry_dependencies=[],
+        environment_variables=[],
+        post_add_instructions="Test tool installed successfully!",
         tags=["test", "sample", "tool"],
-        mirascope_providers=[],
-        config=ComponentConfig(
-            min_python_version="3.12",
-            dependencies=[DependencySpec(name="requests", version=">=2.0.0")],
-            files=[ComponentFile(src="tool.py", dest="tool.py"), ComponentFile(src="funcn.md", dest="funcn.md")],
-            template_variables=[],
-            post_install_message="Test tool installed successfully!",
-        ),
+        supports_lilypad=False,
+        template_variables={},
     )
 
 
@@ -190,7 +195,7 @@ from pydantic import BaseModel
 
 class AgentResponse(BaseModel):
     """Response model for the test agent."""
-    
+
     result: str
     confidence: float
 
@@ -199,10 +204,10 @@ class AgentResponse(BaseModel):
 @prompt_template()
 async def test_agent(query: str) -> Messages.Type:
     """A test agent that processes queries.
-    
+
     Args:
         query: The input query to process
-        
+
     Returns:
         AgentResponse with result and confidence
     """
