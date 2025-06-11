@@ -1,0 +1,384 @@
+"""End-to-end tests for template variable substitution."""
+
+from __future__ import annotations
+
+import json
+import pytest
+import tarfile
+from io import BytesIO
+from pathlib import Path
+from tests.e2e.base import BaseE2ETest
+from unittest.mock import MagicMock, patch
+
+
+@pytest.mark.e2e
+class TestTemplateVariables(BaseE2ETest):
+    """Test template variable substitution in component files."""
+    
+    @pytest.fixture
+    def initialized_project(self, cli_runner, test_project_dir):
+        """Create an initialized funcn project."""
+        # Run funcn init
+        result = self.run_command(cli_runner, ["init"], input="\n\n\n\nno\n")
+        self.assert_command_success(result)
+        return test_project_dir
+    
+    @pytest.fixture
+    def component_with_templates(self, tmp_path):
+        """Create a component with template variables."""
+        component_dir = tmp_path / "template_component"
+        component_dir.mkdir()
+        
+        # Component manifest
+        manifest = {
+            "name": "template_component",
+            "version": "1.0.0",
+            "type": "agent",
+            "description": "Component with template variables",
+            "files_to_copy": ["agent.py", "config.json", "README.md"],
+            "target_directory_key": "agents",
+            "python_dependencies": [],
+            "registry_dependencies": [],
+            "environment_variables": ["API_KEY"],
+            "template_variables": [
+                {
+                    "name": "provider",
+                    "description": "LLM provider to use",
+                    "default": "openai"
+                },
+                {
+                    "name": "model_name",
+                    "description": "Model name",
+                    "default": "gpt-4o-mini"
+                },
+                {
+                    "name": "temperature",
+                    "description": "Temperature setting",
+                    "default": "0.7"
+                }
+            ]
+        }
+        
+        (component_dir / "component.json").write_text(json.dumps(manifest, indent=2))
+        
+        # Agent file with template variables
+        (component_dir / "agent.py").write_text("""
+# Agent using {{provider}} provider
+from mirascope.integrations.{{provider}} import {{provider.title()}}Call
+
+MODEL = "{{model_name}}"
+TEMPERATURE = {{temperature}}
+
+@{{provider.title()}}Call(MODEL, temperature=TEMPERATURE)
+def agent(question: str):
+    '''An agent using {{provider}} with model {{model_name}}'''
+    return f"Answer this: {question}"
+""")
+        
+        # Config file with templates
+        (component_dir / "config.json").write_text("""{
+    "provider": "{{provider}}",
+    "model": "{{model_name}}",
+    "settings": {
+        "temperature": {{temperature}},
+        "stream": true
+    }
+}""")
+        
+        # README with templates
+        (component_dir / "README.md").write_text("""# Template Component
+
+This component uses the {{provider}} provider with model {{model_name}}.
+
+## Configuration
+- Provider: {{provider}}
+- Model: {{model_name}}
+- Temperature: {{temperature}}
+""")
+        
+        return component_dir
+    
+    def create_component_tarball(self, component_dir: Path) -> bytes:
+        """Create a tarball from component directory."""
+        tar_buffer = BytesIO()
+        with tarfile.open(fileobj=tar_buffer, mode='w:gz') as tar:
+            for file in component_dir.iterdir():
+                tar.add(file, arcname=file.name)
+        return tar_buffer.getvalue()
+    
+    def test_template_substitution_with_defaults(self, cli_runner, initialized_project, component_with_templates):
+        """Test template variable substitution using default values."""
+        with patch("requests.get") as mock_get:
+            # Mock component manifest
+            with open(component_with_templates / "component.json") as f:
+                manifest = json.load(f)
+            
+            mock_manifest_response = MagicMock()
+            mock_manifest_response.status_code = 200
+            mock_manifest_response.json.return_value = manifest
+            
+            # Mock component download
+            mock_download_response = MagicMock()
+            mock_download_response.status_code = 200
+            mock_download_response.content = self.create_component_tarball(component_with_templates)
+            
+            def mock_get_side_effect(url, *args, **kwargs):
+                if "component.json" in url:
+                    return mock_manifest_response
+                elif ".tar.gz" in url:
+                    return mock_download_response
+                return MagicMock(status_code=404)
+            
+            mock_get.side_effect = mock_get_side_effect
+            
+            # Add component using defaults (just press enter for all prompts)
+            result = self.run_command(
+                cli_runner, 
+                ["add", "--url", "https://example.com/template_component"],
+                input="\n\n\n"  # Use defaults for all variables
+            )
+            
+            self.assert_command_success(result)
+            
+            # Verify files were created with default substitutions
+            component_path = initialized_project / "src" / "agents" / "template_component"
+            
+            # Check agent.py
+            agent_content = (component_path / "agent.py").read_text()
+            assert "from mirascope.integrations.openai import OpenaiCall" in agent_content
+            assert 'MODEL = "gpt-4o-mini"' in agent_content
+            assert "TEMPERATURE = 0.7" in agent_content
+            
+            # Check config.json
+            with open(component_path / "config.json") as f:
+                config = json.load(f)
+            assert config["provider"] == "openai"
+            assert config["model"] == "gpt-4o-mini"
+            assert config["settings"]["temperature"] == 0.7
+            
+            # Check README.md
+            readme_content = (component_path / "README.md").read_text()
+            assert "uses the openai provider" in readme_content
+            assert "model gpt-4o-mini" in readme_content
+    
+    def test_template_substitution_with_custom_values(self, cli_runner, initialized_project, component_with_templates):
+        """Test template variable substitution with custom user input."""
+        with patch("requests.get") as mock_get:
+            # Mock component manifest
+            with open(component_with_templates / "component.json") as f:
+                manifest = json.load(f)
+            
+            mock_manifest_response = MagicMock()
+            mock_manifest_response.status_code = 200
+            mock_manifest_response.json.return_value = manifest
+            
+            # Mock component download
+            mock_download_response = MagicMock()
+            mock_download_response.status_code = 200
+            mock_download_response.content = self.create_component_tarball(component_with_templates)
+            
+            def mock_get_side_effect(url, *args, **kwargs):
+                if "component.json" in url:
+                    return mock_manifest_response
+                elif ".tar.gz" in url:
+                    return mock_download_response
+                return MagicMock(status_code=404)
+            
+            mock_get.side_effect = mock_get_side_effect
+            
+            # Add component with custom values
+            result = self.run_command(
+                cli_runner,
+                ["add", "--url", "https://example.com/template_component"],
+                input="anthropic\nclaude-3-opus\n0.3\n"
+            )
+            
+            self.assert_command_success(result)
+            
+            # Verify custom substitutions
+            component_path = initialized_project / "src" / "agents" / "template_component"
+            
+            # Check agent.py
+            agent_content = (component_path / "agent.py").read_text()
+            assert "from mirascope.integrations.anthropic import AnthropicCall" in agent_content
+            assert 'MODEL = "claude-3-opus"' in agent_content
+            assert "TEMPERATURE = 0.3" in agent_content
+            
+            # Check config.json
+            with open(component_path / "config.json") as f:
+                config = json.load(f)
+            assert config["provider"] == "anthropic"
+            assert config["model"] == "claude-3-opus"
+            assert config["settings"]["temperature"] == 0.3
+    
+    def test_template_case_transformations(self, cli_runner, initialized_project, tmp_path):
+        """Test template variable case transformations (title, upper, lower)."""
+        # Create component with case transformations
+        component_dir = tmp_path / "case_component"
+        component_dir.mkdir()
+        
+        manifest = {
+            "name": "case_component",
+            "version": "1.0.0",
+            "type": "tool",
+            "description": "Component testing case transformations",
+            "files_to_copy": ["tool.py"],
+            "target_directory_key": "tools",
+            "template_variables": [
+                {
+                    "name": "tool_name",
+                    "description": "Tool name",
+                    "default": "example_tool"
+                }
+            ]
+        }
+        
+        (component_dir / "component.json").write_text(json.dumps(manifest, indent=2))
+        
+        # Tool with various case transformations
+        (component_dir / "tool.py").write_text("""
+# {{tool_name.title()}} Tool
+# Constant: {{tool_name.upper()}}
+# Module: {{tool_name.lower()}}
+
+class {{tool_name.title().replace('_', '')}}:
+    '''The {{tool_name.title()}} class'''
+    
+    NAME = "{{tool_name.upper()}}"
+    
+    def __init__(self):
+        self.name = "{{tool_name.lower()}}"
+""")
+        
+        with patch("requests.get") as mock_get:
+            # Mock responses
+            mock_manifest_response = MagicMock()
+            mock_manifest_response.status_code = 200
+            mock_manifest_response.json.return_value = manifest
+            
+            mock_download_response = MagicMock()
+            mock_download_response.status_code = 200
+            mock_download_response.content = self.create_component_tarball(component_dir)
+            
+            def mock_get_side_effect(url, *args, **kwargs):
+                if "component.json" in url:
+                    return mock_manifest_response
+                elif ".tar.gz" in url:
+                    return mock_download_response
+                return MagicMock(status_code=404)
+            
+            mock_get.side_effect = mock_get_side_effect
+            
+            # Add component
+            result = self.run_command(
+                cli_runner,
+                ["add", "--url", "https://example.com/case_component"],
+                input="my_custom_tool\n"
+            )
+            
+            self.assert_command_success(result)
+            
+            # Verify case transformations
+            tool_path = initialized_project / "src" / "tools" / "case_component" / "tool.py"
+            tool_content = tool_path.read_text()
+            
+            assert "# My_Custom_Tool Tool" in tool_content
+            assert "# Constant: MY_CUSTOM_TOOL" in tool_content
+            assert "# Module: my_custom_tool" in tool_content
+            assert "class MyCustomTool:" in tool_content
+            assert 'NAME = "MY_CUSTOM_TOOL"' in tool_content
+            assert 'self.name = "my_custom_tool"' in tool_content
+    
+    def test_template_missing_variable(self, cli_runner, initialized_project, tmp_path):
+        """Test handling of missing template variables."""
+        # Create component with undefined variable
+        component_dir = tmp_path / "broken_component"
+        component_dir.mkdir()
+        
+        manifest = {
+            "name": "broken_component",
+            "version": "1.0.0",
+            "type": "tool",
+            "files_to_copy": ["tool.py"],
+            "target_directory_key": "tools",
+            "template_variables": []  # No variables defined
+        }
+        
+        (component_dir / "component.json").write_text(json.dumps(manifest, indent=2))
+        
+        # Tool referencing undefined variable
+        (component_dir / "tool.py").write_text("""
+# This uses {{undefined_var}} which is not defined
+def tool():
+    return "{{another_undefined}}"
+""")
+        
+        with patch("requests.get") as mock_get:
+            mock_manifest_response = MagicMock()
+            mock_manifest_response.status_code = 200
+            mock_manifest_response.json.return_value = manifest
+            
+            mock_download_response = MagicMock()
+            mock_download_response.status_code = 200
+            mock_download_response.content = self.create_component_tarball(component_dir)
+            
+            def mock_get_side_effect(url, *args, **kwargs):
+                if "component.json" in url:
+                    return mock_manifest_response
+                elif ".tar.gz" in url:
+                    return mock_download_response
+                return MagicMock(status_code=404)
+            
+            mock_get.side_effect = mock_get_side_effect
+            
+            # Add component
+            result = self.run_command(
+                cli_runner,
+                ["add", "--url", "https://example.com/broken_component"]
+            )
+            
+            # Should handle gracefully - either leave as-is or warn
+            self.assert_command_success(result)
+            
+            # Check that undefined variables are handled
+            tool_path = initialized_project / "src" / "tools" / "broken_component" / "tool.py"
+            tool_content = tool_path.read_text()
+            
+            # Variables should either be left as-is or handled gracefully
+            assert "{{undefined_var}}" in tool_content or "undefined_var" in result.output
+    
+    def test_template_environment_variables(self, cli_runner, initialized_project, component_with_templates):
+        """Test that environment variables are properly documented after template substitution."""
+        with patch("requests.get") as mock_get:
+            # Mock component manifest
+            with open(component_with_templates / "component.json") as f:
+                manifest = json.load(f)
+            
+            mock_manifest_response = MagicMock()
+            mock_manifest_response.status_code = 200
+            mock_manifest_response.json.return_value = manifest
+            
+            mock_download_response = MagicMock()
+            mock_download_response.status_code = 200
+            mock_download_response.content = self.create_component_tarball(component_with_templates)
+            
+            def mock_get_side_effect(url, *args, **kwargs):
+                if "component.json" in url:
+                    return mock_manifest_response
+                elif ".tar.gz" in url:
+                    return mock_download_response
+                return MagicMock(status_code=404)
+            
+            mock_get.side_effect = mock_get_side_effect
+            
+            # Add component
+            result = self.run_command(
+                cli_runner,
+                ["add", "--url", "https://example.com/template_component"],
+                input="\n\n\n"
+            )
+            
+            self.assert_command_success(result)
+            
+            # Output should mention environment variables
+            assert "API_KEY" in result.output or "environment variable" in result.output
