@@ -16,7 +16,8 @@ class TestSourceManagement(BaseE2ETest):
     @pytest.fixture
     def initialized_project(self, cli_runner, test_project_dir):
         """Create an initialized funcn project."""
-        result = self.run_command(cli_runner, ["init"], input="\n\n\n\nno\n")
+        # Run funcn init with --yes flag to use all defaults
+        result = self.run_command(cli_runner, ["init", "--yes"], input="n\n")
         self.assert_command_success(result)
         return test_project_dir
     
@@ -133,11 +134,15 @@ class TestSourceManagement(BaseE2ETest):
             ]
         }
         
-        with patch("requests.get") as mock_get:
+        with patch("httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value = mock_client
+            
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = custom_registry
-            mock_get.return_value = mock_response
+            mock_response.raise_for_status = MagicMock()
+            mock_client.get.return_value = mock_response
             
             # List from custom source
             result = self.run_command(cli_runner, ["list", "--source", "custom"])
@@ -148,8 +153,8 @@ class TestSourceManagement(BaseE2ETest):
             assert "custom_component" in result.output
             
             # Verify custom URL was used
-            mock_get.assert_called()
-            call_args = str(mock_get.call_args)
+            mock_client.get.assert_called()
+            call_args = str(mock_client.get.call_args)
             assert "custom.funcn.ai" in call_args
     
     def test_add_source_invalid_url(self, cli_runner, initialized_project):
@@ -221,10 +226,14 @@ class TestSourceManagement(BaseE2ETest):
             "components": [{"name": "prod_component", "type": "tool", "version": "2.0.0"}]
         }
         
-        with patch("requests.get") as mock_get:
+        with patch("httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value = mock_client
+            
             def mock_get_side_effect(url, *args, **kwargs):
                 response = MagicMock()
                 response.status_code = 200
+                response.raise_for_status = MagicMock()
                 
                 if "dev.funcn.ai" in url:
                     response.json.return_value = dev_registry
@@ -235,7 +244,7 @@ class TestSourceManagement(BaseE2ETest):
                 
                 return response
             
-            mock_get.side_effect = mock_get_side_effect
+            mock_client.get.side_effect = mock_get_side_effect
             
             # List from dev source
             result = self.run_command(cli_runner, ["list", "--source", "dev"])
@@ -260,10 +269,14 @@ class TestSourceManagement(BaseE2ETest):
         self.assert_command_success(result)
         
         # When using this source, it should handle auth
-        with patch("requests.get") as mock_get:
+        with patch("httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value = mock_client
+            
             # Simulate auth required
             mock_unauth_response = MagicMock()
             mock_unauth_response.status_code = 401
+            mock_unauth_response.raise_for_status = MagicMock()
             
             mock_auth_response = MagicMock()
             mock_auth_response.status_code = 200
@@ -271,6 +284,7 @@ class TestSourceManagement(BaseE2ETest):
                 "registry_version": "1.0.0",
                 "components": []
             }
+            mock_auth_response.raise_for_status = MagicMock()
             
             # Return different responses based on headers
             def mock_get_side_effect(url, headers=None, *args, **kwargs):
@@ -278,7 +292,7 @@ class TestSourceManagement(BaseE2ETest):
                     return mock_auth_response
                 return mock_unauth_response
             
-            mock_get.side_effect = mock_get_side_effect
+            mock_client.get.side_effect = mock_get_side_effect
             
             # Try to list - implementation should handle auth
             result = self.run_command(cli_runner, ["list", "--source", "private"])
