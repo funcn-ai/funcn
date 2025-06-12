@@ -146,10 +146,20 @@ def test_tool(input: str) -> str:
         
         return components_dir
     
-    def run_command(self, cli_runner: CliRunner, command: list[str], input: str = None) -> Any:
+    def run_command(self, cli_runner: CliRunner, command: list[str], input: str = None, cwd: Path = None) -> Any:
         """Run a CLI command and return the result."""
-        result = cli_runner.invoke(app, command, input=input)
-        return result
+        if cwd:
+            import os
+            original_cwd = Path.cwd()
+            try:
+                os.chdir(cwd)
+                result = cli_runner.invoke(app, command, input=input)
+                return result
+            finally:
+                os.chdir(original_cwd)
+        else:
+            result = cli_runner.invoke(app, command, input=input)
+            return result
     
     def assert_command_success(self, result: Any):
         """Assert that a command executed successfully."""
