@@ -20,6 +20,12 @@ class FileMapping(BaseModel):
     destination: str
 
 
+class TemplateVariable(BaseModel):
+    name: str
+    description: str
+    default: str
+
+
 class ComponentManifest(BaseModel):
     name: KebabCaseStr
     version: str
@@ -36,11 +42,12 @@ class ComponentManifest(BaseModel):
     post_add_instructions: str | None = None
     tags: list[str] = Field(default_factory=list)
     supports_lilypad: bool | None = False  # Whether component supports optional lilypad integration
-    template_variables: dict[str, str] | None = None  # Default template variables for templating
+    template_variables: list[TemplateVariable] | dict[str, str] | None = None  # Template variables for substitution
 
-    class Config:
-        str_strip_whitespace = True
-        populate_by_name = True
+    model_config = {
+        "str_strip_whitespace": True,
+        "populate_by_name": True
+    }
 
 
 # ---------------------------------------------------------------------------

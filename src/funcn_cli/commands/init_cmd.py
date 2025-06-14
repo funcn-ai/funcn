@@ -243,9 +243,13 @@ def init(
             try:
                 dir_path.mkdir(parents=True, exist_ok=True)
                 _print(f"Ensured directory exists: [cyan]{dir_path}[/cyan]")
+            except PermissionError as e:
+                console.print(f"[bold red]Permission denied: Cannot create directory {dir_path}[/bold red]")
+                console.print("[yellow]Please check that you have write permissions for this location.[/yellow]")
+                raise typer.Exit(code=1) from e
             except Exception as e:
                 console.print(f"[bold red]Error creating directory {dir_path}: {e}[/bold red]")
-                # Decide if this is a fatal error
+                raise typer.Exit(code=1) from e
 
     try:
         with open(config_path, "w") as f:

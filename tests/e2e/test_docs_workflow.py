@@ -32,15 +32,17 @@ class TestDocsWorkflow(BaseE2ETest):
             "version": "1.0.0",
             "type": "agent",
             "description": "A test agent for documentation",
-            "authors": [{"name": "Test Author", "email": "test@example.com"}],
             "license": "MIT",
             "mirascope_version_min": "0.1.0",
             "files_to_copy": ["agent.py", "README.md"],
             "target_directory_key": "agents",
             "python_dependencies": ["requests>=2.28.0"],
             "registry_dependencies": [],
-            "environment_variables": ["API_KEY", "API_SECRET"],
-            "tags": ["test", "demo"]
+            "environment_variables": [
+                {"name": "API_KEY", "description": "Your API key", "required": True},
+                {"name": "API_SECRET", "description": "Your API secret", "required": True}
+            ],
+            "manifest_path": "components/agents/test_agent/component.json"
         }
         
         (test_agent_dir / "component.json").write_text(json.dumps(agent_manifest, indent=2))
@@ -74,17 +76,30 @@ Set the following environment variables:
             "version": "1.0.0",
             "type": "tool",
             "description": "A test tool",
-            "authors": [{"name": "Tool Author", "email": "tool@example.com"}],
             "license": "Apache-2.0",
             "mirascope_version_min": "0.1.0",
             "files_to_copy": ["tool.py"],
             "target_directory_key": "tools",
             "python_dependencies": [],
             "registry_dependencies": [],
-            "environment_variables": []
+            "environment_variables": [],
+            "manifest_path": "components/tools/test_tool/component.json"
         }
         
         (test_tool_dir / "component.json").write_text(json.dumps(tool_manifest, indent=2))
+        
+        # Create funcn.json config
+        config = {
+            "base_dir": "packages/funcn_registry/components",
+            "directories": {
+                "agents": "agents",
+                "tools": "tools",
+                "response_models": "response_models",
+                "prompt_templates": "prompt_templates",
+                "evals": "evals"
+            }
+        }
+        (tmp_path / "funcn.json").write_text(json.dumps(config, indent=2))
         
         return tmp_path
     
@@ -107,9 +122,9 @@ Set the following environment variables:
             self.assert_file_exists(agent_funcn_md)
             self.assert_file_exists(tool_funcn_md)
             
-            # Verify CLAUDE.md was created (default editor)
-            claude_md = registry_with_components / "CLAUDE.md"
-            self.assert_file_exists(claude_md)
+            # Verify .cursor/rules/funcn.mdc was created (default editor is cursor)
+            cursor_rules = registry_with_components / ".cursor" / "rules" / "funcn.mdc"
+            self.assert_file_exists(cursor_rules)
             
         finally:
             os.chdir(original_cwd)

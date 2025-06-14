@@ -324,8 +324,8 @@ def _generate_global_editor_rules(components: list[tuple[Path, dict]], editor: s
         # Create directory if needed
         full_path.parent.mkdir(parents=True, exist_ok=True)
 
-        # Add extension if needed
-        if not full_path.suffix and "extension" in editor_config:
+        # Add extension if needed (but not for files that start with a dot)
+        if not full_path.suffix and "extension" in editor_config and not full_path.name.startswith('.'):
             extension = editor_config["extension"]
             if isinstance(extension, str):
                 full_path = full_path.with_suffix(extension)
