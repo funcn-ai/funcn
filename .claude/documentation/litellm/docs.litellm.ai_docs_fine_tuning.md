@@ -1,4 +1,4 @@
----
+oy---
 url: "https://docs.litellm.ai/docs/fine_tuning"
 title: "/fine_tuning | liteLLM"
 ---
@@ -120,7 +120,6 @@ curl http://localhost:4000/v1/fine_tuning/jobs \
 
 **Required:** Yes
 
-
 The name of the model to fine-tune
 
 - `custom_llm_provider`
@@ -136,20 +135,17 @@ The name of the model to fine-tune. You can select one of the [**supported provi
 
 **Required:** Yes
 
-
 The ID of an uploaded file that contains training data.
 
-  - See **upload file** for how to upload a file.
-  - Your dataset must be formatted as a JSONL file.
+- See **upload file** for how to upload a file.
+- Your dataset must be formatted as a JSONL file.
 - `hyperparameters`
 
 **Type:** object
 
 **Required:** No
 
-
 The hyperparameters used for the fine-tuning job.
-
 
 > #### Supported `hyperparameters` [​](https://docs.litellm.ai/docs/fine_tuning\#supported-hyperparameters "Direct link to supported-hyperparameters")
 >
@@ -169,8 +165,6 @@ The hyperparameters used for the fine-tuning job.
 >
 > Scaling factor for the learning rate. A smaller learning rate may be useful to avoid overfitting.
 
-
-
 > #### n\_epochs [​](https://docs.litellm.ai/docs/fine_tuning\#n_epochs "Direct link to n_epochs")
 >
 > **Type:** string or integer
@@ -185,7 +179,6 @@ The hyperparameters used for the fine-tuning job.
 
 **Default:** null
 
-
 A string of up to 18 characters that will be added to your fine-tuned model name.
 Example: A `suffix` of "custom-model-name" would produce a model name like `ft:gpt-4o-mini:openai:custom-model-name:7p4lURel`.
 
@@ -193,15 +186,13 @@ Example: A `suffix` of "custom-model-name" would produce a model name like `ft:g
 
 **Required:** No
 
-
 The ID of an uploaded file that contains validation data.
 
-  - If provided, this data is used to generate validation metrics periodically during fine-tuning.
+- If provided, this data is used to generate validation metrics periodically during fine-tuning.
 
 - `integrations` **Type:** array or null
 
 **Required:** No
-
 
 A list of integrations to enable for your fine-tuning job.
 
@@ -209,9 +200,7 @@ A list of integrations to enable for your fine-tuning job.
 
 **Required:** No
 
-
 The seed controls the reproducibility of the job. Passing in the same seed and job parameters should produce the same results, but may differ in rare cases. If a seed is not specified, one will be generated for you.
-
 
 ```codeBlockLines_e6Vv
 {
