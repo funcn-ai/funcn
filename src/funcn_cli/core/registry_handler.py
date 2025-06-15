@@ -48,7 +48,8 @@ class RegistryHandler:
         console.log(f"Fetching component manifest from {manifest_url}")
         resp = self._client.get(manifest_url)
         resp.raise_for_status()
-        return ComponentManifest.model_validate(resp.json())
+        data = resp.json()
+        return ComponentManifest.model_validate(data)
 
     # ------------------------------------------------------------------
     # Files

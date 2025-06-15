@@ -51,15 +51,31 @@ class ComponentManager:
 
             # Resolve effective template variables
             template_vars: dict[str, str] = {}
+            custom_template_vars: dict[str, str] = {}
+            
             if manifest.template_variables:
-                template_vars.update(manifest.template_variables)
-                # Store defaults for replacement logic in _render_template
-                if "provider" in manifest.template_variables:
-                    template_vars["_default_provider"] = manifest.template_variables["provider"]
-                if "model" in manifest.template_variables:
-                    template_vars["_default_model"] = manifest.template_variables["model"]
-                if "stream" in manifest.template_variables:
-                    template_vars["_default_stream"] = manifest.template_variables["stream"]
+                # Handle both list and dict formats
+                if isinstance(manifest.template_variables, list):
+                    # New format: list of TemplateVariable objects
+                    from rich.prompt import Prompt
+                    for var in manifest.template_variables:
+                        custom_template_vars[var.name] = var.default
+                        # Prompt for value with default
+                        value = Prompt.ask(
+                            f"[cyan]{var.description}[/cyan]",
+                            default=var.default
+                        )
+                        template_vars[var.name] = value
+                else:
+                    # Legacy format: dict
+                    template_vars.update(manifest.template_variables)
+                    # Store defaults for replacement logic in _render_template
+                    if "provider" in manifest.template_variables:
+                        template_vars["_default_provider"] = manifest.template_variables["provider"]
+                    if "model" in manifest.template_variables:
+                        template_vars["_default_model"] = manifest.template_variables["model"]
+                    if "stream" in manifest.template_variables:
+                        template_vars["_default_stream"] = manifest.template_variables["stream"]
             if provider:
                 template_vars["provider"] = provider
             if model:
@@ -75,7 +91,7 @@ class ComponentManager:
             # Determine lilypad flag – CLI overrides manifest default
             enable_lilypad = bool(with_lilypad)
 
-            target_root_relative = self._cfg.config.component_paths.dict()[target_dir_key]
+            target_root_relative = self._cfg.config.component_paths.model_dump()[target_dir_key]
             project_root = self._cfg.project_root
             component_root = project_root / target_root_relative / manifest.name
 
@@ -92,8 +108,8 @@ class ComponentManager:
                 dest_path = component_root / mapping.destination
                 rh.download_file(source_url, dest_path)
 
-                # Render template placeholders for .py and .txt files
-                if dest_path.suffix in {".py", ".txt", ".md"}:
+                # Render template placeholders for text files
+                if dest_path.suffix in {".py", ".txt", ".md", ".json", ".yaml", ".yml", ".toml", ".cfg", ".ini", ".sh", ".bash"}:
                     self._render_template(dest_path, template_vars, enable_lilypad)
 
             console.print(f":white_check_mark: [bold green]Component '{manifest.name}' added successfully![/]")
@@ -181,6 +197,37 @@ lilypad.configure(auto_llm=True)''',
             text = text.replace("# FUNCN_LILYPAD_CONFIGURE_PLACEHOLDER\n", "")
             text = text.replace("# FUNCN_LILYPAD_DECORATOR_PLACEHOLDER\n", "")
 
+        # General template variable substitution
+        # Handle {{variable}} and {{variable|transformation}} syntax
+        import re
+        
+        def replace_template_var(match):
+            var_expr = match.group(1)
+            if '|' in var_expr:
+                var_name, transform = var_expr.split('|', 1)
+            else:
+                var_name, transform = var_expr, None
+            
+            var_name = var_name.strip()
+            if var_name in variables:
+                value = variables[var_name]
+                if transform:
+                    transform = transform.strip()
+                    if transform == 'lower':
+                        value = value.lower()
+                    elif transform == 'upper':
+                        value = value.upper()
+                    elif transform == 'title':
+                        # Convert snake_case or camelCase to Title Case
+                        value = value.replace('_', ' ').replace('-', ' ')
+                        value = ''.join(word.capitalize() for word in value.split())
+                        value = value.replace(' ', '_')  # Preserve underscores in title case
+                return value
+            return match.group(0)  # Return unchanged if variable not found
+        
+        # Replace template variables
+        text = re.sub(r'\{\{([^}]+)\}\}', replace_template_var, text)
+        
         # Collapse multiple blank lines that may result
         # Use a more robust approach to handle consecutive blank lines
         lines = text.splitlines()

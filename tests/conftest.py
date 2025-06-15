@@ -6,7 +6,7 @@ import pytest
 import shutil
 import tempfile
 from funcn_cli.config_manager import ConfigManager
-from funcn_cli.core.models import Author, ComponentManifest, FileMapping
+from funcn_cli.core.models import Author, ComponentManifest, FileMapping, RegistryComponentEntry, RegistryIndex
 from pathlib import Path
 from typer.testing import CliRunner
 from typing import Any
@@ -124,18 +124,8 @@ def sample_tool_component():
 def mock_registry_response(sample_component):
     """Mock HTTP response for registry API."""
     return {
-        "components": [
-            {
-                "name": sample_component.name,
-                "type": sample_component.type,
-                "version": sample_component.version,
-                "description": sample_component.description,
-                "dependencies": sample_component.dependencies,
-                "author": sample_component.author,
-                "tags": sample_component.tags,
-                "mirascope_providers": sample_component.mirascope_providers,
-            }
-        ]
+        "registry_version": "1.0.0",
+        "components": [sample_component.model_dump()]
     }
 
 
