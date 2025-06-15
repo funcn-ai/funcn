@@ -6,7 +6,7 @@ from datetime import datetime
 from enum import Enum
 from mirascope import BaseDynamicConfig, BaseTool, llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Dict, List, Optional, Tuple
+from typing import Optional
 
 # Import search tools for real-time verification
 try:

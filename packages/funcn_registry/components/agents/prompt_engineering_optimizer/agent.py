@@ -7,7 +7,7 @@ from datetime import datetime
 from enum import Enum
 from mirascope import BaseDynamicConfig, llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 
 class OptimizationTechnique(str, Enum):
