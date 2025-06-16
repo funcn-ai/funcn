@@ -228,6 +228,12 @@ def init(
     # Add $schema key
     config_data["$schema"] = f"./{SCHEMA_FILE_NAME}"
 
+    # Add default registry configuration
+    config_data["registry_sources"] = {
+        "default": "https://raw.githubusercontent.com/funcn-ai/funcn-registry/main/index.json"
+    }
+    config_data["default_registry_url"] = "https://raw.githubusercontent.com/funcn-ai/funcn-registry/main/index.json"
+
     # Ensure directories exist
     # Collect all unique directory paths that need to be created
     directories_to_create = {

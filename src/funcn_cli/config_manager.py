@@ -22,7 +22,7 @@ class ComponentPaths(BaseModel):
 
 class FuncnConfig(BaseModel):
     default_registry_url: str = DEFAULT_REGISTRY_URL
-    registry_sources: Mapping[str, str] = {"default": DEFAULT_REGISTRY_URL}
+    registry_sources: Mapping[str, str] = Field(default_factory=lambda: {"default": DEFAULT_REGISTRY_URL})
     component_paths: ComponentPaths = Field(default_factory=ComponentPaths)
     default_provider: str = Field(default="openai")
     default_model: str = Field(default="gpt-4o-mini")
