@@ -30,7 +30,12 @@ def list_sources() -> None:
     table = Table(title="Registry Sources")
     table.add_column("Alias", style="cyan")
     table.add_column("URL")
+    
+    # Show default source first if not already in registry_sources
+    if "default" not in cfg.registry_sources and cfg.default_registry_url:
+        table.add_row("[bold]default[/]", cfg.default_registry_url)
+    
     for alias, url in cfg.registry_sources.items():
-        alias_display = f"[bold]{alias} (default)[/]" if url == cfg.default_registry_url else alias
+        alias_display = f"[bold]{alias}[/]" if alias == "default" or url == cfg.default_registry_url else alias
         table.add_row(alias_display, url)
     console.print(table)

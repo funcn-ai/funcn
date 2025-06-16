@@ -41,6 +41,7 @@ def add(  # noqa: D401 – CLI entry-point
     stream: bool | None = typer.Option(
         None, "--stream", help="Enable streaming responses for this component (overrides config)", show_default=False
     ),
+    source: str | None = typer.Option(None, "--source", help="Registry source alias to search for component"),
 ) -> None:
     """Add a component to the current project.
 
@@ -74,4 +75,4 @@ def add(  # noqa: D401 – CLI entry-point
         stream = Confirm.ask("Enable streaming responses?", default=default_stream)
 
     manager = ComponentManager(cfg=cfg_mgr)
-    manager.add_component(identifier, provider=provider, model=model, with_lilypad=with_lilypad, stream=stream)
+    manager.add_component(identifier, provider=provider, model=model, with_lilypad=with_lilypad, stream=stream, source_alias=source)

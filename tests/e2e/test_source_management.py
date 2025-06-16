@@ -97,7 +97,6 @@ class TestSourceManagement(BaseE2ETest):
         # Should either update or warn about duplicate
         assert "duplicate" in result.output.lower() or "updated" in result.output.lower()
     
-    @pytest.mark.skip(reason="Default source not set during init - tracked in FUNCNOS-34")
     def test_list_sources_with_default(self, cli_runner, initialized_project):
         """Test listing sources shows default source."""
         result = self.run_command(cli_runner, ["source", "list"], cwd=initialized_project)
@@ -142,6 +141,11 @@ class TestSourceManagement(BaseE2ETest):
         )
         self.assert_command_success(result)
         
+        # Verify source was added by listing sources
+        result = self.run_command(cli_runner, ["source", "list"], cwd=initialized_project)
+        self.assert_command_success(result)
+        assert "custom" in result.output
+        
         # Mock custom registry response
         custom_registry = {
             "registry_version": "1.0.0",
@@ -156,7 +160,7 @@ class TestSourceManagement(BaseE2ETest):
             ]
         }
         
-        with patch("httpx.Client") as mock_client_class:
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
             
@@ -173,11 +177,13 @@ class TestSourceManagement(BaseE2ETest):
             if result.exit_code != 0:
                 print(f"List command failed: {result.exception}")
                 # Check if config file exists and has the source
-                config_path = initialized_project / "funcn.json"
-                if config_path.exists():
+                funcnrc_path = initialized_project / ".funcnrc.json"
+                if funcnrc_path.exists():
                     import json
-                    config = json.loads(config_path.read_text())
-                    print(f"Config contents: {config}")
+                    config = json.loads(funcnrc_path.read_text())
+                    print(f".funcnrc.json contents: {config}")
+                else:
+                    print(".funcnrc.json does not exist")
                     
             self.assert_command_success(result)
             
@@ -274,7 +280,7 @@ class TestSourceManagement(BaseE2ETest):
             }]
         }
         
-        with patch("httpx.Client") as mock_client_class:
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
             
@@ -319,7 +325,7 @@ class TestSourceManagement(BaseE2ETest):
         self.assert_command_success(result)
         
         # When using this source, it should handle auth
-        with patch("httpx.Client") as mock_client_class:
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
             

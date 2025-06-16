@@ -25,6 +25,7 @@ class ComponentManager:
         model: str | None = None,
         with_lilypad: bool = False,
         stream: bool | None = None,
+        source_alias: str | None = None,
         _added: set[str] | None = None,
     ) -> None:
         """Add a component into the current project.
@@ -41,9 +42,12 @@ class ComponentManager:
             if identifier.startswith("http://") or identifier.startswith("https://"):
                 manifest_url = identifier
             else:
-                manifest_url = rh.find_component_manifest_url(identifier)
+                manifest_url = rh.find_component_manifest_url(identifier, source_alias=source_alias)
                 if manifest_url is None:
-                    console.print(f"[red]Could not find component '{identifier}' in registry.")
+                    if source_alias:
+                        console.print(f"[red]Could not find component '{identifier}' in source '{source_alias}'.")
+                    else:
+                        console.print(f"[red]Could not find component '{identifier}' in any configured registry source.")
                     raise SystemExit(1)
 
             manifest = rh.fetch_manifest(manifest_url)
@@ -133,7 +137,7 @@ class ComponentManager:
                 for dep in manifest.registry_dependencies:
                     if Confirm.ask(f"Component '{manifest.name}' requires dependency '{dep}'. Add it now?", default=True):
                         self.add_component(
-                            dep, provider=provider, model=model, with_lilypad=with_lilypad, stream=stream, _added=_added
+                            dep, provider=provider, model=model, with_lilypad=with_lilypad, stream=stream, source_alias=source_alias, _added=_added
                         )
                     else:
                         console.print(f"[yellow]Skipped dependency '{dep}'. You can add it later with: funcn add {dep}")
