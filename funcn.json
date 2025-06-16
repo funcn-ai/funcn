@@ -13,8 +13,5 @@
   },
   "defaultProvider": "openai",
   "defaultModel": "gpt-4o-mini",
-  "stream": false,
-  "registry_sources": {
-    "example": "https://example.funcn.ai/index.json"
-  }
+  "stream": false
 }

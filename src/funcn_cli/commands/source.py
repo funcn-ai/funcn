@@ -9,8 +9,6 @@ console = Console()
 
 app = typer.Typer(help="Manage registry sources.")
 
-cfg_manager = ConfigManager()
-
 
 @app.command()
 def add(
@@ -19,6 +17,7 @@ def add(
     global_cfg: bool = typer.Option(False, "--global", help="Add source to global config instead of project config."),
 ) -> None:
     """Add a new registry source."""
+    cfg_manager = ConfigManager()
     cfg_manager.add_registry_source(alias, url, project_level=not global_cfg)
     console.print(f":white_check_mark: Added registry source '{alias}' -> {url}")
 
@@ -26,6 +25,7 @@ def add(
 @app.command("list")
 def list_sources() -> None:
     """List configured registry sources."""
+    cfg_manager = ConfigManager()
     cfg = cfg_manager.config
     table = Table(title="Registry Sources")
     table.add_column("Alias", style="cyan")
