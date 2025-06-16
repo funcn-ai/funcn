@@ -130,7 +130,6 @@ class TestSourceManagement(BaseE2ETest):
         assert "local" in result.output
         assert "file://" in result.output
     
-    @pytest.mark.skip(reason="Config format mismatch between init and source commands - tracked in FUNCNOS-37")
     def test_use_custom_source_for_list(self, cli_runner, initialized_project):
         """Test using a custom source for listing components."""
         # Add custom source
@@ -173,17 +172,6 @@ class TestSourceManagement(BaseE2ETest):
             # List from custom source
             result = self.run_command(cli_runner, ["list", "--source", "custom"], cwd=initialized_project)
             
-            # Debug: print the actual error
-            if result.exit_code != 0:
-                print(f"List command failed: {result.exception}")
-                # Check if config file exists and has the source
-                funcnrc_path = initialized_project / ".funcnrc.json"
-                if funcnrc_path.exists():
-                    import json
-                    config = json.loads(funcnrc_path.read_text())
-                    print(f".funcnrc.json contents: {config}")
-                else:
-                    print(".funcnrc.json does not exist")
                     
             self.assert_command_success(result)
             
@@ -230,7 +218,6 @@ class TestSourceManagement(BaseE2ETest):
         assert "persistent" in result.output
         assert "https://persistent.funcn.ai/index.json" in result.output
     
-    @pytest.mark.skip(reason="Config format mismatch between init and source commands - tracked in FUNCNOS-37")
     def test_multiple_sources_workflow(self, cli_runner, initialized_project):
         """Test complete workflow with multiple sources."""
         # Add multiple sources

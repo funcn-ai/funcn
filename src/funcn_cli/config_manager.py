@@ -11,9 +11,7 @@ from typing import Any
 console = Console()
 
 CONFIG_ENV_VAR = "FUNCN_CONFIG_FILE"
-GLOBAL_CONFIG_DIR = Path.home() / ".config" / "funcn"
-GLOBAL_CONFIG_PATH = GLOBAL_CONFIG_DIR / "config.json"
-PROJECT_CONFIG_FILENAME = ".funcnrc.json"
+PROJECT_CONFIG_FILENAME = "funcn.json"
 DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/greyhaven-ai/funcn_registry/main/index.json"
 
 
@@ -40,7 +38,6 @@ class ConfigManager:
 
     def __init__(self, project_root: Path | None = None) -> None:
         self._project_root = project_root or Path.cwd()
-        self._global_cfg = self._load_json(GLOBAL_CONFIG_PATH)
         self._project_cfg = self._load_json(self._project_config_path)
 
     # ---------------------------------------------------------------------
@@ -49,7 +46,8 @@ class ConfigManager:
 
     @property
     def config(self) -> FuncnConfig:
-        cfg = {**self._global_cfg, **self._project_cfg}
+        # Convert from init format if needed
+        cfg = self._normalize_config(self._project_cfg)
         return FuncnConfig.model_validate(cfg)
 
     @property
@@ -87,14 +85,67 @@ class ConfigManager:
     # ------------------------------------------------------------------
 
     def add_registry_source(self, alias: str, url: str, project_level: bool = True) -> None:
-        target_cfg = self._project_cfg if project_level else self._global_cfg
-        target_cfg.setdefault("registry_sources", {})[alias] = url
-        if project_level:
-            self._save_json(self._project_cfg, self._project_config_path)
-        else:
-            self._save_json(self._global_cfg, GLOBAL_CONFIG_PATH)
+        # Always save to project config (ignore project_level for backward compatibility)
+        # Reload the config from disk first to preserve existing data
+        self._project_cfg = self._load_json(self._project_config_path)
+        self._project_cfg.setdefault("registry_sources", {})[alias] = url
+        self._save_json(self._project_cfg, self._project_config_path)
 
     def set_default_registry(self, url: str, project_level: bool = True) -> None:
-        target_cfg = self._project_cfg if project_level else self._global_cfg
-        target_cfg["default_registry_url"] = url
-        self.add_registry_source("default", url, project_level=project_level)
+        # Always save to project config (ignore project_level for backward compatibility)
+        self._project_cfg["default_registry_url"] = url
+        self.add_registry_source("default", url)
+
+    # ------------------------------------------------------------------
+    # Format conversion helpers
+    # ------------------------------------------------------------------
+
+    def _normalize_config(self, cfg: dict[str, Any]) -> dict[str, Any]:
+        """Convert funcn.json init format to FuncnConfig format."""
+        # Start with a copy of the original config to preserve all fields
+        normalized = cfg.copy()
+        
+        # If it already has new format fields, just ensure consistency
+        if "component_paths" in cfg:
+            return normalized
+        
+        # Convert from init format to new format
+        # Map directory paths to component_paths
+        if "agentDirectory" in cfg or "toolDirectory" in cfg:
+            component_paths = {}
+            if "agentDirectory" in cfg:
+                component_paths["agents"] = cfg["agentDirectory"]
+                del normalized["agentDirectory"]
+            if "toolDirectory" in cfg:
+                component_paths["tools"] = cfg["toolDirectory"]
+                del normalized["toolDirectory"]
+            if "evalDirectory" in cfg:
+                component_paths["evals"] = cfg["evalDirectory"]
+                del normalized["evalDirectory"]
+            if "promptTemplateDirectory" in cfg:
+                component_paths["prompts"] = cfg["promptTemplateDirectory"]
+                del normalized["promptTemplateDirectory"]
+            if "responseModelDirectory" in cfg:
+                component_paths["response_models"] = cfg["responseModelDirectory"]
+                del normalized["responseModelDirectory"]
+            normalized["component_paths"] = component_paths
+        
+        # Map other fields from old to new names
+        if "defaultProvider" in cfg:
+            normalized["default_provider"] = cfg["defaultProvider"]
+            del normalized["defaultProvider"]
+        if "defaultModel" in cfg:
+            normalized["default_model"] = cfg["defaultModel"]
+            del normalized["defaultModel"]
+        if "defaultMcpHost" in cfg:
+            normalized["default_mcp_host"] = cfg["defaultMcpHost"]
+            del normalized["defaultMcpHost"]
+        if "defaultMcpPort" in cfg:
+            normalized["default_mcp_port"] = cfg["defaultMcpPort"]
+            del normalized["defaultMcpPort"]
+        
+        # Remove fields that aren't part of FuncnConfig
+        normalized.pop("aliases", None)
+        normalized.pop("$schema", None)
+            
+        return normalized
