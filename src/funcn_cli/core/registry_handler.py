@@ -30,14 +30,39 @@ class RegistryHandler:
         data = resp.json()
         return RegistryIndex.model_validate(data)
 
-    def find_component_manifest_url(self, component_name: str) -> str | None:
-        # search default registry for component
-        index = self.fetch_index()
-        for comp in index.components:
-            if comp.name == component_name:
-                root_url = str(Path(self._cfg.config.default_registry_url).parent)
-                manifest_url = f"{root_url}/{comp.manifest_path}"
-                return manifest_url
+    def find_component_manifest_url(self, component_name: str, source_alias: str | None = None) -> str | None:
+        """Find component manifest URL in the specified source or all sources."""
+        if source_alias:
+            # Search in specific source
+            return self._search_single_source(component_name, source_alias)
+        else:
+            # Search in all sources, starting with default
+            # Try default source first
+            result = self._search_single_source(component_name, None)
+            if result:
+                return result
+            
+            # Try all other configured sources
+            for alias in self._cfg.config.registry_sources:
+                result = self._search_single_source(component_name, alias)
+                if result:
+                    console.print(f"[cyan]Found component '{component_name}' in source '{alias}'[/]")
+                    return result
+            return None
+    
+    def _search_single_source(self, component_name: str, source_alias: str | None) -> str | None:
+        """Search for component in a single source."""
+        try:
+            index = self.fetch_index(source_alias=source_alias)
+            url = self._cfg.config.registry_sources.get(source_alias) if source_alias else self._cfg.config.default_registry_url
+            
+            for comp in index.components:
+                if comp.name == component_name:
+                    root_url = str(Path(url).parent)
+                    manifest_url = f"{root_url}/{comp.manifest_path}"
+                    return manifest_url
+        except Exception as e:
+            console.print(f"[yellow]Warning: Failed to search source '{source_alias or 'default'}': {e}[/]")
         return None
 
     # ------------------------------------------------------------------
