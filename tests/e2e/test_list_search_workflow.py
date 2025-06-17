@@ -95,7 +95,6 @@ class TestListSearchWorkflow(BaseE2ETest):
             assert "tool" in result.output
             assert "prompt_template" in result.output
     
-    @pytest.mark.skip(reason="Requires complex funcn config setup - tracked in FUNCNOS-33")
     def test_list_with_custom_source(self, cli_runner, test_project_dir, mock_registry_with_many_components):
         """Test listing components from a custom registry source."""
         # First initialize 
