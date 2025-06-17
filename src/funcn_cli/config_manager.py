@@ -84,15 +84,13 @@ class ConfigManager:
     # Mutating helpers
     # ------------------------------------------------------------------
 
-    def add_registry_source(self, alias: str, url: str, project_level: bool = True) -> None:
-        # Always save to project config (ignore project_level for backward compatibility)
+    def add_registry_source(self, alias: str, url: str) -> None:
         # Reload the config from disk first to preserve existing data
         self._project_cfg = self._load_json(self._project_config_path)
         self._project_cfg.setdefault("registry_sources", {})[alias] = url
         self._save_json(self._project_cfg, self._project_config_path)
 
-    def set_default_registry(self, url: str, project_level: bool = True) -> None:
-        # Always save to project config (ignore project_level for backward compatibility)
+    def set_default_registry(self, url: str) -> None:
         self._project_cfg["default_registry_url"] = url
         self.add_registry_source("default", url)
 
