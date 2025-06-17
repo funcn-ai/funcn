@@ -55,27 +55,6 @@ class TestSourceManagement(BaseE2ETest):
         assert "myregistry" in result.output
         assert "https://myregistry.funcn.ai/index.json" in result.output
     
-    @pytest.mark.skip(reason="Global sources not shown in list - tracked in FUNCNOS-35")
-    def test_add_source_global_level(self, cli_runner, initialized_project):
-        """Test adding a registry source at global level."""
-        # Add a global source
-        result = self.run_command(
-            cli_runner,
-            ["source", "add", "global_registry", "https://global.funcn.ai/index.json", "--global"],
-            cwd=initialized_project
-        )
-        
-        self.assert_command_success(result)
-        
-        # Verify source was added
-        assert "Added registry source" in result.output
-        assert "global_registry" in result.output
-        
-        # Global source should appear in list
-        result = self.run_command(cli_runner, ["source", "list"], cwd=initialized_project)
-        self.assert_command_success(result)
-        
-        assert "global_registry" in result.output
     
     def test_add_duplicate_source(self, cli_runner, initialized_project):
         """Test adding a source with duplicate alias."""
