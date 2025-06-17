@@ -30,24 +30,49 @@ class ComponentManager:
     ) -> None:
         """Add a component into the current project.
 
-        *identifier* can be a component name (to be resolved via registry) or a
-        direct HTTPS URL to a `component.json` manifest.
+        *identifier* can be:
+        - A component name (to be resolved via registry)
+        - A component name with version (e.g., 'component@1.0.0')
+        - A direct HTTPS URL to a `component.json` manifest
         """
         if _added is None:
             _added = set()
         if identifier in _added:
             return
         _added.add(identifier)
+        
+        # Parse version from identifier if present
+        component_name = identifier
+        component_version = None
+        
         with RegistryHandler(self._cfg) as rh:
             if identifier.startswith("http://") or identifier.startswith("https://"):
                 manifest_url = identifier
             else:
-                manifest_url = rh.find_component_manifest_url(identifier, source_alias=source_alias)
+                # Check if version is specified using @ syntax
+                if "@" in identifier:
+                    parts = identifier.split("@", 1)
+                    component_name = parts[0]
+                    component_version = parts[1]
+                    
+                    # Basic version format validation
+                    if not component_version or not all(c.isdigit() or c == '.' for c in component_version):
+                        console.print(f"[red]Invalid version format '{component_version}'. Expected format like '1.0.0'.")
+                        raise SystemExit(1)
+                
+                manifest_url = rh.find_component_manifest_url(component_name, version=component_version, source_alias=source_alias)
                 if manifest_url is None:
-                    if source_alias:
-                        console.print(f"[red]Could not find component '{identifier}' in source '{source_alias}'.")
+                    if component_version:
+                        error_msg = f"[red]Could not find component '{component_name}' version '{component_version}'"
                     else:
-                        console.print(f"[red]Could not find component '{identifier}' in any configured registry source.")
+                        error_msg = f"[red]Could not find component '{component_name}'"
+                    
+                    if source_alias:
+                        error_msg += f" in source '{source_alias}'."
+                    else:
+                        error_msg += " in any configured registry source."
+                    
+                    console.print(error_msg)
                     raise SystemExit(1)
 
             manifest = rh.fetch_manifest(manifest_url)
