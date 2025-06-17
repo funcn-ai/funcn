@@ -354,21 +354,22 @@ class TestBuildWorkflow(BaseE2ETest):
             os.chdir(original_cwd)
     
     def test_build_generates_urls(self, cli_runner, registry_structure):
-        """Test that build generates correct URLs for components."""
+        """Test that build generates correct URLs for components with --base-url."""
         original_cwd = Path.cwd()
         try:
             import os
             os.chdir(registry_structure)
             
-            # Run build
+            # Run build with --base-url
             result = self.run_command(
                 cli_runner,
-                ["build", "packages/funcn_registry/index.json"]
+                ["build", "--base-url", "https://registry.funcn.ai", "packages/funcn_registry/index.json"]
             )
             
             self.assert_command_success(result)
             
-            with open(registry_structure / "packages" / "funcn_registry" / "index.json") as f:
+            # Check the output index.json in public/r
+            with open(registry_structure / "public" / "r" / "index.json") as f:
                 index_data = json.load(f)
             
             test_agent = next(c for c in index_data["components"] if c["name"] == "test_agent")
@@ -378,6 +379,14 @@ class TestBuildWorkflow(BaseE2ETest):
             assert test_agent["version"] == "1.0.0"
             assert test_agent["type"] == "agent"
             assert test_agent["manifest_path"] == "components/agents/test_agent/component.json"
+            
+            # Verify URL was added
+            assert "url" in test_agent
+            assert test_agent["url"] == "https://registry.funcn.ai/test_agent.json"
+            
+            # Check another component to ensure all have URLs
+            test_tool = next(c for c in index_data["components"] if c["name"] == "test_tool")
+            assert test_tool["url"] == "https://registry.funcn.ai/test_tool.json"
             
         finally:
             os.chdir(original_cwd)
@@ -389,13 +398,24 @@ class TestBuildWorkflow(BaseE2ETest):
             import os
             os.chdir(registry_structure)
             
-            # Run build
-            result = self.run_command(cli_runner, ["build", "packages/funcn_registry/index.json"])
+            # Run build with --verbose
+            result = self.run_command(cli_runner, ["build", "--verbose", "packages/funcn_registry/index.json"])
             
             self.assert_command_success(result)
             
-            # Should show some output
-            assert result.output  # Build should produce some output
+            # Verbose output should include detailed processing info
+            assert "Processing component:" in result.output
+            assert "test_agent" in result.output
+            assert "test_tool" in result.output
+            
+            # Should show paths
+            assert "Reading manifest from:" in result.output
+            assert "Writing to:" in result.output
+            
+            # Should show summary
+            assert "Build complete!" in result.output
+            assert "Total components processed:" in result.output
+            assert "Manifests written:" in result.output
             
         finally:
             os.chdir(original_cwd)

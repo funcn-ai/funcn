@@ -19,12 +19,11 @@ from typing import Annotated
 
 console = Console()
 
-app = typer.Typer(help="Build registry JSON files from an index.")
+app = typer.Typer(help="Build registry JSON files from an index.", invoke_without_command=True)
 
 
-@app.callback(invoke_without_command=True)
+@app.callback()
 def build(  # noqa: D401 – CLI entry-point
-    ctx: typer.Context,
     registry: Annotated[
         str | None,
         typer.Argument(
@@ -48,6 +47,21 @@ def build(  # noqa: D401 – CLI entry-point
             help="Working directory. Defaults to current directory.",
         ),
     ] = None,
+    base_url: Annotated[
+        str | None,
+        typer.Option(
+            "--base-url",
+            help="Base URL for component URLs (e.g., https://registry.funcn.ai).",
+        ),
+    ] = None,
+    verbose: Annotated[
+        bool,
+        typer.Option(
+            "--verbose",
+            "-v",
+            help="Show detailed progress during build.",
+        ),
+    ] = False,
 ) -> None:
     """Generate per-component JSON manifests from a registry index file."""
 
@@ -102,12 +116,19 @@ def build(  # noqa: D401 – CLI entry-point
 
     for item in components:
         name = item.get("name")
+        version = item.get("version", "unknown")
         manifest_rel = item.get("manifest_path")
         if not name or not manifest_rel:
             console.print(f"[yellow]Skipping invalid component entry: {item}[/]")
             continue
 
+        if verbose:
+            console.print(f"\nProcessing component: [cyan]{name}[/cyan] ([dim]{version}[/dim])")
+
         manifest_path = (registry_root / manifest_rel).resolve()
+        if verbose:
+            console.print(f"  Reading manifest from: [dim]{manifest_path}[/dim]")
+        
         if not manifest_path.exists():
             console.print(f"[yellow]Manifest not found for component '{name}': {manifest_path}[/]")
             continue
@@ -119,11 +140,41 @@ def build(  # noqa: D401 – CLI entry-point
             continue
 
         out_file = output_dir / f"{name}.json"
+        if verbose:
+            console.print(f"  Writing to: [dim]{out_file}[/dim]")
+        
         out_file.write_text(json.dumps(manifest_data, indent=2))
         written_files.append(out_file)
-        console.print(f"  • {name}.json")
+        
+        if not verbose:
+            console.print(f"  • {name}.json")
 
-    # Optionally write/update an index file in the output directory
+    # ------------------------------------------------------------------
+    # Update registry with base URLs if provided
+    # ------------------------------------------------------------------
+    
+    if base_url:
+        # Ensure base_url doesn't end with a slash
+        base_url = base_url.rstrip("/")
+        
+        # Update each component entry with a URL
+        for item in components:
+            name = item.get("name")
+            if name:
+                item["url"] = f"{base_url}/{name}.json"
+        
+        if verbose:
+            console.print(f"\n[dim]Added component URLs with base: {base_url}[/dim]")
+    
+    # Write/update an index file in the output directory
     index_output = output_dir / "index.json"
     index_output.write_text(json.dumps(registry_data, indent=2))
-    console.print(f"\n:white_check_mark: [bold green]Build complete![/] Generated {len(written_files)} manifest(s).")
+    
+    if verbose:
+        console.print(f"\n[dim]Wrote index file to: {index_output}[/dim]")
+        console.print("\n[bold green]Build complete![/bold green]")
+        console.print(f"  Total components processed: {len(components)}")
+        console.print(f"  Manifests written: {len(written_files)}")
+        console.print(f"  Skipped/failed: {len(components) - len(written_files)}")
+    else:
+        console.print(f"\n:white_check_mark: [bold green]Build complete![/] Generated {len(written_files)} manifest(s).")
