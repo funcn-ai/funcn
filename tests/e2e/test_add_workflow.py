@@ -330,20 +330,97 @@ def test_tool(input: str) -> str:
             assert result2.exit_code == 0
             assert "already exists" in result2.output
 
-    @pytest.mark.skip(reason="Version support not implemented yet - see FUNCNOS-32")
     def test_add_component_with_version(self, cli_runner, initialized_project, mock_registry_response):
         """Test adding a specific version of a component."""
-        with patch("requests.get") as mock_get:
-            mock_response = MagicMock()
-            mock_response.status_code = 200
-            mock_response.json.return_value = mock_registry_response
-            mock_get.return_value = mock_response
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value = mock_client
+
+            def mock_get_side_effect(url):
+                if "index.json" in url:
+                    mock_response = MagicMock()
+                    mock_response.status_code = 200
+                    mock_response.json.return_value = mock_registry_response
+                    mock_response.raise_for_status = MagicMock()
+                    return mock_response
+                elif "component.json" in url:
+                    # Return the component manifest
+                    mock_response = MagicMock()
+                    mock_response.status_code = 200
+                    mock_component_manifest = {
+                        "name": "test-agent",
+                        "version": "1.0.0",
+                        "description": "Test agent component version 1.0.0",
+                        "type": "agent",
+                        "authors": [{"name": "Test Author", "email": "test@example.com"}],
+                        "license": "MIT",
+                        "mirascope_version_min": "1.0.0",
+                        "files_to_copy": [
+                            {"source": "test_agent.py", "destination": "test_agent.py"}
+                        ],
+                        "target_directory_key": "agents",
+                        "python_dependencies": ["mirascope", "httpx"],
+                        "template_variables": {
+                            "provider": "openai",
+                            "model": "gpt-4o",
+                            "stream": "false"
+                        }
+                    }
+                    mock_response.json.return_value = mock_component_manifest
+                    mock_response.raise_for_status = MagicMock()
+                    return mock_response
+                elif ".py" in url:
+                    mock_response = MagicMock()
+                    mock_response.status_code = 200
+                    mock_response.content = b"# Test agent code"
+                    mock_response.raise_for_status = MagicMock()
+                    return mock_response
+                return MagicMock(status_code=404)
+
+            mock_client.get.side_effect = mock_get_side_effect
 
             # Run funcn add with version
-            result = self.run_command(cli_runner, ["add", "test_agent@1.0.0"])
+            result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@1.0.0"], input="n\nn\n")
 
             # Version handling should be mentioned
-            assert "1.0.0" in result.output or "version" in result.output.lower()
+            assert result.exit_code == 0
+            assert "test-agent" in result.output
+            assert "added successfully" in result.output
+
+    def test_add_component_with_invalid_version_format(self, cli_runner, initialized_project):
+        """Test adding a component with invalid version format."""
+        # Run funcn add with invalid version format
+        result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@invalid-version"], input="n\nn\n")
+        
+        # Should fail with error message about invalid version
+        assert result.exit_code == 1
+        assert "Invalid version format" in result.output
+        assert "Expected format like '1.0.0'" in result.output
+
+    def test_add_component_with_nonexistent_version(self, cli_runner, initialized_project, mock_registry_response):
+        """Test adding a specific version that doesn't exist."""
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client_class.return_value = mock_client
+
+            def mock_get_side_effect(url):
+                if "index.json" in url:
+                    mock_response = MagicMock()
+                    mock_response.status_code = 200
+                    # Registry has test-agent but only version 1.0.0
+                    mock_response.json.return_value = mock_registry_response
+                    mock_response.raise_for_status = MagicMock()
+                    return mock_response
+                return MagicMock(status_code=404)
+
+            mock_client.get.side_effect = mock_get_side_effect
+
+            # Run funcn add with non-existent version
+            result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@9.9.9"], input="n\nn\n")
+
+            # Should fail with appropriate error message
+            assert result.exit_code == 1
+            assert "Could not find component 'test-agent' version '9.9.9'" in result.output
 
     def test_add_nonexistent_component(self, cli_runner, initialized_project, mock_registry_response):
         """Test adding a component that doesn't exist."""
