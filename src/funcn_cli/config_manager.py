@@ -90,6 +90,13 @@ class ConfigManager:
         self._project_cfg.setdefault("registry_sources", {})[alias] = url
         self._save_json(self._project_cfg, self._project_config_path)
 
+    def remove_registry_source(self, alias: str) -> None:
+        # Reload the config from disk first to preserve existing data
+        self._project_cfg = self._load_json(self._project_config_path)
+        if "registry_sources" in self._project_cfg and alias in self._project_cfg["registry_sources"]:
+            del self._project_cfg["registry_sources"][alias]
+            self._save_json(self._project_cfg, self._project_config_path)
+
     def set_default_registry(self, url: str) -> None:
         self._project_cfg["default_registry_url"] = url
         self.add_registry_source("default", url)
@@ -102,11 +109,11 @@ class ConfigManager:
         """Convert funcn.json init format to FuncnConfig format."""
         # Start with a copy of the original config to preserve all fields
         normalized = cfg.copy()
-        
+
         # If it already has new format fields, just ensure consistency
         if "component_paths" in cfg:
             return normalized
-        
+
         # Convert from init format to new format
         # Map directory paths to component_paths
         if "agentDirectory" in cfg or "toolDirectory" in cfg:
@@ -127,7 +134,7 @@ class ConfigManager:
                 component_paths["response_models"] = cfg["responseModelDirectory"]
                 del normalized["responseModelDirectory"]
             normalized["component_paths"] = component_paths
-        
+
         # Map other fields from old to new names
         if "defaultProvider" in cfg:
             normalized["default_provider"] = cfg["defaultProvider"]
@@ -141,9 +148,9 @@ class ConfigManager:
         if "defaultMcpPort" in cfg:
             normalized["default_mcp_port"] = cfg["defaultMcpPort"]
             del normalized["defaultMcpPort"]
-        
+
         # Remove fields that aren't part of FuncnConfig
         normalized.pop("aliases", None)
         normalized.pop("$schema", None)
-            
+
         return normalized
