@@ -20,9 +20,15 @@ class ComponentPaths(BaseModel):
     tools: str = "src/ai_tools"
 
 
+class RegistrySourceConfig(BaseModel):
+    url: str
+    priority: int = 100  # Lower number = higher priority
+    enabled: bool = True
+
+
 class FuncnConfig(BaseModel):
     default_registry_url: str = DEFAULT_REGISTRY_URL
-    registry_sources: Mapping[str, str] = Field(default_factory=lambda: {"default": DEFAULT_REGISTRY_URL})
+    registry_sources: Mapping[str, str | RegistrySourceConfig] = Field(default_factory=lambda: {"default": DEFAULT_REGISTRY_URL})
     component_paths: ComponentPaths = Field(default_factory=ComponentPaths)
     default_provider: str = Field(default="openai")
     default_model: str = Field(default="gpt-4o-mini")
@@ -84,10 +90,23 @@ class ConfigManager:
     # Mutating helpers
     # ------------------------------------------------------------------
 
-    def add_registry_source(self, alias: str, url: str) -> None:
+    def add_registry_source(self, alias: str, url: str, priority: int = 100, enabled: bool = True) -> None:
         # Reload the config from disk first to preserve existing data
         self._project_cfg = self._load_json(self._project_config_path)
-        self._project_cfg.setdefault("registry_sources", {})[alias] = url
+        sources = self._project_cfg.setdefault("registry_sources", {})
+        
+        # Support both string (backward compat) and object format
+        if priority == 100 and enabled:
+            # Use simple string format for default values (backward compat)
+            sources[alias] = url
+        else:
+            # Use object format when non-default values are provided
+            sources[alias] = {
+                "url": url,
+                "priority": priority,
+                "enabled": enabled
+            }
+        
         self._save_json(self._project_cfg, self._project_config_path)
 
     def remove_registry_source(self, alias: str) -> None:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import httpx
-from funcn_cli.config_manager import ConfigManager
+from funcn_cli.config_manager import ConfigManager, RegistrySourceConfig
 from funcn_cli.core.models import ComponentManifest, RegistryIndex
 from pathlib import Path
 from rich.console import Console
@@ -20,6 +20,38 @@ class RegistryHandler:
     # Index helpers
     # ------------------------------------------------------------------
     
+    def get_sources_by_priority(self) -> list[tuple[str, str, int]]:
+        """Get sources ordered by priority.
+        
+        Returns:
+            List of tuples (alias, url, priority) sorted by priority
+        """
+        sources = []
+        
+        # Add default source if not in registry_sources
+        if self._cfg.config.default_registry_url:
+            if "default" not in self._cfg.config.registry_sources:
+                sources.append(("default", self._cfg.config.default_registry_url, 100))
+        
+        # Add all configured sources
+        for alias, source in self._cfg.config.registry_sources.items():
+            if isinstance(source, str):
+                # Backward compatibility: string format
+                sources.append((alias, source, 100))
+            elif isinstance(source, RegistrySourceConfig):
+                # New format with priority
+                if source.enabled:
+                    sources.append((alias, source.url, source.priority))
+            else:
+                # Handle dict format (from JSON)
+                if isinstance(source, dict):
+                    enabled = source.get("enabled", True)
+                    if enabled:
+                        sources.append((alias, source["url"], source.get("priority", 100)))
+        
+        # Sort by priority (lower number = higher priority)
+        return sorted(sources, key=lambda x: x[2])
+    
     def fetch_all_indexes(self, silent_errors: bool = True) -> dict[str, RegistryIndex]:
         """Fetch indexes from all configured sources.
         
@@ -31,15 +63,8 @@ class RegistryHandler:
         """
         indexes = {}
         
-        # Try default source first
-        default_index = self.fetch_index(source_alias=None, silent_errors=silent_errors)
-        if default_index:
-            indexes["default"] = default_index
-            
-        # Try all configured sources
-        for alias in self._cfg.config.registry_sources:
-            if alias == "default" and "default" in indexes:
-                continue  # Already fetched
+        # Fetch sources in priority order
+        for alias, url, priority in self.get_sources_by_priority():
             index = self.fetch_index(source_alias=alias, silent_errors=silent_errors)
             if index:
                 indexes[alias] = index
@@ -60,7 +85,22 @@ class RegistryHandler:
             ValueError: If no URL found for the source alias
             httpx.HTTPError: If the request fails and silent_errors=False
         """
-        url = self._cfg.config.registry_sources.get(source_alias, None) if source_alias else self._cfg.config.default_registry_url
+        # Get URL handling both string and object formats
+        if source_alias:
+            source = self._cfg.config.registry_sources.get(source_alias)
+            if source is None:
+                url = None
+            elif isinstance(source, str):
+                url = source
+            elif isinstance(source, RegistrySourceConfig):
+                url = source.url if source.enabled else None
+            elif isinstance(source, dict):
+                url = source.get("url") if source.get("enabled", True) else None
+            else:
+                url = None
+        else:
+            url = self._cfg.config.default_registry_url
+            
         if not url:
             if silent_errors:
                 return None
@@ -105,17 +145,12 @@ class RegistryHandler:
             # Search in specific source
             return self._search_single_source(component_name, version, source_alias)
         else:
-            # Search in all sources, starting with default
-            # Try default source first
-            result = self._search_single_source(component_name, version, None)
-            if result:
-                return result
-            
-            # Try all other configured sources
-            for alias in self._cfg.config.registry_sources:
+            # Search in all sources by priority order
+            for alias, url, priority in self.get_sources_by_priority():
                 result = self._search_single_source(component_name, version, alias)
                 if result:
-                    console.print(f"[cyan]Found component '{component_name}' in source '{alias}'[/]")
+                    if alias != "default":  # Don't show message for default source
+                        console.print(f"[cyan]Found component '{component_name}' in source '{alias}'[/]")
                     return result
             return None
     
@@ -126,7 +161,23 @@ class RegistryHandler:
         if not index:
             return None
             
-        url = self._cfg.config.registry_sources.get(source_alias) if source_alias else self._cfg.config.default_registry_url
+        # Get URL handling both string and object formats
+        url: str | None = None
+        if source_alias:
+            source = self._cfg.config.registry_sources.get(source_alias)
+            if isinstance(source, str):
+                url = source
+            elif isinstance(source, RegistrySourceConfig):
+                url = source.url
+            elif isinstance(source, dict):
+                url = source.get("url")
+            else:
+                url = None
+        else:
+            url = self._cfg.config.default_registry_url
+        
+        if not url:
+            return None
         
         # Find all matching components by name
         matching_components = [comp for comp in index.components if comp.name == component_name]

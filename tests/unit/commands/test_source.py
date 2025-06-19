@@ -41,11 +41,11 @@ class TestSource:
 
     def test_add_source_project_level(self, mock_config_manager, mock_console):
         """Test adding a registry source at project level."""
-        # Execute
-        add(alias="test", url="https://test.com/index.json")
+        # Execute with skip connectivity check to simplify test
+        add(alias="test", url="https://test.com/index.json", priority=100, skip_connectivity_check=True)
 
-        # Verify
-        mock_config_manager.add_registry_source.assert_called_once_with("test", "https://test.com/index.json")
+        # Verify - default priority is 100
+        mock_config_manager.add_registry_source.assert_called_once_with("test", "https://test.com/index.json", priority=100)
         mock_console.print.assert_called_once()
         printed_msg = str(mock_console.print.call_args[0][0])
         assert "Added registry source 'test' -> https://test.com/index.json" in printed_msg
@@ -53,10 +53,10 @@ class TestSource:
     def test_add_source_global_level(self, mock_config_manager, mock_console):
         """Test adding a registry source at global level."""
         # Execute
-        add(alias="global_test", url="https://global.com/index.json")
+        add(alias="global_test", url="https://global.com/index.json", priority=100, skip_connectivity_check=True)
 
         # Verify
-        mock_config_manager.add_registry_source.assert_called_once_with("global_test", "https://global.com/index.json")
+        mock_config_manager.add_registry_source.assert_called_once_with("global_test", "https://global.com/index.json", priority=100)
         mock_console.print.assert_called_once()
         printed_msg = str(mock_console.print.call_args[0][0])
         assert "Added registry source 'global_test' -> https://global.com/index.json" in printed_msg
@@ -64,18 +64,18 @@ class TestSource:
     def test_add_source_with_special_characters(self, mock_config_manager, mock_console):
         """Test adding a source with special characters in alias."""
         # Execute
-        add(alias="test-source_123", url="https://test.com/index.json")
+        add(alias="test-source_123", url="https://test.com/index.json", priority=100, skip_connectivity_check=True)
 
         # Verify
-        mock_config_manager.add_registry_source.assert_called_once_with("test-source_123", "https://test.com/index.json")
+        mock_config_manager.add_registry_source.assert_called_once_with("test-source_123", "https://test.com/index.json", priority=100)
 
     def test_add_source_with_file_url(self, mock_config_manager, mock_console):
         """Test adding a source with file:// URL."""
         # Execute
-        add(alias="local", url="file:///home/user/registry/index.json")
+        add(alias="local", url="file:///home/user/registry/index.json", priority=100, skip_connectivity_check=True)
 
         # Verify
-        mock_config_manager.add_registry_source.assert_called_once_with("local", "file:///home/user/registry/index.json")
+        mock_config_manager.add_registry_source.assert_called_once_with("local", "file:///home/user/registry/index.json", priority=100)
 
     def test_list_sources_with_multiple_sources(self, mock_config_manager, mock_console, sample_config):
         """Test listing multiple registry sources."""
@@ -89,9 +89,11 @@ class TestSource:
         assert mock_console.print.called
         printed_table = mock_console.print.call_args[0][0]
         assert printed_table.title == "Registry Sources"
-        assert len(printed_table.columns) == 2
+        assert len(printed_table.columns) == 4
         assert printed_table.columns[0].header == "Alias"
         assert printed_table.columns[1].header == "URL"
+        assert printed_table.columns[2].header == "Priority"
+        assert printed_table.columns[3].header == "Status"
 
     def test_list_sources_empty(self, mock_config_manager, mock_console):
         """Test listing sources when none are configured."""
@@ -139,6 +141,8 @@ class TestSource:
             if "[bold]default[/]" in row[0] or row[0] == "default":
                 default_found = True
                 # Verify it's pointing to the correct URL
+                # Now table has 4 columns: Alias, URL, Priority, Status
+                assert len(row) == 4
                 assert sample_config.default_registry_url in row[1]
 
         assert default_found, "Default source should be marked"
@@ -197,10 +201,10 @@ class TestSource:
             mock_console.print.reset_mock()
 
             # Execute
-            add(alias=f"test{i}", url=url)
+            add(alias=f"test{i}", url=url, priority=100, skip_connectivity_check=True)
 
             # Verify
-            mock_config_manager.add_registry_source.assert_called_once_with(f"test{i}", url)
+            mock_config_manager.add_registry_source.assert_called_once_with(f"test{i}", url, priority=100)
 
     def test_add_source_error_handling(self, mock_config_manager, mock_console):
         """Test error handling when adding a source fails."""
@@ -209,7 +213,7 @@ class TestSource:
 
         # Execute and verify exception is raised
         with pytest.raises(Exception, match="Failed to add source"):
-            add(alias="error_test", url="https://test.com/index.json")
+            add(alias="error_test", url="https://test.com/index.json", priority=100, skip_connectivity_check=True)
 
     def test_list_sources_with_long_urls(self, mock_config_manager, mock_console):
         """Test listing sources with very long URLs."""
@@ -345,7 +349,7 @@ class TestSource:
         """Test adding source with invalid URL scheme."""
         # Execute and verify exception is raised
         with pytest.raises(typer.Exit) as exc_info:
-            add(alias="invalid", url="ftp://example.com/index.json")
+            add(alias="invalid", url="ftp://example.com/index.json", priority=100, skip_connectivity_check=True)
 
         assert exc_info.value.exit_code == 1
         mock_console.print.assert_called()
@@ -357,7 +361,7 @@ class TestSource:
         """Test adding source with missing domain."""
         # Execute and verify exception is raised
         with pytest.raises(typer.Exit) as exc_info:
-            add(alias="nodomain", url="https://")
+            add(alias="nodomain", url="https://", priority=100, skip_connectivity_check=True)
 
         assert exc_info.value.exit_code == 1
         mock_console.print.assert_called()
@@ -367,7 +371,7 @@ class TestSource:
     def test_add_source_warns_non_index_url(self, mock_config_manager, mock_console):
         """Test warning when URL doesn't end with index.json."""
         # Execute - should succeed but warn
-        add(alias="nonindex", url="https://example.com/registry")
+        add(alias="nonindex", url="https://example.com/registry", priority=100, skip_connectivity_check=True)
 
         # Should have two print calls - warning and success
         assert mock_console.print.call_count == 2
@@ -378,12 +382,12 @@ class TestSource:
         assert "Added registry source" in success_msg
 
         # Should still add the source
-        mock_config_manager.add_registry_source.assert_called_once_with("nonindex", "https://example.com/registry")
+        mock_config_manager.add_registry_source.assert_called_once_with("nonindex", "https://example.com/registry", priority=100)
 
     def test_add_source_accepts_index_json(self, mock_config_manager, mock_console):
         """Test that URL ending with index.json doesn't warn."""
         # Execute
-        add(alias="proper", url="https://example.com/index.json")
+        add(alias="proper", url="https://example.com/index.json", priority=100, skip_connectivity_check=True)
 
         # Should only have one print call (success, no warning)
         assert mock_console.print.call_count == 1
@@ -391,12 +395,12 @@ class TestSource:
         assert "Added registry source" in success_msg
 
         # Should add the source
-        mock_config_manager.add_registry_source.assert_called_once_with("proper", "https://example.com/index.json")
+        mock_config_manager.add_registry_source.assert_called_once_with("proper", "https://example.com/index.json", priority=100)
 
     def test_add_source_accepts_file_scheme(self, mock_config_manager, mock_console):
         """Test that file:// URLs are accepted."""
         # Execute
-        add(alias="local", url="file:///path/to/index.json")
+        add(alias="local", url="file:///path/to/index.json", priority=100, skip_connectivity_check=True)
 
         # Should succeed
         assert mock_console.print.call_count == 1
@@ -404,7 +408,7 @@ class TestSource:
         assert "Added registry source" in success_msg
 
         # Should add the source
-        mock_config_manager.add_registry_source.assert_called_once_with("local", "file:///path/to/index.json")
+        mock_config_manager.add_registry_source.assert_called_once_with("local", "file:///path/to/index.json", priority=100)
 
     def test_add_source_with_connectivity_check_success(self, mock_config_manager, mock_console):
         """Test adding source with successful connectivity check."""
@@ -416,7 +420,7 @@ class TestSource:
             mock_test_connectivity.return_value = True
             
             # Execute with defaults
-            add(alias="valid", url="https://example.com/index.json", skip_connectivity_check=False)
+            add(alias="valid", url="https://example.com/index.json", priority=100, skip_connectivity_check=False)
             
             # Should call connectivity test
             mock_test_connectivity.assert_called_once_with("https://example.com/index.json")
@@ -428,7 +432,7 @@ class TestSource:
             assert any("Added registry source" in msg for msg in messages)
             
             # Should add the source
-            mock_config_manager.add_registry_source.assert_called_once_with("valid", "https://example.com/index.json")
+            mock_config_manager.add_registry_source.assert_called_once_with("valid", "https://example.com/index.json", priority=100)
 
     def test_add_source_with_connectivity_check_failure(self, mock_config_manager, mock_console):
         """Test adding source with failed connectivity check."""
@@ -438,7 +442,7 @@ class TestSource:
             
             # Execute and verify exception is raised
             with pytest.raises(typer.Exit) as exc_info:
-                add(alias="unreachable", url="https://unreachable.com/index.json", skip_connectivity_check=False)
+                add(alias="unreachable", url="https://unreachable.com/index.json", priority=100, skip_connectivity_check=False)
             
             assert exc_info.value.exit_code == 1
             
@@ -458,7 +462,7 @@ class TestSource:
         """Test adding source with connectivity check skipped."""
         with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
             # Execute with skip flag
-            add(alias="skipped", url="https://example.com/index.json", skip_connectivity_check=True)
+            add(alias="skipped", url="https://example.com/index.json", priority=100, skip_connectivity_check=True)
             
             # httpx.Client should not be called
             mock_client_class.assert_not_called()
@@ -469,7 +473,7 @@ class TestSource:
             assert "Added registry source" in success_msg
             
             # Should add the source
-            mock_config_manager.add_registry_source.assert_called_once_with("skipped", "https://example.com/index.json")
+            mock_config_manager.add_registry_source.assert_called_once_with("skipped", "https://example.com/index.json", priority=100)
 
     def test_connectivity_check_timeout(self, mock_console):
         """Test connectivity check with timeout."""
@@ -546,3 +550,60 @@ class TestSource:
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("HTTP error 404" in msg for msg in messages)
+
+    def test_add_source_with_custom_priority(self, mock_config_manager, mock_console):
+        """Test adding a source with custom priority."""
+        # Execute with custom priority
+        add(alias="high", url="https://high.com/index.json", priority=10, skip_connectivity_check=True)
+        
+        # Verify priority is passed correctly
+        mock_config_manager.add_registry_source.assert_called_once_with("high", "https://high.com/index.json", priority=10)
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "Added registry source 'high'" in printed_msg
+        assert "(priority: 10)" in printed_msg
+
+    def test_add_source_with_default_priority(self, mock_config_manager, mock_console):
+        """Test adding a source with default priority doesn't show priority in message."""
+        # Execute with default priority
+        add(alias="default_prio", url="https://default.com/index.json", priority=100, skip_connectivity_check=True)
+        
+        # Verify priority is passed but not shown in message
+        mock_config_manager.add_registry_source.assert_called_once_with("default_prio", "https://default.com/index.json", priority=100)
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "Added registry source 'default_prio'" in printed_msg
+        assert "(priority:" not in printed_msg
+
+    def test_list_sources_with_priorities(self, mock_config_manager, mock_console):
+        """Test listing sources shows priorities and status."""
+        # Setup config with mixed format sources
+        config = FuncnConfig(
+            default_registry_url="https://example.com/index.json",
+            registry_sources={
+                "old_format": "https://old.com/index.json",
+                "new_format": {
+                    "url": "https://new.com/index.json",
+                    "priority": 50,
+                    "enabled": True
+                },
+                "disabled": {
+                    "url": "https://disabled.com/index.json",
+                    "priority": 20,
+                    "enabled": False
+                }
+            },
+            component_paths={},
+        )
+        mock_config_manager.config = config
+        
+        # Execute
+        list_sources()
+        
+        # Verify table was printed
+        assert mock_console.print.called
+        printed_table = mock_console.print.call_args[0][0]
+        
+        # Should have Priority and Status columns
+        assert any(col.header == "Priority" for col in printed_table.columns)
+        assert any(col.header == "Status" for col in printed_table.columns)

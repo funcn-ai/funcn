@@ -220,3 +220,113 @@ class TestRegistryHandler:
         # With silent_errors=False
         with pytest.raises(ValueError, match="No URL found for registry source"):
             rh.fetch_index(source_alias="nonexistent", silent_errors=False)
+
+    def test_get_sources_by_priority(self, mock_config_manager):
+        """Test getting sources ordered by priority."""
+        # Mix of string and object formats
+        mock_config_manager.config.registry_sources = {
+            "high": {"url": "https://high.com/index.json", "priority": 10, "enabled": True},
+            "disabled": {"url": "https://disabled.com/index.json", "priority": 5, "enabled": False},
+            "medium": {"url": "https://medium.com/index.json", "priority": 50, "enabled": True},
+            "low": "https://low.com/index.json",  # Default priority 100
+            "lower": {"url": "https://lower.com/index.json", "priority": 200, "enabled": True},
+            "default": "https://default.com/index.json",  # Override default to avoid adding it twice
+        }
+        
+        rh = RegistryHandler(mock_config_manager)
+        sources = rh.get_sources_by_priority()
+        
+        # Should be sorted by priority, excluding disabled
+        assert len(sources) == 5
+        assert sources[0] == ("high", "https://high.com/index.json", 10)
+        assert sources[1] == ("medium", "https://medium.com/index.json", 50)
+        
+        # Both default and low have priority 100, order between them doesn't matter
+        priority_100_sources = [s for s in sources if s[2] == 100]
+        assert len(priority_100_sources) == 2
+        assert ("default", "https://default.com/index.json", 100) in priority_100_sources
+        assert ("low", "https://low.com/index.json", 100) in priority_100_sources
+        
+        assert sources[4] == ("lower", "https://lower.com/index.json", 200)
+
+    def test_fetch_all_indexes_respects_priority(self, mock_config_manager, sample_index):
+        """Test that fetch_all_indexes fetches sources in priority order."""
+        # Set up sources with different priorities
+        mock_config_manager.config.registry_sources = {
+            "high": {"url": "https://high.com/index.json", "priority": 10, "enabled": True},
+            "medium": {"url": "https://medium.com/index.json", "priority": 50, "enabled": True},
+            "low": {"url": "https://low.com/index.json", "priority": 100, "enabled": True},
+        }
+        
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            fetch_order = []
+            
+            def mock_get_side_effect(url):
+                # Track the order of fetches
+                if "high.com" in url:
+                    fetch_order.append("high")
+                elif "medium.com" in url:
+                    fetch_order.append("medium")
+                elif "low.com" in url:
+                    fetch_order.append("low")
+                
+                mock_response = MagicMock()
+                mock_response.status_code = 200
+                mock_response.json.return_value = sample_index.model_dump()
+                return mock_response
+            
+            mock_client.get.side_effect = mock_get_side_effect
+            mock_client_class.return_value = mock_client
+            
+            rh = RegistryHandler(mock_config_manager)
+            rh._client = mock_client
+            
+            # Fetch all indexes
+            indexes = rh.fetch_all_indexes(silent_errors=True)
+            
+            # Check fetch order matches priority
+            assert fetch_order == ["high", "medium", "low"]
+            assert len(indexes) == 3
+
+    def test_find_component_uses_priority_order(self, mock_config_manager, sample_index):
+        """Test that component search respects source priority."""
+        # Set up sources with different priorities
+        mock_config_manager.config.registry_sources = {
+            "low_priority": {"url": "https://low.com/index.json", "priority": 100, "enabled": True},
+            "high_priority": {"url": "https://high.com/index.json", "priority": 10, "enabled": True},
+        }
+        
+        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            search_order = []
+            
+            def mock_get_side_effect(url):
+                if "high.com" in url:
+                    search_order.append("high_priority")
+                    # Return empty index (component not found)
+                    mock_response = MagicMock()
+                    mock_response.status_code = 200
+                    mock_response.json.return_value = {"registry_version": "1.0.0", "components": []}
+                    return mock_response
+                elif "low.com" in url:
+                    search_order.append("low_priority")
+                    # Return index with component
+                    mock_response = MagicMock()
+                    mock_response.status_code = 200
+                    mock_response.json.return_value = sample_index.model_dump()
+                    return mock_response
+            
+            mock_client.get.side_effect = mock_get_side_effect
+            mock_client_class.return_value = mock_client
+            
+            rh = RegistryHandler(mock_config_manager)
+            rh._client = mock_client
+            
+            # Search for component
+            result = rh.find_component_manifest_url("test-agent")
+            
+            # Should search high priority first, then low priority
+            assert search_order == ["high_priority", "low_priority"]
+            assert result is not None
+            assert "low.com" in result

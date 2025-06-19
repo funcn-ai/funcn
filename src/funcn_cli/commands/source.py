@@ -63,6 +63,7 @@ def _test_source_connectivity(url: str) -> bool:
 def add(
     alias: str = typer.Argument(..., help="Alias for registry source"),
     url: str = typer.Argument(..., help="URL to index.json of registry"),
+    priority: int = typer.Option(100, "--priority", "-p", help="Source priority (lower = higher priority)"),
     skip_connectivity_check: bool = typer.Option(False, "--skip-check", help="Skip connectivity check"),
 ) -> None:
     """Add a new registry source."""
@@ -93,8 +94,9 @@ def add(
         console.print("[green]:white_check_mark: Successfully connected to registry[/green]")
 
     cfg_manager = ConfigManager()
-    cfg_manager.add_registry_source(alias, url)
-    console.print(f":white_check_mark: Added registry source '{alias}' -> {url}")
+    cfg_manager.add_registry_source(alias, url, priority=priority)
+    priority_msg = f" (priority: {priority})" if priority != 100 else ""
+    console.print(f":white_check_mark: Added registry source '{alias}' -> {url}{priority_msg}")
 
 
 @app.command("list")
@@ -105,14 +107,30 @@ def list_sources() -> None:
     table = Table(title="Registry Sources")
     table.add_column("Alias", style="cyan")
     table.add_column("URL")
+    table.add_column("Priority", justify="right")
+    table.add_column("Status")
 
     # Show default source first if not already in registry_sources
     if "default" not in cfg.registry_sources and cfg.default_registry_url:
-        table.add_row("[bold]default[/]", cfg.default_registry_url)
+        table.add_row("[bold]default[/]", cfg.default_registry_url, "100", "[green]enabled[/]")
 
-    for alias, url in cfg.registry_sources.items():
+    # Sort sources by priority (lower number = higher priority)
+    sources = []
+    for alias, source in cfg.registry_sources.items():
+        if isinstance(source, str):
+            # Backward compatibility: string format
+            sources.append((alias, source, 100, True))
+        else:
+            # New format: RegistrySourceConfig
+            sources.append((alias, source.url, source.priority, source.enabled))
+    
+    sources.sort(key=lambda x: x[2])  # Sort by priority
+    
+    for alias, url, priority, enabled in sources:
         alias_display = f"[bold]{alias}[/]" if alias == "default" or url == cfg.default_registry_url else alias
-        table.add_row(alias_display, url)
+        status = "[green]enabled[/]" if enabled else "[dim]disabled[/]"
+        table.add_row(alias_display, url, str(priority), status)
+    
     console.print(table)
 
 
