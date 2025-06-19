@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import httpx
 import json
 import pytest
 from pathlib import Path
@@ -37,9 +38,9 @@ class TestSourceManagement(BaseE2ETest):
 
     def test_add_source_project_level(self, cli_runner, initialized_project):
         """Test adding a registry source at project level."""
-        # Add a custom source
+        # Add a custom source (skip connectivity check for E2E tests)
         result = self.run_command(
-            cli_runner, ["source", "add", "myregistry", "https://myregistry.funcn.ai/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "myregistry", "https://myregistry.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
         )
 
         self.assert_command_success(result)
@@ -59,13 +60,13 @@ class TestSourceManagement(BaseE2ETest):
         """Test adding a source with duplicate alias."""
         # Add a source
         result = self.run_command(
-            cli_runner, ["source", "add", "duplicate", "https://first.funcn.ai/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "duplicate", "https://first.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
         # Try to add another source with same alias
         result = self.run_command(
-            cli_runner, ["source", "add", "duplicate", "https://second.funcn.ai/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "duplicate", "https://second.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
         )
 
         # Should either update or warn about duplicate
@@ -88,7 +89,7 @@ class TestSourceManagement(BaseE2ETest):
         local_index.write_text(json.dumps({"registry_version": "1.0.0", "components": []}))
 
         # Add file source
-        result = self.run_command(cli_runner, ["source", "add", "local", f"file://{local_index}"], cwd=initialized_project)
+        result = self.run_command(cli_runner, ["source", "add", "local", f"file://{local_index}", "--skip-check"], cwd=initialized_project)
 
         self.assert_command_success(result)
 
@@ -101,7 +102,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test using a custom source for listing components."""
         # Add custom source
         result = self.run_command(
-            cli_runner, ["source", "add", "custom", "https://custom.funcn.ai/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "custom", "https://custom.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
@@ -150,7 +151,7 @@ class TestSourceManagement(BaseE2ETest):
     def test_add_source_invalid_url(self, cli_runner, initialized_project):
         """Test adding source with invalid URL format."""
         # Try to add source with invalid URL
-        result = self.run_command(cli_runner, ["source", "add", "invalid", "not-a-valid-url"], cwd=initialized_project)
+        result = self.run_command(cli_runner, ["source", "add", "invalid", "not-a-valid-url", "--skip-check"], cwd=initialized_project)
 
         # Should either accept it (trusting user) or validate
         # The behavior depends on implementation
@@ -161,7 +162,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test that sources persist across CLI invocations."""
         # Add a source
         result = self.run_command(
-            cli_runner, ["source", "add", "persistent", "https://persistent.funcn.ai/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "persistent", "https://persistent.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
@@ -186,7 +187,7 @@ class TestSourceManagement(BaseE2ETest):
         ]
 
         for alias, url in sources:
-            result = self.run_command(cli_runner, ["source", "add", alias, url], cwd=initialized_project)
+            result = self.run_command(cli_runner, ["source", "add", alias, url, "--skip-check"], cwd=initialized_project)
             self.assert_command_success(result)
 
         # List all sources
@@ -262,7 +263,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test adding source that requires authentication."""
         # Add source (auth would be handled via headers)
         result = self.run_command(
-            cli_runner, ["source", "add", "private", "https://private.funcn.ai/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "private", "https://private.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
         )
 
         self.assert_command_success(result)
@@ -301,7 +302,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test removing a registry source."""
         # Add a custom source
         result = self.run_command(
-            cli_runner, ["source", "add", "test", "https://test.example.com/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "test", "https://test.example.com/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
@@ -340,20 +341,20 @@ class TestSourceManagement(BaseE2ETest):
         """Test URL validation when adding sources."""
         # Test invalid scheme
         result = self.run_command(
-            cli_runner, ["source", "add", "invalid", "ftp://example.com/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "invalid", "ftp://example.com/index.json", "--skip-check"], cwd=initialized_project
         )
         assert result.exit_code == 1
         assert "Invalid URL scheme" in result.output
         assert "ftp" in result.output
 
         # Test missing domain
-        result = self.run_command(cli_runner, ["source", "add", "nodomain", "https://"], cwd=initialized_project)
+        result = self.run_command(cli_runner, ["source", "add", "nodomain", "https://", "--skip-check"], cwd=initialized_project)
         assert result.exit_code == 1
         assert "missing domain/host" in result.output
 
         # Test warning for non-index.json URL
         result = self.run_command(
-            cli_runner, ["source", "add", "nonindex", "https://example.com/registry"], cwd=initialized_project
+            cli_runner, ["source", "add", "nonindex", "https://example.com/registry", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
         assert "should typically point to an index.json file" in result.output
@@ -361,8 +362,70 @@ class TestSourceManagement(BaseE2ETest):
 
         # Test valid index.json URL
         result = self.run_command(
-            cli_runner, ["source", "add", "proper", "https://example.com/index.json"], cwd=initialized_project
+            cli_runner, ["source", "add", "proper", "https://example.com/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
         assert "Added registry source" in result.output
         assert "should typically point to an index.json file" not in result.output
+
+    def test_source_connectivity_check(self, cli_runner, initialized_project):
+        """Test source connectivity checking when adding."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            # Mock successful connectivity check
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "registry_version": "1.0.0",
+                "components": []
+            }
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            # Add source with connectivity check
+            result = self.run_command(
+                cli_runner, ["source", "add", "checked", "https://example.com/index.json"], cwd=initialized_project
+            )
+            self.assert_command_success(result)
+            assert "Testing connectivity" in result.output
+            assert "Successfully connected" in result.output
+            assert "Added registry source" in result.output
+
+    def test_source_connectivity_check_failure(self, cli_runner, initialized_project):
+        """Test handling failed connectivity check."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            # Mock connection failure
+            mock_client = MagicMock()
+            mock_client.get.side_effect = httpx.ConnectError("Connection failed")
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            # Try to add source - should fail
+            result = self.run_command(
+                cli_runner, ["source", "add", "unreachable", "https://unreachable.com/index.json"], cwd=initialized_project
+            )
+            assert result.exit_code == 1
+            assert "Testing connectivity" in result.output
+            assert "Failed to connect" in result.output
+            assert "--skip-check" in result.output
+
+    def test_source_connectivity_skip_check(self, cli_runner, initialized_project):
+        """Test skipping connectivity check."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            # Add source with skip flag
+            result = self.run_command(
+                cli_runner, ["source", "add", "skipped", "https://example.com/index.json", "--skip-check"], cwd=initialized_project
+            )
+            self.assert_command_success(result)
+            
+            # Should not call httpx.Client
+            mock_client_class.assert_not_called()
+            
+            # Should not show connectivity messages
+            assert "Testing connectivity" not in result.output
+            assert "Successfully connected" not in result.output
+            assert "Added registry source" in result.output
