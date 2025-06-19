@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import httpx
 import pytest
 import typer
-from funcn_cli.commands.source import add, list_sources, remove
+from funcn_cli.commands.source import _test_source_connectivity, add, list_sources, remove
 from funcn_cli.config_manager import FuncnConfig
-from unittest.mock import MagicMock
+from unittest.mock import MagicMock, patch
 
 
 class TestSource:
@@ -404,3 +405,144 @@ class TestSource:
 
         # Should add the source
         mock_config_manager.add_registry_source.assert_called_once_with("local", "file:///path/to/index.json")
+
+    def test_add_source_with_connectivity_check_success(self, mock_config_manager, mock_console):
+        """Test adding source with successful connectivity check."""
+        # Mock the console and config manager correctly
+        mock_console.print.reset_mock()
+        
+        # Need to mock _test_source_connectivity directly since it has its own console
+        with patch("funcn_cli.commands.source._test_source_connectivity") as mock_test_connectivity:
+            mock_test_connectivity.return_value = True
+            
+            # Execute with defaults
+            add(alias="valid", url="https://example.com/index.json", skip_connectivity_check=False)
+            
+            # Should call connectivity test
+            mock_test_connectivity.assert_called_once_with("https://example.com/index.json")
+            
+            # Should have print calls
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("Testing connectivity" in msg for msg in messages)
+            assert any("Successfully connected" in msg for msg in messages)
+            assert any("Added registry source" in msg for msg in messages)
+            
+            # Should add the source
+            mock_config_manager.add_registry_source.assert_called_once_with("valid", "https://example.com/index.json")
+
+    def test_add_source_with_connectivity_check_failure(self, mock_config_manager, mock_console):
+        """Test adding source with failed connectivity check."""
+        # Mock _test_source_connectivity to return False
+        with patch("funcn_cli.commands.source._test_source_connectivity") as mock_test_connectivity:
+            mock_test_connectivity.return_value = False
+            
+            # Execute and verify exception is raised
+            with pytest.raises(typer.Exit) as exc_info:
+                add(alias="unreachable", url="https://unreachable.com/index.json", skip_connectivity_check=False)
+            
+            assert exc_info.value.exit_code == 1
+            
+            # Should call connectivity test
+            mock_test_connectivity.assert_called_once_with("https://unreachable.com/index.json")
+            
+            # Should print error messages
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("Testing connectivity" in msg for msg in messages)
+            assert any("Failed to connect" in msg for msg in messages)
+            assert any("--skip-check" in msg for msg in messages)
+            
+            # Should NOT add the source
+            mock_config_manager.add_registry_source.assert_not_called()
+
+    def test_add_source_skip_connectivity_check(self, mock_config_manager, mock_console):
+        """Test adding source with connectivity check skipped."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            # Execute with skip flag
+            add(alias="skipped", url="https://example.com/index.json", skip_connectivity_check=True)
+            
+            # httpx.Client should not be called
+            mock_client_class.assert_not_called()
+            
+            # Should only have 1 print call (added message)
+            assert mock_console.print.call_count == 1
+            success_msg = str(mock_console.print.call_args[0][0])
+            assert "Added registry source" in success_msg
+            
+            # Should add the source
+            mock_config_manager.add_registry_source.assert_called_once_with("skipped", "https://example.com/index.json")
+
+    def test_connectivity_check_timeout(self, mock_console):
+        """Test connectivity check with timeout."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://slow.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("timed out" in msg for msg in messages)
+
+    def test_connectivity_check_invalid_json(self, mock_console):
+        """Test connectivity check with invalid JSON response."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.side_effect = ValueError("Invalid JSON")
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://invalid.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("Invalid registry response format" in msg for msg in messages)
+
+    def test_connectivity_check_missing_fields(self, mock_console):
+        """Test connectivity check with missing required fields."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            # Test missing registry_version
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"components": []}
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://incomplete.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("missing 'registry_version'" in msg for msg in messages)
+
+    def test_connectivity_check_http_error(self, mock_console):
+        """Test connectivity check with HTTP error."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 404
+            mock_response.reason_phrase = "Not Found"
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.get.side_effect = httpx.HTTPStatusError(
+                "Not Found", request=MagicMock(), response=mock_response
+            )
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://notfound.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("HTTP error 404" in msg for msg in messages)

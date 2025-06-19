@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import httpx
 import typer
 from funcn_cli.config_manager import ConfigManager
 from rich.console import Console
@@ -11,10 +12,58 @@ console = Console()
 app = typer.Typer(help="Manage registry sources.")
 
 
+def _test_source_connectivity(url: str) -> bool:
+    """Test if a registry source is accessible and returns valid registry data.
+    
+    Args:
+        url: The URL to test
+        
+    Returns:
+        True if the source is accessible and valid, False otherwise
+    """
+    try:
+        with httpx.Client(timeout=10.0) as client:
+            response = client.get(url)
+            response.raise_for_status()
+            
+            # Try to parse as JSON and check for registry_version
+            data = response.json()
+            if not isinstance(data, dict):
+                return False
+                
+            # Check for required registry fields
+            if "registry_version" not in data:
+                console.print("[yellow]:warning: Response missing 'registry_version' field[/yellow]")
+                return False
+                
+            if "components" not in data:
+                console.print("[yellow]:warning: Response missing 'components' field[/yellow]")
+                return False
+                
+            return True
+            
+    except httpx.TimeoutException:
+        console.print("[red]Connection timed out[/red]")
+        return False
+    except httpx.ConnectError:
+        console.print("[red]Failed to connect to the server[/red]")
+        return False
+    except httpx.HTTPStatusError as e:
+        console.print(f"[red]HTTP error {e.response.status_code}: {e.response.reason_phrase}[/red]")
+        return False
+    except (ValueError, KeyError) as e:
+        console.print(f"[red]Invalid registry response format: {e}[/red]")
+        return False
+    except Exception as e:
+        console.print(f"[red]Unexpected error: {e}[/red]")
+        return False
+
+
 @app.command()
 def add(
     alias: str = typer.Argument(..., help="Alias for registry source"),
     url: str = typer.Argument(..., help="URL to index.json of registry"),
+    skip_connectivity_check: bool = typer.Option(False, "--skip-check", help="Skip connectivity check"),
 ) -> None:
     """Add a new registry source."""
     # Validate URL format
@@ -33,6 +82,15 @@ def add(
     # Warn if URL doesn't end with index.json
     if not url.endswith("/index.json") and not url.endswith("/index.json/"):
         console.print(f"[yellow]:warning: URL should typically point to an index.json file. Got: {url}[/yellow]")
+
+    # Test connectivity unless skipped
+    if not skip_connectivity_check and parsed.scheme in ("http", "https"):
+        console.print(f"[dim]Testing connectivity to {url}...[/dim]")
+        if not _test_source_connectivity(url):
+            console.print(f":x: Failed to connect to registry at {url}")
+            console.print("[yellow]Tip: Use --skip-check to add the source anyway[/yellow]")
+            raise typer.Exit(1)
+        console.print("[green]:white_check_mark: Successfully connected to registry[/green]")
 
     cfg_manager = ConfigManager()
     cfg_manager.add_registry_source(alias, url)
