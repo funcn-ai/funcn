@@ -26,6 +26,14 @@ class RegistrySourceConfig(BaseModel):
     enabled: bool = True
 
 
+class CacheConfig(BaseModel):
+    """Configuration for caching behavior."""
+    enabled: bool = True
+    ttl_seconds: int = 3600  # 1 hour default
+    max_size_mb: int = 100
+    directory: str | None = None  # None = use default platform directory
+
+
 class FuncnConfig(BaseModel):
     default_registry_url: str = DEFAULT_REGISTRY_URL
     registry_sources: Mapping[str, str | RegistrySourceConfig] = Field(default_factory=lambda: {"default": DEFAULT_REGISTRY_URL})
@@ -35,6 +43,7 @@ class FuncnConfig(BaseModel):
     stream: bool = Field(default=False)
     default_mcp_host: str = Field(default="0.0.0.0")
     default_mcp_port: int = Field(default=8000)
+    cache_config: CacheConfig = Field(default_factory=CacheConfig)
 
     model_config = ConfigDict(extra="ignore")
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import httpx
 import typer
 from funcn_cli.config_manager import ConfigManager
+from funcn_cli.core.registry_handler import RegistryHandler
 from rich.console import Console
 from rich.table import Table
 from urllib.parse import urlparse
@@ -100,19 +101,36 @@ def add(
 
 
 @app.command("list")
-def list_sources() -> None:
+def list_sources(
+    refresh: bool = typer.Option(False, "--refresh", "-r", help="Force refresh of cached data")
+) -> None:
     """List configured registry sources."""
     cfg_manager = ConfigManager()
     cfg = cfg_manager.config
+    handler = RegistryHandler(cfg_manager)
+    
     table = Table(title="Registry Sources")
     table.add_column("Alias", style="cyan")
     table.add_column("URL")
     table.add_column("Priority", justify="right")
     table.add_column("Status")
+    table.add_column("Cache", justify="center")
+    
+    # Get cache stats if caching is enabled
+    cache_stats = {}
+    if cfg.cache_config.enabled and handler._cache_manager:
+        if refresh:
+            console.print("[yellow]Refreshing cache...[/]")
+            handler._cache_manager.invalidate_cache()
+        cache_stats = handler._cache_manager.get_cache_stats()
 
     # Show default source first if not already in registry_sources
+    cache_info = "-"
+    if "default" in cache_stats:
+        cache_info = f"[cyan]{cache_stats['default']['age']}[/]"
+    
     if "default" not in cfg.registry_sources and cfg.default_registry_url:
-        table.add_row("[bold]default[/]", cfg.default_registry_url, "100", "[green]enabled[/]")
+        table.add_row("[bold]default[/]", cfg.default_registry_url, "100", "[green]enabled[/]", cache_info)
 
     # Sort sources by priority (lower number = higher priority)
     sources = []
@@ -120,6 +138,9 @@ def list_sources() -> None:
         if isinstance(source, str):
             # Backward compatibility: string format
             sources.append((alias, source, 100, True))
+        elif isinstance(source, dict):
+            # Dict format from JSON
+            sources.append((alias, source["url"], source.get("priority", 100), source.get("enabled", True)))
         else:
             # New format: RegistrySourceConfig
             sources.append((alias, source.url, source.priority, source.enabled))
@@ -129,9 +150,18 @@ def list_sources() -> None:
     for alias, url, priority, enabled in sources:
         alias_display = f"[bold]{alias}[/]" if alias == "default" or url == cfg.default_registry_url else alias
         status = "[green]enabled[/]" if enabled else "[dim]disabled[/]"
-        table.add_row(alias_display, url, str(priority), status)
+        
+        # Get cache info
+        cache_info = "-"
+        if alias in cache_stats:
+            cache_info = f"[cyan]{cache_stats[alias]['age']}[/]"
+        
+        table.add_row(alias_display, url, str(priority), status, cache_info)
     
     console.print(table)
+    
+    if cfg.cache_config.enabled:
+        console.print(f"\n[dim]Cache TTL: {cfg.cache_config.ttl_seconds}s | Cache location: ~/.funcn/cache/[/]")
 
 
 @app.command()
@@ -155,3 +185,69 @@ def remove(
     # Remove the source
     cfg_manager.remove_registry_source(alias)
     console.print(f":white_check_mark: Removed registry source '{alias}'")
+
+
+cache_app = typer.Typer(help="Manage registry cache.")
+
+
+@cache_app.command("clear")
+def cache_clear(
+    source: str | None = typer.Argument(None, help="Clear cache for specific source, or all if not specified")
+) -> None:
+    """Clear registry cache."""
+    cfg_manager = ConfigManager()
+    handler = RegistryHandler(cfg_manager)
+    
+    if not handler._cache_manager:
+        console.print("[yellow]Cache is disabled in configuration[/]")
+        raise typer.Exit(0)
+    
+    if source:
+        handler._cache_manager.invalidate_cache(source)
+        console.print(f":white_check_mark: Cleared cache for '{source}'")
+    else:
+        handler._cache_manager.clear_all_caches()
+        console.print(":white_check_mark: Cleared all registry caches")
+
+
+@cache_app.command("stats")
+def cache_stats() -> None:
+    """Show cache statistics."""
+    cfg_manager = ConfigManager()
+    handler = RegistryHandler(cfg_manager)
+    
+    if not handler._cache_manager:
+        console.print("[yellow]Cache is disabled in configuration[/]")
+        raise typer.Exit(0)
+    
+    stats = handler._cache_manager.get_cache_stats()
+    
+    if not stats:
+        console.print("[dim]No cached data found[/]")
+        raise typer.Exit(0)
+    
+    table = Table(title="Registry Cache Statistics")
+    table.add_column("Source", style="cyan")
+    table.add_column("Age")
+    table.add_column("Size", justify="right")
+    table.add_column("Cached At")
+    table.add_column("Last Accessed")
+    
+    total_size = 0
+    for alias, info in stats.items():
+        size_kb = info["size_bytes"] / 1024
+        total_size += info["size_bytes"]
+        table.add_row(
+            alias,
+            info["age"],
+            f"{size_kb:.1f} KB",
+            info["cached_at"].split("T")[0],  # Just date
+            info["last_accessed"].split("T")[0]  # Just date
+        )
+    
+    console.print(table)
+    console.print(f"\n[dim]Total cache size: {total_size / 1024:.1f} KB[/]")
+    console.print("[dim]Cache location: ~/.funcn/cache/[/]")
+
+
+app.add_typer(cache_app, name="cache")

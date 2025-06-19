@@ -4,6 +4,7 @@
 *.sqlite
 **/facts/
 **/results/
+.funcn/
 
 # MCP Configuration (contains sensitive tokens/keys)
 mcp.json

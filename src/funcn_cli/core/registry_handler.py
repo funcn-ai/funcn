@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import httpx
 from funcn_cli.config_manager import ConfigManager, RegistrySourceConfig
+from funcn_cli.core.cache_manager import CacheManager
 from funcn_cli.core.models import ComponentManifest, RegistryIndex
 from pathlib import Path
 from rich.console import Console
@@ -15,6 +16,13 @@ class RegistryHandler:
     def __init__(self, cfg: ConfigManager | None = None) -> None:
         self._cfg = cfg or ConfigManager()
         self._client = httpx.Client(timeout=30.0)
+        
+        # Initialize cache manager if caching is enabled
+        cache_config = self._cfg.config.cache_config
+        self._cache_manager: CacheManager | None = None
+        if cache_config.enabled:
+            cache_dir = Path(cache_config.directory) if cache_config.directory else None
+            self._cache_manager = CacheManager(cache_dir=cache_dir)
 
     # ------------------------------------------------------------------
     # Index helpers
@@ -52,11 +60,12 @@ class RegistryHandler:
         # Sort by priority (lower number = higher priority)
         return sorted(sources, key=lambda x: x[2])
     
-    def fetch_all_indexes(self, silent_errors: bool = True) -> dict[str, RegistryIndex]:
+    def fetch_all_indexes(self, silent_errors: bool = True, force_refresh: bool = False) -> dict[str, RegistryIndex]:
         """Fetch indexes from all configured sources.
         
         Args:
             silent_errors: If True, skip failed sources instead of raising
+            force_refresh: If True, bypass cache and force fresh fetches
             
         Returns:
             Dictionary mapping source alias to RegistryIndex for successful fetches
@@ -65,18 +74,19 @@ class RegistryHandler:
         
         # Fetch sources in priority order
         for alias, url, priority in self.get_sources_by_priority():
-            index = self.fetch_index(source_alias=alias, silent_errors=silent_errors)
+            index = self.fetch_index(source_alias=alias, silent_errors=silent_errors, force_refresh=force_refresh)
             if index:
                 indexes[alias] = index
                 
         return indexes
 
-    def fetch_index(self, source_alias: str | None = None, silent_errors: bool = False) -> RegistryIndex | None:
+    def fetch_index(self, source_alias: str | None = None, silent_errors: bool = False, force_refresh: bool = False) -> RegistryIndex | None:
         """Fetch registry index from a source.
         
         Args:
             source_alias: The alias of the source to fetch from
             silent_errors: If True, returns None on error instead of raising
+            force_refresh: If True, bypass cache and force a fresh fetch
             
         Returns:
             RegistryIndex if successful, None if silent_errors=True and an error occurs
@@ -85,6 +95,17 @@ class RegistryHandler:
             ValueError: If no URL found for the source alias
             httpx.HTTPError: If the request fails and silent_errors=False
         """
+        # Determine the actual source alias to use
+        actual_alias = source_alias or "default"
+        
+        # Check cache first if not forcing refresh
+        etag = None
+        if self._cache_manager and not force_refresh:
+            cache_config = self._cfg.config.cache_config
+            cached_index, etag = self._cache_manager.get_cached_index(actual_alias, max_age=cache_config.ttl_seconds)
+            if cached_index:
+                return cached_index
+        
         # Get URL handling both string and object formats
         if source_alias:
             source = self._cfg.config.registry_sources.get(source_alias)
@@ -108,10 +129,33 @@ class RegistryHandler:
             
         try:
             console.log(f"Fetching registry index from {url}")
-            resp = self._client.get(url)
+            
+            # Prepare headers with ETag if available
+            headers = {}
+            if etag:
+                headers["If-None-Match"] = etag
+            
+            resp = self._client.get(url, headers=headers)
+            
+            # Handle 304 Not Modified
+            if resp.status_code == 304:
+                console.log(f"Registry index for '{actual_alias}' has not changed (304)")
+                # The cached version is still valid, return it
+                if self._cache_manager:
+                    cached_index, _ = self._cache_manager.get_cached_index(actual_alias, max_age=0)  # No expiry check
+                    if cached_index:
+                        return cached_index
+            
             resp.raise_for_status()
             data = resp.json()
-            return RegistryIndex.model_validate(data)
+            index = RegistryIndex.model_validate(data)
+            
+            # Cache the fetched index
+            if self._cache_manager:
+                new_etag = resp.headers.get("ETag")
+                self._cache_manager.save_index_to_cache(actual_alias, index, etag=new_etag)
+            
+            return index
         except httpx.TimeoutException:
             if silent_errors:
                 console.print(f"[yellow]Warning: Source '{source_alias or 'default'}' timed out[/]")

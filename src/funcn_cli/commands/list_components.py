@@ -17,13 +17,19 @@ def list_components(
     ctx: typer.Context,
     source: str | None = typer.Option(None, help="Registry source alias to list from"),
     all_sources: bool = typer.Option(False, "--all", help="List from all available sources"),
+    refresh: bool = typer.Option(False, "--refresh", "-r", help="Force refresh of cached data"),
+    cache_ttl: int | None = typer.Option(None, "--cache-ttl", help="Override default cache TTL in seconds"),
 ) -> None:
     cfg = ConfigManager()
+    
+    # Override cache TTL if specified
+    if cache_ttl is not None:
+        cfg.config.cache_config.ttl_seconds = cache_ttl
     
     if all_sources:
         # List from all sources that are available
         with RegistryHandler(cfg) as rh:
-            indexes = rh.fetch_all_indexes(silent_errors=True)
+            indexes = rh.fetch_all_indexes(silent_errors=True, force_refresh=refresh)
         
         if not indexes:
             console.print("[red]Error: No registry sources are currently available[/]")
@@ -46,7 +52,7 @@ def list_components(
         # List from specific source or default
         try:
             with RegistryHandler(cfg) as rh:
-                index = rh.fetch_index(source_alias=source, silent_errors=False)
+                index = rh.fetch_index(source_alias=source, silent_errors=False, force_refresh=refresh)
                 
             if not index:
                 console.print(f"[red]Error: Unable to fetch from source '{source or 'default'}'[/]")

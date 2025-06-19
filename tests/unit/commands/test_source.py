@@ -87,13 +87,22 @@ class TestSource:
 
         # Verify table was printed
         assert mock_console.print.called
-        printed_table = mock_console.print.call_args[0][0]
+        # Get all print calls
+        print_calls = mock_console.print.call_args_list
+        # Find the table in the print calls
+        printed_table = None
+        for call in print_calls:
+            if hasattr(call[0][0], 'title') and hasattr(call[0][0], 'columns'):
+                printed_table = call[0][0]
+                break
+        assert printed_table is not None
         assert printed_table.title == "Registry Sources"
-        assert len(printed_table.columns) == 4
+        assert len(printed_table.columns) == 5
         assert printed_table.columns[0].header == "Alias"
         assert printed_table.columns[1].header == "URL"
         assert printed_table.columns[2].header == "Priority"
         assert printed_table.columns[3].header == "Status"
+        assert printed_table.columns[4].header == "Cache"
 
     def test_list_sources_empty(self, mock_config_manager, mock_console):
         """Test listing sources when none are configured."""
@@ -111,7 +120,15 @@ class TestSource:
 
         # Verify empty table was printed
         assert mock_console.print.called
-        printed_table = mock_console.print.call_args[0][0]
+        # Get all print calls
+        print_calls = mock_console.print.call_args_list
+        # Find the table in the print calls
+        printed_table = None
+        for call in print_calls:
+            if hasattr(call[0][0], 'title') and hasattr(call[0][0], 'columns'):
+                printed_table = call[0][0]
+                break
+        assert printed_table is not None
         assert printed_table.title == "Registry Sources"
 
     def test_list_sources_default_marked(self, mock_config_manager, mock_console, sample_config):
@@ -141,8 +158,8 @@ class TestSource:
             if "[bold]default[/]" in row[0] or row[0] == "default":
                 default_found = True
                 # Verify it's pointing to the correct URL
-                # Now table has 4 columns: Alias, URL, Priority, Status
-                assert len(row) == 4
+                # Now table has 5 columns: Alias, URL, Priority, Status, Cache
+                assert len(row) == 5
                 assert sample_config.default_registry_url in row[1]
 
         assert default_found, "Default source should be marked"
@@ -602,8 +619,17 @@ class TestSource:
         
         # Verify table was printed
         assert mock_console.print.called
-        printed_table = mock_console.print.call_args[0][0]
+        # Get all print calls
+        print_calls = mock_console.print.call_args_list
+        # Find the table in the print calls
+        printed_table = None
+        for call in print_calls:
+            if hasattr(call[0][0], 'title') and hasattr(call[0][0], 'columns'):
+                printed_table = call[0][0]
+                break
+        assert printed_table is not None
         
-        # Should have Priority and Status columns
+        # Should have Priority, Status, and Cache columns
         assert any(col.header == "Priority" for col in printed_table.columns)
         assert any(col.header == "Status" for col in printed_table.columns)
+        assert any(col.header == "Cache" for col in printed_table.columns)
