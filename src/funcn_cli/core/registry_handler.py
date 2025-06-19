@@ -19,16 +19,79 @@ class RegistryHandler:
     # ------------------------------------------------------------------
     # Index helpers
     # ------------------------------------------------------------------
+    
+    def fetch_all_indexes(self, silent_errors: bool = True) -> dict[str, RegistryIndex]:
+        """Fetch indexes from all configured sources.
+        
+        Args:
+            silent_errors: If True, skip failed sources instead of raising
+            
+        Returns:
+            Dictionary mapping source alias to RegistryIndex for successful fetches
+        """
+        indexes = {}
+        
+        # Try default source first
+        default_index = self.fetch_index(source_alias=None, silent_errors=silent_errors)
+        if default_index:
+            indexes["default"] = default_index
+            
+        # Try all configured sources
+        for alias in self._cfg.config.registry_sources:
+            if alias == "default" and "default" in indexes:
+                continue  # Already fetched
+            index = self.fetch_index(source_alias=alias, silent_errors=silent_errors)
+            if index:
+                indexes[alias] = index
+                
+        return indexes
 
-    def fetch_index(self, source_alias: str | None = None) -> RegistryIndex:
+    def fetch_index(self, source_alias: str | None = None, silent_errors: bool = False) -> RegistryIndex | None:
+        """Fetch registry index from a source.
+        
+        Args:
+            source_alias: The alias of the source to fetch from
+            silent_errors: If True, returns None on error instead of raising
+            
+        Returns:
+            RegistryIndex if successful, None if silent_errors=True and an error occurs
+            
+        Raises:
+            ValueError: If no URL found for the source alias
+            httpx.HTTPError: If the request fails and silent_errors=False
+        """
         url = self._cfg.config.registry_sources.get(source_alias, None) if source_alias else self._cfg.config.default_registry_url
         if not url:
+            if silent_errors:
+                return None
             raise ValueError(f"No URL found for registry source: {source_alias}")
-        console.log(f"Fetching registry index from {url}")
-        resp = self._client.get(url)
-        resp.raise_for_status()
-        data = resp.json()
-        return RegistryIndex.model_validate(data)
+            
+        try:
+            console.log(f"Fetching registry index from {url}")
+            resp = self._client.get(url)
+            resp.raise_for_status()
+            data = resp.json()
+            return RegistryIndex.model_validate(data)
+        except httpx.TimeoutException:
+            if silent_errors:
+                console.print(f"[yellow]Warning: Source '{source_alias or 'default'}' timed out[/]")
+                return None
+            raise
+        except httpx.ConnectError:
+            if silent_errors:
+                console.print(f"[yellow]Warning: Source '{source_alias or 'default'}' is unreachable[/]")
+                return None
+            raise
+        except httpx.HTTPStatusError as e:
+            if silent_errors:
+                console.print(f"[yellow]Warning: Source '{source_alias or 'default'}' returned error {e.response.status_code}[/]")
+                return None
+            raise
+        except Exception as e:
+            if silent_errors:
+                console.print(f"[yellow]Warning: Failed to fetch from source '{source_alias or 'default'}': {e}[/]")
+                return None
+            raise
 
     def find_component_manifest_url(self, component_name: str, version: str | None = None, source_alias: str | None = None) -> str | None:
         """Find component manifest URL in the specified source or all sources.
@@ -58,46 +121,45 @@ class RegistryHandler:
     
     def _search_single_source(self, component_name: str, version: str | None, source_alias: str | None) -> str | None:
         """Search for component in a single source."""
+        # Use silent_errors=True to gracefully handle offline sources
+        index = self.fetch_index(source_alias=source_alias, silent_errors=True)
+        if not index:
+            return None
+            
+        url = self._cfg.config.registry_sources.get(source_alias) if source_alias else self._cfg.config.default_registry_url
+        
+        # Find all matching components by name
+        matching_components = [comp for comp in index.components if comp.name == component_name]
+        
+        if not matching_components:
+            return None
+        
+        # If version is specified, find exact match
+        if version:
+            for comp in matching_components:
+                if comp.version == version:
+                    root_url = str(Path(url).parent)
+                    manifest_url = f"{root_url}/{comp.manifest_path}"
+                    return manifest_url
+            return None  # Version not found
+        
+        # If no version specified, find the latest version
+        # Sort by version (assumes semantic versioning)
+        from packaging import version as pkg_version
         try:
-            index = self.fetch_index(source_alias=source_alias)
-            url = self._cfg.config.registry_sources.get(source_alias) if source_alias else self._cfg.config.default_registry_url
-            
-            # Find all matching components by name
-            matching_components = [comp for comp in index.components if comp.name == component_name]
-            
-            if not matching_components:
-                return None
-            
-            # If version is specified, find exact match
-            if version:
-                for comp in matching_components:
-                    if comp.version == version:
-                        root_url = str(Path(url).parent)
-                        manifest_url = f"{root_url}/{comp.manifest_path}"
-                        return manifest_url
-                return None  # Version not found
-            
-            # If no version specified, find the latest version
-            # Sort by version (assumes semantic versioning)
-            from packaging import version as pkg_version
-            try:
-                sorted_components = sorted(
-                    matching_components,
-                    key=lambda c: pkg_version.parse(c.version),
-                    reverse=True
-                )
-                latest_comp = sorted_components[0]
-            except Exception:
-                # If version parsing fails, just use the first component
-                latest_comp = matching_components[0]
-            
-            root_url = str(Path(url).parent)
-            manifest_url = f"{root_url}/{latest_comp.manifest_path}"
-            return manifest_url
-            
-        except Exception as e:
-            console.print(f"[yellow]Warning: Failed to search source '{source_alias or 'default'}': {e}[/]")
-        return None
+            sorted_components = sorted(
+                matching_components,
+                key=lambda c: pkg_version.parse(c.version),
+                reverse=True
+            )
+            latest_comp = sorted_components[0]
+        except Exception:
+            # If version parsing fails, just use the first component
+            latest_comp = matching_components[0]
+        
+        root_url = str(Path(url).parent)
+        manifest_url = f"{root_url}/{latest_comp.manifest_path}"
+        return manifest_url
 
     # ------------------------------------------------------------------
     # Manifest helpers

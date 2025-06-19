@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import httpx
 import typer
 from funcn_cli.config_manager import ConfigManager
 from funcn_cli.core.registry_handler import RegistryHandler
@@ -15,18 +16,56 @@ app = typer.Typer(help="List available components from registry sources.")
 def list_components(
     ctx: typer.Context,
     source: str | None = typer.Option(None, help="Registry source alias to list from"),
+    all_sources: bool = typer.Option(False, "--all", help="List from all available sources"),
 ) -> None:
     cfg = ConfigManager()
-    with RegistryHandler(cfg) as rh:
-        index = rh.fetch_index(source_alias=source)
+    
+    if all_sources:
+        # List from all sources that are available
+        with RegistryHandler(cfg) as rh:
+            indexes = rh.fetch_all_indexes(silent_errors=True)
+        
+        if not indexes:
+            console.print("[red]Error: No registry sources are currently available[/]")
+            raise typer.Exit(1)
+            
+        # Display components from each available source
+        for source_alias, index in indexes.items():
+            table = Table(title=f"Components – {source_alias}")
+            table.add_column("Name", style="cyan", no_wrap=True)
+            table.add_column("Version", justify="right")
+            table.add_column("Type")
+            table.add_column("Description")
+            
+            for comp in index.components:
+                table.add_row(comp.name, comp.version, comp.type, comp.description)
+            
+            console.print(table)
+            console.print()  # Add spacing between tables
+    else:
+        # List from specific source or default
+        try:
+            with RegistryHandler(cfg) as rh:
+                index = rh.fetch_index(source_alias=source, silent_errors=False)
+                
+            if not index:
+                console.print(f"[red]Error: Unable to fetch from source '{source or 'default'}'[/]")
+                raise typer.Exit(1)
 
-    table = Table(title=f"Components – {source or 'default'}")
-    table.add_column("Name", style="cyan", no_wrap=True)
-    table.add_column("Version", justify="right")
-    table.add_column("Type")
-    table.add_column("Description")
+            table = Table(title=f"Components – {source or 'default'}")
+            table.add_column("Name", style="cyan", no_wrap=True)
+            table.add_column("Version", justify="right")
+            table.add_column("Type")
+            table.add_column("Description")
 
-    for comp in index.components:
-        table.add_row(comp.name, comp.version, comp.type, comp.description)
+            for comp in index.components:
+                table.add_row(comp.name, comp.version, comp.type, comp.description)
 
-    console.print(table)
+            console.print(table)
+            
+        except (httpx.ConnectError, httpx.TimeoutException, httpx.HTTPStatusError) as e:
+            console.print(f"[red]Error: Unable to connect to source '{source or 'default'}': {e}[/]")
+            raise typer.Exit(1) from e
+        except Exception as e:
+            console.print(f"[red]Error: Failed to fetch from source '{source or 'default'}': {e}[/]")
+            raise typer.Exit(1) from e
