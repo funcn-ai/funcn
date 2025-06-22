@@ -43,7 +43,8 @@ class TestAddCommand(BaseCommandTest):
                         provider="openai",
                         model="gpt-4",
                         with_lilypad=False,
-                        stream=None
+                        stream=None,
+                        source=None
                     )
                     
                     mock_component_manager.add_component.assert_called_once_with(
@@ -51,7 +52,8 @@ class TestAddCommand(BaseCommandTest):
                         provider="openai",
                         model="gpt-4",
                         with_lilypad=False,
-                        stream=False  # Will be False from the prompt
+                        stream=False,  # Will be False from the prompt
+                        source_alias=None
                     )
     
     def test_add_component_with_url(self, tmp_path):
@@ -82,7 +84,8 @@ class TestAddCommand(BaseCommandTest):
                         provider="openai",
                         model="gpt-4o-mini",
                         with_lilypad=True,
-                        stream=None
+                        stream=None,
+                        source=None
                     )
                     
                     mock_component_manager.add_component.assert_called_once_with(
@@ -90,7 +93,8 @@ class TestAddCommand(BaseCommandTest):
                         provider="openai",
                         model="gpt-4o-mini",
                         with_lilypad=True,
-                        stream=False
+                        stream=False,
+                        source_alias=None
                     )
     
     def test_add_interactive_mode(self, tmp_path):
@@ -127,7 +131,8 @@ class TestAddCommand(BaseCommandTest):
                             provider=None,
                             model=None,
                             with_lilypad=False,  # This triggers lilypad prompt
-                            stream=None  # This triggers stream prompt
+                            stream=None,  # This triggers stream prompt
+                            source=None
                         )
                         
                         mock_component_manager.add_component.assert_called_once_with(
@@ -135,7 +140,8 @@ class TestAddCommand(BaseCommandTest):
                             provider="anthropic",
                             model="claude-3-opus",
                             with_lilypad=True,
-                            stream=False
+                            stream=False,
+                            source_alias=None
                         )
     
     def test_add_with_streaming_enabled(self, tmp_path):
@@ -164,7 +170,8 @@ class TestAddCommand(BaseCommandTest):
                         provider="openai",
                         model="gpt-4o-mini",
                         with_lilypad=False,  # This triggers prompt
-                        stream=True  # This does NOT trigger prompt
+                        stream=True,  # This does NOT trigger prompt
+                        source=None
                     )
                     
                     mock_component_manager.add_component.assert_called_once_with(
@@ -172,7 +179,8 @@ class TestAddCommand(BaseCommandTest):
                         provider="openai",
                         model="gpt-4o-mini",
                         with_lilypad=False,
-                        stream=True
+                        stream=True,
+                        source_alias=None
                     )
     
     def test_add_component_already_exists_error(self, tmp_path):
@@ -203,7 +211,8 @@ class TestAddCommand(BaseCommandTest):
                             provider="openai",
                             model="gpt-4o-mini",
                             with_lilypad=False,
-                            stream=None
+                            stream=None,
+                            source=None
                         )
                     
                     assert exc_info.value.code == 1
@@ -238,7 +247,8 @@ class TestAddCommand(BaseCommandTest):
                                 provider="openai",
                                 model="gpt-4o-mini",
                                 with_lilypad=False,
-                                stream=None
+                                stream=None,
+                                source=None
                             )
                         
                         assert "Component 'unknown-agent' not found" in str(exc_info.value)
@@ -266,7 +276,8 @@ class TestAddCommand(BaseCommandTest):
                     provider="google",
                     model="gemini-pro",
                     with_lilypad=True,  # No prompt - explicitly True
-                    stream=True  # No prompt - explicitly True
+                    stream=True,  # No prompt - explicitly True
+                    source=None
                 )
                 
                 mock_component_manager.add_component.assert_called_once_with(
@@ -274,7 +285,8 @@ class TestAddCommand(BaseCommandTest):
                     provider="google",
                     model="gemini-pro",
                     with_lilypad=True,
-                    stream=True
+                    stream=True,
+                    source_alias=None
                 )
     
     def test_add_empty_identifier_interactive(self, tmp_path):
@@ -308,7 +320,8 @@ class TestAddCommand(BaseCommandTest):
                             provider=None,
                             model=None,
                             with_lilypad=False,
-                            stream=None
+                            stream=None,
+                            source=None
                         )
                         
                         # Should try to add with empty string
@@ -317,7 +330,8 @@ class TestAddCommand(BaseCommandTest):
                             provider="openai",
                             model="gpt-4",
                             with_lilypad=False,
-                            stream=False
+                            stream=False,
+                            source_alias=None
                         )
     
     def test_add_missing_config_file(self, tmp_path):
@@ -338,7 +352,8 @@ class TestAddCommand(BaseCommandTest):
                     provider="openai",
                     model="gpt-4",
                     with_lilypad=True,
-                    stream=True
+                    stream=True,
+                    source=None
                 )
             
             assert "No funcn.json found" in str(exc_info.value)
@@ -379,7 +394,8 @@ class TestAddCommand(BaseCommandTest):
                             provider=None,
                             model=None,
                             with_lilypad=False,
-                            stream=None
+                            stream=None,
+                            source=None
                         )
                         
                         # Should use config defaults
@@ -388,7 +404,8 @@ class TestAddCommand(BaseCommandTest):
                             provider="anthropic",
                             model="claude-3-haiku",
                             with_lilypad=False,
-                            stream=True
+                            stream=True,
+                            source_alias=None
                         )
     
     @pytest.mark.parametrize("provider,model", [
@@ -422,7 +439,8 @@ class TestAddCommand(BaseCommandTest):
                         provider=provider,
                         model=model,
                         with_lilypad=False,
-                        stream=None
+                        stream=None,
+                        source=None
                     )
                     
                     mock_component_manager.add_component.assert_called_once_with(
@@ -430,7 +448,8 @@ class TestAddCommand(BaseCommandTest):
                         provider=provider,
                         model=model,
                         with_lilypad=False,
-                        stream=False
+                        stream=False,
+                        source_alias=None
                     )
     
     def test_add_whitespace_handling(self, tmp_path):
@@ -464,7 +483,8 @@ class TestAddCommand(BaseCommandTest):
                             provider=None,
                             model=None,
                             with_lilypad=False,
-                            stream=None
+                            stream=None,
+                            source=None
                         )
                         
                         # Should strip whitespace
@@ -482,3 +502,44 @@ class TestAddCommand(BaseCommandTest):
         assert "--model" in result.output
         assert "--with-lilypad" in result.output
         assert "--stream" in result.output
+        assert "--source" in result.output
+    
+    def test_add_with_source_parameter(self, tmp_path):
+        """Test adding component from a specific registry source."""
+        mock_component_manager = Mock()
+        mock_config = Mock()
+        mock_config.config = Mock()
+        mock_config.config.defaultProvider = "openai"
+        mock_config.config.defaultModel = "gpt-4o-mini"
+        mock_config.config.stream = False
+        
+        with patch("funcn_cli.commands.add.ConfigManager", return_value=mock_config):
+            with patch("funcn_cli.commands.add.ComponentManager", return_value=mock_component_manager):
+                with patch("rich.prompt.Confirm.ask") as mock_confirm:
+                    mock_confirm.side_effect = [False, False]
+                    
+                    import typer
+                    from funcn_cli.commands import add as add_module
+                    ctx = Mock(spec=typer.Context)
+                    ctx.invoked_subcommand = None
+                    
+                    # Add component from specific source
+                    add_module.add(
+                        ctx,
+                        identifier="custom-agent",
+                        provider="openai",
+                        model="gpt-4",
+                        with_lilypad=False,
+                        stream=None,
+                        source="custom_registry"
+                    )
+                    
+                    # Verify source alias was passed to ComponentManager
+                    mock_component_manager.add_component.assert_called_once_with(
+                        "custom-agent",
+                        provider="openai",
+                        model="gpt-4",
+                        with_lilypad=False,
+                        stream=False,
+                        source_alias="custom_registry"
+                    )
