@@ -7,7 +7,7 @@ import pytest
 import typer
 from funcn_cli.commands.list_components import list_components
 from funcn_cli.core.models import RegistryComponentEntry, RegistryIndex
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 
 class TestListComponents:
@@ -79,7 +79,7 @@ class TestListComponents:
 
         # Verify
         mock_registry_handler.assert_called_once_with(mock_cfg)
-        mock_rh.fetch_index.assert_called_once_with(source_alias=None, silent_errors=False)
+        mock_rh.fetch_index.assert_called_once_with(source_alias=None, silent_errors=False, force_refresh=ANY)
 
         # Check table creation
         assert mock_console.print.called
@@ -114,7 +114,7 @@ class TestListComponents:
         list_components(ctx, source="custom", all_sources=False)
 
         # Verify
-        mock_rh.fetch_index.assert_called_once_with(source_alias="custom", silent_errors=False)
+        mock_rh.fetch_index.assert_called_once_with(source_alias="custom", silent_errors=False, force_refresh=ANY)
 
         # Check table title
         printed_table = mock_console.print.call_args[0][0]
@@ -242,7 +242,7 @@ class TestListComponents:
         list_components(ctx, source=None, all_sources=True)
 
         # Verify
-        mock_rh.fetch_all_indexes.assert_called_once_with(silent_errors=True)
+        mock_rh.fetch_all_indexes.assert_called_once_with(silent_errors=True, force_refresh=ANY)
         # Should print multiple tables
         assert mock_console.print.call_count >= 2
 
@@ -297,7 +297,7 @@ class TestListComponents:
 
         assert exc_info.value.exit_code == 1
         # Should print error
-        mock_rh.fetch_index.assert_called_once_with(source_alias="offline", silent_errors=False)
+        mock_rh.fetch_index.assert_called_once_with(source_alias="offline", silent_errors=False, force_refresh=ANY)
         error_msg = str(mock_console.print.call_args[0][0])
         assert "Unable to connect to source 'offline'" in error_msg
 
@@ -331,7 +331,7 @@ class TestListComponents:
             list_components(ctx, source=source, all_sources=False)
 
             # Verify
-            mock_rh.fetch_index.assert_called_once_with(source_alias=source, silent_errors=False)
+            mock_rh.fetch_index.assert_called_once_with(source_alias=source, silent_errors=False, force_refresh=ANY)
             printed_table = mock_console.print.call_args[0][0]
             # Empty string should show "default" in title
             expected_title = f"Components – {source or 'default'}"

@@ -5,8 +5,8 @@ from __future__ import annotations
 import httpx
 import pytest
 import typer
-from funcn_cli.commands.source import _test_source_connectivity, add, list_sources, remove
-from funcn_cli.config_manager import FuncnConfig
+from funcn_cli.commands.source import _test_source_connectivity, add, cache_clear, cache_stats, list_sources, remove
+from funcn_cli.config_manager import CacheConfig, FuncnConfig
 from unittest.mock import MagicMock, patch
 
 
@@ -568,6 +568,95 @@ class TestSource:
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("HTTP error 404" in msg for msg in messages)
 
+    def test_connectivity_check_connect_error(self, mock_console):
+        """Test connectivity check with connection error."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.get.side_effect = httpx.ConnectError("Failed to connect")
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://unreachable.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("Failed to connect" in msg for msg in messages)
+
+    def test_connectivity_check_missing_components_field(self, mock_console):
+        """Test connectivity check with missing components field."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {"registry_version": "1.0.0"}  # Missing components
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://incomplete.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("missing 'components' field" in msg for msg in messages)
+
+    def test_connectivity_check_valid_registry(self, mock_console):
+        """Test connectivity check with valid registry response."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = {
+                "registry_version": "1.0.0",
+                "components": [],
+                "updated_at": "2024-01-01T00:00:00Z"
+            }
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://valid.com/index.json")
+            
+            assert result is True
+            # Should not print any error messages
+            assert mock_console.print.call_count == 0
+
+    def test_connectivity_check_not_json(self, mock_console):
+        """Test connectivity check with non-JSON response."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_response = MagicMock()
+            mock_response.status_code = 200
+            mock_response.json.return_value = []  # Returns array instead of object
+            
+            mock_client = MagicMock()
+            mock_client.get.return_value = mock_response
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://array.com/index.json")
+            
+            assert result is False
+
+    def test_connectivity_check_generic_exception(self, mock_console):
+        """Test connectivity check with unexpected exception."""
+        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+            mock_client = MagicMock()
+            mock_client.get.side_effect = Exception("Unexpected error")
+            mock_client.__enter__.return_value = mock_client
+            mock_client.__exit__.return_value = None
+            mock_client_class.return_value = mock_client
+            
+            result = _test_source_connectivity("https://error.com/index.json")
+            
+            assert result is False
+            messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+            assert any("Unexpected error" in msg for msg in messages)
+
     def test_add_source_with_custom_priority(self, mock_config_manager, mock_console):
         """Test adding a source with custom priority."""
         # Execute with custom priority
@@ -633,3 +722,223 @@ class TestSource:
         assert any(col.header == "Priority" for col in printed_table.columns)
         assert any(col.header == "Status" for col in printed_table.columns)
         assert any(col.header == "Cache" for col in printed_table.columns)
+
+
+class TestSourceCacheCommands:
+    """Test the cache subcommands of funcn source."""
+
+    @pytest.fixture
+    def mock_config_manager(self, mocker):
+        """Mock ConfigManager."""
+        mock_cfg_manager = MagicMock()
+        mocker.patch("funcn_cli.commands.source.ConfigManager", return_value=mock_cfg_manager)
+        return mock_cfg_manager
+
+    @pytest.fixture
+    def mock_registry_handler(self, mocker):
+        """Mock RegistryHandler."""
+        mock_handler = MagicMock()
+        mocker.patch("funcn_cli.commands.source.RegistryHandler", return_value=mock_handler)
+        return mock_handler
+
+    @pytest.fixture
+    def mock_console(self, mocker):
+        """Mock console output."""
+        return mocker.patch("funcn_cli.commands.source.console")
+
+    def test_cache_clear_all(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test clearing all caches."""
+        # Setup
+        mock_cache_manager = MagicMock()
+        mock_registry_handler._cache_manager = mock_cache_manager
+
+        # Execute
+        cache_clear(source=None)
+
+        # Verify
+        mock_cache_manager.clear_all_caches.assert_called_once()
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "Cleared all registry caches" in printed_msg
+
+    def test_cache_clear_specific_source(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test clearing cache for specific source."""
+        # Setup
+        mock_cache_manager = MagicMock()
+        mock_registry_handler._cache_manager = mock_cache_manager
+
+        # Execute
+        cache_clear(source="custom")
+
+        # Verify
+        mock_cache_manager.invalidate_cache.assert_called_once_with("custom")
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "Cleared cache for 'custom'" in printed_msg
+
+    def test_cache_clear_disabled(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test cache clear when cache is disabled."""
+        # Setup
+        mock_registry_handler._cache_manager = None
+
+        # Execute and verify
+        with pytest.raises(typer.Exit) as exc_info:
+            cache_clear(source=None)
+
+        assert exc_info.value.exit_code == 0
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "Cache is disabled in configuration" in printed_msg
+
+    def test_cache_stats_with_data(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test cache stats with cached data."""
+        # Setup
+        mock_cache_manager = MagicMock()
+        mock_cache_manager.get_cache_stats.return_value = {
+            "default": {
+                "age": "5 minutes",
+                "size_bytes": 2048,
+                "cached_at": "2024-01-01T12:00:00",
+                "last_accessed": "2024-01-01T12:05:00"
+            },
+            "custom": {
+                "age": "2 hours",
+                "size_bytes": 4096,
+                "cached_at": "2024-01-01T10:00:00",
+                "last_accessed": "2024-01-01T11:00:00"
+            }
+        }
+        mock_registry_handler._cache_manager = mock_cache_manager
+
+        # Capture table
+        from unittest.mock import patch
+        with patch("funcn_cli.commands.source.Table") as mock_table_class:
+            mock_table = MagicMock()
+            mock_table_class.return_value = mock_table
+            
+            # Execute
+            cache_stats()
+
+        # Verify
+        mock_cache_manager.get_cache_stats.assert_called_once()
+        
+        # Verify table creation
+        mock_table_class.assert_called_once_with(title="Registry Cache Statistics")
+        
+        # Verify columns added
+        assert mock_table.add_column.call_count == 5
+        column_calls = [call[0][0] for call in mock_table.add_column.call_args_list]
+        assert "Source" in column_calls
+        assert "Age" in column_calls
+        assert "Size" in column_calls
+        assert "Cached At" in column_calls
+        assert "Last Accessed" in column_calls
+
+        # Verify rows added
+        assert mock_table.add_row.call_count == 2
+        
+        # Verify summary printed
+        assert mock_console.print.call_count >= 3  # Table + total size + location
+
+    def test_cache_stats_empty(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test cache stats with no cached data."""
+        # Setup
+        mock_cache_manager = MagicMock()
+        mock_cache_manager.get_cache_stats.return_value = {}
+        mock_registry_handler._cache_manager = mock_cache_manager
+
+        # Execute and verify
+        with pytest.raises(typer.Exit) as exc_info:
+            cache_stats()
+
+        assert exc_info.value.exit_code == 0
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "No cached data found" in printed_msg
+
+    def test_cache_stats_disabled(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test cache stats when cache is disabled."""
+        # Setup
+        mock_registry_handler._cache_manager = None
+
+        # Execute and verify
+        with pytest.raises(typer.Exit) as exc_info:
+            cache_stats()
+
+        assert exc_info.value.exit_code == 0
+        mock_console.print.assert_called_once()
+        printed_msg = str(mock_console.print.call_args[0][0])
+        assert "Cache is disabled in configuration" in printed_msg
+
+    def test_list_sources_with_cache_enabled(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test list sources shows cache info when cache is enabled."""
+        # Setup
+        config = FuncnConfig(
+            default_registry_url="https://example.com/index.json",
+            registry_sources={
+                "default": "https://example.com/index.json",
+                "custom": "https://custom.com/index.json"
+            },
+            component_paths={},
+            cache_config=CacheConfig(enabled=True, ttl_seconds=3600)
+        )
+        mock_config_manager.config = config
+        
+        mock_cache_manager = MagicMock()
+        mock_cache_manager.get_cache_stats.return_value = {
+            "default": {"age": "10 minutes"},
+            "custom": {"age": "1 hour"}
+        }
+        mock_registry_handler._cache_manager = mock_cache_manager
+
+        # Execute
+        list_sources(refresh=False)
+
+        # Verify cache info displayed
+        print_calls = mock_console.print.call_args_list
+        output = " ".join(str(call[0][0]) for call in print_calls)
+        assert "Cache TTL: 3600s" in output
+        assert "Cache location:" in output
+
+    def test_list_sources_with_refresh(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test list sources with --refresh flag."""
+        # Setup
+        config = FuncnConfig(
+            default_registry_url="https://example.com/index.json",
+            registry_sources={"default": "https://example.com/index.json"},
+            component_paths={},
+            cache_config=CacheConfig(enabled=True)
+        )
+        mock_config_manager.config = config
+        
+        mock_cache_manager = MagicMock()
+        mock_cache_manager.get_cache_stats.return_value = {}
+        mock_registry_handler._cache_manager = mock_cache_manager
+
+        # Execute
+        list_sources(refresh=True)
+
+        # Verify
+        mock_cache_manager.invalidate_cache.assert_called_once()
+        messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
+        assert any("Refreshing cache" in msg for msg in messages)
+
+    def test_list_sources_cache_disabled(self, mock_config_manager, mock_registry_handler, mock_console):
+        """Test list sources when cache is disabled."""
+        # Setup
+        config = FuncnConfig(
+            default_registry_url="https://example.com/index.json",
+            registry_sources={"default": "https://example.com/index.json"},
+            component_paths={},
+            cache_config=CacheConfig(enabled=False)
+        )
+        mock_config_manager.config = config
+        mock_registry_handler._cache_manager = None
+
+        # Execute
+        list_sources(refresh=False)
+
+        # Verify no cache info shown
+        print_calls = mock_console.print.call_args_list
+        output = " ".join(str(call[0][0]) for call in print_calls)
+        assert "Cache TTL:" not in output
