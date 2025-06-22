@@ -99,10 +99,8 @@ class TestBuild:
 
     def test_build_default_paths(self, mock_console, tmp_project):
         """Test build with default registry and output paths."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Execute build
-        build(ctx, registry=None, output="./public/r", cwd=tmp_project)
+        build(registry=None, output="./public/r", cwd=tmp_project)
         
         # Verify output directory was created
         output_dir = tmp_project / "public" / "r"
@@ -127,8 +125,6 @@ class TestBuild:
 
     def test_build_custom_registry_path(self, mock_console, tmp_project):
         """Test build with custom registry path."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Create custom registry location
         custom_registry = tmp_project / "custom" / "registry.json"
         custom_registry.parent.mkdir(parents=True)
@@ -165,7 +161,7 @@ class TestBuild:
         (custom_registry.parent / "component.json").write_text(json.dumps(manifest_data, indent=2))
         
         # Execute build
-        build(ctx, registry=str(custom_registry), output="./output", cwd=tmp_project)
+        build(registry=str(custom_registry), output="./output", cwd=tmp_project)
         
         # Verify output
         output_dir = tmp_project / "output"
@@ -173,14 +169,12 @@ class TestBuild:
 
     def test_build_absolute_paths(self, mock_console, tmp_project):
         """Test build with absolute paths."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Use absolute paths
         registry_path = tmp_project / "packages" / "funcn_registry" / "index.json"
         output_path = tmp_project / "custom_output"
         
         # Execute build
-        build(ctx, registry=str(registry_path), output=str(output_path), cwd=None)
+        build(registry=str(registry_path), output=str(output_path), cwd=None)
         
         # Verify output
         assert output_path.exists()
@@ -188,11 +182,9 @@ class TestBuild:
 
     def test_build_missing_registry_file(self, mock_console, tmp_project):
         """Test build with missing registry file."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Use non-existent registry
         with pytest.raises(typer.Exit) as exc_info:
-            build(ctx, registry="nonexistent.json", output="./output", cwd=tmp_project)
+            build(registry="nonexistent.json", output="./output", cwd=tmp_project)
         
         assert exc_info.value.exit_code == 1
         
@@ -202,15 +194,13 @@ class TestBuild:
 
     def test_build_invalid_json(self, mock_console, tmp_project):
         """Test build with invalid JSON in registry file."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Create invalid JSON file
         invalid_registry = tmp_project / "invalid.json"
         invalid_registry.write_text("{ invalid json }")
         
         # Execute build
         with pytest.raises(typer.Exit) as exc_info:
-            build(ctx, registry=str(invalid_registry), output="./output", cwd=tmp_project)
+            build(registry=str(invalid_registry), output="./output", cwd=tmp_project)
         
         assert exc_info.value.exit_code == 1
         
@@ -220,15 +210,13 @@ class TestBuild:
 
     def test_build_empty_components(self, mock_console, tmp_project):
         """Test build with empty components list."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Create registry with empty components
         empty_registry = tmp_project / "empty.json"
         empty_registry.write_text(json.dumps({"registry_version": "1.0.0", "components": []}, indent=2))
         
         # Execute build
         with pytest.raises(typer.Exit):
-            build(ctx, registry=str(empty_registry), output="./output", cwd=tmp_project)
+            build(registry=str(empty_registry), output="./output", cwd=tmp_project)
         
         # Verify warning message
         console_calls = [str(call) for call in mock_console.print.call_args_list]
@@ -236,8 +224,6 @@ class TestBuild:
 
     def test_build_invalid_component_entry(self, mock_console, tmp_project):
         """Test build with invalid component entries."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Create registry with invalid entries
         registry_data = {
             "registry_version": "1.0.0",
@@ -272,7 +258,7 @@ class TestBuild:
         (invalid_registry.parent / "component.json").write_text(json.dumps(manifest_data, indent=2))
         
         # Execute build
-        build(ctx, registry=str(invalid_registry), output="./output", cwd=tmp_project)
+        build(registry=str(invalid_registry), output="./output", cwd=tmp_project)
         
         # Verify warnings
         console_calls = [str(call) for call in mock_console.print.call_args_list]
@@ -284,8 +270,6 @@ class TestBuild:
 
     def test_build_missing_manifest_file(self, mock_console, tmp_project):
         """Test build when manifest file doesn't exist."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Create registry pointing to non-existent manifest
         registry_data = {
             "registry_version": "1.0.0",
@@ -301,7 +285,7 @@ class TestBuild:
         registry_path.write_text(json.dumps(registry_data, indent=2))
         
         # Execute build
-        build(ctx, registry=str(registry_path), output="./output", cwd=tmp_project)
+        build(registry=str(registry_path), output="./output", cwd=tmp_project)
         
         # Verify warning
         console_calls = [str(call) for call in mock_console.print.call_args_list]
@@ -309,8 +293,6 @@ class TestBuild:
 
     def test_build_invalid_manifest_json(self, mock_console, tmp_project):
         """Test build with invalid JSON in manifest file."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Create registry
         registry_data = {
             "registry_version": "1.0.0",
@@ -329,7 +311,7 @@ class TestBuild:
         (tmp_project / "invalid.json").write_text("{ invalid json }")
         
         # Execute build
-        build(ctx, registry=str(registry_path), output="./output", cwd=tmp_project)
+        build(registry=str(registry_path), output="./output", cwd=tmp_project)
         
         # Verify warning
         console_calls = [str(call) for call in mock_console.print.call_args_list]
@@ -337,13 +319,11 @@ class TestBuild:
 
     def test_build_output_directory_creation(self, mock_console, tmp_project):
         """Test that output directory is created if it doesn't exist."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Use nested output path that doesn't exist
         output_path = "./deeply/nested/output/dir"
         
         # Execute build
-        build(ctx, registry=None, output=output_path, cwd=tmp_project)
+        build(registry=None, output=output_path, cwd=tmp_project)
         
         # Verify directory was created
         full_output_path = tmp_project / "deeply" / "nested" / "output" / "dir"
@@ -352,8 +332,6 @@ class TestBuild:
 
     def test_build_expanduser_paths(self, mock_console, tmp_project, mocker):
         """Test that ~ is expanded in paths."""
-        ctx = typer.Context(command=MagicMock())
-        
         # Mock expanduser to return tmp_project paths
         def mock_expanduser(self):
             if str(self).startswith("~"):
@@ -371,7 +349,7 @@ class TestBuild:
         
         # Execute build with ~ paths
         with pytest.raises(typer.Exit):  # Will exit due to empty components
-            build(ctx, registry="~/registry.json", output="~/output", cwd=tmp_project)
+            build(registry="~/registry.json", output="~/output", cwd=tmp_project)
         
         # Verify expanduser was used
         console_calls = [str(call) for call in mock_console.print.call_args_list]

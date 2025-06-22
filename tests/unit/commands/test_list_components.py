@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
+import httpx
 import pytest
 import typer
 from funcn_cli.commands.list_components import list_components
 from funcn_cli.core.models import RegistryComponentEntry, RegistryIndex
-from unittest.mock import MagicMock, patch
+from unittest.mock import ANY, MagicMock, patch
 
 
 class TestListComponents:
@@ -74,11 +75,11 @@ class TestListComponents:
         ctx = typer.Context(command=MagicMock())
 
         # Execute
-        list_components(ctx, source=None)
+        list_components(ctx, source=None, all_sources=False)
 
         # Verify
         mock_registry_handler.assert_called_once_with(mock_cfg)
-        mock_rh.fetch_index.assert_called_once_with(source_alias=None)
+        mock_rh.fetch_index.assert_called_once_with(source_alias=None, silent_errors=False, force_refresh=ANY)
 
         # Check table creation
         assert mock_console.print.called
@@ -110,10 +111,10 @@ class TestListComponents:
         ctx = typer.Context(command=MagicMock())
 
         # Execute
-        list_components(ctx, source="custom")
+        list_components(ctx, source="custom", all_sources=False)
 
         # Verify
-        mock_rh.fetch_index.assert_called_once_with(source_alias="custom")
+        mock_rh.fetch_index.assert_called_once_with(source_alias="custom", silent_errors=False, force_refresh=ANY)
 
         # Check table title
         printed_table = mock_console.print.call_args[0][0]
@@ -138,7 +139,7 @@ class TestListComponents:
         ctx = typer.Context(command=MagicMock())
 
         # Execute
-        list_components(ctx, source=None)
+        list_components(ctx, source=None, all_sources=False)
 
         # Verify
         assert mock_console.print.called
@@ -177,7 +178,7 @@ class TestListComponents:
             mock_table.add_row = MagicMock(side_effect=capture_add_row)
             mock_table_class.return_value = mock_table
 
-            list_components(ctx, source=None)
+            list_components(ctx, source=None, all_sources=False)
 
         # Verify rows match components
         assert len(captured_rows) == len(sample_components)
@@ -205,9 +206,100 @@ class TestListComponents:
 
         ctx = typer.Context(command=MagicMock())
 
-        # Execute and verify exception is raised
-        with pytest.raises(Exception, match="Failed to fetch index"):
-            list_components(ctx, source=None)
+        # Execute and verify exit is raised
+        with pytest.raises(typer.Exit) as exc_info:
+            list_components(ctx, source=None, all_sources=False)
+        
+        assert exc_info.value.exit_code == 1
+        # Should print error
+        error_msg = str(mock_console.print.call_args[0][0])
+        assert "Failed to fetch from source 'default'" in error_msg
+        assert "Failed to fetch index" in error_msg
+
+    def test_list_components_all_sources(
+        self,
+        mock_config_manager,
+        mock_registry_handler,
+        mock_console,
+        sample_components,
+    ):
+        """Test listing components from all sources."""
+        # Setup
+        mock_cfg = MagicMock()
+        mock_config_manager.return_value = mock_cfg
+
+        mock_rh = MagicMock()
+        # Mock fetch_all_indexes to return multiple sources
+        mock_rh.fetch_all_indexes.return_value = {
+            "default": RegistryIndex(registry_version="1.0.0", components=sample_components[:1]),
+            "secondary": RegistryIndex(registry_version="1.0.0", components=sample_components[1:]),
+        }
+        mock_registry_handler.return_value.__enter__.return_value = mock_rh
+
+        ctx = typer.Context(command=MagicMock())
+
+        # Execute with all_sources=True
+        list_components(ctx, source=None, all_sources=True)
+
+        # Verify
+        mock_rh.fetch_all_indexes.assert_called_once_with(silent_errors=True, force_refresh=ANY)
+        # Should print multiple tables
+        assert mock_console.print.call_count >= 2
+
+    def test_list_components_all_sources_none_available(
+        self,
+        mock_config_manager,
+        mock_registry_handler,
+        mock_console,
+    ):
+        """Test listing from all sources when none are available."""
+        # Setup
+        mock_cfg = MagicMock()
+        mock_config_manager.return_value = mock_cfg
+
+        mock_rh = MagicMock()
+        # Mock fetch_all_indexes to return empty (all offline)
+        mock_rh.fetch_all_indexes.return_value = {}
+        mock_registry_handler.return_value.__enter__.return_value = mock_rh
+
+        ctx = typer.Context(command=MagicMock())
+
+        # Execute with all_sources=True - should exit
+        with pytest.raises(typer.Exit) as exc_info:
+            list_components(ctx, source=None, all_sources=True)
+
+        assert exc_info.value.exit_code == 1
+        # Should print error
+        error_msg = str(mock_console.print.call_args[0][0])
+        assert "No registry sources are currently available" in error_msg
+
+    def test_list_components_specific_source_offline(
+        self,
+        mock_config_manager,
+        mock_registry_handler,
+        mock_console,
+    ):
+        """Test listing from specific source that is offline."""
+        # Setup
+        mock_cfg = MagicMock()
+        mock_config_manager.return_value = mock_cfg
+
+        mock_rh = MagicMock()
+        # Mock fetch_index to raise connection error (offline)
+        mock_rh.fetch_index.side_effect = httpx.ConnectError("Connection failed")
+        mock_registry_handler.return_value.__enter__.return_value = mock_rh
+
+        ctx = typer.Context(command=MagicMock())
+
+        # Execute - should exit
+        with pytest.raises(typer.Exit) as exc_info:
+            list_components(ctx, source="offline", all_sources=False)
+
+        assert exc_info.value.exit_code == 1
+        # Should print error
+        mock_rh.fetch_index.assert_called_once_with(source_alias="offline", silent_errors=False, force_refresh=ANY)
+        error_msg = str(mock_console.print.call_args[0][0])
+        assert "Unable to connect to source 'offline'" in error_msg
 
     def test_list_components_source_variations(
         self,
@@ -236,10 +328,10 @@ class TestListComponents:
             mock_console.print.reset_mock()
 
             # Execute
-            list_components(ctx, source=source)
+            list_components(ctx, source=source, all_sources=False)
 
             # Verify
-            mock_rh.fetch_index.assert_called_once_with(source_alias=source)
+            mock_rh.fetch_index.assert_called_once_with(source_alias=source, silent_errors=False, force_refresh=ANY)
             printed_table = mock_console.print.call_args[0][0]
             # Empty string should show "default" in title
             expected_title = f"Components – {source or 'default'}"
@@ -275,7 +367,7 @@ class TestListComponents:
             mock_table.add_column = MagicMock(side_effect=capture_add_column)
             mock_table_class.return_value = mock_table
 
-            list_components(ctx, source=None)
+            list_components(ctx, source=None, all_sources=False)
 
         # Verify column properties
         assert len(captured_columns) == 4
@@ -326,7 +418,7 @@ class TestListComponents:
         ctx = typer.Context(command=MagicMock())
 
         # Execute
-        list_components(ctx, source=None)
+        list_components(ctx, source=None, all_sources=False)
 
         # Verify - should still work with long descriptions
         assert mock_console.print.called
@@ -360,7 +452,7 @@ class TestListComponents:
         ctx = typer.Context(command=MagicMock())
 
         # Execute
-        list_components(ctx, source=None)
+        list_components(ctx, source=None, all_sources=False)
 
         # Verify - should handle special characters gracefully
         assert mock_console.print.called

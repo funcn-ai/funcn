@@ -20,15 +20,30 @@ class ComponentPaths(BaseModel):
     tools: str = "src/ai_tools"
 
 
+class RegistrySourceConfig(BaseModel):
+    url: str
+    priority: int = 100  # Lower number = higher priority
+    enabled: bool = True
+
+
+class CacheConfig(BaseModel):
+    """Configuration for caching behavior."""
+    enabled: bool = True
+    ttl_seconds: int = 3600  # 1 hour default
+    max_size_mb: int = 100
+    directory: str | None = None  # None = use default platform directory
+
+
 class FuncnConfig(BaseModel):
     default_registry_url: str = DEFAULT_REGISTRY_URL
-    registry_sources: Mapping[str, str] = Field(default_factory=lambda: {"default": DEFAULT_REGISTRY_URL})
+    registry_sources: Mapping[str, str | RegistrySourceConfig] = Field(default_factory=lambda: {"default": DEFAULT_REGISTRY_URL})
     component_paths: ComponentPaths = Field(default_factory=ComponentPaths)
     default_provider: str = Field(default="openai")
     default_model: str = Field(default="gpt-4o-mini")
     stream: bool = Field(default=False)
     default_mcp_host: str = Field(default="0.0.0.0")
     default_mcp_port: int = Field(default=8000)
+    cache_config: CacheConfig = Field(default_factory=CacheConfig)
 
     model_config = ConfigDict(extra="ignore")
 
@@ -84,11 +99,31 @@ class ConfigManager:
     # Mutating helpers
     # ------------------------------------------------------------------
 
-    def add_registry_source(self, alias: str, url: str) -> None:
+    def add_registry_source(self, alias: str, url: str, priority: int = 100, enabled: bool = True) -> None:
         # Reload the config from disk first to preserve existing data
         self._project_cfg = self._load_json(self._project_config_path)
-        self._project_cfg.setdefault("registry_sources", {})[alias] = url
+        sources = self._project_cfg.setdefault("registry_sources", {})
+        
+        # Support both string (backward compat) and object format
+        if priority == 100 and enabled:
+            # Use simple string format for default values (backward compat)
+            sources[alias] = url
+        else:
+            # Use object format when non-default values are provided
+            sources[alias] = {
+                "url": url,
+                "priority": priority,
+                "enabled": enabled
+            }
+        
         self._save_json(self._project_cfg, self._project_config_path)
+
+    def remove_registry_source(self, alias: str) -> None:
+        # Reload the config from disk first to preserve existing data
+        self._project_cfg = self._load_json(self._project_config_path)
+        if "registry_sources" in self._project_cfg and alias in self._project_cfg["registry_sources"]:
+            del self._project_cfg["registry_sources"][alias]
+            self._save_json(self._project_cfg, self._project_config_path)
 
     def set_default_registry(self, url: str) -> None:
         self._project_cfg["default_registry_url"] = url
@@ -102,11 +137,11 @@ class ConfigManager:
         """Convert funcn.json init format to FuncnConfig format."""
         # Start with a copy of the original config to preserve all fields
         normalized = cfg.copy()
-        
+
         # If it already has new format fields, just ensure consistency
         if "component_paths" in cfg:
             return normalized
-        
+
         # Convert from init format to new format
         # Map directory paths to component_paths
         if "agentDirectory" in cfg or "toolDirectory" in cfg:
@@ -127,7 +162,7 @@ class ConfigManager:
                 component_paths["response_models"] = cfg["responseModelDirectory"]
                 del normalized["responseModelDirectory"]
             normalized["component_paths"] = component_paths
-        
+
         # Map other fields from old to new names
         if "defaultProvider" in cfg:
             normalized["default_provider"] = cfg["defaultProvider"]
@@ -141,9 +176,9 @@ class ConfigManager:
         if "defaultMcpPort" in cfg:
             normalized["default_mcp_port"] = cfg["defaultMcpPort"]
             del normalized["defaultMcpPort"]
-        
+
         # Remove fields that aren't part of FuncnConfig
         normalized.pop("aliases", None)
         normalized.pop("$schema", None)
-            
+
         return normalized
