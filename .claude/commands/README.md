@@ -33,6 +33,7 @@ Powerful, compact custom slash commands for Claude Code using advanced prompt en
 
 - `/project:linear-feature` - **Linear Workflow Expert** for feature implementation
 - `/project:pr-complete` - **PR Craftsman** creating perfect pull requests
+- `/project:context-compact` - **Context Preservation Specialist** for seamless continuation
 
 ## Usage
 
@@ -193,6 +194,14 @@ claude > /project:crawl-docs https://docs.example.com
 - Comprehensive change analysis
 - Context extraction and summary
 - Review-ready pull requests
+
+#### `/project:context-compact`
+
+**Context Preservation Specialist** for long tasks.
+
+- Distills work state to essentials
+- Preserves critical technical context
+- Ensures seamless continuation after compaction
 
 ## Creating New Commands
 
