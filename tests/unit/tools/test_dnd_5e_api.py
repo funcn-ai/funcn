@@ -46,7 +46,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "index": "fireball",
             "name": "Fireball",
             "level": 3,
-            "school": {"name": "Evocation"},
+            "school": {"index": "evocation", "name": "Evocation", "url": "/api/magic-schools/evocation"},
             "casting_time": "1 action",
             "range": "150 feet",
             "components": ["V", "S", "M"],
@@ -54,23 +54,25 @@ class TestDnd5eApiTool(BaseToolTest):
             "duration": "Instantaneous",
             "desc": ["A bright streak flashes from your pointing finger..."],
             "higher_level": ["When you cast this spell using a spell slot of 4th level or higher..."],
-            "damage": {"damage_type": {"name": "Fire"}, "damage_at_slot_level": {"3": "8d6"}},
+            "damage": {"damage_type": {"index": "fire", "name": "Fire", "url": "/api/damage-types/fire"}, "damage_at_slot_level": {"3": "8d6"}},
+            "classes": [{"index": "wizard", "name": "Wizard", "url": "/api/classes/wizard"}],
+            "concentration": False,
+            "url": "/api/spells/fireball"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_spell_data)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_spell_data)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await get_spell_info("fireball")
 
-            assert result["name"] == "Fireball"
-            assert result["level"] == 3
-            assert result["school"]["name"] == "Evocation"
-            assert "8d6" in str(result["damage"])
+            assert result.name == "Fireball"
+            assert result.level == 3
+            assert result.school.name == "Evocation"
+            assert "8d6" in str(result.damage)
 
     @pytest.mark.asyncio
     async def test_get_class_success(self):
@@ -79,25 +81,36 @@ class TestDnd5eApiTool(BaseToolTest):
             "index": "wizard",
             "name": "Wizard",
             "hit_die": 6,
-            "proficiencies": [{"name": "Daggers"}, {"name": "Darts"}],
-            "saving_throws": [{"name": "INT"}, {"name": "WIS"}],
+            "proficiencies": [
+                {"index": "daggers", "name": "Daggers", "url": "/api/proficiencies/daggers"},
+                {"index": "darts", "name": "Darts", "url": "/api/proficiencies/darts"}
+            ],
+            "saving_throws": [
+                {"index": "int", "name": "INT", "url": "/api/ability-scores/int"},
+                {"index": "wis", "name": "WIS", "url": "/api/ability-scores/wis"}
+            ],
             "starting_equipment": [{"equipment": {"name": "Spellbook"}}],
             "spellcasting": {"level": 1, "spellcasting_ability": {"name": "INT"}},
+            "proficiency_choices": [],
+            "starting_equipment_options": [],
+            "class_levels": "/api/classes/wizard/levels",
+            "multi_classing": {},
+            "subclasses": [],
+            "url": "/api/classes/wizard"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_class_data)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_class_data)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await get_class_info("wizard")
 
-            assert result["name"] == "Wizard"
-            assert result["hit_die"] == 6
-            assert result["spellcasting"]["spellcasting_ability"]["name"] == "INT"
+            assert result.name == "Wizard"
+            assert result.hit_die == 6
+            assert result.spellcasting["spellcasting_ability"]["name"] == "INT"
 
     @pytest.mark.asyncio
     async def test_get_monster_success(self):
@@ -111,6 +124,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "armor_class": [{"value": 15, "type": "leather armor, shield"}],
             "hit_points": 7,
             "hit_dice": "2d6",
+            "hit_points_roll": "2d6",
             "speed": {"walk": "30 ft."},
             "strength": 8,
             "dexterity": 14,
@@ -118,23 +132,32 @@ class TestDnd5eApiTool(BaseToolTest):
             "intelligence": 10,
             "wisdom": 8,
             "charisma": 8,
+            "proficiencies": [],
+            "damage_vulnerabilities": [],
+            "damage_resistances": [],
+            "damage_immunities": [],
+            "condition_immunities": [],
+            "senses": {"darkvision": "60 ft.", "passive_perception": 9},
+            "languages": "Common, Goblin",
             "challenge_rating": 0.25,
+            "proficiency_bonus": 2,
+            "xp": 50,
             "actions": [{"name": "Scimitar", "desc": "Melee Weapon Attack: +4 to hit..."}],
+            "url": "/api/monsters/goblin"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_monster_data)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_monster_data)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await get_monster_info("goblin")
 
-            assert result["name"] == "Goblin"
-            assert result["challenge_rating"] == 0.25
-            assert result["armor_class"][0]["value"] == 15
+            assert result.name == "Goblin"
+            assert result.challenge_rating == 0.25
+            assert result.armor_class[0]["value"] == 15
 
     @pytest.mark.asyncio
     async def test_search_spells_success(self):
@@ -148,19 +171,18 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_search_results)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_search_results)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await search_dnd_content(query="fire", content_type="spells")
 
-            assert result["count"] == 3
-            assert len(result["results"]) == 3
-            assert any(spell["name"] == "Fireball" for spell in result["results"])
+            assert result.count == 3
+            assert len(result.results) == 3
+            assert any(spell["name"] == "Fireball" for spell in result.results)
 
     @pytest.mark.asyncio
     async def test_search_with_filters(self):
@@ -172,18 +194,17 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_search_results)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_search_results)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
-            result = await search_dnd_content(query="fire level:3 school:evocation", content_type="spells")
+            result = await search_dnd_content(content_type="spells", query="fire", level=3, school="evocation")
 
             # Verify search was called
-            assert result["count"] == 1
+            assert result.count == 1
 
     @pytest.mark.asyncio
     async def test_get_equipment_success(self):
@@ -191,50 +212,62 @@ class TestDnd5eApiTool(BaseToolTest):
         mock_equipment_data = {
             "index": "longsword",
             "name": "Longsword",
-            "equipment_category": {"name": "Weapon"},
+            "equipment_category": {
+                "index": "weapon",
+                "name": "Weapon",
+                "url": "/api/equipment-categories/weapon"
+            },
             "weapon_category": "Martial",
             "weapon_range": "Melee",
             "cost": {"quantity": 15, "unit": "gp"},
-            "damage": {"damage_dice": "1d8", "damage_type": {"name": "Slashing"}},
+            "damage": {
+                "damage_dice": "1d8",
+                "damage_type": {
+                    "index": "slashing",
+                    "name": "Slashing",
+                    "url": "/api/damage-types/slashing"
+                }
+            },
             "weight": 3,
-            "properties": [{"name": "Versatile"}],
+            "properties": [
+                {"index": "versatile", "name": "Versatile", "url": "/api/weapon-properties/versatile"}
+            ],
+            "url": "/api/equipment/longsword"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_equipment_data)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_equipment_data)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await get_equipment_info("longsword")
 
-            assert result["name"] == "Longsword"
-            assert result["damage"]["damage_dice"] == "1d8"
-            assert result["cost"]["quantity"] == 15
+            assert result.name == "Longsword"
+            assert result.damage.damage_dice == "1d8"
+            assert result.cost["quantity"] == 15
 
     @pytest.mark.asyncio
     async def test_not_found_error(self):
         """Test handling of 404 not found errors."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 404
-            mock_response.text = AsyncMock(return_value="Not found")
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 404
+            mock_response.text = Mock(return_value="Not found")
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
-            with pytest.raises(Exception) as exc_info:
+            with pytest.raises(ValueError) as exc_info:
                 await get_spell_info("nonexistent-spell")
 
-            assert "404" in str(exc_info.value)
+            assert "not found" in str(exc_info.value)
 
     @pytest.mark.asyncio
     async def test_api_error_handling(self):
         """Test handling of API errors."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(side_effect=Exception("Connection error"))
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(side_effect=Exception("Connection error"))
 
             with pytest.raises(Exception) as exc_info:
                 await get_monster_info("goblin")
@@ -248,25 +281,38 @@ class TestDnd5eApiTool(BaseToolTest):
             "index": "elf",
             "name": "Elf",
             "speed": 30,
-            "ability_bonuses": [{"ability_score": {"name": "DEX"}, "bonus": 2}],
+            "ability_bonuses": [
+                {"ability_score": {"index": "dex", "name": "DEX", "url": "/api/ability-scores/dex"}, "bonus": 2}
+            ],
+            "alignment": "Elves love freedom, variety, and self-expression...",
+            "age": "Although elves reach physical maturity at about the same age as humans...",
             "size": "Medium",
-            "languages": [{"name": "Common"}, {"name": "Elvish"}],
-            "traits": [{"name": "Darkvision"}, {"name": "Keen Senses"}],
+            "size_description": "Elves range from under 5 to over 6 feet tall...",
+            "starting_proficiencies": [],
+            "languages": [
+                {"index": "common", "name": "Common", "url": "/api/languages/common"},
+                {"index": "elvish", "name": "Elvish", "url": "/api/languages/elvish"}
+            ],
+            "traits": [
+                {"index": "darkvision", "name": "Darkvision", "url": "/api/traits/darkvision"},
+                {"index": "keen-senses", "name": "Keen Senses", "url": "/api/traits/keen-senses"}
+            ],
+            "subraces": [],
+            "url": "/api/races/elf"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_race_data)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_race_data)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await get_race_info("elf")
 
-            assert result["name"] == "Elf"
-            assert result["speed"] == 30
-            assert len(result["languages"]) == 2
+            assert result.name == "Elf"
+            assert result.speed == 30
+            assert len(result.languages) == 2
 
     @pytest.mark.asyncio
     async def test_get_condition_success(self):
@@ -277,20 +323,20 @@ class TestDnd5eApiTool(BaseToolTest):
             "desc": [
                 "A poisoned creature has disadvantage on attack rolls and ability checks.",
             ],
+            "url": "/api/conditions/poisoned"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_condition_data)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_condition_data)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await get_condition_info("poisoned")
 
-            assert result["name"] == "Poisoned"
-            assert "disadvantage" in result["desc"][0]
+            assert result.name == "Poisoned"
+            assert "disadvantage" in result.desc[0]
 
     @pytest.mark.asyncio
     async def test_search_monsters_by_cr(self):
@@ -303,18 +349,17 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_search_results)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_search_results)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await search_dnd_content(query="cr:0.25", content_type="monsters")
 
             # Verify search was performed
-            assert "results" in result
+            assert hasattr(result, "results")
 
     @pytest.mark.asyncio
     async def test_magic_item_search(self):
@@ -327,24 +372,23 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_response = AsyncMock()
-            mock_response.status = 200
-            mock_response.json = AsyncMock(return_value=mock_search_results)
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_response = Mock()
+            mock_response.status_code = 200
+            mock_response.json = Mock(return_value=mock_search_results)
 
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            mock_response.__aenter__.return_value = mock_response
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
 
             result = await search_dnd_content(query="bag", content_type="magic-items")
 
-            assert result["count"] == 2
-            assert any(item["name"] == "Bag of Holding" for item in result["results"])
+            assert result.count == 2
+            assert any(item["name"] == "Bag of Holding" for item in result.results)
 
     @pytest.mark.asyncio
     async def test_timeout_handling(self):
         """Test handling of request timeouts."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.aiohttp.ClientSession") as mock_session:
-            mock_session.return_value.__aenter__.return_value.get = AsyncMock(side_effect=TimeoutError("Request timeout"))
+        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+            mock_client.return_value.__aenter__.return_value.get = AsyncMock(side_effect=TimeoutError("Request timeout"))
 
             with pytest.raises(asyncio.TimeoutError) as exc_info:
                 await get_spell_info("fireball")
