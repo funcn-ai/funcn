@@ -1,8 +1,17 @@
 """Test suite for csv_search_tool following best practices."""
 
+import asyncio
 import io
 import pandas as pd
 import pytest
+
+# Import the actual tool components
+from packages.funcn_registry.components.tools.csv_search.tool import (
+    CSVSearchArgs,
+    CSVSearchResponse,
+    CSVSearchResult,
+    search_csv_content,
+)
 from pathlib import Path
 from tests.fixtures import TestDataFactory
 from tests.utils import BaseToolTest
@@ -13,303 +22,381 @@ class TestCSVSearchTool(BaseToolTest):
     """Test csv_search_tool component."""
 
     component_name = "csv_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/csv_search_tool")
+    component_path = Path("packages/funcn_registry/components/tools/csv_search")
 
     def get_component_function(self):
         """Import the tool function."""
-        # Would import: from tools.csv_search_tool import search_csv
-        def mock_search_csv(
-            csv_path: str | Path,
-            query: str,
-            columns: list[str] | None = None,
-            case_sensitive: bool = False,
-            exact_match: bool = False,
-            limit: int | None = None
-        ) -> list[dict[str, any]]:
-            """Mock CSV search tool."""
-            # Return mock results
-            return [
-                {
-                    "row_index": 0,
-                    "name": "John Doe",
-                    "email": "john@example.com",
-                    "department": "Engineering",
-                    "match_score": 1.0
-                },
-                {
-                    "row_index": 1,
-                    "name": "Jane Smith",
-                    "email": "jane@example.com",
-                    "department": "Marketing",
-                    "match_score": 0.8
-                }
-            ][:limit] if limit else []
-        return mock_search_csv
+        return search_csv_content
 
     def get_test_inputs(self):
         """Provide test inputs for the tool."""
         return [
-            {
-                "csv_path": "/path/to/data.csv",
-                "query": "engineering",
-                "columns": ["department"],
-                "case_sensitive": False
-            },
-            {
-                "csv_path": "/path/to/employees.csv",
-                "query": "john",
-                "columns": ["name", "email"],
-                "exact_match": False
-            },
-            {
-                "csv_path": "/path/to/products.csv",
-                "query": "laptop",
-                "limit": 10
-            }
+            CSVSearchArgs(
+                file_path="/path/to/data.csv",
+                query="engineering",
+                columns=["department"],
+                case_sensitive=False
+            ),
+            CSVSearchArgs(
+                file_path="/path/to/employees.csv",
+                query="john",
+                columns=["name", "email"],
+                exact_match=False
+            ),
+            CSVSearchArgs(
+                file_path="/path/to/products.csv",
+                query="laptop",
+                max_results=10
+            )
         ]
 
     def validate_tool_output(self, output, input_data):
         """Validate the tool output format."""
-        assert isinstance(output, list)
+        assert isinstance(output, CSVSearchResponse)
+        
+        if hasattr(input_data, 'max_results'):
+            assert len(output.results) <= input_data.max_results
 
-        if input_data.get("limit"):
-            assert len(output) <= input_data["limit"]
+        for result in output.results:
+            assert isinstance(result, CSVSearchResult)
+            assert isinstance(result.row_index, int)
+            assert isinstance(result.row_data, dict)
+            assert isinstance(result.matched_columns, list)
+            assert isinstance(result.match_scores, dict)
 
-        for result in output:
-            assert isinstance(result, dict)
-            if "match_score" in result:
-                assert 0 <= result["match_score"] <= 1
-
-    def test_search_specific_columns(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_specific_columns(self, tmp_path):
         """Test searching in specific columns only."""
         # Create test CSV
-        csv_content = TestDataFactory.SAMPLE_CSV
+        csv_content = "name,email,department\nJohn Doe,john@example.com,Engineering\nJane Smith,jane@example.com,Marketing\nBob Johnson,bob@example.com,Engineering\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
 
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "name": ["John Doe", "Jane Smith", "Bob Johnson"],
-                "email": ["john@example.com", "jane@example.com", "bob@example.com"],
-                "department": ["Engineering", "Marketing", "Engineering"]
-            })
-            mock_read.return_value = df
+        # Search only in department column
+        args = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="engineering",
+            columns=["department"],
+            case_sensitive=False
+        )
+        result = await tool(args)
 
-            # Search only in department column
-            results = tool(
-                csv_file,
-                "engineering",
-                columns=["department"],
-                case_sensitive=False
-            )
+        # Should find 2 engineering entries
+        assert len(result.results) == 2
+        for res in result.results:
+            assert "Engineering" in res.row_data["department"]
 
-            # Should find 2 engineering entries
-            assert len(results) >= 2
-            for result in results:
-                assert "engineering" in str(result).lower()
-
-    def test_case_sensitive_search(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_case_sensitive_search(self, tmp_path):
         """Test case-sensitive vs case-insensitive search."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        csv_content = "product,price\nLaptop,1000\nLAPTOP,1200\nlaptop,900\nDesktop,800\n"
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "product": ["Laptop", "LAPTOP", "laptop", "Desktop"],
-                "price": [1000, 1200, 900, 800]
-            })
-            mock_read.return_value = df
+        # Case-insensitive search
+        args_insensitive = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="laptop",
+            case_sensitive=False
+        )
+        results_insensitive = await tool(args_insensitive)
 
-            # Case-insensitive search
-            results_insensitive = tool(csv_file, "laptop", case_sensitive=False)
+        # Case-sensitive search (should also use exact match for proper behavior)
+        args_sensitive = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="laptop",
+            case_sensitive=True,
+            exact_match=True
+        )
+        results_sensitive = await tool(args_sensitive)
 
-            # Case-sensitive search
-            results_sensitive = tool(csv_file, "laptop", case_sensitive=True)
+        # Case-insensitive should find all 3 laptop entries
+        assert len(results_insensitive.results) == 3
+        # Case-sensitive should find only lowercase "laptop"
+        assert len(results_sensitive.results) == 1
 
-            # Case-insensitive should find more results
-            assert len(results_insensitive) >= len(results_sensitive)
-
-    def test_exact_match_vs_fuzzy(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_exact_match_vs_fuzzy(self, tmp_path):
         """Test exact match vs fuzzy/partial matching."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        csv_content = "name,id\nJohn Doe,1\nJohnny Smith,2\nDon Johnson,3\n"
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "name": ["John Doe", "Johnny Smith", "Don Johnson"],
-                "id": [1, 2, 3]
-            })
-            mock_read.return_value = df
+        # Exact match
+        args_exact = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="John",
+            exact_match=True
+        )
+        exact_results = await tool(args_exact)
 
-            # Exact match
-            exact_results = tool(csv_file, "John", exact_match=True)
+        # Fuzzy match
+        args_fuzzy = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="John",
+            exact_match=False
+        )
+        fuzzy_results = await tool(args_fuzzy)
 
-            # Fuzzy match
-            fuzzy_results = tool(csv_file, "John", exact_match=False)
+        # Fuzzy should find more matches (John, Johnny, Johnson)
+        assert len(fuzzy_results.results) >= len(exact_results.results)
 
-            # Fuzzy should find more matches (John, Johnny, Johnson)
-            assert len(fuzzy_results) >= len(exact_results)
-
-    def test_numeric_search(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_numeric_search(self, tmp_path):
         """Test searching for numeric values."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        csv_content = "product,price,quantity\nA,100,5\nB,200,10\nC,100,5\nD,300,15\n"
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "product": ["A", "B", "C", "D"],
-                "price": [100, 200, 100, 300],
-                "quantity": [5, 10, 5, 15]
-            })
-            mock_read.return_value = df
+        # Search for numeric value
+        args = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="100",
+            columns=["price"]
+        )
+        results = await tool(args)
 
-            # Search for numeric value
-            results = tool(csv_file, "100", columns=["price"])
+        # Should find products with price 100
+        assert len(results.results) == 2
 
-            # Should find products with price 100
-            assert len(results) >= 2
-
-    def test_limit_parameter(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_limit_parameter(self, tmp_path):
         """Test that limit parameter restricts results."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        # Create large dataset
+        csv_content = "id,value\n"
+        for i in range(100):
+            csv_content += f"{i},test\n"
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            # Create large dataset
-            df = pd.DataFrame({
-                "id": range(100),
-                "value": ["test"] * 100
-            })
-            mock_read.return_value = df
+        # Search with limit
+        args_limited = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="test",
+            max_results=5
+        )
+        results = await tool(args_limited)
+        assert len(results.results) <= 5
 
-            # Search with limit
-            results = tool(csv_file, "test", limit=5)
-            assert len(results) <= 5
+        # Search without limit (default is 50)
+        args_no_limit = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="test",
+            max_results=50
+        )
+        results_no_limit = await tool(args_no_limit)
+        assert len(results_no_limit.results) >= len(results.results)
 
-            # Search without limit
-            results_no_limit = tool(csv_file, "test")
-            assert len(results_no_limit) >= len(results)
-
-    def test_empty_csv_handling(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_empty_csv_handling(self, tmp_path):
         """Test handling of empty CSV files."""
         empty_csv = tmp_path / "empty.csv"
         empty_csv.write_text("column1,column2\n")  # Headers only
 
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            mock_read.return_value = pd.DataFrame(columns=["column1", "column2"])
+        args = CSVSearchArgs(
+            file_path=str(empty_csv),
+            query="test"
+        )
+        results = await tool(args)
+        assert results.results == []
 
-            results = tool(empty_csv, "test")
-            assert results == []
-
-    def test_missing_column_handling(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_missing_column_handling(self, tmp_path):
         """Test handling when specified columns don't exist."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        csv_content = "name,age\nJohn,30\nJane,25\n"
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "name": ["John", "Jane"],
-                "age": [30, 25]
-            })
-            mock_read.return_value = df
+        # Try to search non-existent column
+        args = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="test",
+            columns=["nonexistent_column"]
+        )
+        results = await tool(args)
 
-            # Try to search non-existent column
-            results = tool(csv_file, "test", columns=["nonexistent_column"])
+        # Should handle gracefully - no results since column doesn't exist
+        assert isinstance(results, CSVSearchResponse)
+        assert results.results == []
 
-            # Should handle gracefully
-            assert isinstance(results, list)
-
-    def test_special_characters_in_search(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_special_characters_in_search(self, tmp_path):
         """Test searching for special characters."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        csv_content = "email,notes\nuser@example.com,$100 payment\nadmin+test@example.com,50% discount\ninfo@company.org,C++ developer\n"
+        csv_file = tmp_path / "test.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "email": ["user@example.com", "admin+test@example.com", "info@company.org"],
-                "notes": ["$100 payment", "50% discount", "C++ developer"]
-            })
-            mock_read.return_value = df
+        # Search for special characters
+        special_queries = ["@example.com", "$100", "50%", "C++", "admin+"]
 
-            # Search for special characters
-            special_queries = ["@example.com", "$100", "50%", "C++", "admin+"]
+        for query in special_queries:
+            args = CSVSearchArgs(
+                file_path=str(csv_file),
+                query=query
+            )
+            results = await tool(args)
+            assert isinstance(results, CSVSearchResponse)
+            # Each query should find at least one result
+            assert len(results.results) >= 1
 
-            for query in special_queries:
-                results = tool(csv_file, query)
-                assert isinstance(results, list)
-
-    def test_large_csv_performance(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_large_csv_performance(self, tmp_path):
         """Test performance with large CSV files."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        # Create large dataset
+        csv_content = "id,text,category\n"
+        for i in range(10000):
+            category = ["A", "B", "C", "D"][i % 4]
+            csv_content += f"{i},row {i} data,{category}\n"
+        csv_file = tmp_path / "large.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            # Create large dataframe
-            large_df = pd.DataFrame({
-                "id": range(10000),
-                "text": [f"row {i} data" for i in range(10000)],
-                "category": ["A", "B", "C", "D"] * 2500
-            })
-            mock_read.return_value = large_df
+        import time
+        start_time = time.time()
 
-            import time
-            start_time = time.time()
+        args = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="row 5",
+            max_results=10
+        )
+        results = await tool(args)
 
-            results = tool(csv_file, "row 5", limit=10)
+        elapsed = time.time() - start_time
 
-            elapsed = time.time() - start_time
+        # Should complete quickly even for large files
+        assert elapsed < 2.0
+        assert len(results.results) <= 10
 
-            # Should complete quickly even for large files
-            assert elapsed < 2.0
-            assert len(results) <= 10
-
-    def test_encoding_handling(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_encoding_handling(self, tmp_path):
         """Test handling of different file encodings."""
+        # Test with UTF-8 encoding (default)
+        csv_content = "text,id\ncafé,1\nrésumé,2\nnaïve,3\n"
         csv_file = tmp_path / "encoded.csv"
+        csv_file.write_text(csv_content, encoding="utf-8")
+        
         tool = self.get_component_function()
 
-        # Test with different encodings
-        encodings = ["utf-8", "latin-1", "utf-16"]
+        args = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="café"
+        )
+        results = await tool(args)
+        assert isinstance(results, CSVSearchResponse)
+        assert len(results.results) >= 1
 
-        for _ in encodings:  # encoding variable not used in mock test
-            with patch("pandas.read_csv") as mock_read:
-                df = pd.DataFrame({
-                    "text": ["café", "résumé", "naïve"],
-                    "id": [1, 2, 3]
-                })
-                mock_read.return_value = df
-
-                results = tool(csv_file, "café")
-                assert isinstance(results, list)
-
-                # Verify encoding parameter was considered
-                if mock_read.called:
-                    # Check if encoding was handled
-                    assert True  # Placeholder for encoding verification
-
-    def test_multiline_cell_search(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_multiline_cell_search(self, tmp_path):
         """Test searching in cells with multiline content."""
-        csv_file = TestDataFactory.create_csv_file(tmp_path)
+        csv_content = '''description,id
+"First line
+Second line
+Third line",1
+"Single line",2
+"Another
+multiline
+entry",3
+'''
+        csv_file = tmp_path / "multiline.csv"
+        csv_file.write_text(csv_content)
+        
         tool = self.get_component_function()
 
-        with patch("pandas.read_csv") as mock_read:
-            df = pd.DataFrame({
-                "description": [
-                    "First line\nSecond line\nThird line",
-                    "Single line",
-                    "Another\nmultiline\nentry"
-                ],
-                "id": [1, 2, 3]
-            })
-            mock_read.return_value = df
+        # Search for text in multiline cells
+        args1 = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="Second line"
+        )
+        results = await tool(args1)
+        assert len(results.results) >= 1
 
-            # Search for text in multiline cells
-            results = tool(csv_file, "Second line")
-            assert len(results) >= 1
+        args2 = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="multiline"
+        )
+        results = await tool(args2)
+        assert len(results.results) >= 1
 
-            results = tool(csv_file, "multiline")
-            assert len(results) >= 1
+    @pytest.mark.asyncio
+    async def test_filters_functionality(self, tmp_path):
+        """Test filtering functionality before search."""
+        csv_content = "name,age,department,salary\nJohn,25,Engineering,50000\nJane,35,Marketing,60000\nBob,45,Engineering,80000\nAlice,30,HR,55000\n"
+        csv_file = tmp_path / "employees.csv"
+        csv_file.write_text(csv_content)
+        
+        tool = self.get_component_function()
+
+        # Test greater than filter
+        args_gt = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="Engineering",
+            filters={"age": ">30"}
+        )
+        results_gt = await tool(args_gt)
+        assert len(results_gt.results) == 1  # Only Bob is >30 in Engineering
+        assert results_gt.results[0].row_data["name"] == "Bob"
+
+        # Test less than filter
+        args_lt = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="0",  # Search for 0 in any field
+            columns=["salary"],
+            filters={"age": "<35"}
+        )
+        results_lt = await tool(args_lt)
+        # John (25) and Alice (30) have salaries containing "0"
+        assert len(results_lt.results) == 2
+
+        # Test exact match filter
+        args_exact = CSVSearchArgs(
+            file_path=str(csv_file),
+            query="",  # Empty query to match all
+            filters={"department": "Engineering"},
+            exact_match=True
+        )
+        results_exact = await tool(args_exact)
+        # Should find both Engineering employees when searching empty string
+        assert len(results_exact.results) == 2
+
+    @pytest.mark.asyncio
+    async def test_error_handling(self, tmp_path):
+        """Test error handling for various edge cases."""
+        tool = self.get_component_function()
+
+        # Test non-existent file
+        args_missing = CSVSearchArgs(
+            file_path=str(tmp_path / "nonexistent.csv"),
+            query="test"
+        )
+        result = await tool(args_missing)
+        assert result.error is not None
+        assert "not found" in result.error
+
+        # Test invalid CSV content
+        invalid_csv = tmp_path / "invalid.csv"
+        invalid_csv.write_text("This is not a valid CSV\n\n\n")
+        
+        args_invalid = CSVSearchArgs(
+            file_path=str(invalid_csv),
+            query="test"
+        )
+        result = await tool(args_invalid)
+        # Should handle gracefully
+        assert isinstance(result, CSVSearchResponse)
