@@ -25,8 +25,10 @@ class TestAddWorkflow(BaseE2ETest):
     def test_add_component_by_name(self, cli_runner, initialized_project, mock_registry_response, mock_component_manifest):
         """Test adding a component by name from the registry."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Mock registry index request
@@ -105,8 +107,10 @@ def test_agent(question: str): ...
     def test_add_component_with_dependencies(self, cli_runner, initialized_project, mock_registry_response, mock_component_manifest):
         """Test adding a component with Python dependencies - verify dependency message is shown."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Mock registry index request
@@ -161,8 +165,10 @@ def test_agent(question: str): ...
     def test_add_multiple_components(self, cli_runner, initialized_project, mock_registry_response, mock_component_manifest):
         """Test adding multiple components in sequence."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Create a second component manifest for tools
@@ -274,8 +280,10 @@ def test_tool(input: str) -> str:
     def test_add_component_already_exists(self, cli_runner, initialized_project, mock_registry_response, mock_component_manifest):
         """Test adding a component that already exists."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Mock component file downloads
@@ -334,9 +342,11 @@ def test_tool(input: str) -> str:
         """Test adding a specific version of a component."""
         with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
-            def mock_get_side_effect(url):
+            def mock_get_side_effect(url, *args, **kwargs):
                 if "index.json" in url:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
@@ -383,6 +393,8 @@ def test_tool(input: str) -> str:
             result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@1.0.0"], input="n\nn\n")
 
             # Version handling should be mentioned
+            if result.exit_code != 0:
+                print(f"Test failed with output: {result.output}")
             assert result.exit_code == 0
             assert "test-agent" in result.output
             assert "added successfully" in result.output
@@ -401,9 +413,11 @@ def test_tool(input: str) -> str:
         """Test adding a specific version that doesn't exist."""
         with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
-            def mock_get_side_effect(url):
+            def mock_get_side_effect(url, *args, **kwargs):
                 if "index.json" in url:
                     mock_response = MagicMock()
                     mock_response.status_code = 200
@@ -425,8 +439,10 @@ def test_tool(input: str) -> str:
     def test_add_nonexistent_component(self, cli_runner, initialized_project, mock_registry_response):
         """Test adding a component that doesn't exist."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Set up mock responses
@@ -455,8 +471,10 @@ def test_tool(input: str) -> str:
     def test_add_component_network_error(self, cli_runner, initialized_project):
         """Test handling network errors when adding components."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Simulate network error
@@ -480,8 +498,10 @@ def test_tool(input: str) -> str:
     def test_add_component_from_url(self, cli_runner, initialized_project):
         """Test adding a component directly from URL."""
         with patch("httpx.Client") as mock_client_class:
-            # Create mock client instance
+            # Create mock client instance with context manager support
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
 
             # Mock component manifest

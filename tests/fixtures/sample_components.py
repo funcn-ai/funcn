@@ -1,7 +1,7 @@
 """Sample component fixtures for testing the component system."""
 
 import json
-from funcn_cli.core.models import Component, ComponentConfig, ComponentFile, DependencySpec
+from funcn_cli.core.models import ComponentManifest, RegistryComponentEntry
 from pathlib import Path
 
 

@@ -7,6 +7,7 @@ CLAUDE COMMANDS - QUICK INDEX
 - `/project:daily-check` - Daily development status check
 - `/project:debug-systematic` - Scientific debugging with root cause analysis
 - `/project:pr-complete` - Create professional pull requests
+- `/project:context-compact` - Prepare context summary before compaction
 
 ## Quality & Testing Commands
 

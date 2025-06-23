@@ -74,6 +74,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test listing all components from registry."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -103,12 +105,14 @@ class TestListSearchWorkflow(BaseE2ETest):
         
         result = self.run_command(
             cli_runner,
-            ["source", "add", "custom", "https://custom.funcn.ai/index.json"]
+            ["source", "add", "custom", "https://custom.funcn.ai/index.json", "--skip-check"]
         )
         self.assert_command_success(result)
         
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -129,6 +133,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test searching components by name."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -150,6 +156,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test searching components by description."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -168,6 +176,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test that search is case insensitive."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -181,6 +191,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test search with no matching results."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -200,6 +212,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         }
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(empty_registry)
             
@@ -214,6 +228,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test handling network errors when listing."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.side_effect = Exception("Network error")
             
@@ -226,6 +242,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test searching with special characters."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -241,6 +259,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test that list command shows component versions."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
@@ -257,6 +277,8 @@ class TestListSearchWorkflow(BaseE2ETest):
         """Test searching components by tag."""
         with patch("httpx.Client") as mock_client_class:
             mock_client = MagicMock()
+            mock_client.__enter__ = MagicMock(return_value=mock_client)
+            mock_client.__exit__ = MagicMock(return_value=None)
             mock_client_class.return_value = mock_client
             mock_client.get.return_value = self._mock_registry_response(mock_registry_with_many_components)
             
