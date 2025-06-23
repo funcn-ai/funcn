@@ -49,7 +49,7 @@ class AgentState(Base):
     data_type = Column(String(50), nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False, index=True)
-    metadata = Column(Text)
+    agent_metadata = Column(Text)
 
     __table_args__ = (
         UniqueConstraint('agent_id', 'conversation_id', 'key', name='uq_agent_conv_key'),
@@ -231,7 +231,7 @@ async def store_agent_state(
                 # Update existing record
                 existing.value = value_json
                 existing.data_type = data_type
-                existing.metadata = metadata_json
+                existing.agent_metadata = metadata_json
                 existing.updated_at = datetime.utcnow()
                 rows_affected = 1
             else:
@@ -242,7 +242,7 @@ async def store_agent_state(
                     key=key,
                     value=value_json,
                     data_type=data_type,
-                    metadata=metadata_json,
+                    agent_metadata=metadata_json,
                 )
                 session.add(new_state)
                 rows_affected = 1
@@ -313,15 +313,15 @@ async def get_agent_state(
                     'data_type': record.data_type,
                     'created_at': record.created_at.isoformat(),
                     'updated_at': record.updated_at.isoformat(),
-                    'metadata': record.metadata,
+                    'metadata': record.agent_metadata,
                 }
 
                 # Deserialize JSON values
                 try:
                     if record.data_type != 'str':
                         data['value'] = json.loads(record.value)
-                    if record.metadata:
-                        data['metadata'] = json.loads(record.metadata)
+                    if record.agent_metadata:
+                        data['metadata'] = json.loads(record.agent_metadata)
                 except json.JSONDecodeError:
                     pass
 
@@ -448,15 +448,15 @@ async def query_agent_history(
                     'data_type': record.data_type,
                     'created_at': record.created_at.isoformat(),
                     'updated_at': record.updated_at.isoformat(),
-                    'metadata': record.metadata,
+                    'metadata': record.agent_metadata,
                 }
 
                 # Deserialize JSON values
                 try:
                     if record.data_type != 'str':
                         data['value'] = json.loads(record.value)
-                    if record.metadata:
-                        data['metadata'] = json.loads(record.metadata)
+                    if record.agent_metadata:
+                        data['metadata'] = json.loads(record.agent_metadata)
                 except json.JSONDecodeError:
                     pass
 
