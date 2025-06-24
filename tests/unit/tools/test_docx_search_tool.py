@@ -1,6 +1,17 @@
 """Test suite for docx_search_tool following best practices."""
 
+import asyncio
 import pytest
+
+# Import the actual tool functions
+from packages.funcn_registry.components.tools.docx_search.tool import (
+    DocumentSection,
+    DOCXSearchResult,
+    extract_docx_headings,
+    process_docx_document,
+    search_docx,
+    search_docx_with_regex,
+)
 from pathlib import Path
 from tests.fixtures import TestDataFactory
 from tests.utils import BaseToolTest
@@ -11,384 +22,523 @@ class TestDOCXSearchTool(BaseToolTest):
     """Test docx_search_tool component."""
     
     component_name = "docx_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/docx_search_tool")
+    component_path = Path("packages/funcn_registry/components/tools/docx_search")
+    
+    def create_test_docx(self, file_path: Path, content: list[dict]) -> Path:
+        """Create a test DOCX file with specified content.
+        
+        Args:
+            file_path: Path where to save the DOCX file
+            content: List of dicts with 'text', 'style' keys
+        
+        Returns:
+            Path to the created file
+        """
+        import docx
+        from docx.shared import Pt
+        
+        doc = docx.Document()
+        
+        # Set document properties
+        doc.core_properties.title = "Test Document"
+        doc.core_properties.author = "Test Author"
+        doc.core_properties.subject = "Testing"
+        doc.core_properties.keywords = "test, document, search"
+        
+        for item in content:
+            text = item.get('text', '')
+            style = item.get('style', 'Normal')
+            
+            if style.startswith('Heading'):
+                paragraph = doc.add_heading(text, level=int(style[-1]) if style[-1].isdigit() else 1)
+            elif style == 'Table':
+                # Create table
+                table_data = item.get('table_data', [])
+                if table_data:
+                    table = doc.add_table(rows=len(table_data), cols=len(table_data[0]) if table_data else 0)
+                    for row_idx, row_data in enumerate(table_data):
+                        for col_idx, cell_text in enumerate(row_data):
+                            table.rows[row_idx].cells[col_idx].text = cell_text
+            else:
+                paragraph = doc.add_paragraph(text, style=style)
+                
+                # Add formatting if specified
+                if item.get('bold'):
+                    for run in paragraph.runs:
+                        run.bold = True
+                if item.get('italic'):
+                    for run in paragraph.runs:
+                        run.italic = True
+        
+        doc.save(str(file_path))
+        return file_path
     
     def get_component_function(self):
         """Import the tool function."""
-        # Would import: from tools.docx_search_tool import search_docx
-        def mock_search_docx(
-            docx_path: str | Path,
-            query: str,
-            case_sensitive: bool = False,
-            search_headers: bool = True,
-            search_tables: bool = True,
-            search_footnotes: bool = True,
-            include_metadata: bool = False
-        ) -> list[dict[str, any]]:
-            """Mock DOCX search tool."""
-            results = [
-                {
-                    "paragraph": 1,
-                    "text": f"This paragraph contains the search term '{query}'.",
-                    "type": "paragraph",
-                    "style": "Normal",
-                    "match_score": 0.95
-                },
-                {
-                    "paragraph": 5,
-                    "text": f"Header: {query} Documentation",
-                    "type": "heading",
-                    "style": "Heading 1",
-                    "level": 1,
-                    "match_score": 0.90
-                }
-            ]
-            
-            if include_metadata:
-                results.append({
-                    "type": "metadata",
-                    "author": "Test Author",
-                    "created": "2024-01-01",
-                    "modified": "2024-01-15",
-                    "title": f"Document about {query}"
-                })
-            
-            return results
-        return mock_search_docx
+        return search_docx
     
     def get_test_inputs(self):
         """Provide test inputs for the tool."""
         return [
             {
-                "docx_path": "/path/to/document.docx",
-                "query": "introduction",
-                "search_headers": True,
-                "case_sensitive": False
+                "file_path": "/tmp/test.docx",
+                "search_text": "introduction",
+                "case_sensitive": False,
+                "include_tables": True
             },
             {
-                "docx_path": "/path/to/report.docx",
-                "query": "financial results",
-                "search_tables": True,
-                "include_metadata": True
+                "file_path": "/tmp/report.docx",
+                "search_text": "financial results",
+                "case_sensitive": False,
+                "include_tables": True
             },
             {
-                "docx_path": "/path/to/thesis.docx",
-                "query": "conclusion",
-                "search_footnotes": True
+                "file_path": "/tmp/thesis.docx",
+                "search_text": "conclusion",
+                "case_sensitive": True,
+                "include_tables": False
             }
         ]
     
     def validate_tool_output(self, output, input_data):
         """Validate the tool output format."""
-        assert isinstance(output, list)
+        assert isinstance(output, DOCXSearchResult)
+        assert isinstance(output.success, bool)
+        assert isinstance(output.file_path, str)
+        assert isinstance(output.total_matches, int)
+        assert isinstance(output.matching_sections, list)
+        assert isinstance(output.document_metadata, dict)
+        assert isinstance(output.search_time, float)
         
-        for result in output:
-            assert isinstance(result, dict)
-            assert "type" in result or "match_type" in result
-            if result.get("type") != "metadata":
-                assert "text" in result or "content" in result
+        for section in output.matching_sections:
+            assert isinstance(section, DocumentSection)
+            assert isinstance(section.text, str)
+            assert isinstance(section.paragraph_index, int)
+            assert isinstance(section.section_type, str)
+            assert isinstance(section.match_positions, list)
     
-    def test_search_paragraphs(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_paragraphs(self, tmp_path):
         """Test searching in document paragraphs."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Mock document with paragraphs
-            mock_paragraphs = [
-                Mock(text="Introduction to the topic", style=Mock(name="Normal")),
-                Mock(text="This is the main content with important information", style=Mock(name="Normal")),
-                Mock(text="Conclusion and summary", style=Mock(name="Normal"))
-            ]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = mock_paragraphs
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "important")
-            
-            assert len(results) >= 1
-            assert any("important" in r.get("text", "").lower() for r in results)
+        # Create test document
+        content = [
+            {"text": "Introduction to the topic", "style": "Normal"},
+            {"text": "This is the main content with important information", "style": "Normal"},
+            {"text": "Conclusion and summary", "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search for text
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="important",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 1
+        assert len(result.matching_sections) >= 1
+        assert any("important" in section.text.lower() for section in result.matching_sections)
     
-    def test_search_headers(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_headers(self, tmp_path):
         """Test searching in document headers."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Mock document with headers
-            mock_paragraphs = [
-                Mock(text="Chapter 1: Introduction", style=Mock(name="Heading 1")),
-                Mock(text="Regular paragraph", style=Mock(name="Normal")),
-                Mock(text="Section 1.1: Background", style=Mock(name="Heading 2")),
-                Mock(text="1.1.1 Historical Context", style=Mock(name="Heading 3"))
-            ]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = mock_paragraphs
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "Introduction", search_headers=True)
-            
-            assert len(results) >= 1
-            # Should find in Heading 1
-            assert any(r.get("style") == "Heading 1" for r in results)
+        # Create document with headers
+        content = [
+            {"text": "Chapter 1: Introduction", "style": "Heading 1"},
+            {"text": "Regular paragraph", "style": "Normal"},
+            {"text": "Section 1.1: Background", "style": "Heading 2"},
+            {"text": "1.1.1 Historical Context", "style": "Heading 3"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search for text in headers
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="Introduction",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 1
+        # Should find in Heading 1
+        heading_matches = [s for s in result.matching_sections if s.style == "Heading 1"]
+        assert len(heading_matches) >= 1
     
-    def test_search_tables(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_tables(self, tmp_path):
         """Test searching in document tables."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Mock table cells
-            mock_cell1 = Mock(text="Product Name")
-            mock_cell2 = Mock(text="Price")
-            mock_cell3 = Mock(text="Laptop Computer")
-            mock_cell4 = Mock(text="$999")
-            
-            mock_row1 = Mock(cells=[mock_cell1, mock_cell2])
-            mock_row2 = Mock(cells=[mock_cell3, mock_cell4])
-            
-            mock_table = Mock()
-            mock_table.rows = [mock_row1, mock_row2]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.tables = [mock_table]
-            mock_doc_instance.paragraphs = []
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "Laptop", search_tables=True)
-            
-            assert len(results) >= 1
-            assert any("table" in r.get("type", "").lower() for r in results)
+        # Create document with table
+        content = [
+            {"text": "Product Catalog", "style": "Heading 1"},
+            {
+                "style": "Table",
+                "table_data": [
+                    ["Product Name", "Price"],
+                    ["Laptop Computer", "$999"],
+                    ["Desktop Computer", "$1299"]
+                ]
+            }
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search in tables
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="Laptop",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 1
+        # Should find in table
+        table_matches = [s for s in result.matching_sections if s.section_type == "table"]
+        assert len(table_matches) >= 1
     
-    def test_search_footnotes(self, tmp_path):
-        """Test searching in document footnotes."""
+    @pytest.mark.asyncio
+    async def test_extract_headings(self, tmp_path):
+        """Test extracting headings from document."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Mock document with footnotes
-            mock_doc_instance = Mock()
-            
-            # Mock footnotes (if supported by python-docx)
-            mock_footnotes = [
-                Mock(text="See reference [1] for more details"),
-                Mock(text="Data sourced from annual report 2023")
-            ]
-            
-            # Simulate footnotes as special paragraphs
-            mock_doc_instance.paragraphs = []
-            mock_doc_instance.footnotes = mock_footnotes if hasattr(mock_doc_instance, 'footnotes') else []
-            
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "reference", search_footnotes=True)
-            
-            # Should handle footnotes if supported
-            assert isinstance(results, list)
+        # Create document with various headings
+        content = [
+            {"text": "Introduction", "style": "Heading 1"},
+            {"text": "This is the introduction paragraph", "style": "Normal"},
+            {"text": "Background", "style": "Heading 2"},
+            {"text": "Some background information", "style": "Normal"},
+            {"text": "Methodology", "style": "Heading 1"},
+            {"text": "Data Collection", "style": "Heading 2"},
+            {"text": "Analysis Methods", "style": "Heading 2"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Extract all headings
+        result = await extract_docx_headings(
+            file_path=str(docx_file)
+        )
+        
+        assert result.success is True
+        assert len(result.matching_sections) >= 5  # Should find all headings
+        
+        # Extract only level 2 headings
+        result_level2 = await extract_docx_headings(
+            file_path=str(docx_file),
+            heading_level=2
+        )
+        
+        assert result_level2.success is True
+        level2_headings = [s for s in result_level2.matching_sections if s.heading_level == 2]
+        assert len(level2_headings) == 3
     
-    def test_case_sensitivity(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_case_sensitivity(self, tmp_path):
         """Test case-sensitive vs case-insensitive search."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            mock_paragraphs = [
-                Mock(text="UPPERCASE text here", style=Mock(name="Normal")),
-                Mock(text="lowercase text here", style=Mock(name="Normal")),
-                Mock(text="MixedCase Text Here", style=Mock(name="Normal"))
-            ]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = mock_paragraphs
-            mock_doc.return_value = mock_doc_instance
-            
-            # Case-insensitive
-            results_insensitive = tool(docx_file, "text", case_sensitive=False)
-            
-            # Case-sensitive
-            results_sensitive = tool(docx_file, "text", case_sensitive=True)
-            
-            # Case-insensitive should find more
-            assert len(results_insensitive) >= len(results_sensitive)
+        # Create document with different cases
+        content = [
+            {"text": "UPPERCASE text here", "style": "Normal"},
+            {"text": "lowercase text here", "style": "Normal"},
+            {"text": "MixedCase Text Here", "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Case-insensitive search
+        result_insensitive = await search_docx(
+            file_path=str(docx_file),
+            search_text="text",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        # Case-sensitive search
+        result_sensitive = await search_docx(
+            file_path=str(docx_file),
+            search_text="text",
+            case_sensitive=True,
+            include_tables=True
+        )
+        
+        assert result_insensitive.success is True
+        assert result_sensitive.success is True
+        # Case-insensitive should find more matches
+        assert result_insensitive.total_matches >= result_sensitive.total_matches
+        assert result_insensitive.total_matches >= 3  # Should find in all 3 paragraphs
+        assert result_sensitive.total_matches >= 1   # Should find at least in lowercase
     
-    def test_document_metadata(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_document_metadata(self, tmp_path):
         """Test extracting document metadata."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            mock_doc_instance = Mock()
-            
-            # Mock core properties
-            mock_doc_instance.core_properties = Mock(
-                author="John Doe",
-                title="Test Document",
-                subject="Testing",
-                created="2024-01-01",
-                modified="2024-01-15",
-                keywords="test, document, search"
-            )
-            
-            mock_doc_instance.paragraphs = [Mock(text="Content", style=Mock(name="Normal"))]
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "test", include_metadata=True)
-            
-            # Should include metadata
-            assert any(r.get("type") == "metadata" for r in results)
+        # Create document (metadata was set in create_test_docx)
+        content = [
+            {"text": "This is a test document", "style": "Normal"},
+            {"text": "With some content", "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search with metadata extraction
+        result = await process_docx_document(
+            file_path=str(docx_file),
+            search_text="test",
+            case_sensitive=False,
+            extract_metadata_flag=True
+        )
+        
+        assert result.success is True
+        assert result.document_metadata is not None
+        assert "title" in result.document_metadata
+        assert result.document_metadata["title"] == "Test Document"
+        assert "author" in result.document_metadata
+        assert result.document_metadata["author"] == "Test Author"
     
-    def test_styled_text_search(self, tmp_path):
-        """Test searching in styled text (bold, italic, etc)."""
+    @pytest.mark.asyncio
+    async def test_regex_search(self, tmp_path):
+        """Test searching with regular expressions."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Mock runs with different styles
-            mock_run1 = Mock(text="Normal text ", bold=False, italic=False)
-            mock_run2 = Mock(text="bold text", bold=True, italic=False)
-            mock_run3 = Mock(text=" and ", bold=False, italic=False)
-            mock_run4 = Mock(text="italic text", bold=False, italic=True)
-            
-            mock_paragraph = Mock()
-            mock_paragraph.runs = [mock_run1, mock_run2, mock_run3, mock_run4]
-            mock_paragraph.text = "Normal text bold text and italic text"
-            mock_paragraph.style = Mock(name="Normal")
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = [mock_paragraph]
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "bold")
-            
-            assert len(results) >= 1
+        # Create document with various patterns
+        content = [
+            {"text": "Contact us at: info@example.com", "style": "Normal"},
+            {"text": "Phone: +1 (555) 123-4567", "style": "Normal"},
+            {"text": "Date: 2024-01-15", "style": "Normal"},
+            {"text": "Reference: DOC-12345-ABC", "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search for email pattern
+        result = await search_docx_with_regex(
+            file_path=str(docx_file),
+            pattern=r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}",
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 1
+        assert any("@example.com" in section.text for section in result.matching_sections)
+        
+        # Search for date pattern
+        result_date = await search_docx_with_regex(
+            file_path=str(docx_file),
+            pattern=r"\d{4}-\d{2}-\d{2}",
+            include_tables=True
+        )
+        
+        assert result_date.success is True
+        assert result_date.total_matches >= 1
     
-    def test_numbered_lists(self, tmp_path):
-        """Test searching in numbered and bulleted lists."""
+    @pytest.mark.asyncio
+    async def test_style_filter(self, tmp_path):
+        """Test filtering by paragraph style."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            mock_paragraphs = [
-                Mock(text="1. First item in list", style=Mock(name="List Number")),
-                Mock(text="2. Second item in list", style=Mock(name="List Number")),
-                Mock(text="• Bullet point one", style=Mock(name="List Bullet")),
-                Mock(text="• Bullet point two", style=Mock(name="List Bullet"))
-            ]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = mock_paragraphs
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "item")
-            
-            assert len(results) >= 2
-            # Should identify list items
-            assert any("List" in r.get("style", "") for r in results)
+        # Create document with different styles
+        content = [
+            {"text": "Main Title", "style": "Heading 1"},
+            {"text": "This is normal text with important info", "style": "Normal"},
+            {"text": "Subtitle with important details", "style": "Heading 2"},
+            {"text": "Another normal paragraph with data", "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search only in Normal style paragraphs
+        result = await process_docx_document(
+            file_path=str(docx_file),
+            search_text="important",
+            case_sensitive=False,
+            style_filter="Normal"
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 1
+        # All matches should be in Normal style
+        for section in result.matching_sections:
+            assert section.style == "Normal"
     
-    def test_hyperlinks(self, tmp_path):
-        """Test searching in hyperlinked text."""
+    @pytest.mark.asyncio
+    async def test_context_chars(self, tmp_path):
+        """Test controlling context around matches."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Mock paragraph with hyperlink
-            mock_paragraph = Mock()
-            mock_paragraph.text = "Visit our website for more information"
-            mock_paragraph.style = Mock(name="Normal")
-            
-            # Mock hyperlink relationship
-            mock_paragraph.hyperlinks = [
-                Mock(text="website", url="https://example.com")
-            ]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = [mock_paragraph]
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "website")
-            
-            assert len(results) >= 1
+        # Create document with long paragraph
+        long_text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. "
+        long_text += "The word TARGET appears here in the middle of a very long paragraph. "
+        long_text += "Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."
+        
+        content = [
+            {"text": long_text, "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search with limited context
+        result = await process_docx_document(
+            file_path=str(docx_file),
+            search_text="TARGET",
+            case_sensitive=False,
+            max_context_chars=50
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 1
+        # Context should be limited
+        for section in result.matching_sections:
+            assert "TARGET" in section.text
     
-    def test_comments_and_revisions(self, tmp_path):
-        """Test handling of comments and tracked changes."""
+    @pytest.mark.asyncio
+    async def test_multiple_tables(self, tmp_path):
+        """Test searching across multiple tables."""
         docx_file = tmp_path / "test.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            mock_doc_instance = Mock()
-            
-            # Regular content
-            mock_doc_instance.paragraphs = [
-                Mock(text="Main document text", style=Mock(name="Normal"))
-            ]
-            
-            # Comments (if supported)
-            mock_doc_instance.comments = [
-                Mock(text="This needs revision", author="Reviewer")
-            ]
-            
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "revision")
-            
-            # Should handle comments if supported
-            assert isinstance(results, list)
+        # Create document with multiple tables
+        content = [
+            {"text": "Sales Report", "style": "Heading 1"},
+            {
+                "style": "Table",
+                "table_data": [
+                    ["Product", "Q1 Sales", "Q2 Sales"],
+                    ["Laptop", "$50,000", "$75,000"],
+                    ["Desktop", "$30,000", "$45,000"]
+                ]
+            },
+            {"text": "Inventory Status", "style": "Heading 1"},
+            {
+                "style": "Table",
+                "table_data": [
+                    ["Item", "Stock", "Location"],
+                    ["Laptop Model A", "25", "Warehouse 1"],
+                    ["Desktop Pro", "15", "Warehouse 2"]
+                ]
+            }
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Search across tables
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="Laptop",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches >= 2  # Should find in both tables
+        assert result.total_tables == 2
     
-    def test_empty_document(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_empty_document(self, tmp_path):
         """Test handling of empty documents."""
         docx_file = tmp_path / "empty.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = []
-            mock_doc_instance.tables = []
-            mock_doc.return_value = mock_doc_instance
-            
-            results = tool(docx_file, "test")
-            
-            assert results == []
+        # Create empty document
+        content = []
+        self.create_test_docx(docx_file, content)
+        
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="test",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches == 0
+        assert len(result.matching_sections) == 0
+        assert result.total_paragraphs == 0
     
-    def test_large_document_performance(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_large_document_performance(self, tmp_path):
         """Test performance with large documents."""
         docx_file = tmp_path / "large.docx"
-        tool = self.get_component_function()
         
-        with patch("docx.Document") as mock_doc:
-            # Create large document
-            mock_paragraphs = [
-                Mock(text=f"Paragraph {i} with some content", style=Mock(name="Normal"))
-                for i in range(1000)
-            ]
-            
-            mock_doc_instance = Mock()
-            mock_doc_instance.paragraphs = mock_paragraphs
-            mock_doc.return_value = mock_doc_instance
-            
-            import time
-            start_time = time.time()
-            
-            results = tool(docx_file, "Paragraph 500")
-            
-            elapsed = time.time() - start_time
-            
-            # Should complete quickly
-            assert elapsed < 2.0
-            assert len(results) >= 1
+        # Create large document
+        content = [
+            {"text": f"Paragraph {i} with some content about topic {i % 10}", "style": "Normal"}
+            for i in range(500)  # Reduced from 1000 for faster test
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        import time
+        start_time = time.time()
+        
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="Paragraph 250",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        elapsed = time.time() - start_time
+        
+        assert result.success is True
+        assert elapsed < 5.0  # Should complete within 5 seconds
+        assert result.total_matches >= 1
+        assert result.total_paragraphs == 500
     
-    def test_corrupted_document_handling(self, tmp_path):
-        """Test handling of corrupted documents."""
-        docx_file = tmp_path / "corrupted.docx"
-        tool = self.get_component_function()
+    @pytest.mark.asyncio
+    async def test_nonexistent_file(self, tmp_path):
+        """Test handling of nonexistent files."""
+        docx_file = tmp_path / "nonexistent.docx"
         
-        with patch("docx.Document") as mock_doc:
-            # Simulate corrupted document
-            mock_doc.side_effect = Exception("Document is corrupted")
-            
-            results = tool(docx_file, "test")
-            
-            # Should handle gracefully
-            assert isinstance(results, list)
-            assert len(results) == 0 or "error" in str(results)
+        result = await search_docx(
+            file_path=str(docx_file),
+            search_text="test",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is False
+        assert result.error is not None
+        assert "does not exist" in result.error
+        assert result.total_matches == 0
+    
+    @pytest.mark.asyncio
+    async def test_invalid_file_extension(self, tmp_path):
+        """Test handling of non-DOCX files."""
+        txt_file = tmp_path / "test.txt"
+        txt_file.write_text("This is not a DOCX file")
+        
+        result = await search_docx(
+            file_path=str(txt_file),
+            search_text="test",
+            case_sensitive=False,
+            include_tables=True
+        )
+        
+        assert result.success is False
+        assert result.error is not None
+        assert "must be a Word document" in result.error
+    
+    @pytest.mark.asyncio
+    async def test_no_search_criteria(self, tmp_path):
+        """Test extracting all content without search criteria."""
+        docx_file = tmp_path / "test.docx"
+        
+        content = [
+            {"text": "First paragraph", "style": "Normal"},
+            {"text": "Second paragraph", "style": "Normal"},
+            {"text": "Third paragraph", "style": "Normal"}
+        ]
+        self.create_test_docx(docx_file, content)
+        
+        # Process without search text should not match anything
+        result = await process_docx_document(
+            file_path=str(docx_file),
+            search_text=None,
+            regex_pattern=None,
+            include_tables=True
+        )
+        
+        assert result.success is True
+        assert result.total_matches == 0
+        assert len(result.matching_sections) == 0
+        assert result.total_paragraphs == 3
