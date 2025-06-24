@@ -1,6 +1,7 @@
 """Test suite for directory_search_tool following best practices."""
 
 import aiofiles
+import asyncio
 import os
 import pytest
 from datetime import datetime, timedelta
@@ -576,3 +577,321 @@ class TestDirectorySearchTool(BaseToolTest):
         assert "doc1.txt" in file_names
         assert "doc2.py" in file_names
         assert "doc3.md" not in file_names
+    
+    async def test_unicode_filenames(self, tmp_path):
+        """Test handling of Unicode characters in filenames."""
+        tool = self.get_component_function()
+        
+        # Create files with Unicode names
+        unicode_files = [
+            "файл.txt",  # Russian
+            "文件.txt",   # Chinese
+            "ファイル.txt",  # Japanese
+            "αρχείο.txt",  # Greek
+            "🎉emoji.txt",  # Emoji
+            "café.txt",    # Accented characters
+        ]
+        
+        for filename in unicode_files:
+            (tmp_path / filename).touch()
+        
+        result = await tool(path=str(tmp_path), pattern="*.txt", recursive=False)
+        assert result.success
+        assert len(result.files) == len(unicode_files)
+        
+        found_names = [f.name for f in result.files]
+        for expected in unicode_files:
+            assert expected in found_names
+    
+    async def test_directory_traversal_security(self, tmp_path):
+        """Test that directory traversal attempts are handled safely."""
+        tool = self.get_component_function()
+        
+        # Create a structure for testing
+        safe_dir = tmp_path / "safe"
+        safe_dir.mkdir()
+        (safe_dir / "allowed.txt").touch()
+        
+        # Attempt directory traversal patterns
+        traversal_patterns = [
+            "../../../etc/passwd",
+            "..\\..\\..\\windows\\system32",
+            "/etc/passwd",
+            "C:\\Windows\\System32",
+        ]
+        
+        for pattern in traversal_patterns:
+            # Tool should handle these safely
+            result = await tool(path=str(safe_dir), pattern=pattern, recursive=False)
+            # Should either fail or return no results, not access system files
+            assert result.success is False or len(result.files) == 0
+    
+    async def test_concurrent_search_operations(self, tmp_path):
+        """Test concurrent search operations."""
+        tool = self.get_component_function()
+        
+        # Create test structure
+        for i in range(100):
+            (tmp_path / f"file{i}.txt").touch()
+        
+        # Run multiple searches concurrently
+        tasks = []
+        patterns = ["file[0-9].txt", "file[1-9][0-9].txt", "file*.txt"]
+        
+        async def run_search(pattern):
+            return await tool(path=str(tmp_path), pattern=pattern, recursive=False)
+        
+        for pattern in patterns:
+            tasks.append(run_search(pattern))
+        
+        results = await asyncio.gather(*tasks)
+        
+        # All should succeed
+        for result in results:
+            assert result.success
+            assert len(result.files) > 0
+    
+    async def test_search_with_no_permissions(self, tmp_path, monkeypatch):
+        """Test handling when permissions are denied."""
+        tool = self.get_component_function()
+        
+        # Create a directory
+        test_dir = tmp_path / "test_dir"
+        test_dir.mkdir()
+        (test_dir / "file.txt").touch()
+        
+        # Mock permission error
+        original_iterdir = Path.iterdir
+        
+        def mock_iterdir(self):
+            if str(self) == str(test_dir):
+                raise PermissionError("Access denied")
+            return original_iterdir(self)
+        
+        monkeypatch.setattr(Path, "iterdir", mock_iterdir)
+        
+        # Should handle gracefully
+        result = await tool(path=str(test_dir), pattern="*", recursive=False)
+        assert result.success  # Should succeed but with empty results
+        assert len(result.files) == 0
+        assert len(result.directories) == 0
+    
+    async def test_extremely_long_paths(self, tmp_path):
+        """Test handling of very long file paths."""
+        tool = self.get_component_function()
+        
+        # Create deeply nested structure
+        current = tmp_path
+        for i in range(20):
+            current = current / f"very_long_directory_name_number_{i}"
+            current.mkdir()
+        
+        # Create file at the end
+        (current / "deeply_nested_file.txt").touch()
+        
+        # Should handle long paths
+        result = await tool(path=str(tmp_path), pattern="*.txt", recursive=True, max_depth=25)
+        assert result.success
+        assert len(result.files) == 1
+        assert "deeply_nested_file.txt" in result.files[0].name
+    
+    async def test_circular_symlinks(self, tmp_path):
+        """Test handling of circular symbolic links."""
+        tool = self.get_component_function()
+        
+        # Create circular symlink structure (if supported)
+        dir1 = tmp_path / "dir1"
+        dir2 = tmp_path / "dir2"
+        dir1.mkdir()
+        dir2.mkdir()
+        
+        (dir1 / "file1.txt").touch()
+        (dir2 / "file2.txt").touch()
+        
+        try:
+            # Create circular links
+            (dir1 / "link_to_dir2").symlink_to(dir2)
+            (dir2 / "link_to_dir1").symlink_to(dir1)
+            
+            # Should handle without infinite loop
+            result = await tool(path=str(tmp_path), pattern="*.txt", recursive=True, max_depth=10)
+            assert result.success
+            # Should find files but not get stuck in infinite loop
+            assert result.search_time < 5.0  # Should complete quickly
+        except OSError:
+            pytest.skip("Symlinks not supported on this platform")
+    
+    async def test_mixed_content_search_encodings(self, tmp_path):
+        """Test content search with various text encodings."""
+        tool = self.get_component_function()
+        
+        # Create files with different encodings
+        utf8_file = tmp_path / "utf8.txt"
+        utf8_file.write_text("Hello world with UTF-8: café", encoding="utf-8")
+        
+        # ASCII file
+        ascii_file = tmp_path / "ascii.txt"
+        ascii_file.write_text("Hello world ASCII only", encoding="ascii")
+        
+        # Search for content
+        result = await tool(path=str(tmp_path), pattern="*.txt", content_search="Hello", recursive=False)
+        assert result.success
+        assert len(result.files) == 2
+        
+        # Search for UTF-8 content
+        result = await tool(path=str(tmp_path), pattern="*.txt", content_search="café", recursive=False)
+        assert result.success
+        assert len(result.files) == 1
+        assert "utf8.txt" in result.files[0].name
+    
+    async def test_very_large_directory_listing(self, tmp_path):
+        """Test performance with directories containing many items."""
+        tool = self.get_component_function()
+        
+        # Create a large number of files and directories
+        large_dir = tmp_path / "large"
+        large_dir.mkdir()
+        
+        # Create 1000 files
+        for i in range(1000):
+            (large_dir / f"file_{i:04d}.txt").touch()
+        
+        # Create 100 directories
+        for i in range(100):
+            (large_dir / f"dir_{i:03d}").mkdir()
+        
+        # Test with limit
+        result = await tool(path=str(large_dir), pattern="*", max_results=50, recursive=False)
+        assert result.success
+        assert result.total_found <= 50
+        assert result.search_time < 2.0  # Should be fast even with many files
+    
+    async def test_search_with_all_filters_combined(self, tmp_path):
+        """Test using all available filters simultaneously."""
+        tool = self.get_component_function()
+        
+        # Create complex test structure
+        base_time = datetime.now()
+        
+        # Create various files
+        for i in range(10):
+            file_path = tmp_path / f"test_{i}.py"
+            content = f"# Python file {i}\nimport os\n" if i % 2 == 0 else f"# Python file {i}\nimport sys\n"
+            file_path.write_text(content)
+            
+            # Set different modification times
+            mod_time = base_time - timedelta(days=i)
+            os.utime(file_path, (mod_time.timestamp(), mod_time.timestamp()))
+        
+        # Create some other files
+        (tmp_path / ".hidden.py").write_text("# Hidden file")
+        (tmp_path / "large.py").write_text("x" * 10000)
+        (tmp_path / "excluded.tmp").touch()
+        
+        # Complex search with all filters
+        result = await tool(
+            path=str(tmp_path),
+            pattern="*.py",
+            regex_pattern=r"test_[0-9]+\.py",
+            recursive=False,
+            include_hidden=False,
+            file_types=[".py"],
+            exclude_patterns=["*_9.py"],
+            min_size=20,
+            max_size=5000,
+            modified_after=base_time - timedelta(days=5),
+            modified_before=base_time,
+            content_search="import os",
+            max_results=10,
+            sort_by="modified",
+            reverse_sort=True
+        )
+        
+        assert result.success
+        # Should only find even-numbered files (0, 2, 4) within date range
+        # that contain "import os" and match all other criteria
+        assert len(result.files) <= 3
+        for f in result.files:
+            assert "test_" in f.name
+            assert f.name.endswith(".py")
+            assert "_9" not in f.name
+    
+    async def test_applied_filters_tracking(self, tmp_path):
+        """Test that applied_filters correctly tracks what was used."""
+        tool = self.get_component_function()
+        
+        # Simple search with various filters
+        result = await tool(
+            path=str(tmp_path),
+            pattern="*.txt",
+            regex_pattern="test.*",
+            file_types=[".txt", ".log"],
+            content_search="keyword",
+            min_size=100,
+            max_size=1000,
+            modified_after=datetime.now() - timedelta(days=1),
+            modified_before=datetime.now()
+        )
+        
+        assert result.success
+        assert result.applied_filters["pattern"] == "*.txt"
+        assert result.applied_filters["regex"] == "test.*"
+        assert result.applied_filters["file_types"] == [".txt", ".log"]
+        assert result.applied_filters["content_search"] == "keyword"
+        assert result.applied_filters["size_range"] == (100, 1000)
+        assert result.applied_filters["date_range"][0] is not None
+        assert result.applied_filters["date_range"][1] is not None
+    
+    async def test_mime_type_detection(self, tmp_path):
+        """Test MIME type detection for various file types."""
+        tool = self.get_component_function()
+        
+        # Create files with different extensions
+        test_files = {
+            "script.py": "text/x-python",
+            "data.json": "application/json",
+            "page.html": "text/html",
+            "style.css": "text/css",
+            "image.png": "image/png",
+            "document.pdf": "application/pdf",
+            "archive.zip": "application/zip",
+            "unknown.xyz": None,  # Unknown type
+        }
+        
+        for filename in test_files:
+            (tmp_path / filename).touch()
+        
+        result = await tool(path=str(tmp_path), pattern="*", recursive=False)
+        assert result.success
+        
+        # Check MIME types
+        for file_info in result.files:
+            expected_mime = test_files.get(file_info.name)
+            if expected_mime:
+                assert file_info.mime_type == expected_mime
+    
+    async def test_error_recovery_during_search(self, tmp_path):
+        """Test that search continues even if some files cause errors."""
+        tool = self.get_component_function()
+        
+        # Create files
+        (tmp_path / "good1.txt").write_text("content")
+        (tmp_path / "good2.txt").write_text("content")
+        
+        # Mock to simulate error on one file
+        original_from_path = FileInfo.from_path
+        call_count = 0
+        
+        def mock_from_path(path):
+            nonlocal call_count
+            call_count += 1
+            if call_count == 2:  # Error on second file
+                raise OSError("Simulated error")
+            return original_from_path(path)
+        
+        with patch.object(FileInfo, 'from_path', side_effect=mock_from_path):
+            result = await tool(path=str(tmp_path), pattern="*.txt", recursive=False)
+            
+            # Should still succeed and return the good file
+            assert result.success
+            assert len(result.files) >= 1  # At least one file should be found
