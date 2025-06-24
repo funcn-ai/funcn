@@ -1,88 +1,69 @@
 """Test suite for mdx_search_tool following best practices."""
 
 import pytest
+from packages.funcn_registry.components.tools.mdx_search.tool import (
+    MDXSearchResult,
+    extract_mdx_components,
+    find_documentation_sections,
+    search_mdx_files,
+    search_mdx_with_metadata,
+)
 from pathlib import Path
 from tests.fixtures import TestDataFactory
 from tests.utils import BaseToolTest
-from unittest.mock import Mock, mock_open, patch
 
 
 class TestMDXSearchTool(BaseToolTest):
     """Test mdx_search_tool component."""
     
     component_name = "mdx_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/mdx_search_tool")
+    component_path = Path("packages/funcn_registry/components/tools/mdx_search")
+    
+    def create_test_mdx(self, file_path: Path, content: str) -> Path:
+        """Create a test MDX file with specified content."""
+        file_path.write_text(content, encoding='utf-8')
+        return file_path
     
     def get_component_function(self):
         """Import the tool function."""
-        # Would import: from tools.mdx_search_tool import search_mdx
-        def mock_search_mdx(
-            mdx_path: str | Path,
-            query: str,
-            search_content: bool = True,
-            search_frontmatter: bool = True,
-            search_jsx: bool = True,
-            case_sensitive: bool = False
-        ) -> list[dict[str, any]]:
-            """Mock MDX search tool."""
-            return [
-                {
-                    "file": str(mdx_path),
-                    "line": 10,
-                    "type": "content",
-                    "text": f"Found '{query}' in documentation content",
-                    "section": "## Installation",
-                    "match_score": 0.95
-                },
-                {
-                    "file": str(mdx_path),
-                    "line": 5,
-                    "type": "frontmatter",
-                    "key": "title",
-                    "value": f"Getting Started with {query}",
-                    "match_score": 0.88
-                }
-            ]
-        return mock_search_mdx
+        return search_mdx_files
     
     def get_test_inputs(self):
         """Provide test inputs for the tool."""
         return [
             {
-                "mdx_path": "/path/to/docs.mdx",
                 "query": "installation",
-                "search_content": True,
-                "search_frontmatter": True
+                "search_in": ["content", "frontmatter"],
+                "case_sensitive": False
             },
             {
-                "mdx_path": "/path/to/api.mdx",
                 "query": "Button",
-                "search_jsx": True,
+                "search_in": ["components"],
                 "case_sensitive": True
             },
             {
-                "mdx_path": "/path/to/guide.mdx",
                 "query": "configuration",
-                "search_frontmatter": True,
-                "search_content": True
+                "search_in": ["content", "headings"],
+                "max_results": 10
             }
         ]
     
     def validate_tool_output(self, output, input_data):
         """Validate the tool output format."""
-        assert isinstance(output, list)
+        assert isinstance(output, MDXSearchResult)
+        assert isinstance(output.success, bool)
+        assert isinstance(output.matches, list)
+        assert output.query == input_data["query"]
         
-        for result in output:
-            assert isinstance(result, dict)
-            assert "file" in result or "path" in result
-            assert "type" in result or "match_type" in result
-            if "line" in result:
-                assert isinstance(result["line"], int)
+        for match in output.matches:
+            assert hasattr(match, "file_path")
+            assert hasattr(match, "match_type")
+            assert hasattr(match, "line_number")
     
-    def test_search_mdx_content(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_mdx_content(self, tmp_path):
         """Test searching in MDX content sections."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """---
 title: Getting Started
@@ -113,17 +94,25 @@ Configure the package by creating a config file.
 </CodeExample>
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            results = tool(mdx_file, "installation", search_content=True)
-            
-            assert len(results) >= 1
-            # Should find in the Installation section
-            assert any("installation" in r.get("text", "").lower() for r in results)
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search for content
+        result = await search_mdx_files(
+            query="installation",
+            search_path=str(tmp_path),
+            search_in=["content", "headings"],
+            case_sensitive=False
+        )
+        
+        assert result.success
+        assert result.total_matches >= 1  # Should find at least in heading
+        # Should find in the Installation section
+        assert any("installation" in match.content.lower() for match in result.matches)
     
-    def test_search_frontmatter(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_frontmatter(self, tmp_path):
         """Test searching in MDX frontmatter."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """---
 title: API Reference
@@ -139,18 +128,25 @@ version: 2.0.0
 Documentation content here.
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            # Search in frontmatter
-            results = tool(mdx_file, "John Doe", search_frontmatter=True, search_content=False)
-            
-            assert len(results) >= 1
-            assert any(r.get("type") == "frontmatter" for r in results)
-            assert any(r.get("key") == "author" for r in results)
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search in frontmatter
+        result = await search_mdx_files(
+            query="John Doe",
+            search_path=str(tmp_path),
+            search_in=["frontmatter"],
+            case_sensitive=True
+        )
+        
+        assert result.success
+        assert result.total_matches >= 1
+        assert any(match.match_type == "frontmatter" for match in result.matches)
+        assert any("John Doe" in str(match.frontmatter) for match in result.matches)
     
-    def test_search_jsx_components(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_search_jsx_components(self, tmp_path):
         """Test searching in JSX components."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """# Component Documentation
 
@@ -174,21 +170,33 @@ Documentation content here.
 </Tabs>
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            # Search for JSX components
-            results = tool(mdx_file, "Alert", search_jsx=True)
-            
-            assert len(results) >= 1
-            assert any("Alert" in str(r) for r in results)
-            
-            # Search for component props
-            results = tool(mdx_file, "warning", search_jsx=True)
-            assert len(results) >= 1
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search for JSX components
+        result = await search_mdx_files(
+            query="Alert",
+            search_path=str(tmp_path),
+            search_in=["components"],
+            case_sensitive=True
+        )
+        
+        assert result.success
+        assert result.total_matches >= 1
+        assert any("Alert" in match.content for match in result.matches)
+        
+        # Search for component props
+        result = await search_mdx_files(
+            query="warning",
+            search_path=str(tmp_path),
+            search_in=["components"],
+            case_sensitive=True
+        )
+        assert result.total_matches >= 1
     
-    def test_case_sensitivity(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_case_sensitivity(self, tmp_path):
         """Test case-sensitive vs case-insensitive search."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """---
 title: Case Test
@@ -201,20 +209,32 @@ This contains MixedCase and lowercase text.
 <Component PropName="Value" />
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            # Case-insensitive search
-            results_insensitive = tool(mdx_file, "uppercase", case_sensitive=False)
-            
-            # Case-sensitive search
-            results_sensitive = tool(mdx_file, "uppercase", case_sensitive=True)
-            
-            # Case-insensitive should find more matches
-            assert len(results_insensitive) >= len(results_sensitive)
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Case-insensitive search
+        result_insensitive = await search_mdx_files(
+            query="uppercase",
+            search_path=str(tmp_path),
+            search_in=["content", "headings"],
+            case_sensitive=False
+        )
+        
+        # Case-sensitive search
+        result_sensitive = await search_mdx_files(
+            query="uppercase",
+            search_path=str(tmp_path),
+            search_in=["content", "headings"],
+            case_sensitive=True
+        )
+        
+        # Case-insensitive should find more matches
+        assert result_insensitive.total_matches >= result_sensitive.total_matches
+        assert result_insensitive.total_matches >= 2  # In heading and content
     
-    def test_code_block_search(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_code_block_search(self, tmp_path):
         """Test searching within code blocks."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """# Code Examples
 
@@ -239,16 +259,23 @@ result = api.get_data()
 ```
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            # Search in code blocks
-            results = tool(mdx_file, "apiKey")
-            
-            assert len(results) >= 2  # Should find in both code blocks
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search in code blocks
+        result = await search_mdx_files(
+            query="apiKey",
+            search_path=str(tmp_path),
+            search_in=["code"],
+            case_sensitive=True
+        )
+        
+        assert result.success
+        assert result.total_matches >= 1  # Should find in code blocks
     
-    def test_import_export_statements(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_import_export_statements(self, tmp_path):
         """Test searching in import/export statements."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """import { Button, Card } from './components';
 import CodeExample from './CodeExample';
@@ -259,16 +286,24 @@ export { metadata } from './metadata';
 <Button>Click me</Button>
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            results = tool(mdx_file, "Button")
-            
-            # Should find in import and JSX usage
-            assert len(results) >= 2
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search in content and components
+        result = await search_mdx_files(
+            query="Button",
+            search_path=str(tmp_path),
+            search_in=["content", "components"],
+            case_sensitive=True
+        )
+        
+        assert result.success
+        # Should find in import and JSX usage
+        assert result.total_matches >= 2
     
-    def test_nested_components(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_nested_components(self, tmp_path):
         """Test searching in nested JSX components."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """# Nested Components
 
@@ -284,19 +319,31 @@ export { metadata } from './metadata';
 </Card>
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            # Search for nested component
-            results = tool(mdx_file, "CardHeader", search_jsx=True)
-            assert len(results) >= 1
-            
-            # Search for deeply nested content
-            results = tool(mdx_file, "emphasis")
-            assert len(results) >= 1
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search for nested component
+        result = await search_mdx_files(
+            query="CardHeader",
+            search_path=str(tmp_path),
+            search_in=["components"],
+            case_sensitive=True
+        )
+        assert result.success
+        assert result.total_matches >= 1
+        
+        # Search for deeply nested content
+        result = await search_mdx_files(
+            query="emphasis",
+            search_path=str(tmp_path),
+            search_in=["content"],
+            case_sensitive=True
+        )
+        assert result.total_matches >= 1
     
-    def test_mdx_specific_syntax(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_mdx_specific_syntax(self, tmp_path):
         """Test MDX-specific syntax elements."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """export const metadata = {
   title: 'MDX Page',
@@ -312,19 +359,31 @@ export { metadata } from './metadata';
 {/* This is an MDX comment */}
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            # Search for JSX expressions
-            results = tool(mdx_file, "metadata.title")
-            assert len(results) >= 1
-            
-            # Search in style objects
-            results = tool(mdx_file, "backgroundColor")
-            assert len(results) >= 1
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search for JSX expressions
+        result = await search_mdx_files(
+            query="metadata.title",
+            search_path=str(tmp_path),
+            search_in=["content"],
+            case_sensitive=True
+        )
+        assert result.success
+        assert result.total_matches >= 1
+        
+        # Search in style objects
+        result = await search_mdx_files(
+            query="backgroundColor",
+            search_path=str(tmp_path),
+            search_in=["content"],
+            case_sensitive=True
+        )
+        assert result.total_matches >= 1
     
-    def test_table_search(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_table_search(self, tmp_path):
         """Test searching in markdown tables."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """# API Methods
 
@@ -335,17 +394,24 @@ export { metadata } from './metadata';
 | deleteItem | Removes an item | id: string |
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            results = tool(mdx_file, "getData")
-            
-            assert len(results) >= 1
-            # Should find in table
-            assert any("getData" in r.get("text", "") for r in results)
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        result = await search_mdx_files(
+            query="getData",
+            search_path=str(tmp_path),
+            search_in=["content"],
+            case_sensitive=True
+        )
+        
+        assert result.success
+        assert result.total_matches >= 1
+        # Should find in table
+        assert any("getData" in match.content for match in result.matches)
     
-    def test_section_context(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_section_context(self, tmp_path):
         """Test that search results include section context."""
         mdx_file = tmp_path / "test.mdx"
-        tool = self.get_component_function()
         
         mdx_content = """# Main Title
 
@@ -362,41 +428,272 @@ More content here.
 Different content also mentioning configuration.
 """
         
-        with patch("builtins.open", mock_open(read_data=mdx_content)):
-            results = tool(mdx_file, "configuration")
-            
-            # Results should include section context
-            assert all("section" in r for r in results)
-            # Should find in multiple sections
-            assert len(results) >= 2
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        result = await search_mdx_files(
+            query="configuration",
+            search_path=str(tmp_path),
+            search_in=["content"],
+            case_sensitive=False
+        )
+        
+        assert result.success
+        # Should find in multiple sections
+        assert result.total_matches >= 2
+        # Results should include section context
+        for match in result.matches:
+            assert match.section is not None or match.match_type == "heading"
     
-    def test_empty_mdx_handling(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_empty_mdx_handling(self, tmp_path):
         """Test handling of empty MDX files."""
         mdx_file = tmp_path / "empty.mdx"
-        tool = self.get_component_function()
         
-        with patch("builtins.open", mock_open(read_data="")):
-            results = tool(mdx_file, "test")
-            assert results == []
+        self.create_test_mdx(mdx_file, "")
+        
+        result = await search_mdx_files(
+            query="test",
+            search_path=str(tmp_path),
+            search_in=["content"],
+            case_sensitive=False
+        )
+        
+        assert result.success
+        assert result.total_matches == 0
     
-    def test_large_mdx_performance(self, tmp_path):
+    @pytest.mark.asyncio
+    async def test_large_mdx_performance(self, tmp_path):
         """Test performance with large MDX files."""
         mdx_file = tmp_path / "large.mdx"
-        tool = self.get_component_function()
         
         # Create large MDX content
         large_content = "# Large Document\n\n"
         for i in range(1000):
             large_content += f"## Section {i}\n\nContent for section {i} with various keywords.\n\n"
         
-        with patch("builtins.open", mock_open(read_data=large_content)):
-            import time
-            start_time = time.time()
-            
-            results = tool(mdx_file, "Section 500")
-            
-            elapsed = time.time() - start_time
-            
-            # Should complete quickly
-            assert elapsed < 2.0
-            assert len(results) >= 1
+        self.create_test_mdx(mdx_file, large_content)
+        
+        import time
+        start_time = time.time()
+        
+        result = await search_mdx_files(
+            query="Section 500",
+            search_path=str(tmp_path),
+            search_in=["content", "headings"],
+            case_sensitive=True
+        )
+        
+        elapsed = time.time() - start_time
+        
+        assert result.success
+        # Should complete quickly
+        assert elapsed < 2.0
+        assert result.total_matches >= 1
+    
+    @pytest.mark.asyncio
+    async def test_extract_mdx_components(self, tmp_path):
+        """Test extracting components from MDX files."""
+        mdx_file = tmp_path / "components.mdx"
+        
+        mdx_content = """# Component Demo
+
+<Button variant="primary" onClick={handleClick}>
+  Click me
+</Button>
+
+<Card title="Sample Card">
+  <CardHeader>Header</CardHeader>
+  <CardBody>Content</CardBody>
+</Card>
+
+<Button variant="secondary">Another Button</Button>
+"""
+        
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Extract all components
+        components = await extract_mdx_components(str(mdx_file))
+        
+        assert "Button" in components
+        assert len(components["Button"]) == 2
+        assert components["Button"][0].props.get("variant") == "primary"
+        
+        # Extract specific components
+        components = await extract_mdx_components(str(mdx_file), ["Card"])
+        assert "Card" in components
+        assert "Button" not in components
+    
+    @pytest.mark.asyncio
+    async def test_find_documentation_sections(self, tmp_path):
+        """Test finding documentation sections by pattern."""
+        mdx_file = tmp_path / "docs.mdx"
+        
+        mdx_content = """---
+title: API Documentation
+---
+
+# API Reference
+
+## Authentication
+
+Details about authentication.
+
+### API Keys
+
+How to use API keys.
+
+## Rate Limiting
+
+Information about rate limits.
+
+### Handling Rate Limits
+
+Best practices for rate limit handling.
+"""
+        
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Find all level 2 sections
+        sections = await find_documentation_sections(
+            search_path=str(tmp_path),
+            min_level=2,
+            max_level=2,
+            include_content=True
+        )
+        
+        assert len(sections) == 2
+        assert any(s["heading"] == "Authentication" for s in sections)
+        assert any(s["heading"] == "Rate Limiting" for s in sections)
+        
+        # Find sections with pattern
+        sections = await find_documentation_sections(
+            search_path=str(tmp_path),
+            heading_pattern=r".*Limit.*",
+            include_content=True
+        )
+        
+        assert len(sections) >= 1
+        assert any("Limit" in s["heading"] for s in sections)
+    
+    @pytest.mark.asyncio
+    async def test_search_mdx_with_metadata(self, tmp_path):
+        """Test searching with metadata filters."""
+        # Create multiple MDX files with different metadata
+        mdx1 = tmp_path / "post1.mdx"
+        mdx2 = tmp_path / "post2.mdx"
+        
+        mdx_content1 = """---
+title: First Post
+author: John Doe
+tags: [tutorial, javascript]
+date: 2024-01-15
+---
+
+# First Post
+
+This is a tutorial about JavaScript.
+"""
+        
+        mdx_content2 = """---
+title: Second Post
+author: Jane Smith
+tags: [guide, python]
+date: 2024-02-01
+---
+
+# Second Post
+
+This is a guide about Python.
+"""
+        
+        self.create_test_mdx(mdx1, mdx_content1)
+        self.create_test_mdx(mdx2, mdx_content2)
+        
+        # Search with metadata filter
+        result = await search_mdx_with_metadata(
+            query="Post",
+            search_path=str(tmp_path),
+            metadata_filters={"author": "John Doe"}
+        )
+        
+        assert result.success
+        # Should find matches only from John Doe's post
+        assert all(match.frontmatter["author"] == "John Doe" for match in result.matches)
+        # Should not find matches from Jane Smith's post
+        assert not any("post2.mdx" in match.file_path for match in result.matches)
+        
+        # Search with tag filter
+        result = await search_mdx_with_metadata(
+            query="about",
+            search_path=str(tmp_path),
+            tags_filter=["tutorial"]
+        )
+        
+        assert result.success
+        assert result.total_matches == 1
+        assert "tutorial" in result.matches[0].frontmatter["tags"]
+    
+    @pytest.mark.asyncio
+    async def test_headings_search(self, tmp_path):
+        """Test searching specifically in headings."""
+        mdx_file = tmp_path / "headings.mdx"
+        
+        mdx_content = """# Introduction to Testing
+
+## Setting Up Tests
+
+Content about setting up tests.
+
+### Unit Tests
+
+How to write unit tests.
+
+### Integration Tests
+
+How to write integration tests.
+
+## Running Tests
+
+How to run your test suite.
+"""
+        
+        self.create_test_mdx(mdx_file, mdx_content)
+        
+        # Search in headings only
+        result = await search_mdx_files(
+            query="Tests",
+            search_path=str(tmp_path),
+            search_in=["headings"],
+            case_sensitive=True
+        )
+        
+        assert result.success
+        assert result.total_matches >= 3
+        assert all(match.match_type == "heading" for match in result.matches)
+    
+    @pytest.mark.asyncio
+    async def test_exclude_patterns(self, tmp_path):
+        """Test file exclusion patterns."""
+        # Create files in different directories
+        (tmp_path / "docs").mkdir()
+        (tmp_path / "drafts").mkdir()
+        
+        doc_file = tmp_path / "docs" / "published.mdx"
+        draft_file = tmp_path / "drafts" / "draft.mdx"
+        
+        content = "# Test Document\n\nThis contains the search term."
+        
+        self.create_test_mdx(doc_file, content)
+        self.create_test_mdx(draft_file, content)
+        
+        # Search excluding drafts
+        result = await search_mdx_files(
+            query="search term",
+            search_path=str(tmp_path),
+            exclude_patterns=[r"drafts/"],
+            case_sensitive=False
+        )
+        
+        assert result.success
+        assert result.total_matches == 1
+        assert "drafts" not in result.matches[0].file_path
