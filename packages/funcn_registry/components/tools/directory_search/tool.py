@@ -206,13 +206,16 @@ async def _search_directory_recursive(
             try:
                 file_info = FileInfo.from_path(item)
 
-                # Check name pattern
-                if pattern and not fnmatch.fnmatch(file_info.name, pattern):
-                    continue
+                # For directories in recursive mode, don't apply pattern matching
+                # as we need to search inside them
+                if not (file_info.is_directory and recursive):
+                    # Check name pattern
+                    if pattern and not fnmatch.fnmatch(file_info.name, pattern):
+                        continue
 
-                # Check regex pattern
-                if regex_pattern and not re.match(regex_pattern, file_info.name):
-                    continue
+                    # Check regex pattern
+                    if regex_pattern and not re.match(regex_pattern, file_info.name):
+                        continue
 
                 # Check other filters
                 if not _matches_filters(
