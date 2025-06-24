@@ -98,7 +98,7 @@ def _search_json(json_data: Any, args: JSONSearchArgs) -> JSONSearchResponse:
             try:
                 jsonpath_expr = parse(args.json_path)
                 matches = jsonpath_expr.find(json_data)
-                search_data = [(match.full_path, match.value) for match in matches]
+                search_data = [(str(match.full_path), match.value) for match in matches]
                 search_scope = f"JSONPath: {args.json_path}"
             except JSONPathError as e:
                 return JSONSearchResponse(
