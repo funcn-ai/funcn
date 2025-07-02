@@ -12,7 +12,9 @@ from packages.funcn_registry.components.tools.pdf_search.tool import (
     search_pdf_content,
 )
 from pathlib import Path
-from tests.fixtures import TestDataFactory
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.utils import simpleSplit
+from reportlab.pdfgen import canvas
 from tests.utils import BaseToolTest
 from unittest.mock import MagicMock, Mock, mock_open, patch
 
@@ -118,7 +120,7 @@ class TestPDFSearchTool(BaseToolTest):
         pdf_file = tmp_path / "typos.pdf"
         pdf_file.write_bytes(b"dummy pdf")
         
-        tool = self.get_component_function()
+        self.create_test_pdf(pdf_file, content)
         
         with patch("packages.funcn_registry.components.tools.pdf_search.tool.PyPDF2.PdfReader") as mock_reader:
             mock_page = MagicMock()

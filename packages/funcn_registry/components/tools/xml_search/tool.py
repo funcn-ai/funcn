@@ -276,8 +276,8 @@ async def process_xml(
         # Create parent map for element relationships
         parent_map = {c: p for p in tree.iter() for c in p}
 
-        # Extract namespaces
-        namespaces = dict(root.nsmap) if root.nsmap else {}
+        # Extract namespaces (filter out None keys)
+        namespaces = {k: v for k, v in (root.nsmap.items() if root.nsmap else {}) if k is not None}
 
         # Validate if requested
         validation_errors = []
