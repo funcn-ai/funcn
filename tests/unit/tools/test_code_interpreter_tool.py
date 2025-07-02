@@ -1,335 +1,815 @@
 """Test suite for code_interpreter_tool following best practices."""
 
+import asyncio
+import json
 import pytest
-import subprocess
 import sys
+import tempfile
+from datetime import datetime
+
+# Import the actual tool functions and models
+from packages.funcn_registry.components.tools.code_interpreter.tool import (
+    CodeExecutionResult,
+    execute_code,
+    execute_code_with_timeout,
+    execute_directly,
+    execute_in_subprocess,
+    validate_code,
+)
 from pathlib import Path
 from tests.utils import BaseToolTest
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, call, patch
 
 
 class TestCodeInterpreterTool(BaseToolTest):
     """Test code_interpreter_tool component."""
     
     component_name = "code_interpreter_tool"
-    component_path = Path("packages/funcn_registry/components/tools/code_interpreter_tool")
+    component_path = Path("packages/funcn_registry/components/tools/code_interpreter")
     
     def get_component_function(self):
         """Import the tool function."""
-        # Would import: from tools.code_interpreter_tool import execute_code
-        def mock_execute_code(
-            code: str,
-            language: str = "python",
-            timeout: int = 30,
-            capture_output: bool = True,
-            safe_mode: bool = True,
-            allowed_modules: list[str] | None = None
-        ) -> dict[str, any]:
-            """Mock code interpreter tool."""
-            return {
-                "output": "Hello, World!",
-                "error": None,
-                "return_value": None,
-                "execution_time": 0.05,
-                "variables": {"result": 42},
-                "success": True
-            }
-        return mock_execute_code
+        return execute_code
     
     def get_test_inputs(self):
         """Provide test inputs for the tool."""
-        return [
-            {
-                "code": "print('Hello, World!')",
-                "language": "python",
-                "timeout": 10
-            },
-            {
-                "code": "result = 2 + 2\nprint(f'Result: {result}')",
-                "capture_output": True,
-                "safe_mode": True
-            },
-            {
-                "code": "import math\nprint(math.sqrt(16))",
-                "allowed_modules": ["math", "datetime"],
-                "safe_mode": True
-            }
-        ]
+        # Note: These are async function inputs
+        return []
     
     def validate_tool_output(self, output, input_data):
         """Validate the tool output format."""
-        assert isinstance(output, dict)
-        assert "output" in output or "result" in output
-        assert "error" in output
-        assert "success" in output or "status" in output
+        # This is an async tool, validation happens in async tests
+        pass
     
-    def test_basic_code_execution(self):
+    @pytest.mark.asyncio
+    async def test_basic_code_execution(self):
         """Test basic Python code execution."""
-        tool = self.get_component_function()
+        code = "print('Hello, World!')"
+        result = await execute_code(code, timeout_seconds=5, use_subprocess=False)
         
-        with patch("subprocess.run") as mock_run:
-            mock_result = MagicMock()
-            mock_result.stdout = "Hello from Python\n"
-            mock_result.stderr = ""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            
-            result = tool(
-                code="print('Hello from Python')",
-                language="python"
-            )
-            
-            assert result["success"] is True
-            assert "Hello" in result["output"]
-            assert result["error"] is None
+        assert result.success is True
+        assert result.output == "Hello, World!\n"
+        assert result.error is None
+        assert result.execution_time > 0
     
-    def test_variable_capture(self):
+    @pytest.mark.asyncio
+    async def test_variable_capture(self):
         """Test capturing variables from executed code."""
-        tool = self.get_component_function()
-        
         code = """
 x = 10
 y = 20
 result = x + y
 data = {"key": "value", "count": result}
+_private = "should not capture"
 """
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
         
-        with patch("exec") as mock_exec:
-            # Simulate exec populating locals
-            captured_vars = {
-                "x": 10,
-                "y": 20,
-                "result": 30,
-                "data": {"key": "value", "count": 30}
-            }
-            
-            result = tool(code, capture_output=True)
-            
-            # Should capture variables
-            if "variables" in result:
-                assert isinstance(result["variables"], dict)
-                assert len(result["variables"]) > 0
+        assert result.success is True
+        assert "x" in result.variables
+        assert result.variables["x"] == 10
+        assert result.variables["y"] == 20
+        assert result.variables["result"] == 30
+        assert result.variables["data"] == {"key": "value", "count": 30}
+        assert "_private" not in result.variables
     
-    def test_timeout_handling(self):
-        """Test code execution timeout."""
-        tool = self.get_component_function()
-        
-        infinite_loop = """
-while True:
-    pass
+    @pytest.mark.asyncio
+    async def test_output_capture(self):
+        """Test capturing stdout output."""
+        code = """
+print("Line 1")
+print("Line 2")
+for i in range(3):
+    print(f"Number: {i}")
 """
+        result = await execute_code(code, use_subprocess=False)
         
-        with patch("subprocess.run") as mock_run:
-            mock_run.side_effect = subprocess.TimeoutExpired(
-                cmd=["python", "-c", infinite_loop],
-                timeout=5
-            )
-            
-            result = tool(infinite_loop, timeout=5)
-            
-            assert result["success"] is False
-            assert "timeout" in str(result["error"]).lower()
+        assert result.success is True
+        assert "Line 1" in result.output
+        assert "Line 2" in result.output
+        assert "Number: 0" in result.output
+        assert "Number: 1" in result.output
+        assert "Number: 2" in result.output
     
-    def test_safe_mode_restrictions(self):
-        """Test safe mode restrictions."""
-        tool = self.get_component_function()
-        
-        dangerous_code_samples = [
-            "import os\nos.system('rm -rf /')",
-            "import subprocess\nsubprocess.run(['ls', '-la'])",
-            "__import__('os').system('echo dangerous')",
-            "open('/etc/passwd', 'r').read()",
-            "exec('import os')"
-        ]
-        
-        for dangerous_code in dangerous_code_samples:
-            with patch("exec") as mock_exec:
-                mock_exec.side_effect = ImportError("Unsafe import blocked")
-                
-                result = tool(dangerous_code, safe_mode=True)
-                
-                assert result["success"] is False or result["error"] is not None
-                assert "blocked" in str(result).lower() or "error" in str(result).lower()
-    
-    def test_allowed_modules(self):
-        """Test allowed modules whitelist."""
-        tool = self.get_component_function()
-        
-        # Test allowed module
-        with patch("exec") as mock_exec:
-            result = tool(
-                "import math\nprint(math.pi)",
-                allowed_modules=["math", "datetime"],
-                safe_mode=True
-            )
-            
-            # Math should be allowed
-            assert result["success"] is True or "3.14" in str(result)
-        
-        # Test disallowed module
-        with patch("exec") as mock_exec:
-            mock_exec.side_effect = ImportError("Module not in allowed list")
-            
-            result = tool(
-                "import requests",
-                allowed_modules=["math", "datetime"],
-                safe_mode=True
-            )
-            
-            # Requests should be blocked
-            assert result["success"] is False or result["error"] is not None
-    
-    def test_syntax_error_handling(self):
+    @pytest.mark.asyncio
+    async def test_syntax_error_handling(self):
         """Test handling of syntax errors."""
-        tool = self.get_component_function()
-        
-        invalid_code_samples = [
+        invalid_codes = [
             "print('unclosed string",
             "if True\n    print('missing colon')",
             "def func(\n    pass",
-            "1 +* 2"
+            "1 +* 2",
+            "for i in range(10)\n    print(i)",
         ]
         
-        for invalid_code in invalid_code_samples:
-            with patch("compile") as mock_compile:
-                mock_compile.side_effect = SyntaxError("Invalid syntax")
-                
-                result = tool(invalid_code)
-                
-                assert result["success"] is False
-                assert "syntax" in str(result["error"]).lower()
+        for code in invalid_codes:
+            result = await execute_code(code, use_subprocess=False)
+            assert result.success is False
+            assert result.error is not None
+            assert "Syntax error" in result.error or "SyntaxError" in result.error
     
-    def test_runtime_error_handling(self):
+    @pytest.mark.asyncio
+    async def test_runtime_error_handling(self):
         """Test handling of runtime errors."""
-        tool = self.get_component_function()
-        
-        error_code_samples = [
+        error_codes = [
             ("1 / 0", "ZeroDivisionError"),
             ("int('not a number')", "ValueError"),
             ("undefined_variable", "NameError"),
-            ("{}[0]", "KeyError")
+            ("{}['missing_key']", "KeyError"),
+            ("[1,2,3][10]", "IndexError"),
         ]
         
-        for code, expected_error in error_code_samples:
-            with patch("exec") as mock_exec:
-                mock_exec.side_effect = eval(f"{expected_error}('Test error')")
-                
-                result = tool(code)
-                
-                assert result["success"] is False
-                assert expected_error in str(result["error"]) or "error" in str(result["error"]).lower()
+        for code, expected_error in error_codes:
+            result = await execute_code(code, use_subprocess=False)
+            assert result.success is False
+            assert result.error is not None
+            assert expected_error in result.error
     
-    def test_output_capture(self):
-        """Test capturing stdout and stderr."""
-        tool = self.get_component_function()
+    @pytest.mark.asyncio
+    async def test_timeout_handling(self):
+        """Test code execution timeout."""
+        infinite_loop = """
+count = 0
+while True:
+    count += 1
+    if count > 1000000:
+        count = 0
+"""
         
+        result = await execute_code(infinite_loop, timeout_seconds=1, use_subprocess=False)
+        
+        assert result.success is False
+        assert result.error is not None
+        assert "timed out" in result.error
+        assert result.execution_time >= 1
+    
+    @pytest.mark.asyncio
+    async def test_subprocess_execution(self):
+        """Test code execution in subprocess."""
         code = """
-print("Standard output")
-import sys
-print("Error output", file=sys.stderr)
-print("More stdout")
+import math
+print(f"Pi value: {math.pi}")
+result = 42
 """
         
-        with patch("subprocess.run") as mock_run:
-            mock_result = MagicMock()
-            mock_result.stdout = "Standard output\nMore stdout\n"
-            mock_result.stderr = "Error output\n"
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            
-            result = tool(code, capture_output=True)
-            
-            assert "Standard output" in result["output"]
-            if "stderr" in result:
-                assert "Error output" in result["stderr"]
-    
-    def test_return_value_capture(self):
-        """Test capturing return values from expressions."""
-        tool = self.get_component_function()
+        result = await execute_code(code, use_subprocess=True, capture_variables=True)
         
-        expressions = [
-            ("2 + 2", 4),
-            ("'hello' + ' world'", "hello world"),
-            ("[1, 2, 3] + [4, 5]", [1, 2, 3, 4, 5]),
-            ("{'a': 1, 'b': 2}", {"a": 1, "b": 2})
+        assert result.success is True
+        assert "Pi value:" in result.output
+        assert result.variables["result"] == 42
+    
+    @pytest.mark.asyncio
+    async def test_module_restrictions(self):
+        """Test module import restrictions in subprocess mode."""
+        # Test allowed module
+        allowed_code = """
+import math
+print(f"Pi: {math.pi}")
+import datetime
+print(f"Now: {datetime.datetime.now()}")
+"""
+        
+        result = await execute_code(allowed_code, use_subprocess=True)
+        assert result.success is True
+        assert "Pi:" in result.output
+        assert "Now:" in result.output
+        
+        # Test disallowed module
+        disallowed_codes = [
+            "import os\nprint(os.listdir())",
+            "import subprocess\nsubprocess.run(['ls'])",
+            "import socket\nsocket.gethostname()",
+            "__import__('os').system('echo test')",
         ]
         
-        for expr, expected in expressions:
-            with patch("eval") as mock_eval:
-                mock_eval.return_value = expected
-                
-                result = tool(expr)
-                
-                if "return_value" in result:
-                    assert result["return_value"] == expected
+        for code in disallowed_codes:
+            result = await execute_code(code, use_subprocess=True)
+            assert result.success is False
+            assert result.error is not None
+            assert "not allowed" in result.error or "ImportError" in result.error
     
-    def test_multiline_code_execution(self):
+    @pytest.mark.asyncio
+    async def test_custom_allowed_modules(self):
+        """Test custom allowed modules list."""
+        # Test code that uses only math
+        math_code = """
+import math
+print(f"Square root of 16: {math.sqrt(16)}")
+print(f"Pi value: {math.pi}")
+"""
+        # Restrict to only math module
+        result = await execute_code(math_code, use_subprocess=True, allowed_modules=["math"])
+        assert result.success is True
+        assert "Square root of 16: 4.0" in result.output
+        assert "Pi value:" in result.output
+        
+        # Try to use non-allowed module
+        json_code = """
+import json
+data = {"test": 123}
+print(json.dumps(data))
+"""
+        result = await execute_code(json_code, use_subprocess=True, allowed_modules=["math"])
+        assert result.success is False
+        assert "not allowed" in result.error
+        
+        # Test with multiple allowed modules
+        multi_code = """
+import math
+import json
+data = {"pi": math.pi, "sqrt": math.sqrt(25)}
+print(json.dumps(data))
+"""
+        result = await execute_code(multi_code, use_subprocess=True, allowed_modules=["math", "json"])
+        assert result.success is True
+        assert "pi" in result.output
+        assert "sqrt" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_multiline_code_execution(self):
         """Test execution of multiline code blocks."""
-        tool = self.get_component_function()
-        
-        multiline_code = """
-def fibonacci(n):
-    if n <= 1:
-        return n
-    return fibonacci(n-1) + fibonacci(n-2)
+        code = """
+def calculate_sum(numbers):
+    total = 0
+    for num in numbers:
+        total += num
+    return total
 
+# Test the function
+test_numbers = [1, 2, 3, 4, 5]
+result = calculate_sum(test_numbers)
+print(f"Sum of {test_numbers} = {result}")
+
+# Define a class
+class Counter:
+    def __init__(self):
+        self.count = 0
+    
+    def increment(self):
+        self.count += 1
+        return self.count
+
+counter = Counter()
+for _ in range(5):
+    counter.increment()
+
+print(f"Final count: {counter.count}")
+
+# List comprehension
+squares = [x**2 for x in range(10)]
+print(f"Squares: {squares}")
+"""
+        
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Sum of [1, 2, 3, 4, 5] = 15" in result.output
+        assert "Final count: 5" in result.output
+        assert "Squares: [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]" in result.output
+        assert "squares" in result.variables
+        assert result.variables["squares"] == [0, 1, 4, 9, 16, 25, 36, 49, 64, 81]
+    
+    @pytest.mark.asyncio
+    async def test_validate_code_function(self):
+        """Test the validate_code function."""
+        # Valid code
+        valid_codes = [
+            "print('hello')",
+            "x = 1 + 2",
+            "def func():\n    pass",
+            "class Test:\n    pass",
+            "[i**2 for i in range(10)]",
+        ]
+        
+        for code in valid_codes:
+            is_valid, error = validate_code(code)
+            assert is_valid is True
+            assert error is None
+        
+        # Invalid code
+        invalid_codes = [
+            ("print('unclosed", "unterminated string"),
+            ("if True\n    print('test')", "invalid syntax"),
+            ("def func(:\n    pass", "invalid syntax"),
+            ("1 +* 2", "invalid syntax"),
+        ]
+        
+        for code, expected_msg in invalid_codes:
+            is_valid, error = validate_code(code)
+            assert is_valid is False
+            assert error is not None
+    
+    @pytest.mark.asyncio
+    async def test_execute_code_with_timeout(self):
+        """Test execute_code_with_timeout function."""
+        # Normal execution
+        code = "print('Test output')"
+        result = await execute_code_with_timeout(code, timeout_seconds=2)
+        
+        assert result.success is True
+        assert "Test output" in result.output
+        
+        # Test output truncation
+        long_output_code = """
+for i in range(1000):
+    print(f"Line {i}: " + "x" * 100)
+"""
+        
+        result = await execute_code_with_timeout(long_output_code, timeout_seconds=5, max_output_length=500)
+        
+        assert result.success is True
+        assert len(result.output) <= 1200  # Some buffer for truncation message
+        assert "output truncated" in result.output or len(result.output) <= 500
+    
+    @pytest.mark.asyncio
+    async def test_complex_data_structures(self):
+        """Test handling of complex data structures in variables."""
+        code = """
+import json
+from collections import defaultdict, Counter
+from datetime import datetime, date
+
+# Various data structures
+simple_list = [1, 2, 3, 4, 5]
+nested_dict = {
+    "level1": {
+        "level2": {
+            "data": [1, 2, 3]
+        }
+    }
+}
+
+# Collections
+counter = Counter(['a', 'b', 'c', 'a', 'b', 'a'])
+dd = defaultdict(list)
+dd['key1'].append(1)
+dd['key2'].append(2)
+
+# Date objects (not JSON serializable)
+now = datetime.now()
+today = date.today()
+
+# Custom class
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    
+    def __str__(self):
+        return f"Point({self.x}, {self.y})"
+
+point = Point(10, 20)
+"""
+        
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
+        
+        assert result.success is True
+        assert result.variables["simple_list"] == [1, 2, 3, 4, 5]
+        assert result.variables["nested_dict"]["level1"]["level2"]["data"] == [1, 2, 3]
+        # Non-serializable objects should be converted to strings
+        assert isinstance(result.variables["now"], str)
+        assert isinstance(result.variables["today"], str)
+        assert isinstance(result.variables["point"], str)
+        assert "Point(10, 20)" in result.variables["point"]
+    
+    @pytest.mark.asyncio
+    async def test_exception_handling_details(self):
+        """Test detailed exception handling."""
+        code = """
+x = [1, 2, 3]
+y = x[10]  # IndexError
+"""
+        
+        result = await execute_code(code, use_subprocess=False)
+        
+        assert result.success is False
+        assert "IndexError" in result.error
+        assert "list index out of range" in result.error
+    
+    @pytest.mark.asyncio
+    async def test_execution_time_tracking(self):
+        """Test that execution time is properly tracked."""
+        # Quick execution
+        quick_code = "x = 1 + 1"
+        result = await execute_code(quick_code, use_subprocess=False)
+        assert result.success is True
+        assert result.execution_time > 0
+        assert result.execution_time < 1  # Should be very fast
+        
+        # Computationally intensive execution
+        intensive_code = """
+# Compute something intensive
+result = 0
+for i in range(1000000):
+    result += i
+print("Done computing")
+"""
+        result = await execute_code(intensive_code, use_subprocess=False)
+        assert result.success is True
+        assert result.execution_time > 0
+        assert "Done computing" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_math_and_scientific_operations(self):
+        """Test mathematical and scientific computing operations."""
+        code = """
+import math
+import statistics
+import fractions
+import decimal
+
+# Math operations
+numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+mean = statistics.mean(numbers)
+stdev = statistics.stdev(numbers)
+print(f"Mean: {mean}, StdDev: {stdev:.2f}")
+
+# Trigonometry
+angle = math.pi / 4
+sin_val = math.sin(angle)
+cos_val = math.cos(angle)
+print(f"sin(π/4) = {sin_val:.4f}, cos(π/4) = {cos_val:.4f}")
+
+# Fractions
+frac1 = fractions.Fraction(1, 3)
+frac2 = fractions.Fraction(1, 6)
+result = frac1 + frac2
+print(f"1/3 + 1/6 = {result}")
+
+# Decimal precision
+decimal.getcontext().prec = 10
+d1 = decimal.Decimal('1.1')
+d2 = decimal.Decimal('2.2')
+print(f"Decimal sum: {d1 + d2}")
+"""
+        
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Mean: 5.5" in result.output
+        assert "sin(π/4) = 0.7071" in result.output
+        assert "1/3 + 1/6 = 1/2" in result.output
+        assert "Decimal sum: 3.3" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_string_and_regex_operations(self):
+        """Test string manipulation and regex operations."""
+        code = """
+import re
+import string
+
+# String operations
+text = "Hello, World! This is a Test String."
+print(f"Original: {text}")
+print(f"Lower: {text.lower()}")
+print(f"Words: {text.split()}")
+
+# Regex operations
+pattern = r'\\b\\w+@\\w+\\.\\w+\\b'
+test_text = "Contact us at support@example.com or sales@test.org"
+emails = re.findall(pattern, test_text)
+print(f"Found emails: {emails}")
+
+# String templates
+template = string.Template("Hello $name, your balance is $$${amount}")
+result = template.substitute(name="Alice", amount="100.50")
+print(result)
+
+# Simple string manipulation
+chars = string.ascii_lowercase
+print(f"Lowercase letters: {chars[:10]}")
+"""
+        
+        result = await execute_code(code, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Lower: hello, world!" in result.output
+        assert "Found emails: ['support@example.com', 'sales@test.org']" in result.output
+        assert "Hello Alice, your balance is $100.50" in result.output
+        assert "Lowercase letters: abcdefghij" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_json_and_data_handling(self):
+        """Test JSON and data structure handling."""
+        code = """
+import json
+from collections import OrderedDict, namedtuple
+
+# JSON operations
+data = {
+    "name": "Test User",
+    "age": 30,
+    "skills": ["Python", "JavaScript", "SQL"],
+    "active": True
+}
+
+json_str = json.dumps(data, indent=2)
+print("JSON output:")
+print(json_str)
+
+# Parse JSON
+parsed = json.loads(json_str)
+print(f"Parsed name: {parsed['name']}")
+
+# Named tuples
+Person = namedtuple('Person', ['name', 'age', 'city'])
+person = Person("Bob", 25, "New York")
+print(f"Person: {person.name} is {person.age} from {person.city}")
+
+# OrderedDict
+od = OrderedDict()
+od['first'] = 1
+od['second'] = 2
+od['third'] = 3
+print(f"OrderedDict keys: {list(od.keys())}")
+"""
+        
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
+        
+        assert result.success is True
+        assert "JSON output:" in result.output
+        assert '"name": "Test User"' in result.output
+        assert "Parsed name: Test User" in result.output
+        assert "Person: Bob is 25 from New York" in result.output
+        assert "OrderedDict keys: ['first', 'second', 'third']" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_error_recovery_scenarios(self):
+        """Test various error recovery scenarios."""
+        # Test with try-except blocks
+        code = """
 results = []
-for i in range(10):
-    results.append(fibonacci(i))
 
-print("Fibonacci sequence:", results)
+# Division by zero with recovery
+try:
+    x = 1 / 0
+except ZeroDivisionError:
+    results.append("Caught division by zero")
+    x = float('inf')
+
+# Type error with recovery
+try:
+    y = "string" + 123
+except TypeError:
+    results.append("Caught type error")
+    y = "string" + str(123)
+
+# Success after errors
+results.append(f"x = {x}, y = {y}")
+
+for r in results:
+    print(r)
 """
         
-        with patch("exec") as mock_exec:
-            result = tool(multiline_code)
-            
-            assert result["success"] is True
-            # Should execute without errors
-    
-    def test_execution_time_tracking(self):
-        """Test that execution time is tracked."""
-        tool = self.get_component_function()
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
         
-        with patch("time.time") as mock_time:
-            # Mock time progression
-            mock_time.side_effect = [0.0, 0.123]  # Start and end times
-            
-            result = tool("print('test')")
-            
-            if "execution_time" in result:
-                assert isinstance(result["execution_time"], int | float)
-                assert result["execution_time"] >= 0
+        assert result.success is True
+        assert "Caught division by zero" in result.output
+        assert "Caught type error" in result.output
+        assert "x = inf, y = string123" in result.output
+        assert result.variables["results"] == [
+            "Caught division by zero",
+            "Caught type error", 
+            "x = inf, y = string123"
+        ]
     
-    def test_memory_limit_handling(self):
-        """Test memory limit handling if supported."""
-        tool = self.get_component_function()
-        
-        memory_intensive_code = """
-# Try to allocate a lot of memory
-big_list = [0] * (10**9)  # 1 billion integers
+    @pytest.mark.asyncio
+    async def test_generator_and_iterator_support(self):
+        """Test generators and iterators."""
+        code = """
+# Generator function
+def fibonacci_gen(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+
+# Use generator
+fib_list = list(fibonacci_gen(10))
+print(f"Fibonacci: {fib_list}")
+
+# Generator expression
+squares = (x**2 for x in range(5))
+squares_list = list(squares)
+print(f"Squares: {squares_list}")
+
+# Custom iterator
+class Counter:
+    def __init__(self, max_count):
+        self.max_count = max_count
+        self.count = 0
+    
+    def __iter__(self):
+        return self
+    
+    def __next__(self):
+        if self.count < self.max_count:
+            self.count += 1
+            return self.count
+        raise StopIteration
+
+# Use custom iterator
+counter_list = list(Counter(5))
+print(f"Counter: {counter_list}")
 """
         
-        with patch("resource.setrlimit") as mock_setrlimit, patch("exec") as mock_exec:
-            mock_exec.side_effect = MemoryError("Out of memory")
-            
-            result = tool(memory_intensive_code, safe_mode=True)
-            
-            assert result["success"] is False
-            assert "memory" in str(result["error"]).lower()
-    
-    def test_different_python_versions(self):
-        """Test handling different Python version requirements."""
-        tool = self.get_component_function()
+        result = await execute_code(code, capture_variables=True, use_subprocess=False)
         
-        # Python 3.10+ syntax
-        python310_code = """
-match x:
-    case 1:
-        print("One")
-    case _:
-        print("Other")
+        assert result.success is True
+        assert "Fibonacci: [0, 1, 1, 2, 3, 5, 8, 13, 21, 34]" in result.output
+        assert "Squares: [0, 1, 4, 9, 16]" in result.output
+        assert "Counter: [1, 2, 3, 4, 5]" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_large_output_handling(self):
+        """Test handling of large outputs."""
+        code = """
+# Generate large output
+for i in range(100):
+    print(f"Line {i}: " + "=" * 50)
+    
+print("\\n" + "Final line after many outputs")
 """
         
-        # Since we require Python 3.12+, this should work
-        result = tool(python310_code)
-        # Should work on Python 3.12+
+        # Test with output limit
+        result = await execute_code_with_timeout(code, timeout_seconds=5, max_output_length=1000)
+        
+        assert result.success is True
+        assert len(result.output) <= 1200  # Some buffer for truncation message
+        assert "output truncated" in result.output or len(result.output) <= 1000
+        
+        # Test without limit
+        result = await execute_code(code, use_subprocess=False)
+        assert result.success is True
+        assert "Line 99:" in result.output
+        assert "Final line after many outputs" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_concurrent_execution(self):
+        """Test concurrent execution of multiple code blocks."""
+        codes = [
+            "result = sum(range(100))",
+            "result = len([i**2 for i in range(50)])",
+            "result = '-'.join(['a', 'b', 'c'])",
+        ]
+        
+        # Run multiple executions concurrently
+        tasks = [execute_code(code, capture_variables=True, use_subprocess=False) for code in codes]
+        results = await asyncio.gather(*tasks)
+        
+        assert all(r.success for r in results)
+        assert results[0].variables["result"] == 4950  # sum(range(100))
+        assert results[1].variables["result"] == 50    # len of list
+        assert results[2].variables["result"] == "a-b-c"
+    
+    @pytest.mark.asyncio
+    async def test_memory_intensive_operations(self):
+        """Test handling of memory-intensive operations."""
+        code = """
+# Create a large list (but not too large to cause issues)
+big_list = list(range(100000))
+print(f"Created list with {len(big_list)} elements")
+
+# Some operations on it
+sum_val = sum(big_list)
+max_val = max(big_list)
+print(f"Sum: {sum_val}, Max: {max_val}")
+
+# Clean up
+del big_list
+print("Cleaned up memory")
+"""
+        
+        result = await execute_code(code, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Created list with 100000 elements" in result.output
+        assert "Sum: 4999950000" in result.output
+        assert "Max: 99999" in result.output
+        assert "Cleaned up memory" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_encoding_and_unicode(self):
+        """Test Unicode and encoding support."""
+        code = """
+# Unicode strings
+text = "Hello, 世界! 🌍 Привет мир"
+print(f"Unicode text: {text}")
+print(f"Length: {len(text)}")
+
+# Encoding operations
+encoded = text.encode('utf-8')
+print(f"UTF-8 bytes: {len(encoded)} bytes")
+
+# String with emojis
+emojis = "Python 🐍 is awesome! 🎉🚀"
+print(f"With emojis: {emojis}")
+
+# Different scripts
+scripts = {
+    "Latin": "Hello",
+    "Chinese": "你好",
+    "Arabic": "مرحبا",
+    "Russian": "Привет",
+    "Japanese": "こんにちは"
+}
+
+for script, greeting in scripts.items():
+    print(f"{script}: {greeting}")
+"""
+        
+        result = await execute_code(code, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Hello, 世界! 🌍 Привет мир" in result.output
+        assert "Python 🐍 is awesome!" in result.output
+        assert "Chinese: 你好" in result.output
+        assert "Arabic: مرحبا" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_import_with_aliases(self):
+        """Test imports with aliases."""
+        code = """
+import datetime as dt
+import json as j
+from collections import Counter as Cnt
+
+# Use aliases
+now = dt.datetime.now()
+print(f"Current time: {now.strftime('%Y-%m-%d %H:%M')}")
+
+data = {"test": 123}
+json_str = j.dumps(data)
+print(f"JSON: {json_str}")
+
+counts = Cnt(['a', 'b', 'a', 'c', 'b', 'a'])
+print(f"Counts: {dict(counts)}")
+"""
+        
+        result = await execute_code(code, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Current time:" in result.output
+        assert "JSON: {\"test\": 123}" in result.output or 'JSON: {"test": 123}' in result.output
+        assert "Counts: {'a': 3, 'b': 2, 'c': 1}" in result.output
+    
+    @pytest.mark.asyncio
+    async def test_context_managers(self):
+        """Test context managers in code execution."""
+        code = """
+from io import StringIO
+import contextlib
+
+# Use StringIO as context manager
+output = []
+with StringIO("Line 1\\nLine 2\\nLine 3") as f:
+    for line in f:
+        output.append(line.strip())
+
+print(f"Read lines: {output}")
+
+# Custom context manager
+@contextlib.contextmanager
+def custom_context(name):
+    print(f"Entering {name}")
+    yield name.upper()
+    print(f"Exiting {name}")
+
+# Use custom context manager
+with custom_context("test") as value:
+    print(f"Inside context: {value}")
+
+print("Done with contexts")
+"""
+        
+        result = await execute_code(code, use_subprocess=False)
+        
+        assert result.success is True
+        assert "Read lines: ['Line 1', 'Line 2', 'Line 3']" in result.output
+        assert "Entering test" in result.output
+        assert "Inside context: TEST" in result.output
+        assert "Exiting test" in result.output
+    
+    @pytest.mark.asyncio 
+    async def test_edge_cases(self):
+        """Test various edge cases."""
+        # Empty code
+        result = await execute_code("", use_subprocess=False)
+        assert result.success is True
+        assert result.output == ""
+        
+        # Only comments
+        result = await execute_code("# Just a comment\n# Another comment", use_subprocess=False)
+        assert result.success is True
+        assert result.output == ""
+        
+        # Only whitespace
+        result = await execute_code("   \n\t\n   ", use_subprocess=False)
+        assert result.success is True
+        
+        # Single expression
+        result = await execute_code("42", capture_variables=False, use_subprocess=False)
+        assert result.success is True
+        
+        # Pass statement
+        result = await execute_code("pass", use_subprocess=False)
+        assert result.success is True
