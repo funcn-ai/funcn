@@ -1,5 +1,6 @@
 """Test suite for json_search_tool following best practices."""
 
+import asyncio
 import json
 import pytest
 import tempfile
@@ -590,3 +591,392 @@ class TestJSONSearchTool(BaseToolTest):
         assert elapsed < 2.0
         assert len(response.results) >= 1
         assert response.total_elements == 1500  # 500 objects * 3 fields each
+    
+    @pytest.mark.asyncio
+    async def test_validation_error_no_input(self):
+        """Test validation error when neither file_path nor json_data is provided."""
+        from pydantic import ValidationError
+        
+        with pytest.raises(ValidationError) as exc_info:
+            JSONSearchArgs(
+                file_path=None,
+                json_data=None,
+                query="test"
+            )
+        assert "Either file_path or json_data must be provided" in str(exc_info.value)
+    
+    @pytest.mark.asyncio
+    async def test_both_file_and_data_provided(self, tmp_path):
+        """Test behavior when both file_path and json_data are provided."""
+        # Create test file
+        test_file_data = {"file": "content"}
+        json_file = tmp_path / "test.json"
+        json_file.write_text(json.dumps(test_file_data))
+        
+        # Provide different data directly
+        direct_data = {"direct": "data"}
+        
+        args = JSONSearchArgs(
+            file_path=str(json_file),
+            json_data=direct_data,
+            query="content"
+        )
+        response = await search_json_content(args)
+        
+        # Should use file_path when both are provided
+        assert response.error is None
+        assert len(response.results) >= 1
+        assert any("file" in str(r.context) for r in response.results if r.context)
+    
+    @pytest.mark.asyncio
+    async def test_list_as_root_element(self):
+        """Test searching when JSON root is a list."""
+        # Since json_data expects dict, test with a list inside a dict
+        test_data = {
+            "users": [
+                {"id": 1, "name": "Alice"},
+                {"id": 2, "name": "Bob"},
+                {"id": 3, "name": "Charlie"}
+            ]
+        }
+        
+        # Also test searching in a list at root using file
+        list_data = [
+            {"id": 1, "name": "Alice"},
+            {"id": 2, "name": "Bob"},
+            {"id": 3, "name": "Charlie"}
+        ]
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(list_data, f)
+            temp_path = f.name
+        
+        try:
+            args = JSONSearchArgs(
+                file_path=temp_path,
+                query="Bob"
+            )
+            response = await search_json_content(args)
+            
+            assert response.error is None
+            assert len(response.results) >= 1
+            assert response.results[0].value == "Bob"
+            assert "$[1]" in response.results[0].path
+        finally:
+            Path(temp_path).unlink()
+        
+        # Test dict with list
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="Bob"
+        )
+        response = await search_json_content(args)
+        
+        assert response.error is None
+        assert len(response.results) >= 1
+        assert response.results[0].value == "Bob"
+    
+    @pytest.mark.asyncio
+    async def test_complex_jsonpath_expressions(self):
+        """Test various complex JSONPath expressions."""
+        test_data = {
+            "store": {
+                "books": [
+                    {"title": "Book 1", "price": 10.99, "category": "fiction"},
+                    {"title": "Book 2", "price": 8.99, "category": "fiction"},
+                    {"title": "Book 3", "price": 12.99, "category": "reference"}
+                ],
+                "bicycle": {"color": "red", "price": 19.95}
+            }
+        }
+        
+        # Test recursive descent
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="fiction",
+            json_path="$..category"
+        )
+        response = await search_json_content(args)
+        assert len(response.results) == 2
+        
+        # Test array slice
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="Book",
+            json_path="$.store.books[0:2].title"
+        )
+        response = await search_json_content(args)
+        assert len(response.results) == 2
+        
+        # Test wildcard - search for "19.95" which exists in bicycle price
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="19.95",
+            json_path="$.store.*.price"
+        )
+        response = await search_json_content(args)
+        assert len(response.results) >= 1
+        assert response.results[0].value == 19.95
+    
+    @pytest.mark.asyncio
+    async def test_search_keys_with_nested_structures(self):
+        """Test search_keys option with deeply nested key names."""
+        test_data = {
+            "user_profile": {
+                "personal_info": {
+                    "first_name": "John",
+                    "last_name": "Doe"
+                },
+                "contact_info": {
+                    "email_address": "john@example.com",
+                    "phone_number": "555-1234"
+                }
+            },
+            "system_config": {
+                "email_settings": {
+                    "smtp_server": "mail.example.com"
+                }
+            }
+        }
+        
+        # Search for "email" in keys
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="email",
+            search_keys=True,
+            search_values=False,
+            fuzzy_threshold=70
+        )
+        response = await search_json_content(args)
+        
+        # Should find email_address and email_settings keys
+        assert len(response.results) >= 2
+        key_matches = [r.key for r in response.results if r.key]
+        assert any("email" in k.lower() for k in key_matches)
+    
+    @pytest.mark.asyncio
+    async def test_context_extraction_edge_cases(self):
+        """Test context extraction in various edge cases."""
+        # Test with value inside a list
+        test_data = {
+            "items": [
+                "string_item",
+                {"nested": "object"},
+                ["nested", "list"]
+            ]
+        }
+        
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="string_item"
+        )
+        response = await search_json_content(args)
+        
+        assert len(response.results) >= 1
+        result = response.results[0]
+        assert result.context is not None
+        # The context should be the root dict since that's the parent of 'items'
+        assert "items" in result.context
+        
+        # Test with direct list as context
+        test_data_list = ["item1", "item2", "target_item"]
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(test_data_list, f)
+            temp_path = f.name
+        
+        try:
+            args = JSONSearchArgs(
+                file_path=temp_path,
+                query="target_item"
+            )
+            response = await search_json_content(args)
+            
+            assert len(response.results) >= 1
+            result = response.results[0]
+            # For list at root, context might include special list handling
+            assert result.context is not None
+        finally:
+            Path(temp_path).unlink()
+        
+        # Test with deeply nested structure
+        deep_data = {"a": {"b": {"c": {"d": {"e": "target"}}}}}
+        args = JSONSearchArgs(
+            json_data=deep_data,
+            query="target"
+        )
+        response = await search_json_content(args)
+        
+        assert len(response.results) >= 1
+        assert response.results[0].context is not None
+        # Context should be the 'd' dict containing 'e'
+        assert "e" in response.results[0].context
+    
+    @pytest.mark.asyncio
+    async def test_unicode_and_special_characters(self):
+        """Test handling of Unicode and special characters."""
+        test_data = {
+            "users": [
+                {"name": "José García", "city": "São Paulo"},
+                {"name": "李明", "city": "北京"},
+                {"name": "Müller", "city": "München"},
+                {"name": "test@#$%^&*()", "city": "Special City"}
+            ]
+        }
+        
+        # Test Unicode search
+        unicode_queries = ["José", "李明", "München", "@#$%"]
+        
+        for query in unicode_queries:
+            args = JSONSearchArgs(
+                json_data=test_data,
+                query=query
+            )
+            response = await search_json_content(args)
+            assert response.error is None
+            assert len(response.results) >= 1
+    
+    @pytest.mark.asyncio
+    async def test_circular_reference_handling(self):
+        """Test handling of circular references (should not cause infinite loop)."""
+        # JSON can't serialize circular references, so test with a deep but non-circular structure
+        # that could potentially cause issues in recursive algorithms
+        test_data = {"level1": {}}
+        current = test_data["level1"]
+        
+        # Create a very deep structure
+        for i in range(100):
+            current[f"level{i+2}"] = {}
+            current = current[f"level{i+2}"]
+        current["deep_value"] = "found_me"
+        
+        # This should handle deep recursion gracefully
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="found_me"
+        )
+        
+        # Should complete without stack overflow
+        import time
+        start = time.time()
+        response = await search_json_content(args)
+        elapsed = time.time() - start
+        
+        assert elapsed < 1.0  # Should complete quickly
+        assert response.error is None
+        assert len(response.results) >= 1
+        assert response.results[0].value == "found_me"
+    
+    @pytest.mark.asyncio
+    async def test_concurrent_searches(self):
+        """Test concurrent search operations."""
+        test_data = {
+            f"section_{i}": {
+                "title": f"Section {i}",
+                "content": f"Content for section {i}",
+                "tags": [f"tag_{j}" for j in range(5)]
+            }
+            for i in range(10)
+        }
+        
+        # Create multiple search tasks
+        search_queries = ["Section 5", "tag_3", "Content", "section_"]
+        
+        tasks = []
+        for query in search_queries:
+            args = JSONSearchArgs(
+                json_data=test_data,
+                query=query,
+                search_keys=True
+            )
+            tasks.append(search_json_content(args))
+        
+        # Run concurrently
+        results = await asyncio.gather(*tasks)
+        
+        # All should complete successfully
+        assert all(r.error is None for r in results)
+        assert all(len(r.results) > 0 for r in results)
+    
+    @pytest.mark.asyncio
+    async def test_empty_string_search(self):
+        """Test searching for empty strings."""
+        test_data = {
+            "field1": "",
+            "field2": "not empty",
+            "field3": None,
+            "nested": {"empty": "", "full": "value"}
+        }
+        
+        # Search for empty string with exact match
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="",
+            exact_match=True
+        )
+        response = await search_json_content(args)
+        
+        # Should find the empty string values
+        assert response.error is None
+        empty_values = [r.value for r in response.results if r.value == ""]
+        assert len(empty_values) >= 2  # field1 and nested.empty
+        
+        # Test that searching for "empty" finds the word in non-empty strings
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="empty",
+            exact_match=False
+        )
+        response = await search_json_content(args)
+        
+        assert len(response.results) >= 1
+        assert any("empty" in str(r.value) for r in response.results)
+    
+    @pytest.mark.asyncio
+    async def test_scientific_notation_numbers(self):
+        """Test searching in scientific notation numbers."""
+        test_data = {
+            "measurements": {
+                "distance": 1.23e-10,
+                "mass": 5.67e+23,
+                "regular": 123.45
+            }
+        }
+        
+        # Search for scientific notation
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="e-10"
+        )
+        response = await search_json_content(args)
+        
+        assert len(response.results) >= 1
+        assert any(r.value == 1.23e-10 for r in response.results)
+    
+    @pytest.mark.asyncio
+    async def test_very_long_strings(self):
+        """Test searching in very long string values."""
+        long_text = "Lorem ipsum " * 1000  # Very long text
+        test_data = {
+            "document": {
+                "title": "Test Document",
+                "content": long_text + " UNIQUE_MARKER " + long_text,
+                "summary": "Short summary"
+            }
+        }
+        
+        args = JSONSearchArgs(
+            json_data=test_data,
+            query="UNIQUE_MARKER",
+            max_results=5
+        )
+        response = await search_json_content(args)
+        
+        assert response.error is None
+        assert len(response.results) >= 1
+        assert "UNIQUE_MARKER" in str(response.results[0].value)
+    
+    def test_all_functions_have_docstrings(self):
+        """Test that all exported functions have proper docstrings."""
+        assert search_json_content.__doc__ is not None
+        assert len(search_json_content.__doc__) > 20

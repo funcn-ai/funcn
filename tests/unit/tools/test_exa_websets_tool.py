@@ -1,396 +1,741 @@
 """Test suite for exa_websets_tool following best practices."""
 
+import asyncio
 import pytest
 from datetime import datetime
+
+# Import the actual tool functions and models
+from packages.funcn_registry.components.tools.exa_websets.tool import (
+    CreateWebsetArgs,
+    WebsetEnrichmentConfig,
+    WebsetItem,
+    WebsetItemsResponse,
+    WebsetResponse,
+    WebsetSearchConfig,
+    WebsetSearchCriteria,
+    WebsetSearchProgress,
+    exa_create_webset,
+    exa_delete_webset,
+    exa_get_webset,
+    exa_list_webset_items,
+    exa_wait_until_idle,
+)
 from pathlib import Path
 from tests.utils import BaseToolTest
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, call, patch
 
 
 class TestExaWebsetsTool(BaseToolTest):
     """Test exa_websets_tool component."""
     
     component_name = "exa_websets_tool"
-    component_path = Path("packages/funcn_registry/components/tools/exa_websets_tool")
+    component_path = Path("packages/funcn_registry/components/tools/exa_websets")
     
     def get_component_function(self):
         """Import the tool function."""
-        # Would import: from tools.exa_websets_tool import create_webset
-        def mock_create_webset(
-            name: str,
-            search_query: str,
-            num_results: int = 100,
-            filters: dict[str, any] | None = None,
-            enrichments: list[str] | None = None,
-            update_frequency: str = "daily"
-        ) -> dict[str, any]:
-            """Mock Exa websets tool."""
-            return {
-                "webset_id": "ws_12345",
-                "name": name,
-                "status": "active",
-                "created_at": datetime.now().isoformat(),
-                "num_results": num_results,
-                "query": search_query,
-                "filters": filters or {},
-                "enrichments": enrichments or [],
-                "update_frequency": update_frequency,
-                "results_count": min(num_results, 50),
-                "last_updated": datetime.now().isoformat()
-            }
-        return mock_create_webset
+        return exa_create_webset
     
     def get_test_inputs(self):
         """Provide test inputs for the tool."""
         return [
-            {
-                "name": "AI Research Papers",
-                "search_query": "machine learning research papers 2024",
-                "num_results": 50,
-                "filters": {"domain": ["arxiv.org", "openai.com"]},
-                "enrichments": ["summary", "key_points"]
-            },
-            {
-                "name": "Tech News Dataset",
-                "search_query": "technology news artificial intelligence",
-                "num_results": 100,
-                "update_frequency": "hourly"
-            },
-            {
-                "name": "Company Data",
-                "search_query": "startup funding series A",
-                "filters": {"date_range": "last_month"},
-                "enrichments": ["company_info", "funding_amount"]
-            }
+            CreateWebsetArgs(
+                search=WebsetSearchConfig(
+                    query="machine learning research papers 2024",
+                    count=50,
+                    entity={"type": "research_paper"},
+                    criteria=[{"description": "Published in 2024", "successRate": 0.8}],
+                    metadata={"category": "AI research"}
+                ),
+                enrichments=[
+                    WebsetEnrichmentConfig(
+                        description="Extract paper summary",
+                        format="text",
+                        options=[{"max_length": 500}],
+                        instructions="Summarize the key findings",
+                        metadata={"type": "summary"}
+                    )
+                ],
+                metadata={"created_by": "test_suite"}
+            ),
+            CreateWebsetArgs(
+                search=WebsetSearchConfig(
+                    query="technology news artificial intelligence",
+                    count=100,
+                    metadata={"update_frequency": "hourly"}
+                )
+            ),
+            CreateWebsetArgs(
+                search=WebsetSearchConfig(
+                    query="startup funding series A",
+                    count=25,
+                    criteria=[{"description": "Recent funding rounds", "successRate": 0.9}]
+                ),
+                enrichments=[
+                    WebsetEnrichmentConfig(
+                        description="Extract company info",
+                        format="json"
+                    ),
+                    WebsetEnrichmentConfig(
+                        description="Extract funding amount",
+                        format="number"
+                    )
+                ]
+            )
         ]
     
     def validate_tool_output(self, output, input_data):
         """Validate the tool output format."""
-        assert isinstance(output, dict)
-        assert "webset_id" in output or "id" in output
-        assert "name" in output
-        assert "status" in output or "state" in output
+        # This is an async tool, validation happens in async tests
+        pass
     
-    def test_create_webset(self):
-        """Test creating a new webset."""
-        tool = self.get_component_function()
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_client.create_webset.return_value = Mock(
-                id="ws_abc123",
-                name="Test Webset",
-                status="active",
-                created_at="2024-01-01T00:00:00Z",
-                results_count=25
-            )
-            mock_exa.return_value = mock_client
-            
-            result = tool(
-                name="Test Webset",
-                search_query="test query",
-                num_results=25
-            )
-            
-            assert "webset_id" in result or "id" in result
-            assert result["name"] == "Test Webset"
-            assert result["status"] == "active"
-    
-    def test_webset_with_filters(self):
-        """Test creating webset with various filters."""
-        tool = self.get_component_function()
-        
-        filter_sets = [
-            {
-                "domain": ["example.com", "test.org"],
-                "exclude_domain": ["spam.com"]
-            },
-            {
-                "date_range": "last_week",
-                "language": "en"
-            },
-            {
-                "has_image": True,
-                "min_words": 500
-            }
-        ]
-        
-        for filters in filter_sets:
-            with patch("exa_py.Exa") as mock_exa:
-                mock_client = Mock()
-                mock_client.create_webset.return_value = Mock(
-                    id="ws_filtered",
-                    filters=filters
+    @pytest.mark.asyncio
+    async def test_create_webset_basic(self):
+        """Test creating a basic webset."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Mock the create method
+                mock_result = Mock(
+                    id="ws_12345",
+                    status="active",
+                    searches=[{"query": "test"}],
+                    enrichments=[],
+                    metadata={"test": True},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=[]
                 )
-                mock_exa.return_value = mock_client
+                mock_exa.return_value.websets.create.return_value = mock_result
                 
-                result = tool(
-                    name="Filtered Webset",
-                    search_query="test",
-                    filters=filters
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="test query",
+                        count=10
+                    )
                 )
                 
-                # Verify filters were applied
-                assert "filters" in result
-                if isinstance(result["filters"], dict):
-                    for key in filters:
-                        assert key in result["filters"]
+                result = await exa_create_webset(args)
+                
+                assert result.id == "ws_12345"
+                assert result.status == "active"
+                assert result.searches == [{"query": "test"}]
+                assert result.created_at == "2024-01-01T00:00:00Z"
+                assert result.items_count == 0
     
-    def test_webset_enrichments(self):
-        """Test webset with data enrichments."""
-        tool = self.get_component_function()
-        
-        enrichment_sets = [
-            ["summary", "key_points", "entities"],
-            ["sentiment", "topics", "language"],
-            ["author", "publish_date", "word_count"]
-        ]
-        
-        for enrichments in enrichment_sets:
-            with patch("exa_py.Exa") as mock_exa:
-                mock_client = Mock()
-                mock_client.create_webset.return_value = Mock(
+    @pytest.mark.asyncio
+    async def test_create_webset_with_enrichments(self):
+        """Test creating webset with enrichments."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
                     id="ws_enriched",
-                    enrichments=enrichments
+                    status="active",
+                    searches=[],
+                    enrichments=[
+                        {"description": "Summary extraction"},
+                        {"description": "Entity recognition"}
+                    ],
+                    metadata={},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=None  # Explicitly set items to None
                 )
-                mock_exa.return_value = mock_client
+                mock_exa.return_value.websets.create.return_value = mock_result
                 
-                result = tool(
-                    name="Enriched Webset",
-                    search_query="test",
-                    enrichments=enrichments
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="AI research",
+                        count=20
+                    ),
+                    enrichments=[
+                        WebsetEnrichmentConfig(
+                            description="Summary extraction",
+                            format="text"
+                        ),
+                        WebsetEnrichmentConfig(
+                            description="Entity recognition",
+                            format="json"
+                        )
+                    ]
                 )
                 
-                assert "enrichments" in result
-                assert len(result["enrichments"]) == len(enrichments)
+                result = await exa_create_webset(args)
+                
+                assert result.id == "ws_enriched"
+                assert len(result.enrichments) == 2
+                assert result.enrichments[0]["description"] == "Summary extraction"
     
-    def test_update_frequency_options(self):
-        """Test different update frequency settings."""
-        tool = self.get_component_function()
-        
-        frequencies = ["realtime", "hourly", "daily", "weekly", "monthly"]
-        
-        for freq in frequencies:
-            with patch("exa_py.Exa") as mock_exa:
-                mock_client = Mock()
-                mock_client.create_webset.return_value = Mock(
-                    id=f"ws_{freq}",
-                    update_frequency=freq
+    @pytest.mark.asyncio
+    async def test_create_webset_with_criteria(self):
+        """Test creating webset with search criteria."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_criteria",
+                    status="active",
+                    searches=[{"criteria": [{"description": "High quality", "successRate": 0.9}]}],
+                    enrichments=[],
+                    metadata={},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=None  # Explicitly set items to None
                 )
-                mock_exa.return_value = mock_client
+                mock_exa.return_value.websets.create.return_value = mock_result
                 
-                result = tool(
-                    name=f"{freq} Webset",
-                    search_query="test",
-                    update_frequency=freq
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="technical documentation",
+                        count=30,
+                        criteria=[{"description": "High quality", "successRate": 0.9}]
+                    )
                 )
                 
-                assert result["update_frequency"] == freq
+                result = await exa_create_webset(args)
+                
+                assert result.id == "ws_criteria"
+                assert result.searches[0]["criteria"][0]["description"] == "High quality"
     
-    def test_get_webset_results(self):
-        """Test retrieving results from a webset."""
-        # Would import: from tools.exa_websets_tool import get_webset_results
-        def mock_get_results(webset_id: str, limit: int = 100) -> list[dict[str, any]]:
-            return [
-                {
-                    "title": f"Result {i+1}",
-                    "url": f"https://example.com/result{i+1}",
-                    "content": f"Content for result {i+1}",
-                    "enrichments": {
-                        "summary": f"Summary of result {i+1}",
-                        "key_points": [f"Point {j}" for j in range(3)]
-                    }
-                }
-                for i in range(min(limit, 10))
-            ]
-        
-        tool = mock_get_results
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_results = [
-                Mock(
-                    title="Enriched Result",
-                    url="https://example.com",
-                    text="Full content",
-                    enrichments={
-                        "summary": "This is a summary",
-                        "entities": ["AI", "Technology"]
-                    }
+    @pytest.mark.asyncio
+    async def test_create_webset_no_api_key(self):
+        """Test creating webset without API key."""
+        with patch.dict('os.environ', {}, clear=True):
+            args = CreateWebsetArgs(
+                search=WebsetSearchConfig(
+                    query="test",
+                    count=10
                 )
-            ]
-            mock_client.get_webset_results.return_value = mock_results
-            mock_exa.return_value = mock_client
-            
-            results = tool("ws_12345", limit=5)
-            
-            assert len(results) <= 5
-            assert all("enrichments" in r for r in results)
-    
-    def test_update_webset(self):
-        """Test updating webset configuration."""
-        # Would import: from tools.exa_websets_tool import update_webset
-        def mock_update_webset(
-            webset_id: str,
-            name: str | None = None,
-            filters: dict[str, any] | None = None,
-            enrichments: list[str] | None = None
-        ) -> dict[str, any]:
-            return {
-                "webset_id": webset_id,
-                "name": name or "Updated Webset",
-                "filters": filters or {},
-                "enrichments": enrichments or [],
-                "updated_at": datetime.now().isoformat(),
-                "status": "active"
-            }
-        
-        tool = mock_update_webset
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_client.update_webset.return_value = Mock(
-                id="ws_12345",
-                name="Updated Name",
-                updated_at="2024-01-02T00:00:00Z"
-            )
-            mock_exa.return_value = mock_client
-            
-            result = tool(
-                "ws_12345",
-                name="Updated Name",
-                filters={"domain": ["newdomain.com"]}
             )
             
-            assert result["name"] == "Updated Name"
-            assert "updated_at" in result
+            result = await exa_create_webset(args)
+            
+            assert result.id == "error"
+            assert result.status == "error"
+            assert "EXA_API_KEY" in result.metadata["error"]
     
-    def test_delete_webset(self):
+    @pytest.mark.asyncio
+    async def test_create_webset_api_error(self):
+        """Test handling API errors during creation."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_exa.return_value.websets.create.side_effect = Exception("API Error")
+                
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="test",
+                        count=10
+                    )
+                )
+                
+                result = await exa_create_webset(args)
+                
+                assert result.id == "error"
+                assert result.status == "error"
+                assert "API Error" in result.metadata["error"]
+    
+    @pytest.mark.asyncio
+    async def test_get_webset(self):
+        """Test getting webset information."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_12345",
+                    status="idle",
+                    searches=[{"query": "test"}],
+                    enrichments=[],
+                    metadata={"total_items": 25},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=[Mock(), Mock(), Mock()]  # 3 items
+                )
+                mock_exa.return_value.websets.get.return_value = mock_result
+                
+                result = await exa_get_webset("ws_12345")
+                
+                assert result.id == "ws_12345"
+                assert result.status == "idle"
+                assert result.items_count == 3
+                assert result.metadata["total_items"] == 25
+    
+    @pytest.mark.asyncio
+    async def test_get_webset_not_found(self):
+        """Test getting non-existent webset."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_exa.return_value.websets.get.side_effect = Exception("Webset not found")
+                
+                result = await exa_get_webset("ws_nonexistent")
+                
+                assert result.id == "ws_nonexistent"
+                assert result.status == "error"
+                assert "Webset not found" in result.metadata["error"]
+    
+    @pytest.mark.asyncio
+    async def test_list_webset_items(self):
+        """Test listing items in a webset."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Mock items with proper properties
+                # Create custom mock objects to avoid recursion
+                class MockProperties:
+                    def __init__(self, url):
+                        self.url = url
+                        self.__dict__ = {"url": url}
+                
+                mock_item1 = Mock(
+                    id="item_1",
+                    properties=MockProperties("https://example1.com"),
+                    evaluations=[{"score": 0.9}],
+                    enrichments=[{"summary": "Test summary 1"}],
+                    created_at="2024-01-01T00:00:00Z"
+                )
+                mock_item2 = Mock(
+                    id="item_2",
+                    properties=MockProperties("https://example2.com"),
+                    evaluations=[{"score": 0.8}],
+                    enrichments=[{"summary": "Test summary 2"}],
+                    created_at="2024-01-01T00:01:00Z"
+                )
+                
+                mock_result = Mock(
+                    data=[mock_item1, mock_item2],
+                    has_more=True
+                )
+                mock_exa.return_value.websets.items.list.return_value = mock_result
+                
+                result = await exa_list_webset_items("ws_12345", limit=10)
+                
+                assert len(result.items) == 2
+                assert result.items[0].id == "item_1"
+                assert result.items[0].url == "https://example1.com"
+                assert result.items[0].evaluations[0]["score"] == 0.9
+                assert result.items[1].id == "item_2"
+                assert result.has_more is True
+                assert result.total_count == 2
+    
+    @pytest.mark.asyncio
+    async def test_list_webset_items_empty(self):
+        """Test listing items in empty webset."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    data=[],
+                    has_more=False
+                )
+                mock_exa.return_value.websets.items.list.return_value = mock_result
+                
+                result = await exa_list_webset_items("ws_empty")
+                
+                assert len(result.items) == 0
+                assert result.has_more is False
+                assert result.total_count == 0
+    
+    @pytest.mark.asyncio
+    async def test_list_webset_items_with_limit(self):
+        """Test limiting number of items returned."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Create 10 mock items
+                class MockProperties:
+                    def __init__(self, url):
+                        self.url = url
+                        self.__dict__ = {"url": url}
+                
+                mock_items = []
+                for i in range(10):
+                    mock_items.append(Mock(
+                        id=f"item_{i}",
+                        properties=MockProperties(f"https://example{i}.com"),
+                        evaluations=[],
+                        enrichments=[],
+                        created_at=f"2024-01-01T00:0{i}:00Z"
+                    ))
+                
+                mock_result = Mock(
+                    data=mock_items,
+                    has_more=True
+                )
+                mock_exa.return_value.websets.items.list.return_value = mock_result
+                
+                result = await exa_list_webset_items("ws_12345", limit=5)
+                
+                assert len(result.items) == 5  # Limited to 5
+                assert result.items[0].id == "item_0"
+                assert result.items[4].id == "item_4"
+    
+    @pytest.mark.asyncio
+    async def test_delete_webset(self):
         """Test deleting a webset."""
-        # Would import: from tools.exa_websets_tool import delete_webset
-        def mock_delete_webset(webset_id: str) -> dict[str, any]:
-            return {
-                "webset_id": webset_id,
-                "status": "deleted",
-                "deleted_at": datetime.now().isoformat()
-            }
-        
-        tool = mock_delete_webset
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_client.delete_webset.return_value = True
-            mock_exa.return_value = mock_client
-            
-            result = tool("ws_12345")
-            
-            assert result["status"] == "deleted"
-            assert "deleted_at" in result
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_12345",
+                    updated_at="2024-01-01T12:00:00Z"
+                )
+                mock_exa.return_value.websets.delete.return_value = mock_result
+                
+                result = await exa_delete_webset("ws_12345")
+                
+                assert result.id == "ws_12345"
+                assert result.status == "deleted"
+                assert result.metadata["deleted_at"] == "2024-01-01T12:00:00Z"
     
-    def test_list_websets(self):
-        """Test listing all websets."""
-        # Would import: from tools.exa_websets_tool import list_websets
-        def mock_list_websets() -> list[dict[str, any]]:
-            return [
-                {
-                    "webset_id": f"ws_{i}",
-                    "name": f"Webset {i}",
-                    "status": "active",
-                    "created_at": "2024-01-01T00:00:00Z",
-                    "results_count": i * 10
+    @pytest.mark.asyncio
+    async def test_delete_webset_not_found(self):
+        """Test deleting non-existent webset."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_exa.return_value.websets.delete.side_effect = Exception("Webset not found")
+                
+                result = await exa_delete_webset("ws_nonexistent")
+                
+                assert result.id == "ws_nonexistent"
+                assert result.status == "error"
+                assert "Webset not found" in result.metadata["error"]
+    
+    @pytest.mark.asyncio
+    async def test_wait_until_idle(self):
+        """Test waiting for webset to become idle."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_12345",
+                    status="idle",
+                    searches=[{"query": "test", "progress": {"found": 50, "completion": 1.0}}],
+                    enrichments=[{"status": "completed"}],
+                    metadata={"processing_time": 45},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=[Mock() for _ in range(50)]  # 50 items
+                )
+                mock_exa.return_value.websets.wait_until_idle.return_value = mock_result
+                
+                result = await exa_wait_until_idle("ws_12345")
+                
+                assert result.id == "ws_12345"
+                assert result.status == "idle"
+                assert result.items_count == 50
+                assert result.searches[0]["progress"]["completion"] == 1.0
+    
+    @pytest.mark.asyncio
+    async def test_wait_until_idle_timeout(self):
+        """Test timeout while waiting for webset."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_exa.return_value.websets.wait_until_idle.side_effect = Exception("Timeout waiting for webset")
+                
+                result = await exa_wait_until_idle("ws_12345", timeout=10)
+                
+                assert result.id == "ws_12345"
+                assert result.status == "error"
+                assert "Timeout" in result.metadata["error"]
+    
+    @pytest.mark.asyncio
+    async def test_complex_webset_workflow(self):
+        """Test complete webset workflow: create, wait, list items, delete."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Mock create
+                mock_create_result = Mock(
+                    id="ws_workflow",
+                    status="processing",
+                    searches=[],
+                    enrichments=[],
+                    metadata={},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=None  # Explicitly set items to None
+                )
+                mock_exa.return_value.websets.create.return_value = mock_create_result
+                
+                # Create webset
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="workflow test",
+                        count=5
+                    )
+                )
+                create_result = await exa_create_webset(args)
+                assert create_result.status == "processing"
+                
+                # Mock wait until idle
+                mock_idle_result = Mock(
+                    id="ws_workflow",
+                    status="idle",
+                    searches=[],
+                    enrichments=[],
+                    metadata={},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=[Mock() for _ in range(5)]
+                )
+                mock_exa.return_value.websets.wait_until_idle.return_value = mock_idle_result
+                
+                # Wait for completion
+                wait_result = await exa_wait_until_idle("ws_workflow")
+                assert wait_result.status == "idle"
+                assert wait_result.items_count == 5
+                
+                # Mock list items
+                class MockProperties:
+                    def __init__(self, url):
+                        self.url = url
+                        self.__dict__ = {"url": url}
+                
+                mock_items = []
+                for i in range(5):
+                    mock_items.append(Mock(
+                        id=f"item_{i}",
+                        properties=MockProperties(f"https://example{i}.com"),
+                        evaluations=[],
+                        enrichments=[],
+                        created_at="2024-01-01T00:00:00Z"
+                    ))
+                mock_list_result = Mock(data=mock_items, has_more=False)
+                mock_exa.return_value.websets.items.list.return_value = mock_list_result
+                
+                # List items
+                items_result = await exa_list_webset_items("ws_workflow")
+                assert len(items_result.items) == 5
+                
+                # Mock delete
+                mock_delete_result = Mock(
+                    id="ws_workflow",
+                    updated_at="2024-01-01T01:00:00Z"
+                )
+                mock_exa.return_value.websets.delete.return_value = mock_delete_result
+                
+                # Delete webset
+                delete_result = await exa_delete_webset("ws_workflow")
+                assert delete_result.status == "deleted"
+    
+    @pytest.mark.asyncio
+    async def test_webset_with_large_count(self):
+        """Test creating webset with large item count."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_large",
+                    status="processing",
+                    searches=[{"query": "large dataset", "count": 10000}],
+                    enrichments=[],
+                    metadata={"estimated_time": "2 hours"},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=None  # Explicitly set items to None
+                )
+                mock_exa.return_value.websets.create.return_value = mock_result
+                
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="large dataset",
+                        count=10000
+                    )
+                )
+                
+                result = await exa_create_webset(args)
+                
+                assert result.id == "ws_large"
+                assert result.status == "processing"
+                assert result.searches[0]["count"] == 10000
+    
+    @pytest.mark.asyncio
+    async def test_webset_with_multiple_enrichments(self):
+        """Test webset with multiple enrichment types."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_multi_enrich",
+                    status="active",
+                    searches=[],
+                    enrichments=[
+                        {"description": "Extract title", "format": "text"},
+                        {"description": "Extract author", "format": "text"},
+                        {"description": "Extract date", "format": "date"},
+                        {"description": "Extract keywords", "format": "json"},
+                        {"description": "Sentiment analysis", "format": "number"}
+                    ],
+                    metadata={},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=None  # Explicitly set items to None
+                )
+                mock_exa.return_value.websets.create.return_value = mock_result
+                
+                enrichments = [
+                    WebsetEnrichmentConfig(description="Extract title", format="text"),
+                    WebsetEnrichmentConfig(description="Extract author", format="text"),
+                    WebsetEnrichmentConfig(description="Extract date", format="date"),
+                    WebsetEnrichmentConfig(description="Extract keywords", format="json"),
+                    WebsetEnrichmentConfig(description="Sentiment analysis", format="number")
+                ]
+                
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(query="research papers", count=100),
+                    enrichments=enrichments
+                )
+                
+                result = await exa_create_webset(args)
+                
+                assert len(result.enrichments) == 5
+                assert any(e["format"] == "date" for e in result.enrichments)
+                assert any(e["format"] == "json" for e in result.enrichments)
+                assert any(e["format"] == "number" for e in result.enrichments)
+    
+    @pytest.mark.asyncio
+    async def test_model_validation(self):
+        """Test Pydantic model validation."""
+        # Test WebsetSearchConfig validation - missing required fields
+        with pytest.raises(Exception):  # ValidationError
+            WebsetSearchConfig()  # Missing required fields
+        
+        # Test valid config
+        config = WebsetSearchConfig(
+            query="valid query",
+            count=100,
+            entity={"type": "article"},
+            criteria=[{"description": "Recent", "successRate": 0.95}],
+            metadata={"source": "test"}
+        )
+        assert config.query == "valid query"
+        assert config.count == 100
+        
+        # Test WebsetEnrichmentConfig
+        enrichment = WebsetEnrichmentConfig(
+            description="Extract summary",
+            format="text",
+            options=[{"max_length": 200}],
+            instructions="Focus on key points"
+        )
+        assert enrichment.description == "Extract summary"
+        assert enrichment.format == "text"
+        
+        # Test CreateWebsetArgs
+        args = CreateWebsetArgs(
+            search=config,
+            enrichments=[enrichment],
+            metadata={"test": True}
+        )
+        assert args.search.query == "valid query"
+        assert len(args.enrichments) == 1
+        
+        # Test empty query is allowed (no validation on empty string)
+        empty_config = WebsetSearchConfig(query="", count=10)
+        assert empty_config.query == ""
+        
+        # Test missing enrichment required fields
+        with pytest.raises(Exception):  # ValidationError
+            WebsetEnrichmentConfig()  # Missing required fields
+    
+    @pytest.mark.asyncio
+    async def test_items_without_properties(self):
+        """Test handling items without properties."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Mock item without properties
+                mock_item = Mock(
+                    id="item_no_props",
+                    properties=None,
+                    evaluations=[],
+                    enrichments=[{"content": "Some content"}],
+                    created_at="2024-01-01T00:00:00Z"
+                )
+                
+                mock_result = Mock(
+                    data=[mock_item],
+                    has_more=False
+                )
+                mock_exa.return_value.websets.items.list.return_value = mock_result
+                
+                result = await exa_list_webset_items("ws_12345")
+                
+                assert len(result.items) == 1
+                assert result.items[0].id == "item_no_props"
+                assert result.items[0].url is None
+                assert result.items[0].properties is None
+    
+    @pytest.mark.asyncio
+    async def test_concurrent_webset_operations(self):
+        """Test handling multiple concurrent webset operations."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Mock different results for different websets
+                mock_results = {
+                    "ws_1": Mock(id="ws_1", status="active", searches=[], enrichments=[], metadata={}, created_at="2024-01-01T00:00:00Z", items=None),
+                    "ws_2": Mock(id="ws_2", status="idle", searches=[], enrichments=[], metadata={}, created_at="2024-01-01T00:00:00Z", items=None),
+                    "ws_3": Mock(id="ws_3", status="processing", searches=[], enrichments=[], metadata={}, created_at="2024-01-01T00:00:00Z", items=None)
                 }
-                for i in range(1, 4)
-            ]
-        
-        tool = mock_list_websets
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_client.list_websets.return_value = [
-                Mock(id=f"ws_{i}", name=f"Webset {i}")
-                for i in range(1, 4)
-            ]
-            mock_exa.return_value = mock_client
-            
-            results = tool()
-            
-            assert len(results) == 3
-            assert all("webset_id" in ws for ws in results)
-    
-    def test_large_result_sets(self):
-        """Test handling large numbers of results."""
-        tool = self.get_component_function()
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_client.create_webset.return_value = Mock(
-                id="ws_large",
-                results_count=10000,
-                status="processing"
-            )
-            mock_exa.return_value = mock_client
-            
-            result = tool(
-                name="Large Dataset",
-                search_query="comprehensive search",
-                num_results=10000
-            )
-            
-            # Should handle large requests
-            assert "results_count" in result
-            assert result["status"] in ["active", "processing"]
-    
-    def test_error_handling(self):
-        """Test error handling for various scenarios."""
-        tool = self.get_component_function()
-        
-        # Test API errors
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            mock_client.create_webset.side_effect = Exception("API Error")
-            mock_exa.return_value = mock_client
-            
-            result = tool("Error Webset", "test query")
-            
-            # Should handle errors gracefully
-            assert isinstance(result, dict)
-            assert "error" in str(result).lower() or "status" in result
-    
-    def test_search_query_validation(self):
-        """Test validation of search queries."""
-        tool = self.get_component_function()
-        
-        invalid_queries = [
-            "",  # Empty query
-            " " * 10,  # Whitespace only
-            "a",  # Too short
-        ]
-        
-        for query in invalid_queries:
-            result = tool("Test", search_query=query)
-            
-            # Should handle invalid queries
-            assert isinstance(result, dict)
-    
-    def test_concurrent_webset_operations(self):
-        """Test handling concurrent webset operations."""
-        tool = self.get_component_function()
-        
-        with patch("exa_py.Exa") as mock_exa:
-            mock_client = Mock()
-            
-            # Simulate creating multiple websets
-            webset_ids = []
-            for i in range(5):
-                mock_client.create_webset.return_value = Mock(
-                    id=f"ws_concurrent_{i}",
-                    name=f"Concurrent {i}"
-                )
-                mock_exa.return_value = mock_client
                 
-                result = tool(
-                    name=f"Concurrent Webset {i}",
-                    search_query=f"query {i}"
+                def get_side_effect(webset_id):
+                    return mock_results.get(webset_id, Mock(id=webset_id, status="unknown"))
+                
+                mock_exa.return_value.websets.get.side_effect = get_side_effect
+                
+                # Run concurrent operations
+                tasks = [
+                    exa_get_webset("ws_1"),
+                    exa_get_webset("ws_2"),
+                    exa_get_webset("ws_3")
+                ]
+                
+                results = await asyncio.gather(*tasks)
+                
+                assert results[0].status == "active"
+                assert results[1].status == "idle"
+                assert results[2].status == "processing"
+    
+    @pytest.mark.asyncio
+    async def test_webset_metadata_handling(self):
+        """Test proper handling of metadata at different levels."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                mock_result = Mock(
+                    id="ws_metadata",
+                    status="active",
+                    searches=[{"metadata": {"search_meta": "value"}}],
+                    enrichments=[{"metadata": {"enrich_meta": "value"}}],
+                    metadata={"webset_meta": "value", "nested": {"key": "value"}},
+                    created_at="2024-01-01T00:00:00Z",
+                    items=None  # Explicitly set items to None
+                )
+                mock_exa.return_value.websets.create.return_value = mock_result
+                
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(
+                        query="test",
+                        count=10,
+                        metadata={"search_level": "metadata"}
+                    ),
+                    enrichments=[
+                        WebsetEnrichmentConfig(
+                            description="Test",
+                            format="text",
+                            metadata={"enrichment_level": "metadata"}
+                        )
+                    ],
+                    metadata={"top_level": "metadata"}
                 )
                 
-                assert "webset_id" in result or "id" in result
+                result = await exa_create_webset(args)
+                
+                assert result.metadata["webset_meta"] == "value"
+                assert result.metadata["nested"]["key"] == "value"
+    
+    @pytest.mark.asyncio
+    async def test_error_handling_edge_cases(self):
+        """Test various error handling edge cases."""
+        with patch.dict('os.environ', {'EXA_API_KEY': 'test-key'}):
+            with patch('packages.funcn_registry.components.tools.exa_websets.tool.Exa') as mock_exa:
+                # Test network error
+                mock_exa.return_value.websets.create.side_effect = ConnectionError("Network unreachable")
+                
+                args = CreateWebsetArgs(
+                    search=WebsetSearchConfig(query="test", count=10)
+                )
+                
+                result = await exa_create_webset(args)
+                assert result.status == "error"
+                assert "Network unreachable" in result.metadata["error"]
+                
+                # Test timeout error
+                mock_exa.return_value.websets.get.side_effect = TimeoutError("Request timed out")
+                
+                result = await exa_get_webset("ws_timeout")
+                assert result.status == "error"
+                assert "Request timed out" in result.metadata["error"]
+                
+                # Test value error
+                mock_exa.return_value.websets.delete.side_effect = ValueError("Invalid webset ID")
+                
+                result = await exa_delete_webset("invalid_id")
+                assert result.status == "error"
+                assert "Invalid webset ID" in result.metadata["error"]

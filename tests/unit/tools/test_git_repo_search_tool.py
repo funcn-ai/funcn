@@ -1,406 +1,714 @@
 """Test suite for git_repo_search_tool following best practices."""
 
+import asyncio
+import os
 import pytest
+from datetime import datetime
+
+# Import the tool functions and models
+from packages.funcn_registry.components.tools.git_repo_search.tool import (
+    CodeMatch,
+    CommitMatch,
+    FileMatch,
+    GitRepoSearchArgs,
+    GitRepoSearchResponse,
+    GitSearchType,
+    search_git_repo,
+)
 from pathlib import Path
+from pydantic import ValidationError
 from tests.utils import BaseToolTest
-from unittest.mock import Mock, patch
+from unittest.mock import AsyncMock, MagicMock, Mock, patch
 
 
 class TestGitRepoSearchTool(BaseToolTest):
-    """Test git_repo_search_tool component."""
-    
+    """Test cases for Git repository search and query tool."""
+
     component_name = "git_repo_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/git_repo_search_tool")
+    component_path = Path("packages/funcn_registry/components/tools/git_repo_search")
     
+    def create_mock_repo(self, branch_name="main"):
+        """Create a mock Git repository."""
+        mock_repo = MagicMock()
+        mock_branch = MagicMock()
+        mock_branch.name = branch_name
+        mock_repo.active_branch = mock_branch
+        return mock_repo
+    
+    def create_mock_commit(self, sha, author, date, message, files=None):
+        """Create a mock Git commit."""
+        mock_commit = MagicMock()
+        mock_commit.hexsha = sha
+        mock_commit.author.name = author
+        mock_commit.authored_datetime.isoformat.return_value = date
+        mock_commit.message = message
+        mock_commit.stats.files.keys.return_value = files or []
+        return mock_commit
+    
+    def create_mock_subprocess_result(self, stdout="", returncode=0, stderr=""):
+        """Create a mock subprocess result."""
+        result = Mock()
+        result.stdout = stdout
+        result.returncode = returncode
+        result.stderr = stderr
+        return result
+
     def get_component_function(self):
-        """Import the tool function."""
-        # Would import: from tools.git_repo_search_tool import search_git_repo
-        def mock_search_git_repo(
-            repo_path: str | Path,
-            query: str,
-            search_type: str = "code",
-            file_pattern: str | None = None,
-            branch: str | None = None,
-            author: str | None = None,
-            since: str | None = None,
-            until: str | None = None
-        ) -> list[dict[str, any]]:
-            """Mock git repo search tool."""
-            if search_type == "code":
-                return [
-                    {
-                        "file": "src/main.py",
-                        "line": 42,
-                        "content": f"def {query}():",
-                        "branch": branch or "main",
-                        "commit": "abc123"
-                    },
-                    {
-                        "file": "tests/test_main.py",
-                        "line": 15,
-                        "content": f"# Test for {query}",
-                        "branch": branch or "main",
-                        "commit": "def456"
-                    }
-                ]
-            elif search_type == "commits":
-                return [
-                    {
-                        "commit": "abc123",
-                        "author": author or "John Doe",
-                        "date": "2024-01-15",
-                        "message": f"Add {query} functionality",
-                        "files_changed": 3
-                    }
-                ]
-            elif search_type == "files":
-                return [
-                    {
-                        "path": f"src/{query}.py",
-                        "size": 1024,
-                        "last_modified": "2024-01-15"
-                    }
-                ]
-            return []
-        return mock_search_git_repo
-    
+        """Get the main tool function."""
+        return search_git_repo
+
     def get_test_inputs(self):
-        """Provide test inputs for the tool."""
+        """Get test input cases."""
         return [
-            {
-                "repo_path": "/path/to/repo",
-                "query": "TODO",
-                "search_type": "code",
-                "file_pattern": "*.py"
-            },
-            {
-                "repo_path": "/path/to/repo",
-                "query": "bugfix",
-                "search_type": "commits",
-                "author": "john.doe@example.com",
-                "since": "2024-01-01"
-            },
-            {
-                "repo_path": "/path/to/repo",
-                "query": "config",
-                "search_type": "files",
-                "branch": "develop"
-            }
-        ]
-    
-    def validate_tool_output(self, output, input_data):
-        """Validate the tool output format."""
-        assert isinstance(output, list)
-        
-        search_type = input_data.get("search_type", "code")
-        for result in output:
-            assert isinstance(result, dict)
-            
-            if search_type == "code":
-                assert "file" in result
-                assert "line" in result or "line_number" in result
-            elif search_type == "commits":
-                assert "commit" in result or "sha" in result
-                assert "message" in result
-            elif search_type == "files":
-                assert "path" in result or "file" in result
-    
-    def test_code_search(self, tmp_path):
-        """Test searching code in repository."""
-        tool = self.get_component_function()
-        
-        with patch("subprocess.run") as mock_run:
-            # Mock git grep output
-            mock_result = Mock()
-            mock_result.stdout = """src/main.py:42:def calculate_total():
-src/utils.py:15:    total = calculate_total()
-tests/test_main.py:8:def test_calculate_total():"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            
-            results = tool(tmp_path, "calculate_total", search_type="code")
-            
-            assert len(results) >= 3
-            assert any("main.py" in r["file"] for r in results)
-            assert any("test_main.py" in r["file"] for r in results)
-    
-    def test_file_pattern_filtering(self, tmp_path):
-        """Test filtering by file patterns."""
-        tool = self.get_component_function()
-        
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            mock_result.stdout = """src/main.py:10:import config
-src/config.py:1:# Configuration file
-docs/config.md:5:Configuration guide"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            
-            # Search only Python files
-            results = tool(
-                tmp_path,
-                "config",
+            GitRepoSearchArgs(
+                repo_path="/path/to/repo",
+                query="TODO",
                 search_type="code",
                 file_pattern="*.py"
+            ),
+            GitRepoSearchArgs(
+                github_repo="owner/repo",
+                query="bugfix",
+                search_type="commit",
+                max_results=10
+            ),
+            GitRepoSearchArgs(
+                repo_path="/path/to/repo",
+                query="config",
+                search_type="file",
+                branch="develop"
             )
+        ]
+
+    def validate_tool_output(self, output, input_data):
+        """Validate the tool output structure."""
+        assert isinstance(output, GitRepoSearchResponse)
+        assert hasattr(output, 'success')
+        assert hasattr(output, 'search_type')
+        assert hasattr(output, 'query')
+        assert hasattr(output, 'repository')
+        assert hasattr(output, 'total_matches')
+        
+        if output.success:
+            if output.search_type == GitSearchType.CODE:
+                assert isinstance(output.code_matches, list)
+                for match in output.code_matches:
+                    assert isinstance(match, CodeMatch)
+            elif output.search_type == GitSearchType.FILE:
+                assert isinstance(output.file_matches, list)
+                for match in output.file_matches:
+                    assert isinstance(match, FileMatch)
+            elif output.search_type == GitSearchType.COMMIT:
+                assert isinstance(output.commit_matches, list)
+                for match in output.commit_matches:
+                    assert isinstance(match, CommitMatch)
+
+    @pytest.mark.asyncio
+    async def test_local_code_search(self, tmp_path):
+        """Test searching code in local repository."""
+        mock_repo = self.create_mock_repo()
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
             
-            # Should filter out non-Python files
-            assert all(r["file"].endswith(".py") for r in results)
-            assert not any(r["file"].endswith(".md") for r in results)
-    
-    def test_commit_search(self, tmp_path):
+            with patch("subprocess.run") as mock_run:
+                # Mock git grep output
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="src/main.py:42:def calculate_total():\nsrc/utils.py:15:    total = calculate_total()\ntests/test_main.py:8:def test_calculate_total():"
+                )
+                mock_run.return_value = mock_result
+                
+                # Create test directory structure
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
+                
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="calculate_total",
+                    search_type="code"
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches >= 3
+                assert any("main.py" in match.file_path for match in result.code_matches)
+                assert any("test_main.py" in match.file_path for match in result.code_matches)
+
+    @pytest.mark.asyncio
+    async def test_github_code_search(self):
+        """Test searching code in GitHub repository."""
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
+            mock_github = MagicMock()
+            mock_repo = MagicMock()
+            mock_repo.default_branch = "main"
+            
+            # Mock code search results
+            mock_code_result = MagicMock()
+            mock_code_result.path = "src/main.py"
+            
+            mock_content = MagicMock()
+            mock_content.encoding = "base64"
+            mock_content.decoded_content = b"def calculate_total():\n    return sum(values)\n"
+            
+            mock_repo.get_contents.return_value = mock_content
+            mock_github.get_repo.return_value = mock_repo
+            mock_github.search_code.return_value = [mock_code_result]
+            
+            with patch("packages.funcn_registry.components.tools.git_repo_search.tool.Github") as mock_github_cls:
+                mock_github_cls.return_value = mock_github
+                
+                args = GitRepoSearchArgs(
+                    github_repo="owner/repo",
+                    query="calculate_total",
+                    search_type="code"
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches > 0
+                assert result.code_matches[0].file_path == "src/main.py"
+
+    @pytest.mark.asyncio
+    async def test_local_commit_search(self, tmp_path):
         """Test searching in commit messages."""
-        tool = self.get_component_function()
+        mock_commit1 = self.create_mock_commit(
+            "abc123", "John Doe", "2024-01-15T10:00:00", 
+            "Fix bug in authentication", ["auth.py", "test_auth.py"]
+        )
+        mock_commit2 = self.create_mock_commit(
+            "def456", "Jane Smith", "2024-01-14T15:00:00",
+            "Add new authentication method", ["auth.py"]
+        )
         
-        with patch("subprocess.run") as mock_run:
-            # Mock git log output
-            mock_result = Mock()
-            mock_result.stdout = """abc123|John Doe|2024-01-15|Fix bug in authentication
-def456|Jane Smith|2024-01-14|Add new authentication method
-ghi789|Bob Johnson|2024-01-13|Update authentication docs"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
+        mock_repo = self.create_mock_repo()
+        mock_repo.iter_commits.return_value = [mock_commit1, mock_commit2]
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
             
-            results = tool(
-                tmp_path,
-                "authentication",
-                search_type="commits"
+            # Create test repository
+            repo_path = tmp_path / "test_repo"
+            repo_path.mkdir()
+            (repo_path / ".git").mkdir()
+            
+            args = GitRepoSearchArgs(
+                repo_path=str(repo_path),
+                query="authentication",
+                search_type="commit"
             )
             
-            assert len(results) >= 3
-            assert all("authentication" in r["message"].lower() for r in results)
-    
-    def test_author_filtering(self, tmp_path):
-        """Test filtering commits by author."""
-        tool = self.get_component_function()
-        
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            mock_result.stdout = """abc123|john.doe@example.com|2024-01-15|Feature: Add user dashboard
-def456|john.doe@example.com|2024-01-14|Fix: Dashboard layout issue"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
+            result = await search_git_repo(args)
             
-            results = tool(
-                tmp_path,
-                "dashboard",
-                search_type="commits",
-                author="john.doe@example.com"
-            )
-            
-            assert len(results) == 2
-            assert all(r["author"] == "john.doe@example.com" for r in results)
-    
-    def test_date_range_filtering(self, tmp_path):
-        """Test filtering by date range."""
-        tool = self.get_component_function()
-        
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            mock_result.stdout = """abc123|Author|2024-01-15|Recent commit
-def456|Author|2024-01-10|Mid-range commit
-ghi789|Author|2023-12-20|Old commit"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            
-            results = tool(
-                tmp_path,
-                "commit",
-                search_type="commits",
-                since="2024-01-01",
-                until="2024-01-31"
-            )
-            
-            # Should only include January 2024 commits
-            assert len(results) == 2
-            assert not any("2023" in r["date"] for r in results)
-    
-    def test_branch_search(self, tmp_path):
-        """Test searching in specific branches."""
-        tool = self.get_component_function()
-        
-        with patch("subprocess.run") as mock_run:
-            # First call - switch branch
-            switch_result = Mock()
-            switch_result.returncode = 0
-            
-            # Second call - search
-            search_result = Mock()
-            search_result.stdout = "feature/new-ui:src/ui.py:10:New UI component"
-            search_result.returncode = 0
-            
-            mock_run.side_effect = [switch_result, search_result]
-            
-            results = tool(
-                tmp_path,
-                "UI component",
-                search_type="code",
-                branch="feature/new-ui"
-            )
-            
-            # Should search in specified branch
-            assert len(results) > 0
-            assert results[0]["branch"] == "feature/new-ui"
-    
-    def test_file_search(self, tmp_path):
+            assert result.success is True
+            assert result.total_matches == 2
+            assert all("authentication" in commit.message.lower() for commit in result.commit_matches)
+
+    @pytest.mark.asyncio
+    async def test_file_search(self, tmp_path):
         """Test searching for files by name."""
-        tool = self.get_component_function()
+        mock_repo = self.create_mock_repo()
         
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            mock_result.stdout = """src/config.py
-src/config_loader.py
-tests/test_config.py
-docs/config.md"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
+        # Create test files
+        repo_path = tmp_path / "test_repo"
+        repo_path.mkdir()
+        (repo_path / ".git").mkdir()
+        (repo_path / "src").mkdir()
+        
+        config_file = repo_path / "src" / "config.py"
+        config_file.write_text("# Configuration")
+        
+        test_config_file = repo_path / "test_config.json"
+        test_config_file.write_text("{}")
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
             
-            results = tool(
-                tmp_path,
-                "config",
-                search_type="files"
+            args = GitRepoSearchArgs(
+                repo_path=str(repo_path),
+                query="config",
+                search_type="file"
             )
             
-            assert len(results) >= 4
-            assert any("config.py" in r["path"] for r in results)
-    
-    def test_case_sensitivity(self, tmp_path):
+            result = await search_git_repo(args)
+            
+            assert result.success is True
+            assert result.total_matches >= 2
+            assert any("config.py" in match.file_path for match in result.file_matches)
+            assert any("test_config.json" in match.file_path for match in result.file_matches)
+
+    @pytest.mark.asyncio
+    async def test_case_sensitivity(self, tmp_path):
         """Test case-sensitive vs case-insensitive search."""
-        tool = self.get_component_function()
+        mock_repo = self.create_mock_repo()
         
-        with patch("subprocess.run") as mock_run:
-            # Case-insensitive results
-            mock_result = Mock()
-            mock_result.stdout = """src/main.py:10:TODO: Fix this
-src/utils.py:20:Todo: Update docs
-src/test.py:30:todo: add tests"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
             
-            results = tool(tmp_path, "todo", search_type="code")
-            
-            # Should find all case variations
-            assert len(results) >= 3
-    
-    def test_binary_file_exclusion(self, tmp_path):
-        """Test that binary files are excluded from search."""
-        tool = self.get_component_function()
+            # Test case-insensitive (default)
+            with patch("subprocess.run") as mock_run:
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="src/main.py:10:TODO: Fix this\nsrc/utils.py:20:Todo: Update docs"
+                )
+                mock_run.return_value = mock_result
+                
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
+                
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="todo",
+                    search_type="code",
+                    case_sensitive=False
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches >= 2
+                
+            # Test case-sensitive
+            with patch("subprocess.run") as mock_run:
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="src/utils.py:20:Todo: Update docs"
+                )
+                mock_run.return_value = mock_result
+                
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="Todo",
+                    search_type="code",
+                    case_sensitive=True
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches == 1
+
+    @pytest.mark.asyncio
+    async def test_regex_search(self, tmp_path):
+        """Test regex pattern matching."""
+        mock_commit = self.create_mock_commit(
+            "abc123", "Developer", "2024-01-15T10:00:00",
+            "Fix: bug #123 in authentication", ["auth.py"]
+        )
         
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            # Git grep typically excludes binary files
-            mock_result.stdout = """src/text.py:5:Binary data reference
-docs/README.md:10:Binary file handling"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
+        mock_repo = self.create_mock_repo()
+        mock_repo.iter_commits.return_value = [mock_commit]
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
             
-            results = tool(tmp_path, "Binary", search_type="code")
+            repo_path = tmp_path / "test_repo"
+            repo_path.mkdir()
+            (repo_path / ".git").mkdir()
             
-            # Should not include actual binary files
-            assert all(
-                r["file"].endswith((".py", ".md", ".txt", ".js"))
-                for r in results
+            args = GitRepoSearchArgs(
+                repo_path=str(repo_path),
+                query="Fix:.*#\\d+",
+                search_type="commit",
+                regex=True
             )
-    
-    def test_submodule_handling(self, tmp_path):
-        """Test handling of git submodules."""
-        tool = self.get_component_function()
-        
-        with patch("subprocess.run") as mock_run:
-            # Include submodules in search
-            mock_result = Mock()
-            mock_result.stdout = """main-repo/src/main.py:10:Main code
-submodule/lib/helper.py:5:Helper function"""
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
             
-            results = tool(
-                tmp_path,
-                "function",
+            result = await search_git_repo(args)
+            
+            assert result.success is True
+            assert result.total_matches >= 1
+            assert "Fix: bug #123" in result.commit_matches[0].message
+
+    @pytest.mark.asyncio
+    async def test_context_lines(self, tmp_path):
+        """Test context lines in code search."""
+        mock_repo = self.create_mock_repo()
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
+            
+            with patch("subprocess.run") as mock_run:
+                # Mock git grep with context
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="src/main.py-40-# Helper functions\nsrc/main.py-41-\nsrc/main.py:42:def calculate_total():\nsrc/main.py-43-    values = get_values()\nsrc/main.py-44-    return sum(values)"
+                )
+                mock_run.return_value = mock_result
+                
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
+                
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="calculate_total",
+                    search_type="code",
+                    include_context=True,
+                    context_lines=2
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches >= 1
+                assert result.code_matches[0].line_number == 42
+
+    @pytest.mark.asyncio
+    async def test_error_handling_invalid_repo(self):
+        """Test handling of invalid repository paths."""
+        args = GitRepoSearchArgs(
+            repo_path="/non/existent/path",
+            query="test",
+            search_type="code"
+        )
+        
+        result = await search_git_repo(args)
+        
+        assert result.success is False
+        assert "Not a valid Git repository" in result.error
+
+    @pytest.mark.asyncio
+    async def test_error_handling_no_github_token(self):
+        """Test GitHub search without token."""
+        with patch.dict(os.environ, {}, clear=True):
+            args = GitRepoSearchArgs(
+                github_repo="owner/repo",
+                query="test",
                 search_type="code"
             )
             
-            # Should handle submodules
-            assert len(results) >= 2
-    
-    def test_large_repository_performance(self, tmp_path):
-        """Test performance with large repositories."""
-        tool = self.get_component_function()
+            result = await search_git_repo(args)
+            
+            assert result.success is False
+            assert "GITHUB_TOKEN environment variable not set" in result.error
+
+    @pytest.mark.asyncio
+    async def test_file_pattern_filtering(self, tmp_path):
+        """Test filtering by file patterns."""
+        mock_repo = self.create_mock_repo()
         
-        with patch("subprocess.run") as mock_run:
-            # Simulate large result set
-            large_output = "\n".join([
-                f"src/file{i}.py:{i}:Match {i}"
-                for i in range(1000)
-            ])
-            
-            mock_result = Mock()
-            mock_result.stdout = large_output
-            mock_result.returncode = 0
-            mock_run.return_value = mock_result
-            
-            import time
-            start_time = time.time()
-            
-            results = tool(tmp_path, "Match", search_type="code")
-            
-            elapsed = time.time() - start_time
-            
-            # Should handle large results efficiently
-            assert elapsed < 2.0
-            assert len(results) == 1000
-    
-    def test_error_handling(self, tmp_path):
-        """Test handling of various git errors."""
-        tool = self.get_component_function()
+        # Create test files
+        repo_path = tmp_path / "test_repo"
+        repo_path.mkdir()
+        (repo_path / ".git").mkdir()
+        (repo_path / "src").mkdir()
+        (repo_path / "docs").mkdir()
         
-        # Test non-git directory
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            mock_result.stderr = "fatal: not a git repository"
-            mock_result.returncode = 128
-            mock_run.return_value = mock_result
-            
-            results = tool(tmp_path, "test")
-            
-            # Should handle gracefully
-            assert isinstance(results, list)
-            assert len(results) == 0 or "error" in str(results)
-    
-    def test_empty_results(self, tmp_path):
-        """Test handling when no results found."""
-        tool = self.get_component_function()
+        (repo_path / "src" / "config.py").write_text("CONFIG = {}")
+        (repo_path / "src" / "config.json").write_text("{}")
+        (repo_path / "docs" / "config.md").write_text("# Config")
         
-        with patch("subprocess.run") as mock_run:
-            mock_result = Mock()
-            mock_result.stdout = ""
-            mock_result.returncode = 1  # Git grep returns 1 when no matches
-            mock_run.return_value = mock_result
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
             
-            results = tool(tmp_path, "nonexistent_string_xyz")
+            args = GitRepoSearchArgs(
+                repo_path=str(repo_path),
+                query="config",
+                search_type="file",
+                file_pattern="*.py"
+            )
             
-            assert results == []
-    
-    def test_special_characters_in_query(self, tmp_path):
-        """Test queries with special characters."""
-        tool = self.get_component_function()
+            result = await search_git_repo(args)
+            
+            assert result.success is True
+            # Should only find Python files
+            assert all(".py" in match.file_path for match in result.file_matches)
+            assert not any(".json" in match.file_path or ".md" in match.file_path for match in result.file_matches)
+
+    @pytest.mark.asyncio
+    async def test_max_results_limit(self, tmp_path):
+        """Test max_results limitation."""
+        mock_repo = self.create_mock_repo()
         
-        special_queries = [
-            "function()",
-            "$variable",
-            "array[0]",
-            "regex.*pattern",
-            "path/to/file"
-        ]
+        # Create many mock commits
+        mock_commits = []
+        for i in range(100):
+            commit = self.create_mock_commit(
+                f"abc{i:03d}", "Developer", f"2024-01-{i+1:02d}T10:00:00",
+                f"Fix bug #{i}", [f"file{i}.py"]
+            )
+            mock_commits.append(commit)
         
-        for query in special_queries:
+        mock_repo.iter_commits.return_value = mock_commits
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
+            
+            repo_path = tmp_path / "test_repo"
+            repo_path.mkdir()
+            (repo_path / ".git").mkdir()
+            
+            args = GitRepoSearchArgs(
+                repo_path=str(repo_path),
+                query="Fix bug",
+                search_type="commit",
+                max_results=10
+            )
+            
+            result = await search_git_repo(args)
+            
+            assert result.success is True
+            assert len(result.commit_matches) == 10
+
+    @pytest.mark.asyncio
+    async def test_branch_specification(self, tmp_path):
+        """Test searching in specific branches."""
+        mock_repo = self.create_mock_repo("feature/new-ui")
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
+            
             with patch("subprocess.run") as mock_run:
-                mock_result = Mock()
-                mock_result.stdout = f"src/main.py:10:{query}"
-                mock_result.returncode = 0
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="src/ui.py:10:class NewUIComponent:"
+                )
                 mock_run.return_value = mock_result
                 
-                results = tool(tmp_path, query)
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
                 
-                # Should handle special characters
-                assert isinstance(results, list)
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="NewUIComponent",
+                    search_type="code",
+                    branch="feature/new-ui"
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.branch == "feature/new-ui"
+
+    @pytest.mark.asyncio
+    async def test_empty_results(self, tmp_path):
+        """Test handling when no results found."""
+        mock_repo = self.create_mock_repo()
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
+            
+            with patch("subprocess.run") as mock_run:
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="", returncode=1  # Git grep returns 1 when no matches
+                )
+                mock_run.return_value = mock_result
+                
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
+                
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="nonexistent_string_xyz123",
+                    search_type="code"
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches == 0
+                assert len(result.code_matches) == 0
+
+    @pytest.mark.asyncio
+    async def test_github_file_search(self):
+        """Test file search in GitHub repository."""
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
+            mock_github = MagicMock()
+            mock_repo = MagicMock()
+            mock_repo.default_branch = "main"
+            
+            # Mock file contents
+            mock_file1 = MagicMock()
+            mock_file1.type = "file"
+            mock_file1.path = "src/config.py"
+            mock_file1.size = 1024
+            mock_file1.last_modified = "2024-01-15T10:00:00Z"
+            
+            mock_file2 = MagicMock()
+            mock_file2.type = "file"
+            mock_file2.path = "test_config.json"
+            mock_file2.size = 512
+            mock_file2.last_modified = "2024-01-14T15:00:00Z"
+            
+            mock_dir = MagicMock()
+            mock_dir.type = "dir"
+            mock_dir.path = "src"
+            
+            mock_repo.get_contents.side_effect = [
+                [mock_file2, mock_dir],  # Root contents
+                [mock_file1]  # src directory contents
+            ]
+            
+            mock_github.get_repo.return_value = mock_repo
+            
+            with patch("packages.funcn_registry.components.tools.git_repo_search.tool.Github") as mock_github_cls:
+                mock_github_cls.return_value = mock_github
+                
+                args = GitRepoSearchArgs(
+                    github_repo="owner/repo",
+                    query="config",
+                    search_type="file"
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches >= 2
+                assert any("config.py" in match.file_path for match in result.file_matches)
+                assert any("test_config.json" in match.file_path for match in result.file_matches)
+
+    @pytest.mark.asyncio
+    async def test_github_commit_search(self):
+        """Test commit search in GitHub repository."""
+        with patch.dict(os.environ, {"GITHUB_TOKEN": "test_token"}):
+            mock_github = MagicMock()
+            mock_repo = MagicMock()
+            mock_repo.default_branch = "main"
+            
+            # Mock commits
+            mock_commit1 = MagicMock()
+            mock_commit1.sha = "abc123"
+            mock_commit1.commit.author.name = "John Doe"
+            mock_commit1.commit.author.date.isoformat.return_value = "2024-01-15T10:00:00Z"
+            mock_commit1.commit.message = "Fix authentication bug"
+            mock_file1 = MagicMock()
+            mock_file1.filename = "auth.py"
+            mock_commit1.files = [mock_file1]
+            
+            mock_repo.get_commits.return_value = [mock_commit1]
+            mock_github.get_repo.return_value = mock_repo
+            
+            with patch("packages.funcn_registry.components.tools.git_repo_search.tool.Github") as mock_github_cls:
+                mock_github_cls.return_value = mock_github
+                
+                args = GitRepoSearchArgs(
+                    github_repo="owner/repo",
+                    query="authentication",
+                    search_type="commit"
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches >= 1
+                assert "authentication" in result.commit_matches[0].message
+
+    @pytest.mark.asyncio
+    async def test_pattern_search_type(self, tmp_path):
+        """Test pattern search type."""
+        mock_repo = self.create_mock_repo()
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
+            
+            with patch("subprocess.run") as mock_run:
+                mock_result = self.create_mock_subprocess_result(
+                    stdout="src/api.py:25:@app.route('/api/v1/users')\nsrc/api.py:30:@app.route('/api/v1/products')"
+                )
+                mock_run.return_value = mock_result
+                
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
+                
+                args = GitRepoSearchArgs(
+                    repo_path=str(repo_path),
+                    query="@app\\.route\\('/api/.*'\\)",
+                    search_type="pattern",
+                    regex=True
+                )
+                
+                result = await search_git_repo(args)
+                
+                assert result.success is True
+                assert result.total_matches >= 2
+                assert all("@app.route" in match.line_content for match in result.code_matches)
+
+    @pytest.mark.asyncio
+    async def test_validation_errors(self):
+        """Test input validation."""
+        # Test invalid search_type
+        with pytest.raises(ValueError) as exc_info:
+            GitRepoSearchArgs(
+                repo_path="/path/to/repo",
+                query="test",
+                search_type="invalid_type"
+            )
+        assert "search_type must be one of" in str(exc_info.value)
+        
+        # Test missing both repo_path and github_repo
+        with pytest.raises(ValidationError) as exc_info:
+            GitRepoSearchArgs(
+                repo_path=None,
+                github_repo=None,
+                query="test",
+                search_type="code"
+            )
+        assert "Either repo_path or github_repo must be provided" in str(exc_info.value)
+
+    @pytest.mark.asyncio
+    async def test_concurrent_searches(self, tmp_path):
+        """Test concurrent search operations."""
+        mock_repo = self.create_mock_repo()
+        
+        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_git_repo:
+            mock_git_repo.return_value = mock_repo
+            
+            with patch("subprocess.run") as mock_run:
+                # Different outputs for different queries
+                outputs = {
+                    "async": "src/async_handler.py:10:async def handle():",
+                    "sync": "src/sync_handler.py:5:def sync_process():",
+                    "test": "tests/test_all.py:15:def test_function():"
+                }
+                
+                def mock_subprocess(args, **kwargs):
+                    # Extract query from git grep command args
+                    try:
+                        # Find the query in the git grep command
+                        if "git" in args and "grep" in args:
+                            # The query is typically after the flags
+                            for i, arg in enumerate(args):
+                                if arg in outputs:
+                                    query = arg
+                                    break
+                            else:
+                                query = "unknown"
+                        else:
+                            query = "unknown"
+                    except (IndexError, ValueError):
+                        query = "unknown"
+                    
+                    result = Mock()
+                    result.stdout = outputs.get(query, "")
+                    result.returncode = 0 if query in outputs else 1
+                    return result
+                
+                mock_run.side_effect = mock_subprocess
+                
+                repo_path = tmp_path / "test_repo"
+                repo_path.mkdir()
+                (repo_path / ".git").mkdir()
+                
+                # Run concurrent searches
+                tasks = [
+                    search_git_repo(GitRepoSearchArgs(
+                        repo_path=str(repo_path),
+                        query=query,
+                        search_type="code"
+                    ))
+                    for query in ["async", "sync", "test"]
+                ]
+                
+                results = await asyncio.gather(*tasks)
+                
+                assert all(r.success for r in results)
+                assert results[0].code_matches[0].file_path == "src/async_handler.py"
+                assert results[1].code_matches[0].file_path == "src/sync_handler.py"
+                assert results[2].code_matches[0].file_path == "tests/test_all.py"
+
+    def test_all_functions_have_docstrings(self):
+        """Test that all exported functions have proper docstrings."""
+        assert search_git_repo.__doc__ is not None
+        assert len(search_git_repo.__doc__) > 20

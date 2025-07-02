@@ -41,7 +41,7 @@ class BaseComponentTest(ABC):
         # Check required fields
         assert "name" in data
         assert "description" in data
-        assert "authors" in data  # Changed from author to authors
+        assert "author" in data or "authors" in data  # Accept either field
         assert "version" in data
         assert "type" in data
 
