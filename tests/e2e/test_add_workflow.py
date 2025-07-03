@@ -1,4 +1,4 @@
-"""End-to-end tests for funcn add command workflow."""
+"""End-to-end tests for sygaldry add command workflow."""
 
 from __future__ import annotations
 
@@ -15,8 +15,8 @@ class TestAddWorkflow(BaseE2ETest):
 
     @pytest.fixture
     def initialized_project(self, cli_runner, test_project_dir):
-        """Create an initialized funcn project."""
-        # Run funcn init with --yes flag
+        """Create an initialized sygaldry project."""
+        # Run sygaldry init with --yes flag
         result = self.run_command(cli_runner, ["init", "--yes"], input="n\n")
         self.assert_command_success(result)
         return test_project_dir
@@ -78,7 +78,7 @@ def test_agent(question: str): ...
 
             mock_client.get.side_effect = mock_get_side_effect
 
-            # Run funcn add with all options to avoid prompts
+            # Run sygaldry add with all options to avoid prompts
             result = self.run_command(
                 cli_runner,
                 ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent"],
@@ -87,12 +87,12 @@ def test_agent(question: str): ...
 
             self.assert_command_success(result)
 
-            # Read the funcn.json to get the actual agent directory
-            with open(initialized_project / "funcn.json") as f:
+            # Read the sygaldry.json to get the actual agent directory
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
-            
+
             # Get the agent directory from config
-            agent_directory = config.get("agentDirectory", "packages/funcn_registry/components/agents")
+            agent_directory = config.get("agentDirectory", "packages/sygaldry_registry/components/agents")
             agent_dir = initialized_project / agent_directory / "test-agent"
             self.assert_file_exists(agent_dir / "agent.py")
             self.assert_file_exists(agent_dir / "requirements.txt")
@@ -150,7 +150,7 @@ def test_agent(question: str): ...
 
             mock_client.get.side_effect = mock_get_side_effect
 
-            # Run funcn add (without --install flag to avoid subprocess issues)
+            # Run sygaldry add (without --install flag to avoid subprocess issues)
             result = self.run_command(
                 cli_runner,
                 ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent"],
@@ -264,16 +264,16 @@ def test_tool(input: str) -> str:
             )
             self.assert_command_success(result2)
 
-            # Read the funcn.json to get the actual directories
-            with open(initialized_project / "funcn.json") as f:
+            # Read the sygaldry.json to get the actual directories
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
-            
+
             # Verify both components were added
-            agent_directory = config.get("agentDirectory", "packages/funcn_registry/components/agents")
+            agent_directory = config.get("agentDirectory", "packages/sygaldry_registry/components/agents")
             agent_dir = initialized_project / agent_directory / "test-agent"
             self.assert_file_exists(agent_dir / "agent.py")
 
-            tool_directory = config.get("toolDirectory", "packages/funcn_registry/components/tools")
+            tool_directory = config.get("toolDirectory", "packages/sygaldry_registry/components/tools")
             tool_dir = initialized_project / tool_directory / "test-tool"
             self.assert_file_exists(tool_dir / "tool.py")
 
@@ -340,7 +340,7 @@ def test_tool(input: str) -> str:
 
     def test_add_component_with_version(self, cli_runner, initialized_project, mock_registry_response):
         """Test adding a specific version of a component."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.__enter__ = MagicMock(return_value=mock_client)
             mock_client.__exit__ = MagicMock(return_value=None)
@@ -389,7 +389,7 @@ def test_tool(input: str) -> str:
 
             mock_client.get.side_effect = mock_get_side_effect
 
-            # Run funcn add with version
+            # Run sygaldry add with version
             result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@1.0.0"], input="n\nn\n")
 
             # Version handling should be mentioned
@@ -401,9 +401,9 @@ def test_tool(input: str) -> str:
 
     def test_add_component_with_invalid_version_format(self, cli_runner, initialized_project):
         """Test adding a component with invalid version format."""
-        # Run funcn add with invalid version format
+        # Run sygaldry add with invalid version format
         result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@invalid-version"], input="n\nn\n")
-        
+
         # Should fail with error message about invalid version
         assert result.exit_code == 1
         assert "Invalid version format" in result.output
@@ -411,7 +411,7 @@ def test_tool(input: str) -> str:
 
     def test_add_component_with_nonexistent_version(self, cli_runner, initialized_project, mock_registry_response):
         """Test adding a specific version that doesn't exist."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.__enter__ = MagicMock(return_value=mock_client)
             mock_client.__exit__ = MagicMock(return_value=None)
@@ -429,7 +429,7 @@ def test_tool(input: str) -> str:
 
             mock_client.get.side_effect = mock_get_side_effect
 
-            # Run funcn add with non-existent version
+            # Run sygaldry add with non-existent version
             result = self.run_command(cli_runner, ["add", "--provider", "openai", "--model", "gpt-4o-mini", "--stream", "test-agent@9.9.9"], input="n\nn\n")
 
             # Should fail with appropriate error message
@@ -561,10 +561,10 @@ def test_tool(input: str) -> str:
             # Should succeed
             self.assert_command_success(result)
 
-            # Read the funcn.json to get the actual agent directory
-            with open(initialized_project / "funcn.json") as f:
+            # Read the sygaldry.json to get the actual agent directory
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
-            
+
             # Verify component was added
-            agent_directory = config.get("agentDirectory", "packages/funcn_registry/components/agents")
+            agent_directory = config.get("agentDirectory", "packages/sygaldry_registry/components/agents")
             self.assert_file_exists(initialized_project / agent_directory / "custom-agent")

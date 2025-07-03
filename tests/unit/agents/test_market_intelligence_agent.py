@@ -10,7 +10,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
     """Test cases for market intelligence agent."""
 
     component_name = "market_intelligence_agent"
-    component_path = Path("packages/funcn_registry/components/agents/market_intelligence")
+    component_path = Path("packages/sygaldry_registry/components/agents/market_intelligence")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -57,7 +57,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -90,7 +90,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -139,7 +139,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -167,7 +167,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -200,7 +200,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -245,7 +245,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -281,7 +281,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -300,7 +300,7 @@ class TestMarketIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "market_intelligence_agent", "packages/funcn_registry/components/agents/market_intelligence/agent.py"
+            "market_intelligence_agent", "packages/sygaldry_registry/components/agents/market_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

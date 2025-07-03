@@ -1,6 +1,6 @@
 # Development Workflow
 
-This document outlines the standard workflow for making code changes in the Funcn project, ensuring proper issue tracking, branch management, and safe development practices.
+This document outlines the standard workflow for making code changes in the Sygaldry project, ensuring proper issue tracking, branch management, and safe development practices.
 
 ## Workflow Overview
 
@@ -58,7 +58,7 @@ issues = [
     ),
     mcp_linear.create_issue(
         title="Update documentation",
-        description="Add funcn.md and update component registry",
+        description="Add sygaldry.md and update component registry",
         projectId=project.id,
         teamId="TEAM_ID"
     )
@@ -214,16 +214,16 @@ When exploring different approaches or working on multiple features simultaneous
 git worktree list
 
 # Add a new worktree for a different implementation
-git worktree add ../funcn-feature-123 jayscambler/issue-123
-git worktree add ../funcn-feature-124 jayscambler/issue-124
+git worktree add ../sygaldry-feature-123 jayscambler/issue-123
+git worktree add ../sygaldry-feature-124 jayscambler/issue-124
 
 # Navigate between worktrees
-cd ../funcn-feature-123  # Work on issue 123
-cd ../funcn-feature-124  # Work on issue 124
-cd ../funcn              # Main worktree
+cd ../sygaldry-feature-123  # Work on issue 123
+cd ../sygaldry-feature-124  # Work on issue 124
+cd ../sygaldry              # Main worktree
 
 # Remove a worktree when done
-git worktree remove ../funcn-feature-123
+git worktree remove ../sygaldry-feature-123
 ```
 
 Benefits of worktrees:
@@ -263,7 +263,7 @@ Benefits of worktrees:
 
 ### Worktree Guidelines
 
-- Name worktrees descriptively: `funcn-feature-description`
+- Name worktrees descriptively: `sygaldry-feature-description`
 - Keep worktrees in a parallel directory to main repo
 - Clean up worktrees after PR is merged
 - Don't create worktrees inside the main repository
@@ -293,8 +293,8 @@ git checkout other-branch
 # Later: git stash pop
 
 # Option 2: Use worktrees (preferred)
-git worktree add ../funcn-urgent-fix main
-cd ../funcn-urgent-fix
+git worktree add ../sygaldry-urgent-fix main
+cd ../sygaldry-urgent-fix
 # Make urgent fix
 ```
 
@@ -327,7 +327,7 @@ tasks = [
     {"title": "Implement PDF parsing", "desc": "Core PDF text extraction logic"},
     {"title": "Add error handling", "desc": "Handle edge cases and invalid PDFs"},
     {"title": "Write tests", "desc": "Unit tests with test fixtures"},
-    {"title": "Documentation", "desc": "Create funcn.md and examples"}
+    {"title": "Documentation", "desc": "Create sygaldry.md and examples"}
 ]
 
 issues = []
@@ -434,8 +434,8 @@ git push -u origin username/issue-123
 
 # Worktree management
 git worktree list
-git worktree add ../funcn-feature feature-branch
-git worktree remove ../funcn-feature
+git worktree add ../sygaldry-feature feature-branch
+git worktree remove ../sygaldry-feature
 
 # PR creation
 gh pr create --title "Title" --body "Description"

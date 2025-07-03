@@ -1,0 +1,65 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "git_repo_search_tool",
+  "version": "0.1.0",
+  "description": "Git repository search tool for searching code, files, and commits in both local Git repositories and GitHub. Supports pattern matching, file filtering, and commit history search.",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {
+      "name": "GitPython",
+      "version": ">=3.1.0"
+    },
+    {
+      "name": "PyGithub",
+      "version": ">=2.1.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    }
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {
+      "name": "GITHUB_TOKEN",
+      "description": "GitHub personal access token for searching GitHub repositories",
+      "required": false
+    }
+  ],
+  "example_usage": "```python\nimport asyncio\nfrom git_repo_search import search_git_repo, GitRepoSearchArgs\n\nasync def main():\n    # Search local repository for code\n    local_search = GitRepoSearchArgs(\n        repo_path=\"/path/to/repo\",\n        query=\"async def\",\n        search_type=\"code\",\n        file_pattern=\"*.py\",\n        max_results=20\n    )\n    \n    response = await search_git_repo(local_search)\n    \n    if response.success:\n        print(f\"Found {response.total_matches} code matches\")\n        for match in response.code_matches:\n            print(f\"\\n{match.file_path}:{match.line_number}\")\n            print(f\"  {match.line_content}\")\n    \n    # Search GitHub repository for files\n    github_file_search = GitRepoSearchArgs(\n        github_repo=\"openai/gpt-3\",\n        query=\"model\",\n        search_type=\"file\",\n        file_pattern=\"*.json\"\n    )\n    \n    github_response = await search_git_repo(github_file_search)\n    \n    if github_response.success:\n        print(f\"\\nFound {len(github_response.file_matches)} matching files:\")\n        for file in github_response.file_matches:\n            print(f\"  {file.file_path} ({file.file_size} bytes)\")\n    \n    # Search commit history\n    commit_search = GitRepoSearchArgs(\n        repo_path=\".\",\n        query=\"fix.*bug\",\n        search_type=\"commit\",\n        regex=True,\n        max_results=10\n    )\n    \n    commit_response = await search_git_repo(commit_search)\n    \n    if commit_response.success:\n        print(f\"\\nFound {len(commit_response.commit_matches)} commits:\")\n        for commit in commit_response.commit_matches:\n            print(f\"\\n{commit.commit_hash[:8]} by {commit.author}\")\n            print(f\"  {commit.message.split('\\\\n')[0]}\")\n            print(f\"  Files: {', '.join(commit.files_changed[:3])}...\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "The Git repository search tool is now available for searching within Git repositories. Features:\n\n1. **Multi-source support**: Search both local repositories and GitHub\n2. **Search types**:\n   - `code`: Search for code patterns within files\n   - `file`: Search for files by name\n   - `commit`: Search commit messages\n   - `pattern`: Advanced pattern matching\n3. **Advanced options**:\n   - File pattern filtering (e.g., `*.py`, `*.js`)\n   - Regular expression support\n   - Case sensitivity control\n   - Context lines for code matches\n4. **GitHub integration**: Set GITHUB_TOKEN for GitHub repository searches\n\nUse cases:\n- Finding specific code patterns across a codebase\n- Locating files by name patterns\n- Searching commit history for specific changes\n- Code review and analysis\n- Documentation searches",
+  "tags": [
+    "git",
+    "github",
+    "code-search",
+    "repository",
+    "version-control",
+    "commit-history"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

@@ -10,7 +10,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
     """Test cases for academic research agent."""
 
     component_name = "academic_research_agent"
-    component_path = Path("packages/funcn_registry/components/agents/academic_research")
+    component_path = Path("packages/sygaldry_registry/components/agents/academic_research")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "academic_research_agent", "packages/funcn_registry/components/agents/academic_research/agent.py"
+            "academic_research_agent", "packages/sygaldry_registry/components/agents/academic_research/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -57,7 +57,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "academic_research_agent", "packages/funcn_registry/components/agents/academic_research/agent.py"
+            "academic_research_agent", "packages/sygaldry_registry/components/agents/academic_research/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -81,7 +81,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "academic_research_agent", "packages/funcn_registry/components/agents/academic_research/agent.py"
+            "academic_research_agent", "packages/sygaldry_registry/components/agents/academic_research/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -141,7 +141,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "academic_research_agent", "packages/funcn_registry/components/agents/academic_research/agent.py"
+            "academic_research_agent", "packages/sygaldry_registry/components/agents/academic_research/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -168,7 +168,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "academic_research_agent", "packages/funcn_registry/components/agents/academic_research/agent.py"
+            "academic_research_agent", "packages/sygaldry_registry/components/agents/academic_research/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -204,7 +204,7 @@ class TestAcademicResearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "academic_research_agent", "packages/funcn_registry/components/agents/academic_research/agent.py"
+            "academic_research_agent", "packages/sygaldry_registry/components/agents/academic_research/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "youtube_video_search_tool",
+  "version": "0.1.0",
+  "description": "YouTube video search and transcript extraction tool for content analysis and research",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {
+      "name": "mirascope[openai]",
+      "version": ">=1.24.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    },
+    {
+      "name": "httpx",
+      "version": ">=0.25.0"
+    },
+    {
+      "name": "youtube-transcript-api",
+      "version": ">=0.6.0"
+    }
+  ],
+  "environment_variables": [
+    {
+      "name": "YOUTUBE_API_KEY",
+      "description": "YouTube Data API v3 key",
+      "required": true
+    }
+  ],
+  "example_usage": "```python\nfrom ai_tools.youtube_video_search import search_youtube_videos, get_video_transcript, analyze_video_content\nimport os\n\nasync def main():\n    api_key = os.getenv(\"YOUTUBE_API_KEY\")\n    \n    # Search for videos\n    results = await search_youtube_videos(\n        query=\"machine learning tutorial\",\n        api_key=api_key,\n        max_results=5\n    )\n    \n    # Get transcript for a video\n    if results.videos:\n        video_id = results.videos[0].video_id\n        success, segments, error = await get_video_transcript(\n            video_id=video_id,\n            languages=[\"en\"]\n        )\n        \n        if success:\n            print(f\"Transcript has {len(segments)} segments\")\n    \n    # Analyze video content\n    analysis = await analyze_video_content(\n        video_id=\"dQw4w9WgXcQ\",\n        api_key=api_key,\n        include_stats=True\n    )\n```",
+  "post_add_instructions": "You can now import YouTube search functions with `from ai_tools.youtube_video_search import search_youtube_videos`. Make sure to set your YOUTUBE_API_KEY environment variable. The tool provides video search, transcript extraction, and content analysis capabilities.",
+  "tags": [
+    "youtube",
+    "video",
+    "search",
+    "transcript",
+    "captions",
+    "content-analysis"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {
+    "default_max_results": 10,
+    "default_order": "relevance",
+    "default_region_code": "US",
+    "default_language": "en"
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

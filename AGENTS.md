@@ -1,9 +1,11 @@
-# Funcn Development Guidelines
+# Sygaldry Development Guidelines
 
 ## Context
-Funcn is an AI framework for building LLM-powered applications with reusable components.
+
+Sygaldry is an AI framework for building LLM-powered applications with reusable components.
 
 ## Core Technologies
+
 - Python 3.12+ with type hints
 - Mirascope for LLM integration
 - Pydantic for data validation
@@ -12,18 +14,21 @@ Funcn is an AI framework for building LLM-powered applications with reusable com
 ## Development Standards
 
 ### Mirascope Integration
+
 - Use `@prompt_template` decorators
 - Define Pydantic response models
 - Implement async/await patterns
 - Support multiple LLM providers
 
 ### Component Structure
+
 - component.json manifest required
 - Registry dependencies managed
-- Documentation in funcn.md format
+- Documentation in sygaldry.md format
 - Comprehensive examples included
 
 ## Available Components
+
 - **text_summarization_agent** (agent): Advanced text summarization agent using chain-of-thought reasoning, few-shot learning, and iterative refinement. Supports multiple styles (technical, executive, simple, academic, journalistic) and progressive summarization with validation.
 - **multi_source_news_verification** (agent): Advanced multi-source news verification agent with comprehensive fact-checking tools including academic search, government data verification, social media verification, and expert source validation for combating misinformation
 - **multi_agent_coordinator** (agent): Orchestrates multiple specialized agents to solve complex tasks through intelligent task decomposition, agent selection, and result synthesis
@@ -74,6 +79,7 @@ Funcn is an AI framework for building LLM-powered applications with reusable com
 - **xml_search_tool** (tool): XML data processing tool with XPath queries, namespace support, validation, and advanced search capabilities
 
 ## Environment Setup
+
 - ANTHROPIC_API_KEY: API key for Anthropic services (if using Anthropic provider).
 - ANTHROPIC_API_KEY: Anthropic API key for Claude models
 - ANTHROPIC_API_KEY: Anthropic API key for Claude-based players
@@ -99,6 +105,7 @@ Funcn is an AI framework for building LLM-powered applications with reusable com
 - YOUTUBE_API_KEY: YouTube Data API v3 key
 
 ## Best Practices
+
 - Type all function signatures
 - Use async for LLM calls
 - Include error handling

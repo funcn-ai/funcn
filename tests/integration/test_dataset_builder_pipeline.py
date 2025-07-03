@@ -11,7 +11,7 @@ import pytest
 from datetime import datetime
 
 # Import the real dataset builder agent
-from packages.funcn_registry.components.agents.dataset_builder.agent import (
+from packages.sygaldry_registry.components.agents.dataset_builder.agent import (
     DatasetAnalysis,
     DatasetBuilderResponse,
     DatasetPlan,
@@ -35,25 +35,25 @@ from unittest.mock import AsyncMock, Mock, patch
 
 class TestDatasetBuilderPipeline:
     """Test complete dataset building pipelines for various use cases."""
-    
+
     @pytest.fixture
     def mock_exa_tools(self):
         """Mock Exa websets tools for testing."""
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_webset') as mock_create, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.get_webset') as mock_get, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.list_webset_items') as mock_list, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.export_webset') as mock_export:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_webset') as mock_create, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.get_webset') as mock_get, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.list_webset_items') as mock_list, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.export_webset') as mock_export:
+
             # Mock successful webset creation
             mock_create.return_value = {"webset_id": "test-webset-123"}
-            
+
             # Mock webset status
             mock_get.return_value = {
                 "id": "test-webset-123",
                 "status": "completed",
                 "items_count": 50
             }
-            
+
             # Mock webset items
             mock_list.return_value = {
                 "items": [
@@ -61,26 +61,26 @@ class TestDatasetBuilderPipeline:
                     {"title": "Item 2", "url": "https://example.com/2"}
                 ]
             }
-            
+
             # Mock export
             mock_export.return_value = {"download_url": "https://example.com/export.csv"}
-            
+
             yield {
                 "create": mock_create,
                 "get": mock_get,
                 "list": mock_list,
                 "export": mock_export
             }
-    
+
     @pytest.mark.asyncio
     async def test_ai_research_dataset_building(self, mock_exa_tools):
         """Test building a dataset of AI research papers and findings."""
         # Mock the LLM calls for planning and analysis
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Mock planning response
             mock_plan.return_value = DatasetPlan(
                 name="AI Research 2024",
@@ -91,10 +91,10 @@ class TestDatasetBuilderPipeline:
                 enrichment_config=[{"key": "abstract"}, {"key": "authors"}],
                 metadata={"created_at": "2024-01-01"}
             )
-            
+
             # Mock execution response
             mock_execute.return_value = {"webset_id": "test-webset-123"}
-            
+
             # Mock monitoring response
             mock_monitor.return_value = DatasetStatus(
                 webset_id="test-webset-123",
@@ -104,7 +104,7 @@ class TestDatasetBuilderPipeline:
                 progress_percentage=100.0,
                 estimated_completion=None
             )
-            
+
             # Mock analysis response
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=98,
@@ -117,7 +117,7 @@ class TestDatasetBuilderPipeline:
                 data_distribution={"NeurIPS": 25, "ICML": 20, "ICLR": 18, "Other": 35},
                 recommendations=["Focus on transformer variants", "Include workshop papers"]
             )
-            
+
             # Build the research dataset using the convenience function
             result = await build_research_dataset(
                 research_topic="artificial intelligence breakthroughs",
@@ -125,32 +125,32 @@ class TestDatasetBuilderPipeline:
                 target_count=100,
                 wait_for_completion=False  # Don't wait in tests
             )
-            
+
             # Verify the dataset was built successfully
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "test-webset-123"
             assert result.status.items_found == 98
             assert result.status.status == "completed"
-            
+
             # Verify analysis was performed
             assert result.analysis is not None
             assert result.analysis.total_items == 98
             assert result.analysis.data_quality_score == 0.92
             assert len(result.analysis.key_insights) == 3
             assert "Transformers" in result.analysis.key_insights[0]
-            
+
             # Verify export URL
             assert result.export_url == "https://example.com/export.csv"
-    
+
     @pytest.mark.asyncio
     async def test_competitor_intelligence_dataset(self, mock_exa_tools):
         """Test building a competitor intelligence dataset for market analysis."""
         # Mock the LLM calls
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Setup mocks
             mock_plan.return_value = DatasetPlan(
                 name="Cloud Computing Competitors",
@@ -161,9 +161,9 @@ class TestDatasetBuilderPipeline:
                 enrichment_config=[],
                 metadata={}
             )
-            
+
             mock_execute.return_value = {"webset_id": "cloud-dataset-456"}
-            
+
             mock_monitor.return_value = DatasetStatus(
                 webset_id="cloud-dataset-456",
                 status="completed",
@@ -172,7 +172,7 @@ class TestDatasetBuilderPipeline:
                 progress_percentage=100.0,
                 estimated_completion=None
             )
-            
+
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=48,
                 data_quality_score=0.88,
@@ -188,7 +188,7 @@ class TestDatasetBuilderPipeline:
                 },
                 recommendations=["Monitor pricing changes", "Track new service launches"]
             )
-            
+
             # Use the competitor dataset builder
             result = await build_competitor_dataset(
                 company_name="AWS",
@@ -197,21 +197,21 @@ class TestDatasetBuilderPipeline:
                 target_count=50,
                 wait_for_completion=False
             )
-            
+
             # Verify results
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "cloud-dataset-456"
             assert result.status.items_found == 48
             assert result.analysis.key_insights[0] == "AWS maintains market leadership"
-    
+
     @pytest.mark.asyncio
     async def test_investment_opportunities_dataset(self, mock_exa_tools):
         """Test building dataset of investment opportunities in specific sectors."""
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Setup mocks
             mock_plan.return_value = DatasetPlan(
                 name="Renewable Energy Investments",
@@ -229,9 +229,9 @@ class TestDatasetBuilderPipeline:
                 ],
                 metadata={"focus": "early_stage"}
             )
-            
+
             mock_execute.return_value = {"webset_id": "renewable-inv-789"}
-            
+
             mock_monitor.return_value = DatasetStatus(
                 webset_id="renewable-inv-789",
                 status="completed",
@@ -240,7 +240,7 @@ class TestDatasetBuilderPipeline:
                 progress_percentage=100.0,
                 estimated_completion=None
             )
-            
+
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=72,
                 data_quality_score=0.91,
@@ -261,7 +261,7 @@ class TestDatasetBuilderPipeline:
                     "Monitor battery technology innovations"
                 ]
             )
-            
+
             # Build investment dataset
             result = await build_investment_dataset(
                 sector="renewable energy",
@@ -270,26 +270,26 @@ class TestDatasetBuilderPipeline:
                 target_count=75,
                 wait_for_completion=False
             )
-            
+
             # Verify results
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "renewable-inv-789"
             assert result.status.items_found == 72
             assert result.status.items_enriched == 70
-            
+
             # Check insights
             assert result.analysis is not None
             assert "Battery storage" in result.analysis.key_insights[0]
             assert "$45M" in result.analysis.key_insights[1]
-    
+
     @pytest.mark.asyncio
     async def test_social_media_influencer_dataset(self, mock_exa_tools):
         """Test building dataset of social media influencers for marketing."""
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Setup mocks
             mock_plan.return_value = DatasetPlan(
                 name="Sustainable Fashion Influencers",
@@ -306,9 +306,9 @@ class TestDatasetBuilderPipeline:
                 ],
                 metadata={"niche": "sustainable_fashion"}
             )
-            
+
             mock_execute.return_value = {"webset_id": "influencer-set-999"}
-            
+
             mock_monitor.return_value = DatasetStatus(
                 webset_id="influencer-set-999",
                 status="completed",
@@ -317,7 +317,7 @@ class TestDatasetBuilderPipeline:
                 progress_percentage=100.0,
                 estimated_completion=None
             )
-            
+
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=95,
                 data_quality_score=0.94,
@@ -338,7 +338,7 @@ class TestDatasetBuilderPipeline:
                     "Consider TikTok creators for younger demographics"
                 ]
             )
-            
+
             # Build influencer dataset
             result = await build_influencer_dataset(
                 niche="sustainable fashion",
@@ -347,25 +347,25 @@ class TestDatasetBuilderPipeline:
                 target_count=100,
                 wait_for_completion=False
             )
-            
+
             # Verify results
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "influencer-set-999"
             assert result.status.items_found == 95
-            
+
             # Check insights
             assert "125,000" in result.analysis.key_insights[0]
             assert "5.2%" in result.analysis.key_insights[1]
             assert result.analysis.data_distribution["Instagram"] == 45
-    
+
     @pytest.mark.asyncio
     async def test_market_intelligence_dataset_with_monitoring(self, mock_exa_tools):
         """Test building market intelligence dataset with progress monitoring."""
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Setup mocks
             mock_plan.return_value = DatasetPlan(
                 name="EV Market Trends 2024",
@@ -376,9 +376,9 @@ class TestDatasetBuilderPipeline:
                 enrichment_config=[],
                 metadata={}
             )
-            
+
             mock_execute.return_value = {"webset_id": "ev-market-888"}
-            
+
             # Mock progressive status updates
             mock_monitor.side_effect = [
                 DatasetStatus(
@@ -406,7 +406,7 @@ class TestDatasetBuilderPipeline:
                     estimated_completion=None
                 )
             ]
-            
+
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=58,
                 data_quality_score=0.89,
@@ -427,7 +427,7 @@ class TestDatasetBuilderPipeline:
                     "Track infrastructure investments"
                 ]
             )
-            
+
             # Build market dataset with custom monitoring
             result = await build_market_dataset(
                 market_segment="electric vehicles",
@@ -435,28 +435,28 @@ class TestDatasetBuilderPipeline:
                 target_count=60,
                 wait_for_completion=False
             )
-            
+
             # Verify results
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "ev-market-888"
-            
+
             # Check final status
             assert result.status.items_found == 58
             assert result.status.items_enriched == 56
-            
+
             # Verify market insights
             assert "$1.2T" in result.analysis.key_insights[0]
             assert "23%" in result.analysis.key_insights[1]
             assert "Solid-state batteries" in result.analysis.key_insights[3]
-    
+
     @pytest.mark.asyncio
     async def test_news_monitoring_dataset_realtime(self, mock_exa_tools):
         """Test building real-time news monitoring dataset."""
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Setup mocks
             mock_plan.return_value = DatasetPlan(
                 name="Crypto Regulation News",
@@ -473,9 +473,9 @@ class TestDatasetBuilderPipeline:
                 ],
                 metadata={"real_time": True}
             )
-            
+
             mock_execute.return_value = {"webset_id": "crypto-news-live"}
-            
+
             mock_monitor.return_value = DatasetStatus(
                 webset_id="crypto-news-live",
                 status="completed",
@@ -484,7 +484,7 @@ class TestDatasetBuilderPipeline:
                 progress_percentage=100.0,
                 estimated_completion=None
             )
-            
+
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=28,
                 data_quality_score=0.95,
@@ -505,7 +505,7 @@ class TestDatasetBuilderPipeline:
                     "Monitor EU regulatory changes"
                 ]
             )
-            
+
             # Build news trends dataset
             result = await build_news_trends_dataset(
                 topic="cryptocurrency regulation",
@@ -514,25 +514,25 @@ class TestDatasetBuilderPipeline:
                 target_count=30,
                 wait_for_completion=False
             )
-            
+
             # Verify results
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "crypto-news-live"
             assert result.status.items_found == 28
-            
+
             # Check news insights
             assert "3 breaking stories" in result.analysis.key_insights[0]
             assert "SEC" in result.analysis.key_insights[1]
             assert "64%" in result.analysis.key_insights[2]
-    
+
     @pytest.mark.asyncio
     async def test_location_based_business_dataset(self, mock_exa_tools):
         """Test building location-based dataset for business opportunities."""
-        with patch('packages.funcn_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
-             patch('packages.funcn_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
-            
+        with patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.create_dataset_plan') as mock_plan, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.execute_dataset_plan') as mock_execute, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.monitor_dataset_progress') as mock_monitor, \
+             patch('packages.sygaldry_registry.components.agents.dataset_builder.agent.analyze_dataset') as mock_analyze:
+
             # Setup mocks
             mock_plan.return_value = DatasetPlan(
                 name="LA Coffee Shop Locations",
@@ -550,9 +550,9 @@ class TestDatasetBuilderPipeline:
                 ],
                 metadata={"city": "Los Angeles", "business_type": "coffee_shop"}
             )
-            
+
             mock_execute.return_value = {"webset_id": "location-set-333"}
-            
+
             mock_monitor.return_value = DatasetStatus(
                 webset_id="location-set-333",
                 status="completed",
@@ -561,7 +561,7 @@ class TestDatasetBuilderPipeline:
                 progress_percentage=100.0,
                 estimated_completion=None
             )
-            
+
             mock_analyze.return_value = DatasetAnalysis(
                 total_items=38,
                 data_quality_score=0.93,
@@ -582,7 +582,7 @@ class TestDatasetBuilderPipeline:
                     "Consider emerging areas like West Adams"
                 ]
             )
-            
+
             # Build location dataset
             result = await build_location_dataset(
                 business_type="coffee shop",
@@ -595,12 +595,12 @@ class TestDatasetBuilderPipeline:
                 target_count=40,
                 wait_for_completion=False
             )
-            
+
             # Verify results
             assert isinstance(result, DatasetBuilderResponse)
             assert result.webset_id == "location-set-333"
             assert result.status.items_found == 38
-            
+
             # Check location insights
             assert "Arts District" in result.analysis.key_insights[0]
             assert "$42.50" in result.analysis.key_insights[1]

@@ -1,4 +1,4 @@
-"""Base test classes for funcn components."""
+"""Base test classes for sygaldry components."""
 
 import json
 import pytest
@@ -10,7 +10,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 
 class BaseComponentTest(ABC):
-    """Base class for testing funcn components."""
+    """Base class for testing sygaldry components."""
 
     component_type: str | None = None  # "agent" or "tool"
     component_name: str | None = None
@@ -48,10 +48,10 @@ class BaseComponentTest(ABC):
         # Check component name matches (without type suffix now)
         assert data["name"] == self.component_name
 
-    def test_funcn_md_exists(self):
-        """Test that funcn.md documentation exists."""
-        funcn_md = self.component_path / "funcn.md"
-        assert funcn_md.exists(), f"funcn.md not found at {funcn_md}"
+    def test_sygaldry_md_exists(self):
+        """Test that sygaldry.md documentation exists."""
+        sygaldry_md = self.component_path / "sygaldry.md"
+        assert sygaldry_md.exists(), f"sygaldry.md not found at {sygaldry_md}"
 
     def test_component_has_type_hints(self):
         """Test that the component function has type hints."""

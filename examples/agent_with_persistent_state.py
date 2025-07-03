@@ -3,14 +3,14 @@
 import asyncio
 from datetime import datetime
 from mirascope import llm
-from packages.funcn_registry.components.tools.sqlalchemy_db import (
+from packages.sygaldry_registry.components.tools.sqlalchemy_db import (
     SQLAlchemyConfig,
     create_tables,
     get_agent_state as sa_get_state,
     query_agent_history as sa_query_history,
     store_agent_state as sa_store_state,
 )
-from packages.funcn_registry.components.tools.sqlite_db import (
+from packages.sygaldry_registry.components.tools.sqlite_db import (
     create_agent_state_table,
     get_agent_state,
     query_agent_history,

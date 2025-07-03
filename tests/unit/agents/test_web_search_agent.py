@@ -10,7 +10,7 @@ class TestWebSearchAgent(BaseAgentTest):
     """Test cases for web search agent."""
 
     component_name = "web_search_agent"
-    component_path = Path("packages/funcn_registry/components/agents/web_search")
+    component_path = Path("packages/sygaldry_registry/components/agents/web_search")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -51,7 +51,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -78,7 +78,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -130,7 +130,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -156,7 +156,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -192,7 +192,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -216,7 +216,7 @@ class TestWebSearchAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "web_search_agent", "packages/funcn_registry/components/agents/web_search/agent.py"
+            "web_search_agent", "packages/sygaldry_registry/components/agents/web_search/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

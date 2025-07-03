@@ -9,11 +9,11 @@ import pytest
 from datetime import datetime
 
 # Import actual components with correct signatures
-from packages.funcn_registry.components.tools.code_interpreter.tool import (
+from packages.sygaldry_registry.components.tools.code_interpreter.tool import (
     CodeExecutionResult,
     execute_code,
 )
-from packages.funcn_registry.components.tools.json_search.tool import (
+from packages.sygaldry_registry.components.tools.json_search.tool import (
     JSONSearchArgs,
     search_json_content,
 )
@@ -23,11 +23,11 @@ from unittest.mock import AsyncMock, Mock, patch
 
 class TestSimpleProductionScenarios:
     """Test real-world production scenarios with actual tool signatures."""
-    
+
     @pytest.mark.asyncio
     async def test_code_analysis_workflow(self):
         """Test a simple code analysis workflow.
-        
+
         Simulates: Analyzing code patterns and generating insights.
         """
         # Step 1: Generate analysis code
@@ -81,7 +81,7 @@ summary = {
 print("\\n=== Summary ===")
 print(json.dumps(summary, indent=2))
 """
-        
+
         # Execute analysis
         result = await execute_code(
             code=analysis_code,
@@ -89,17 +89,17 @@ print(json.dumps(summary, indent=2))
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Code Analysis Results" in result.output
         assert "Total functions: 3" in result.output
         assert "Recommendations" in result.output
         assert result.variables.get("summary") is not None
-    
+
     @pytest.mark.asyncio
     async def test_data_processing_pipeline(self):
         """Test a data processing pipeline with JSON operations.
-        
+
         Simulates: Processing configuration data and generating reports.
         """
         # Sample configuration data
@@ -123,7 +123,7 @@ print(json.dumps(summary, indent=2))
                 }
             }
         }
-        
+
         # Search for database configuration
         search_args = JSONSearchArgs(
             json_data=config_data,
@@ -131,12 +131,12 @@ print(json.dumps(summary, indent=2))
             json_path="$.services.*",
             exact_match=False  # Use fuzzy matching
         )
-        
+
         results = await search_json_content(search_args)
-        
+
         assert results.error is None
         assert len(results.results) > 0
-        
+
         # Process the results
         process_code = f"""
 import json
@@ -169,22 +169,22 @@ print(f"\\nConfiguration issues: {{len(issues)}}")
 for issue in issues:
     print(f"- {{issue}}")
 """
-        
+
         exec_result = await execute_code(
             code=process_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert exec_result.success is True
         assert "Database Configuration" in exec_result.output
         assert "Host: db.example.com" in exec_result.output
         assert "Connection string:" in exec_result.output
-    
+
     @pytest.mark.asyncio
     async def test_report_generation_workflow(self):
         """Test automated report generation workflow.
-        
+
         Simulates: Collecting data and generating formatted reports.
         """
         # Generate report from analysis data
@@ -277,13 +277,13 @@ summary = {
 print(f"\\n=== Report Summary ===")
 print(json.dumps(summary, indent=2))
 """
-        
+
         result = await execute_code(
             code=report_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Project Health Report" in result.output
         assert "Overall Metrics" in result.output
@@ -291,11 +291,11 @@ print(json.dumps(summary, indent=2))
         assert "Recommendations" in result.output
         assert result.variables.get("summary") is not None
         assert result.variables["summary"]["overall_health"] > 0
-    
+
     @pytest.mark.asyncio
     async def test_error_handling_workflow(self):
         """Test error handling and recovery in production scenarios.
-        
+
         Simulates: Handling various error conditions gracefully.
         """
         error_handling_code = """
@@ -381,13 +381,13 @@ health_report = {
 print(f"\\n=== System Health ===")
 print(json.dumps(health_report, indent=2))
 """
-        
+
         result = await execute_code(
             code=error_handling_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Operation Results" in result.output
         assert "Failed Operations" in result.output
@@ -395,11 +395,11 @@ print(json.dumps(health_report, indent=2))
         assert "System Health" in result.output
         assert result.variables.get("health_report") is not None
         assert result.variables["health_report"]["recovery_initiated"] is True
-    
+
     @pytest.mark.asyncio
     async def test_performance_monitoring(self):
         """Test performance monitoring and optimization workflow.
-        
+
         Simulates: Monitoring operation performance and identifying bottlenecks.
         """
         performance_code = """
@@ -482,13 +482,13 @@ performance_report = {
 print("\\n=== Performance Report ===")
 print(json.dumps(performance_report, indent=2))
 """
-        
+
         result = await execute_code(
             code=performance_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Performance Analysis" in result.output
         assert "Operation Breakdown" in result.output

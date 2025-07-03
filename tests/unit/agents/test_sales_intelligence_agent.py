@@ -10,7 +10,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
     """Test cases for sales intelligence agent."""
 
     component_name = "sales_intelligence_agent"
-    component_path = Path("packages/funcn_registry/components/agents/sales_intelligence")
+    component_path = Path("packages/sygaldry_registry/components/agents/sales_intelligence")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -59,7 +59,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -133,7 +133,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -159,7 +159,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -181,7 +181,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -216,7 +216,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -264,7 +264,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -311,7 +311,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -360,7 +360,7 @@ class TestSalesIntelligenceAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sales_intelligence_agent", "packages/funcn_registry/components/agents/sales_intelligence/agent.py"
+            "sales_intelligence_agent", "packages/sygaldry_registry/components/agents/sales_intelligence/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
 

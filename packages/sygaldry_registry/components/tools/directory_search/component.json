@@ -1,0 +1,62 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "directory_search_tool",
+  "version": "0.1.0",
+  "description": "Advanced file system navigation and search tool with pattern matching, content search, and filtering capabilities",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {
+      "name": "mirascope[openai]",
+      "version": ">=1.24.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    },
+    {
+      "name": "aiofiles",
+      "version": ">=23.0.0"
+    }
+  ],
+  "environment_variables": [],
+  "example_usage": "```python\nfrom ai_tools.directory_search import DirectorySearchTool, find_files, search_by_content\n\nasync def main():\n    # List directory contents\n    result = await list_directory(\"/home/user/projects\", pattern=\"*.py\")\n    print(f\"Found {result.total_found} items\")\n    \n    # Find specific files\n    python_files = await find_files(\n        path=\"./src\",\n        pattern=\"*.py\",\n        recursive=True,\n        content_search=\"import mirascope\"\n    )\n    \n    # Search by content\n    config_files = await search_by_content(\n        path=\"./\",\n        search_text=\"api_key\",\n        file_types=[\".json\", \".yaml\", \".env\"]\n    )\n```",
+  "post_add_instructions": "You can now import the directory search tool with `from ai_tools.directory_search import DirectorySearchTool`. The tool provides powerful file system navigation with pattern matching, content search, and advanced filtering. Use the convenience functions for common operations.",
+  "tags": [
+    "filesystem",
+    "search",
+    "directory",
+    "files",
+    "navigation",
+    "content-search"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {
+    "default_max_results": 1000,
+    "default_recursive": false,
+    "default_include_hidden": false
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

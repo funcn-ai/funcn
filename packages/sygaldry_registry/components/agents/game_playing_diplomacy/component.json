@@ -1,0 +1,73 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "game_playing_diplomacy",
+  "version": "0.1.0",
+  "description": "Multi-model turn-based Diplomacy game agent supporting AI vs AI, human vs AI, or mixed gameplay with sophisticated diplomatic negotiation and strategic planning",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    },
+    {
+      "source": "component.json",
+      "destination": "component.json",
+      "type": "resource"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0",
+    "asyncio"
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "OpenAI API key for GPT models",
+      "required": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "description": "Anthropic API key for Claude models",
+      "required": false
+    },
+    {
+      "name": "GOOGLE_API_KEY",
+      "description": "Google API key for Gemini models",
+      "required": false
+    }
+  ],
+  "example_usage": "```python\nfrom game_playing_diplomacy import (\n    DiplomacyGame,\n    DiplomacyPlayer,\n    DiplomacyPower,\n    DiplomacyState,\n    DiplomacyPhase,\n    PlayerType,\n    diplomacy_game_agent,\n    diplomacy_game_stream\n)\n\n# Create players with different models\nplayers = [\n    DiplomacyPlayer(\n        power=DiplomacyPower.ENGLAND,\n        player_type=PlayerType.AI,\n        model=\"gpt-4o\",\n        provider=\"openai\",\n        personality=\"diplomatic\",\n        strategy_style=\"coalition-builder\"\n    ),\n    DiplomacyPlayer(\n        power=DiplomacyPower.FRANCE,\n        player_type=PlayerType.AI,\n        model=\"claude-3-opus-20240229\",\n        provider=\"anthropic\",\n        personality=\"aggressive\",\n        strategy_style=\"rapid-expansion\"\n    ),\n    DiplomacyPlayer(\n        power=DiplomacyPower.GERMANY,\n        player_type=PlayerType.HUMAN,  # Human player\n        personality=\"balanced\"\n    ),\n    DiplomacyPlayer(\n        power=DiplomacyPower.RUSSIA,\n        player_type=PlayerType.AI,\n        model=\"gemini-1.5-pro\",\n        provider=\"google\",\n        personality=\"defensive\",\n        strategy_style=\"fortress-builder\"\n    ),\n    # Add more players...\n]\n\n# Initialize game state\ngame_state = DiplomacyState(\n    year=1901,\n    phase=DiplomacyPhase.SPRING_DIPLOMACY,\n    provinces=[],  # Initialize with starting positions\n    units=[],  # Initialize with starting units\n    supply_centers={},  # Initialize supply centers\n    recent_messages=[],\n    eliminated_powers=[]\n)\n\n# Run a turn (works with all AI or mixed human/AI)\ngame = await diplomacy_game_agent(\n    game_state=game_state,\n    players=players,\n    current_phase=DiplomacyPhase.SPRING_DIPLOMACY\n)\n\n# Or stream the game for real-time updates\nasync for update in diplomacy_game_stream(game_state, players):\n    print(update)\n```",
+  "post_add_instructions": "To use this agent:\n\n1. Set up API keys for the LLM providers you want to use\n2. Create players with different models and personalities\n3. Initialize the game state with starting positions\n4. Call the agent to process turns\n5. The agent handles both AI and human players automatically\n\nFor all-AI games, simply set all players to PlayerType.AI with their preferred models.\nFor human participation, set PlayerType.HUMAN for those players.",
+  "tags": [
+    "game",
+    "multi-agent",
+    "turn-based",
+    "strategy",
+    "diplomacy",
+    "negotiation",
+    "multi-model",
+    "human-in-the-loop"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

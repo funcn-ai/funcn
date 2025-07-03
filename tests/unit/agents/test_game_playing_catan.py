@@ -10,7 +10,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
     """Test cases for game playing catan agent."""
 
     component_name = "game_playing_catan"
-    component_path = Path("packages/funcn_registry/components/agents/game_playing_catan")
+    component_path = Path("packages/sygaldry_registry/components/agents/game_playing_catan")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -66,7 +66,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -86,7 +86,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -139,7 +139,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -163,7 +163,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -190,7 +190,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -214,7 +214,7 @@ class TestGamePlayingCatanAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_catan", "packages/funcn_registry/components/agents/game_playing_catan/agent.py"
+            "game_playing_catan", "packages/sygaldry_registry/components/agents/game_playing_catan/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

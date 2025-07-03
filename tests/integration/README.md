@@ -1,11 +1,13 @@
-# Integration Tests for Funcn Registry
+# Integration Tests for Sygaldry Registry
 
-This directory contains production-like integration tests that demonstrate real-world usage patterns for tools and agents in the Funcn registry.
+This directory contains production-like integration tests that demonstrate real-world usage patterns for tools and agents in the Sygaldry registry.
 
 ## Test Files
 
 ### test_production_code_interpreter.py
+
 Simplified production tests focusing on the code interpreter tool with realistic scenarios:
+
 - Data analysis workflows
 - Code generation and validation
 - Error handling and recovery
@@ -13,7 +15,9 @@ Simplified production tests focusing on the code interpreter tool with realistic
 - Complex data processing pipelines
 
 ### test_production_scenarios_simple.py
+
 Additional simplified tests demonstrating:
+
 - Code analysis workflows
 - Data processing with JSON operations
 - Report generation workflows
@@ -21,7 +25,9 @@ Additional simplified tests demonstrating:
 - Performance monitoring
 
 ### test_production_scenarios.py
+
 Comprehensive production scenarios including:
+
 - Multi-tool research workflows
 - Codebase analysis patterns
 - Data pipeline workflows
@@ -29,7 +35,9 @@ Comprehensive production scenarios including:
 - Performance monitoring
 
 ### test_agent_tool_integration.py
+
 Tests for agent-tool interactions including:
+
 - Rate limiting and retries
 - Multi-agent coordination
 - Concurrent operations
@@ -37,7 +45,9 @@ Tests for agent-tool interactions including:
 - Graceful degradation
 
 ### test_real_world_agent_workflows.py
+
 Complete agent workflow tests simulating:
+
 - Full research workflows
 - Document processing pipelines
 - Code generation and validation

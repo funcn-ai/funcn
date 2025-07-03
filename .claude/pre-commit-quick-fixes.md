@@ -1,10 +1,11 @@
 # Pre-commit Quick Fixes for Claude
 
-Apply these fixes automatically when generating or modifying Python code in the Funcn project:
+Apply these fixes automatically when generating or modifying Python code in the Sygaldry project:
 
 ## Import Fixes
 
 ### Before:
+
 ```python
 import os, sys  # E401: Multiple imports on one line
 from module import *  # F403: Star import
@@ -12,6 +13,7 @@ import unused_module  # F401: Unused import
 ```
 
 ### After:
+
 ```python
 import os
 import sys
@@ -22,11 +24,13 @@ from module import specific_function, SpecificClass
 ## Line Length Fixes
 
 ### Before:
+
 ```python
 result = very_long_function_call_with_many_parameters(param1="value1", param2="value2", param3="value3", param4="value4")  # Line > 130 chars
 ```
 
 ### After:
+
 ```python
 result = very_long_function_call_with_many_parameters(
     param1="value1",
@@ -39,6 +43,7 @@ result = very_long_function_call_with_many_parameters(
 ## Docstring Placement
 
 ### Before:
+
 ```python
 import os
 """This module does something."""  # D203: Docstring not first
@@ -50,6 +55,7 @@ def function():
 ```
 
 ### After:
+
 ```python
 """This module does something."""
 import os
@@ -63,6 +69,7 @@ def function():
 ## Common Simplifications (SIM rules)
 
 ### Before:
+
 ```python
 # SIM108: Use ternary operator
 if condition:
@@ -80,6 +87,7 @@ else:
 ```
 
 ### After:
+
 ```python
 # Ternary operator
 x = 1 if condition else 2
@@ -91,6 +99,7 @@ found = any(condition(item) for item in items)
 ## Unused Variables
 
 ### Before:
+
 ```python
 def function():
     unused_var = compute_something()  # F841: Unused variable
@@ -99,6 +108,7 @@ def function():
 ```
 
 ### After:
+
 ```python
 def function():
     _ = compute_something()  # Prefix with underscore if side effects needed
@@ -110,6 +120,7 @@ def function():
 ## Debug Statements
 
 ### Before:
+
 ```python
 def function():
     print("Debug:", value)  # Remove debug prints
@@ -119,6 +130,7 @@ def function():
 ```
 
 ### After:
+
 ```python
 def function():
     # Use proper logging instead
@@ -129,6 +141,7 @@ def function():
 ## File Endings
 
 Always ensure:
+
 - Files end with exactly one newline character
 - No trailing whitespace at end of lines
 - Unix line endings (\n) not Windows (\r\n)
@@ -136,6 +149,7 @@ Always ensure:
 ## Import Sorting
 
 Sort imports in this order:
+
 1. Standard library
 2. Third-party packages  
 3. Local imports
@@ -154,8 +168,8 @@ from pydantic import BaseModel
 from typer import Typer
 
 # Local
-from funcn_cli.core import utils
-from funcn_cli.models import Component
+from sygaldry_cli.core import utils
+from sygaldry_cli.models import Component
 ```
 
 ## Type Hints Best Practices

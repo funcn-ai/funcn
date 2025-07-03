@@ -1,10 +1,11 @@
-# Funcn Code Standards
+# Sygaldry Code Standards
 
-This file defines the code standards for the Funcn project to ensure all generated code passes pre-commit hooks without requiring manual cleanup.
+This file defines the code standards for the Sygaldry project to ensure all generated code passes pre-commit hooks without requiring manual cleanup.
 
 ## Python Code Style
 
 ### Formatting (Ruff)
+
 - **Line length**: Maximum 130 characters
 - **Indentation**: 4 spaces (never tabs)
 - **Line endings**: Use `\n` (LF) for all files
@@ -12,13 +13,16 @@ This file defines the code standards for the Funcn project to ensure all generat
 - **Target Python version**: 3.11+
 
 ### Import Organization (isort via Ruff)
+
 - Combine as imports: `from module import a, b, c`
 - Order imports by type (standard library, third-party, local)
 - No sections - all imports in one block
 - Sort imports alphabetically within each type group
 
 ### Code Quality Rules
+
 Apply these Ruff rules:
+
 - **E**: pycodestyle errors (except E203, E251, E266, E401, E402, E501)
 - **F**: Pyflakes (except F401, F403, F841)
 - **UP**: pyupgrade - use modern Python syntax
@@ -27,6 +31,7 @@ Apply these Ruff rules:
 - **I**: isort - proper import sorting
 
 ### Type Checking (mypy)
+
 - Type hints are encouraged but not required
 - Missing imports can be ignored
 - Use `from typing import TYPE_CHECKING` for import cycle avoidance
@@ -35,6 +40,7 @@ Apply these Ruff rules:
 ## Code Standards
 
 ### Functions and Methods
+
 ```python
 def function_name(param1: str, param2: int = 10) -> list[str]:
     """Brief description of the function.
@@ -51,6 +57,7 @@ def function_name(param1: str, param2: int = 10) -> list[str]:
 ```
 
 ### Async Functions
+
 ```python
 async def async_function(data: dict) -> str:
     """Always use async/await for I/O operations."""
@@ -59,6 +66,7 @@ async def async_function(data: dict) -> str:
 ```
 
 ### Classes
+
 ```python
 class ComponentName:
     """Class description."""
@@ -69,6 +77,7 @@ class ComponentName:
 ```
 
 ### Imports
+
 ```python
 # Standard library imports first
 import os
@@ -81,11 +90,12 @@ from pydantic import BaseModel
 from typer import Typer
 
 # Local imports
-from funcn_cli.core import utils
-from funcn_cli.models import Component
+from sygaldry_cli.core import utils
+from sygaldry_cli.models import Component
 ```
 
 ### Mirascope Patterns
+
 ```python
 from mirascope import llm, prompt_template
 from mirascope.core import BaseModel
@@ -109,6 +119,7 @@ async def agent_function(input_var: str) -> OutputModel:
 ```
 
 ### Error Handling
+
 ```python
 try:
     result = await risky_operation()
@@ -125,6 +136,7 @@ except Exception as e:
 ## Pre-commit Checks to Pass
 
 ### File Standards
+
 - **No debug statements**: Remove all `print()`, `breakpoint()`, `import pdb`
 - **Docstring first**: Docstrings must be the first statement in modules/functions/classes
 - **End with newline**: All Python files must end with a single newline
@@ -133,17 +145,20 @@ except Exception as e:
 - **No private keys**: Never include private keys or secrets
 
 ### JSON Files
+
 - Indent with 2 spaces
 - Do not sort keys
 - Must be valid JSON
 
 ### YAML Files
+
 - Must be valid YAML syntax
 - Can use unsafe features
 
 ## Common Patterns to Follow
 
 ### Component Structure
+
 ```python
 # components/my_component/agent.py
 """Component module docstring."""
@@ -168,6 +183,7 @@ __all__ = ["my_agent", "MyOutput"]
 ```
 
 ### Tool Implementation
+
 ```python
 # tools/my_tool/tool.py
 """Tool module docstring."""
@@ -198,7 +214,7 @@ __all__ = ["tool_function"]
 
 ```python
 import pytest
-from funcn_cli.components import my_component
+from sygaldry_cli.components import my_component
 
 @pytest.mark.asyncio
 async def test_async_function():
@@ -217,6 +233,7 @@ def test_sync_function():
 Follow these rules to avoid markdownlint warnings:
 
 ### MD022: Headings must be surrounded by blank lines
+
 ```markdown
 <!-- Bad -->
 Some text
@@ -232,6 +249,7 @@ More text
 ```
 
 ### MD025: Only one top-level heading (H1) per document
+
 ```markdown
 <!-- Bad -->
 # Title
@@ -243,6 +261,7 @@ More text
 ```
 
 ### MD032: Lists must be surrounded by blank lines
+
 ```markdown
 <!-- Bad -->
 Some text
@@ -260,6 +279,7 @@ More text
 ```
 
 ### MD037: No spaces inside emphasis markers
+
 ```markdown
 <!-- Bad -->
 Component names must have type suffix (_ agent, _tool, etc.)
@@ -271,6 +291,7 @@ Component names must have type suffix (_agent, _tool, etc.)
 ## Python Type Hints
 
 ### Use Modern Type Annotations (Python 3.9+)
+
 ```python
 # BAD: Deprecated typing imports
 from typing import List, Dict, Tuple, Optional, Union
@@ -288,7 +309,9 @@ def process(items: list[str]) -> dict[str, int]:
 ```
 
 ### When to Import from typing
+
 Only import these from typing module:
+
 - `TYPE_CHECKING` - for avoiding circular imports
 - `Any` - when type is truly dynamic
 - `Callable` - for function types

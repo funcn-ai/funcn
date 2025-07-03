@@ -1,6 +1,6 @@
 # Mirascope & Lilypad Best Practices
 
-This document outlines best practices for using Mirascope (LLM framework) and Lilypad (observability) in the Funcn project.
+This document outlines best practices for using Mirascope (LLM framework) and Lilypad (observability) in the Sygaldry project.
 
 ## Mirascope Core Principles
 

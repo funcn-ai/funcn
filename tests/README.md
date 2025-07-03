@@ -1,6 +1,6 @@
-# Funcn Testing Guide
+# Sygaldry Testing Guide
 
-This guide provides comprehensive documentation for testing funcn components, following Mirascope best practices and the project's testing standards.
+This guide provides comprehensive documentation for testing sygaldry components, following Mirascope best practices and the project's testing standards.
 
 ## Table of Contents
 
@@ -17,7 +17,7 @@ This guide provides comprehensive documentation for testing funcn components, fo
 
 ## Overview
 
-The funcn testing framework provides:
+The sygaldry testing framework provides:
 
 - **Base test classes** for agents and tools
 - **Mock factories** for all LLM providers
@@ -60,7 +60,7 @@ class TestMyAgent(BaseAgentTest):
     
     # Configure the test
     component_name = "my_agent"
-    component_path = Path("packages/funcn_registry/components/agents/my_agent")
+    component_path = Path("packages/sygaldry_registry/components/agents/my_agent")
     mock_llm_provider = "openai"
     mock_model = "gpt-4"
     
@@ -129,7 +129,7 @@ class TestMyTool(BaseToolTest):
     """Test suite for my_tool component."""
     
     component_name = "my_tool"
-    component_path = Path("packages/funcn_registry/components/tools/my_tool")
+    component_path = Path("packages/sygaldry_registry/components/tools/my_tool")
     
     def get_component_function(self):
         from tools.my_tool import search_data
@@ -320,7 +320,7 @@ def test_component_installation(tmp_path):
     components = ComponentFixtureFactory.create_all_sample_components(tmp_path)
     
     # Test component loading
-    from funcn_cli.core.component_manager import ComponentManager
+    from sygaldry_cli.core.component_manager import ComponentManager
     
     manager = ComponentManager()
     for name, path in components.items():
@@ -345,7 +345,7 @@ pytest -m integration       # Integration tests
 pytest -m "not slow"        # Skip slow tests
 
 # Run with coverage
-pytest --cov=funcn_cli --cov-report=html
+pytest --cov=sygaldry_cli --cov-report=html
 
 # Run tests in parallel
 pytest -n auto
@@ -486,7 +486,7 @@ pytest -s tests/unit/test_my_agent.py
 pytest tests/unit/test_my_agent.py::test_specific_case -vv
 
 # Check test coverage gaps
-pytest --cov=funcn_cli --cov-report=term-missing
+pytest --cov=sygaldry_cli --cov-report=term-missing
 ```
 
 ## Contributing Tests

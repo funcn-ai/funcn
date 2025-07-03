@@ -1,29 +1,34 @@
-# Funcn Development Guide
+# Sygaldry Development Guide
 
 ## Project Context
-Funcn AI framework using Mirascope for LLM-powered component development.
+
+Sygaldry AI framework using Mirascope for LLM-powered component development.
 
 ## Core Stack
+
 - **Python 3.12+**: Primary language with full type hinting
 - **Mirascope**: LLM calls, prompt templates, and multi-provider support
 - **Pydantic**: Data validation and response models
-- **Funcn Registry**: Component management and distribution
+- **Sygaldry Registry**: Component management and distribution
 
 ## Development Standards
 
 ### Mirascope Patterns
+
 - `@prompt_template` decorators for all prompts
 - Pydantic `response_model` for structured LLM outputs
 - Async/await for all LLM operations
 - Multi-provider LLM support (OpenAI, Anthropic, Google)
 
 ### Component Development
+
 - component.json manifest defines structure
 - Registry dependencies for component reuse
-- funcn.md documentation for human consumption
+- sygaldry.md documentation for human consumption
 - Comprehensive testing and examples
 
 ### Code Quality
+
 - Complete type hints on all functions
 - Google-style docstrings
 - Comprehensive error handling
@@ -107,6 +112,7 @@ Funcn AI framework using Mirascope for LLM-powered component development.
 - YOUTUBE_API_KEY: YouTube Data API v3 key
 
 ## Common Tasks
+
 - Adding new components to registry
 - Implementing Mirascope agents and tools
 - Managing LLM provider configurations

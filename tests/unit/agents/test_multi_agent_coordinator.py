@@ -10,7 +10,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
     """Test cases for multi agent coordinator."""
 
     component_name = "multi_agent_coordinator"
-    component_path = Path("packages/funcn_registry/components/agents/multi_agent_coordinator")
+    component_path = Path("packages/sygaldry_registry/components/agents/multi_agent_coordinator")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -57,7 +57,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -83,7 +83,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -163,7 +163,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -192,7 +192,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -230,7 +230,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -252,7 +252,7 @@ class TestMultiAgentCoordinator(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_agent_coordinator", "packages/funcn_registry/components/agents/multi_agent_coordinator/agent.py"
+            "multi_agent_coordinator", "packages/sygaldry_registry/components/agents/multi_agent_coordinator/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

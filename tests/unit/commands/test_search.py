@@ -1,31 +1,31 @@
-"""Tests for the funcn search command."""
+"""Tests for the sygaldry search command."""
 
 from __future__ import annotations
 
 import pytest
 import typer
-from funcn_cli.commands.search import search
-from funcn_cli.core.models import RegistryComponentEntry, RegistryIndex
+from sygaldry_cli.commands.search import search
+from sygaldry_cli.core.models import RegistryComponentEntry, RegistryIndex
 from unittest.mock import MagicMock
 
 
 class TestSearch:
-    """Test the funcn search command."""
+    """Test the sygaldry search command."""
 
     @pytest.fixture
     def mock_config_manager(self, mocker):
         """Mock ConfigManager."""
-        return mocker.patch("funcn_cli.commands.search.ConfigManager")
+        return mocker.patch("sygaldry_cli.commands.search.ConfigManager")
 
     @pytest.fixture
     def mock_registry_handler(self, mocker):
         """Mock RegistryHandler."""
-        return mocker.patch("funcn_cli.commands.search.RegistryHandler")
+        return mocker.patch("sygaldry_cli.commands.search.RegistryHandler")
 
     @pytest.fixture
     def mock_console(self, mocker):
         """Mock console output."""
-        return mocker.patch("funcn_cli.commands.search.console")
+        return mocker.patch("sygaldry_cli.commands.search.console")
 
     @pytest.fixture
     def sample_components(self):
@@ -171,14 +171,14 @@ class TestSearch:
 
         # Test various case variations
         test_keywords = ["SEARCH", "Search", "SeArCh", "search"]
-        
+
         for keyword in test_keywords:
             # Reset mocks
             mock_console.print.reset_mock()
-            
+
             # Execute
             search(ctx, keyword=keyword, source=None)
-            
+
             # Verify results were found
             assert mock_console.print.called
             printed_table = mock_console.print.call_args[0][0]
@@ -362,7 +362,7 @@ class TestSearch:
 
         # Execute with row capture
         from unittest.mock import patch
-        with patch("funcn_cli.commands.search.Table") as mock_table_class:
+        with patch("sygaldry_cli.commands.search.Table") as mock_table_class:
             mock_table = MagicMock()
             mock_table.add_row = MagicMock(side_effect=capture_add_row)
             mock_table_class.return_value = mock_table

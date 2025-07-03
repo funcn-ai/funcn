@@ -1,15 +1,15 @@
-# funcn
+# sygaldry
 
 **Beautiful, production-ready Mirascope components that you can copy and paste into your AI apps.**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
 
-## What is funcn?
+## What is sygaldry
 
-funcn is a component library specifically designed for Mirascope applications. Instead of being another framework, it's a CLI tool that helps you add production-ready Mirascope components directly to your codebase - components you own and can customize.
+sygaldry is a component library specifically designed for Mirascope applications. Instead of being another framework, it's a CLI tool that helps you add production-ready Mirascope components directly to your codebase - components you own and can customize.
 
-Inspired by [shadcn/ui](https://ui.shadcn.com)'s philosophy, funcn provides:
+Inspired by [shadcn/ui](https://ui.shadcn.com)'s philosophy, sygaldry provides:
 
 - **Pre-built Mirascope Agents** - Research assistants, code generators, data analysts, and more
 - **Modular Mirascope Tools** - PDF search, web scraping, API integrations, document parsing
@@ -17,7 +17,7 @@ Inspired by [shadcn/ui](https://ui.shadcn.com)'s philosophy, funcn provides:
 - **Response Models** - Pydantic models for Mirascope structured outputs
 - **Evaluation Frameworks** - Test and validate your Mirascope applications
 
-## Why funcn?
+## Why sygaldry
 
 ### The Problem
 
@@ -25,19 +25,19 @@ Every Mirascope project involves writing the same patterns: PDF parsers, web scr
 
 ### The Solution
 
-funcn provides a registry of production-ready Mirascope components that follow best practices. Add them with a single command, customize the provider and model, and get clean code that becomes part of your project.
+sygaldry provides a registry of production-ready Mirascope components that follow best practices. Add them with a single command, customize the provider and model, and get clean code that becomes part of your project.
 
 ## How It Works
 
-funcn uses a smart configuration system:
+sygaldry uses a smart configuration system:
 
-1. **Your Project Config (`funcn.json`)** - Tells funcn where to place components
+1. **Your Project Config (`sygaldry.json`)** - Tells sygaldry where to place components
 2. **Component Metadata (`component.json`)** - Defines what files to copy and dependencies
-3. **Component Documentation (`funcn.md`)** - Becomes part of your codebase
+3. **Component Documentation (`sygaldry.md`)** - Becomes part of your codebase
 
 When you add a component:
 
-- The CLI reads your project structure from `funcn.json`
+- The CLI reads your project structure from `sygaldry.json`
 - Downloads the component based on its `component.json`
 - Places files in the correct directories by component type
 - Applies your customizations (provider, model, Lilypad tracing)
@@ -46,12 +46,12 @@ When you add a component:
 ## Installation
 
 ```bash
-pip install funcn
+pip install sygaldry
 ```
 
 Or with uv (recommended):
 ```bash
-uv pip install funcn
+uv pip install sygaldry
 ```
 
 ## Quick Start
@@ -59,9 +59,9 @@ uv pip install funcn
 ### 1. Initialize your project
 
 ```bash
-funcn init
+sygaldry init
 ```
-This creates a `funcn.json` configuration file that maps component types to directories:
+This creates a `sygaldry.json` configuration file that maps component types to directories:
 ```json
 {
   "agentDirectory": "src/agents",
@@ -77,13 +77,13 @@ This creates a `funcn.json` configuration file that maps component types to dire
 
 ```bash
 # Add a PDF search tool to src/tools/pdf_search/
-funcn add pdf_search_tool
+sygaldry add pdf_search_tool
 
 # Add a research agent with Claude to src/agents/research_assistant/
-funcn add research_assistant_agent --provider anthropic --model claude-3-opus
+sygaldry add research_assistant_agent --provider anthropic --model claude-3-opus
 
 # Add with Lilypad observability
-funcn add web_search_tool --with-lilypad
+sygaldry add web_search_tool --with-lilypad
 ```
 
 ### 3. Use in your code
@@ -111,23 +111,23 @@ Each component lives in its own directory, organized by type:
 
 ```
 your_project/
-├── funcn.json
+├── sygaldry.json
 ├── src/
 │   ├── agents/
 │   │   └── research_assistant/
 │   │       ├── __init__.py
 │   │       ├── agent.py      # Mirascope agent implementation
-│   │       └── funcn.md      # Documentation
+│   │       └── sygaldry.md      # Documentation
 │   ├── tools/
 │   │   └── pdf_search/
 │   │       ├── __init__.py
 │   │       ├── tool.py       # Mirascope tool implementation
-│   │       └── funcn.md
+│   │       └── sygaldry.md
 │   └── prompts/
 │       └── summarization/
 │           ├── __init__.py
 │           ├── prompt.py     # Mirascope prompt template
-│           └── funcn.md
+│           └── sygaldry.md
 ```
 
 ## Available Components
@@ -180,12 +180,12 @@ All components follow Mirascope best practices for prompts, tools, response mode
 
 ```bash
 # Initialize project
-funcn init
+sygaldry init
 
 # Add Mirascope components
-funcn add research_assistant_agent --provider openai
-funcn add pdf_search_tool
-funcn add web_search_tool --with-lilypad
+sygaldry add research_assistant_agent --provider openai
+sygaldry add pdf_search_tool
+sygaldry add web_search_tool --with-lilypad
 
 # Your app is ready!
 ```
@@ -202,17 +202,17 @@ pdf_insights = await search_pdf_content(...)
 
 ## Documentation
 
-For comprehensive documentation, visit [funcn.ai/docs](https://funcn.ai/docs)
+For comprehensive documentation, visit [sygaldry.ai/docs](https://sygaldry.ai/docs)
 
 ## Community
 
-- GitHub: [github.com/funcn-ai/funcn](https://github.com/funcn-ai/funcn)
-- Discord: [discord.gg/funcn](https://discord.gg/funcn)
-- Twitter: [@funcn_ai](https://twitter.com/funcn_ai)
+- GitHub: [github.com/sygaldry-ai/sygaldry](https://github.com/sygaldry-ai/sygaldry)
+- Discord: [discord.gg/sygaldry](https://discord.gg/sygaldry)
+- Twitter: [@sygaldry_ai](https://twitter.com/sygaldry_ai)
 
 ## License
 
-MIT License - you're free to use funcn components in any project, commercial or otherwise.
+MIT License - you're free to use sygaldry components in any project, commercial or otherwise.
 
 ---
 

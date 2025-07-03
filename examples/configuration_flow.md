@@ -1,14 +1,14 @@
-# How funcn Configuration Works
+# How sygaldry Configuration Works
 
 This example demonstrates the complete flow of adding a component to your project.
 
-## Step 1: Project Configuration (funcn.json)
+## Step 1: Project Configuration (sygaldry.json)
 
-When you run `funcn init`, it creates a `funcn.json` file:
+When you run `sygaldry init`, it creates a `sygaldry.json` file:
 
 ```json
 {
-  "$schema": "./funcn.schema.json",
+  "$schema": "./sygaldry.schema.json",
   "agentDirectory": "src/agents",
   "toolDirectory": "src/tools",
   "promptTemplateDirectory": "src/prompts",
@@ -30,11 +30,11 @@ When you run `funcn init`, it creates a `funcn.json` file:
 Each component in the registry has this structure:
 
 ```
-packages/funcn_registry/components/tools/pdf_search/
+packages/sygaldry_registry/components/tools/pdf_search/
 ├── component.json    # Metadata and configuration
 ├── tool.py          # Main implementation with {{template_vars}}
 ├── __init__.py      # Python module exports
-└── funcn.md        # Documentation
+└── sygaldry.md        # Documentation
 ```
 
 ## Step 3: Component Metadata (component.json)
@@ -49,7 +49,7 @@ The `component.json` tells the CLI what to do:
   "files_to_copy": [
     {"source": "tool.py", "destination": "tool.py"},
     {"source": "__init__.py", "destination": "__init__.py"},
-    {"source": "funcn.md", "destination": "funcn.md"}
+    {"source": "sygaldry.md", "destination": "sygaldry.md"}
   ],
   "target_directory_key": "toolDirectory",
   "python_dependencies": [
@@ -88,12 +88,12 @@ async def analyze_pdf(content: str) -> str:
 
 When you run:
 ```bash
-funcn add pdf_search_tool --provider anthropic --model claude-3-opus --with-lilypad
+sygaldry add pdf_search_tool --provider anthropic --model claude-3-opus --with-lilypad
 ```
 
 The CLI:
 
-1. Reads your `funcn.json` to find `toolDirectory: "src/tools"`
+1. Reads your `sygaldry.json` to find `toolDirectory: "src/tools"`
 2. Downloads the component from the registry
 3. Replaces template variables:
    - `{{provider}}` → `anthropic`
@@ -108,13 +108,13 @@ Your project structure becomes:
 
 ```
 your_project/
-├── funcn.json
+├── sygaldry.json
 └── src/
     └── tools/
         └── pdf_search/
             ├── __init__.py
             ├── tool.py      # With your customizations applied
-            └── funcn.md     # Documentation for reference
+            └── sygaldry.md     # Documentation for reference
 ```
 
 The processed files:
@@ -157,10 +157,10 @@ result = await search_pdf_content(PDFSearchArgs(
 
 ## Key Points
 
-1. **funcn.json** defines WHERE components go in your project
+1. **sygaldry.json** defines WHERE components go in your project
 2. **component.json** defines WHAT gets copied and HOW
 3. **Template variables** allow customization during installation
-4. **funcn.md** provides documentation that stays with the component
+4. **sygaldry.md** provides documentation that stays with the component
 5. Components become part of YOUR codebase, not external dependencies
 
 This approach gives you:

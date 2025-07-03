@@ -1,0 +1,97 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "web_search_agent",
+  "version": "0.4.0",
+  "description": "Unified web search agent supporting multiple providers (DuckDuckGo, Qwant, Exa, Nimble) with configurable search strategies. Features privacy-focused, AI-powered semantic search, structured data extraction, comprehensive, and auto-selection modes.",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "web_search/agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "web_search/__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    {
+      "name": "mirascope",
+      "version": ">=1.24.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    }
+  ],
+  "registry_dependencies": [
+    "duckduckgo_search_tools",
+    "qwant_search_tools",
+    "exa_search_tools",
+    "nimble_search_tools",
+    "url_content_parser"
+  ],
+  "environment_variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "API key for OpenAI services (if using OpenAI provider).",
+      "required": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "description": "API key for Anthropic services (if using Anthropic provider).",
+      "required": false
+    },
+    {
+      "name": "GOOGLE_API_KEY",
+      "description": "API key for Google services (if using Google provider).",
+      "required": false
+    },
+    {
+      "name": "EXA_API_KEY",
+      "description": "API key for Exa AI search services (if using Exa provider).",
+      "required": false
+    },
+    {
+      "name": "NIMBLE_API_KEY",
+      "description": "API key for Nimble search services (Web API, SERP API, Maps API) (if using Nimble provider).",
+      "required": false
+    }
+  ],
+  "example_usage": "```python\nimport asyncio\nfrom web_search import web_search_agent, web_search_private, web_search_comprehensive, web_search_ai, web_search_structured\n\nasync def main():\n    # Auto-select best search provider\n    response = await web_search_agent(\n        \"What is Mirascope and how does it work?\",\n        search_provider=\"auto\"\n    )\n    print(f\"Answer: {response.answer}\")\n    print(f\"Providers used: {response.search_providers}\")\n    \n    # Privacy-focused search (uses Qwant)\n    privacy_response = await web_search_private(\n        \"How do AI companies handle user data?\"\n    )\n    print(f\"Privacy note: {privacy_response.privacy_note}\")\n    \n    # AI-powered semantic search (uses Exa)\n    ai_response = await web_search_ai(\n        \"Latest breakthroughs in quantum computing research papers\"\n    )\n    print(f\"Answer: {ai_response.answer}\")\n    print(f\"AI search found {len(ai_response.sources)} sources\")\n    \n    # Structured data and location search (uses Nimble)\n    nimble_response = await web_search_structured(\n        \"Best restaurants near Times Square New York\"\n    )\n    print(f\"Answer: {nimble_response.answer}\")\n    print(f\"Nimble found: {nimble_response.search_providers}\")\n    \n    # Comprehensive search (uses all available providers)\n    comprehensive_response = await web_search_comprehensive(\n        \"Latest AI safety research\"\n    )\n    print(f\"Sources found: {len(comprehensive_response.sources)}\")\n    \n    # Custom configuration with Exa\n    custom_response = await web_search_agent_multi_provider(\n        question=\"Machine learning frameworks comparison\",\n        search_provider=\"exa\",\n        llm_provider=\"anthropic\",\n        model=\"claude-3-5-sonnet-20241022\"\n    )\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "This unified agent requires 'duckduckgo_search_tools', 'qwant_search_tools', 'exa_search_tools', 'nimble_search_tools', and 'url_content_parser' for full functionality. Add them with: sygaldry add duckduckgo_search_tools && sygaldry add qwant_search_tools && sygaldry add exa_search_tools && sygaldry add nimble_search_tools && sygaldry add url_content_parser. The agent automatically selects the best search provider or you can specify: 'duckduckgo' for general search, 'qwant' for privacy, 'exa' for AI-powered semantic search, 'nimble' for structured data and location-based searches, 'auto' for intelligent selection, or 'all' for comprehensive coverage. Set your preferred LLM provider's API key and EXA_API_KEY if using Exa, NIMBLE_API_KEY if using Nimble.",
+  "tags": [
+    "web_search",
+    "agent",
+    "mirascope",
+    "multi_provider",
+    "privacy",
+    "unified",
+    "duckduckgo",
+    "qwant",
+    "exa",
+    "nimble",
+    "ai_search",
+    "semantic_search"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "search_provider": "auto"
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

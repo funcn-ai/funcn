@@ -1,7 +1,7 @@
 services:
   app:
-    container_name: funcn-app
-    hostname: funcn
+    container_name: sygaldry-app
+    hostname: sygaldry
     platform: linux/amd64             # linux/amd64 / linux/arm64/v8
     tty: true                         # false for `entrypoint` in Dockerfile
     stdin_open: true                  # false for `entrypoint` in Dockerfile

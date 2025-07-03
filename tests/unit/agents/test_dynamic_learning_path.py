@@ -10,7 +10,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
     """Test cases for dynamic learning path agent."""
 
     component_name = "dynamic_learning_path"
-    component_path = Path("packages/funcn_registry/components/agents/dynamic_learning_path")
+    component_path = Path("packages/sygaldry_registry/components/agents/dynamic_learning_path")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -65,7 +65,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -112,7 +112,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -240,7 +240,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -277,7 +277,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -307,7 +307,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -333,7 +333,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -398,7 +398,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -422,7 +422,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -446,7 +446,7 @@ class TestDynamicLearningPathAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dynamic_learning_path", "packages/funcn_registry/components/agents/dynamic_learning_path/agent.py"
+            "dynamic_learning_path", "packages/sygaldry_registry/components/agents/dynamic_learning_path/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

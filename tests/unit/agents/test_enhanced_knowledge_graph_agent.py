@@ -10,7 +10,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
     """Test cases for enhanced knowledge graph agent."""
 
     component_name = "enhanced_knowledge_graph_agent"
-    component_path = Path("packages/funcn_registry/components/agents/enhanced_knowledge_graph")
+    component_path = Path("packages/sygaldry_registry/components/agents/enhanced_knowledge_graph")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -54,7 +54,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -78,7 +78,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -135,7 +135,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -159,7 +159,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -190,7 +190,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -211,7 +211,7 @@ class TestEnhancedKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "enhanced_knowledge_graph_agent", "packages/funcn_registry/components/agents/enhanced_knowledge_graph/agent.py"
+            "enhanced_knowledge_graph_agent", "packages/sygaldry_registry/components/agents/enhanced_knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

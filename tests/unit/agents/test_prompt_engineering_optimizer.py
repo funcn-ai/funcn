@@ -10,7 +10,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
     """Test cases for prompt engineering optimizer agent."""
 
     component_name = "prompt_engineering_optimizer"
-    component_path = Path("packages/funcn_registry/components/agents/prompt_engineering_optimizer")
+    component_path = Path("packages/sygaldry_registry/components/agents/prompt_engineering_optimizer")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -57,7 +57,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -87,7 +87,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -152,7 +152,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -176,7 +176,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -203,7 +203,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -224,7 +224,7 @@ class TestPromptEngineeringOptimizerAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "prompt_engineering_optimizer", "packages/funcn_registry/components/agents/prompt_engineering_optimizer/agent.py"
+            "prompt_engineering_optimizer", "packages/sygaldry_registry/components/agents/prompt_engineering_optimizer/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

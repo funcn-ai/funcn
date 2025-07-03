@@ -1,0 +1,57 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "sales_intelligence_agent",
+  "version": "0.1.0",
+  "description": "Sales intelligence agent for finding targeted business contacts and companies using Exa websets. Perfect for sales prospecting, lead generation, and market intelligence.",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0"
+  ],
+  "registry_dependencies": [
+    "exa_websets"
+  ],
+  "environment_variables": [
+    {
+      "key": "EXA_API_KEY",
+      "description": "API key for Exa",
+      "required": true
+    }
+  ],
+  "example_usage": "```python\nfrom sales_intelligence import sales_intelligence_agent, find_sales_leaders\n\n# Find sales leaders in Europe\nresult = await find_sales_leaders(\n    company_size=\"less than 500 employees\",\n    location=\"Europe\"\n)\n\n# Find marketing agencies\nresult = await sales_intelligence_agent(\n    role_or_company=\"Marketing agency\",\n    company_size=\"less than 30 employees\",\n    location=\"US\"\n)\n```",
+  "post_add_instructions": "Make sure to set your EXA_API_KEY environment variable before using this agent.",
+  "tags": [
+    "sales",
+    "prospecting",
+    "leads",
+    "b2b",
+    "exa",
+    "websets"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

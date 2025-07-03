@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sygaldry Configuration",
+  "description": "Configuration for the Sygaldry CLI, specifying directories and aliases for agents, evals, prompts, and tools.",
+  "type": "object",
+  "properties": {
+    "agentDirectory": {
+      "type": "string",
+      "description": "The default directory for storing agents.",
+      "default": "packages/sygaldry_registry/components/agents"
+    },
+    "evalDirectory": {
+      "type": "string",
+      "description": "The default directory for storing evals.",
+      "default": "packages/sygaldry_registry/components/evals"
+    },
+    "promptTemplateDirectory": {
+      "type": "string",
+      "description": "The default directory for storing prompt templates.",
+      "default": "packages/sygaldry_registry/components/prompt_templates"
+    },
+    "toolDirectory": {
+      "type": "string",
+      "description": "The default directory for storing tools.",
+      "default": "packages/sygaldry_registry/components/tools"
+    },
+    "responseModelDirectory": {
+      "type": "string",
+      "description": "The default directory for storing standardized response model schemas for agents.",
+      "default": "packages/sygaldry_registry/components/response_models"
+    },
+    "aliases": {
+      "type": "object",
+      "description": "Import aliases for different component types.",
+      "properties": {
+        "agents": {
+          "type": "string",
+          "description": "Alias for importing agents.",
+          "default": "@/agents"
+        },
+        "evals": {
+          "type": "string",
+          "description": "Alias for importing evals.",
+          "default": "@/evals"
+        },
+        "prompts": {
+          "type": "string",
+          "description": "Alias for importing prompt templates.",
+          "default": "@/prompt_templates"
+        },
+        "tools": {
+          "type": "string",
+          "description": "Alias for importing tools.",
+          "default": "@/tools"
+        }
+      },
+      "required": [
+        "agents",
+        "evals",
+        "prompts",
+        "tools"
+      ]
+    },
+    "defaultProvider": {
+      "type": "string",
+      "description": "The default LLM provider for agents/tools.",
+      "default": "openai"
+    },
+    "defaultModel": {
+      "type": "string",
+      "description": "The default model for agents/tools.",
+      "default": "gpt-4o-mini"
+    },
+    "stream": {
+      "type": "boolean",
+      "description": "Whether to enable streaming responses by default for agents/tools.",
+      "default": false
+    },
+    "defaultMcpHost": {
+      "type": "string",
+      "description": "The default host for MCP-compatible agents.",
+      "default": "0.0.0.0"
+    },
+    "defaultMcpPort": {
+      "type": "integer",
+      "description": "The default port for MCP-compatible agents.",
+      "default": 8000
+    }
+  },
+  "required": [
+    "agentDirectory",
+    "evalDirectory",
+    "promptTemplateDirectory",
+    "toolDirectory",
+    "responseModelDirectory",
+    "aliases",
+    "defaultProvider",
+    "defaultModel"
+  ]
+}

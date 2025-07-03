@@ -1,0 +1,62 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "exa_websets_tool",
+  "version": "0.1.0",
+  "description": "Advanced web data collection tools using Exa Websets. Create curated collections of web data with search criteria and structured enrichments for building datasets.",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {
+      "name": "exa-py",
+      "version": ">=1.0.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    }
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {
+      "name": "EXA_API_KEY",
+      "description": "API key for Exa services. Get it from https://exa.ai",
+      "required": true
+    }
+  ],
+  "example_usage": "```python\nimport asyncio\nfrom exa_websets_tools import (\n    exa_create_webset, \n    exa_get_webset, \n    exa_list_webset_items,\n    exa_wait_until_idle,\n    CreateWebsetArgs,\n    WebsetSearchConfig,\n    WebsetEnrichmentConfig\n)\n\nasync def main():\n    # Create a webset to find and analyze AI companies\n    search_config = WebsetSearchConfig(\n        query=\"AI startup companies founded after 2020\",\n        count=50  # Target 50 companies\n    )\n    \n    # Define enrichments to extract structured data\n    enrichments = [\n        WebsetEnrichmentConfig(\n            description=\"Extract company information\",\n            format=\"json\",\n            instructions=\"Extract: company name, founding year, main product, funding raised, headquarters location\"\n        ),\n        WebsetEnrichmentConfig(\n            description=\"Analyze AI technology focus\",\n            format=\"categories\",\n            options=[{\"label\": \"NLP\"}, {\"label\": \"Computer Vision\"}, {\"label\": \"Robotics\"}, {\"label\": \"MLOps\"}]\n        )\n    ]\n    \n    # Create the webset\n    create_args = CreateWebsetArgs(\n        search=search_config,\n        enrichments=enrichments,\n        metadata={\"project\": \"ai_landscape_analysis\"}\n    )\n    \n    webset = await exa_create_webset(create_args)\n    print(f\"Created webset: {webset.id} (status: {webset.status})\")\n    \n    # Wait for processing to complete\n    print(\"Waiting for webset to process...\")\n    webset = await exa_wait_until_idle(webset.id)\n    print(f\"Webset complete! Found {webset.items_count} items\")\n    \n    # List the collected items\n    items_response = await exa_list_webset_items(webset.id, limit=10)\n    \n    print(f\"\\nFirst 10 companies found:\")\n    for item in items_response.items:\n        print(f\"- {item.url}\")\n        if item.enrichments:\n            print(f\"  Enrichment data: {item.enrichments[0]}\")\n    \n    # Get full webset details\n    full_webset = await exa_get_webset(webset.id)\n    print(f\"\\nWebset searches: {len(full_webset.searches or [])}\")\n    print(f\"Webset enrichments: {len(full_webset.enrichments or [])}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "You now have access to Exa's advanced Websets functionality! Set your EXA_API_KEY environment variable before using.\n\nWebsets allow you to:\n1. **Define Search Criteria** - Specify what web content to collect\n2. **Apply Enrichments** - Extract structured data from collected pages\n3. **Build Datasets** - Create curated collections for analysis\n\nWebsets are ideal for:\n- Market research and competitive analysis\n- Building training datasets\n- Monitoring industry trends\n- Creating knowledge bases\n\nNote: Websets processing can take time depending on the search complexity and enrichments. Use `exa_wait_until_idle()` to wait for completion.",
+  "tags": [
+    "exa",
+    "websets",
+    "data_collection",
+    "web_scraping",
+    "enrichment",
+    "dataset_building",
+    "tools"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

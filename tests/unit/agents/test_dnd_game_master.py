@@ -11,7 +11,7 @@ class TestDndGameMasterAgent(BaseAgentTest):
     """Test cases for D&D game master agent."""
 
     component_name = "dnd_game_master"
-    component_path = Path("packages/funcn_registry/components/agents/game_playing_dnd")
+    component_path = Path("packages/sygaldry_registry/components/agents/game_playing_dnd")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -21,19 +21,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import directly without triggering __init__.py chain
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -43,38 +43,38 @@ class TestDndGameMasterAgent(BaseAgentTest):
         """Get test input cases."""
         # Import PlayerCharacter model for test data
         import importlib.util
-        
+
         # Mock the tool imports
         dice_roller_mock = MagicMock()
         dice_roller_mock.DiceRoll = MagicMock
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         PlayerCharacter = module.PlayerCharacter
         CharacterSheet = module.CharacterSheet
         CharacterStats = module.CharacterStats
         PlayerType = module.PlayerType
-        
+
         # Create test players
         stats = CharacterStats(
             strength=15, dexterity=12, constitution=14,
             intelligence=10, wisdom=13, charisma=8
         )
-        
+
         sheet = CharacterSheet(
             name="Thorin",
             race="Dwarf",
@@ -93,7 +93,7 @@ class TestDndGameMasterAgent(BaseAgentTest):
             death_saves_failure=0,
             exhaustion_level=0
         )
-        
+
         player1 = PlayerCharacter(
             character=sheet,
             player_type=PlayerType.HUMAN,
@@ -101,7 +101,7 @@ class TestDndGameMasterAgent(BaseAgentTest):
             ai_provider=None,
             personality=None
         )
-        
+
         return [
             {
                 "campaign_name": "Lost Mines of Phandelver",
@@ -132,19 +132,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Use direct import to avoid __init__.py chain
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -176,19 +176,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Use direct import to avoid __init__.py chain
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -239,19 +239,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Use direct import to avoid __init__.py chain
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -278,20 +278,20 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Use direct import to avoid __init__.py chain
         import importlib.util
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -300,7 +300,7 @@ class TestDndGameMasterAgent(BaseAgentTest):
         func = module.roll_ability_check
         assert callable(func)
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test roll_saving_throw
         func = module.roll_saving_throw
         assert callable(func)
@@ -325,19 +325,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Use direct import to avoid __init__.py chain
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -362,19 +362,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock.DiceType = MagicMock
         dice_roller_mock.format_roll_result = MagicMock()
         dice_roller_mock.roll_dice = MagicMock()
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Use direct import to avoid __init__.py chain
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -392,44 +392,44 @@ class TestDndGameMasterAgent(BaseAgentTest):
     async def test_dnd_game_master_async_structure(self):
         """Test that dnd_game_master is properly async."""
         func = self.get_component_function()
-        
+
         # Test that function is async
         import inspect
         assert inspect.iscoroutinefunction(func)
-        
+
         # Test function signature includes all required parameters
         sig = inspect.signature(func)
         params = list(sig.parameters.keys())
-        expected_params = ['campaign_name', 'players', 'starting_location', 
+        expected_params = ['campaign_name', 'players', 'starting_location',
                           'dm_provider', 'dm_model', 'session_length',
                           'enable_persistence', 'db_path', 'load_session_id']
         for param in expected_params:
             assert param in params
 
-    @pytest.mark.asyncio 
+    @pytest.mark.asyncio
     async def test_game_state_initialization(self):
         """Test that GameState model exists and has proper fields."""
         # Mock the tool imports
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that GameState and related models exist
         assert hasattr(module, 'GameState')
         assert hasattr(module, 'GamePhase')
-        
+
         # Check GameState has expected fields
         GameState = module.GameState
         expected_fields = [
@@ -438,7 +438,7 @@ class TestDndGameMasterAgent(BaseAgentTest):
             'combat_round', 'combat_order', 'recent_events',
             'quest_status', 'world_state', 'game_time', 'days_elapsed'
         ]
-        
+
         # Check fields exist in the model
         for field in expected_fields:
             assert field in GameState.model_fields
@@ -450,19 +450,19 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that process_player_turn exists and is async
         assert hasattr(module, 'process_player_turn')
         import inspect
@@ -478,26 +478,26 @@ class TestDndGameMasterAgent(BaseAgentTest):
             purpose="ability check", critical=False
         ))
         dice_roller_mock.format_roll_result = MagicMock(return_value="Rolled 1d20+2: [15] + 2 = 17")
-        
+
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test roll_ability_check with proper parameters
         result = await module.roll_ability_check(
             character_name="Test Character",
-            ability="strength", 
+            ability="strength",
             skill=None,
             modifier=2,
             advantage=False,
@@ -510,7 +510,7 @@ class TestDndGameMasterAgent(BaseAgentTest):
         assert isinstance(result, str)
         assert "Rolled" in result or "Proficiency" in result
         dice_roller_mock.roll_dice.assert_called_once()
-        
+
         # Test roll_saving_throw
         dice_roller_mock.roll_dice.reset_mock()
         result = await module.roll_saving_throw(
@@ -534,25 +534,25 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test run_combat_round
         assert hasattr(module, 'run_combat_round')
         import inspect
         assert inspect.iscoroutinefunction(module.run_combat_round)
-        
-        # Test run_roleplay_scene  
+
+        # Test run_roleplay_scene
         assert hasattr(module, 'run_roleplay_scene')
         assert inspect.iscoroutinefunction(module.run_roleplay_scene)
 
@@ -566,24 +566,24 @@ class TestDndGameMasterAgent(BaseAgentTest):
         sqlite_mock.create_agent_state_table = AsyncMock()
         sqlite_mock.store_agent_state = AsyncMock()
         sqlite_mock.get_agent_state = AsyncMock(return_value=None)
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test persistence functions exist
         assert hasattr(module, 'initialize_campaign_database')
         assert hasattr(module, 'save_game_state')
         assert hasattr(module, 'load_game_state')
-        
+
         # Test they are async
         import inspect
         assert inspect.iscoroutinefunction(module.initialize_campaign_database)
@@ -597,69 +597,69 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test CharacterStats
         CharacterStats = module.CharacterStats
         stats = CharacterStats(
             strength=15, dexterity=12, constitution=14,
             intelligence=10, wisdom=13, charisma=8
         )
-        
+
         # Test ability modifiers
         assert stats.get_modifier("strength") == 2  # (15-10)//2 = 2
         assert stats.get_modifier("dexterity") == 1  # (12-10)//2 = 1
         assert stats.get_modifier("charisma") == -1  # (8-10)//2 = -1
-        
+
         # Test saving throw modifiers
         assert stats.get_saving_throw_modifier("strength", 2, True) == 4  # 2 + 2
         assert stats.get_saving_throw_modifier("strength", 2, False) == 2  # 2 + 0
 
-    @pytest.mark.asyncio 
+    @pytest.mark.asyncio
     async def test_spell_slot_management(self):
         """Test spell slot tracking and usage."""
         # Mock imports
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test SpellSlots
         SpellSlots = module.SpellSlots
         slots = SpellSlots(level_1=3, level_2=2)
-        
+
         # Test available slots
         assert slots.get_available_slots(1) == 3
         assert slots.get_available_slots(2) == 2
         assert slots.get_available_slots(3) == 0
-        
+
         # Test using slots
         assert slots.use_slot(1) is True
         assert slots.get_available_slots(1) == 2
         assert slots.use_slot(3) is False  # No level 3 slots
-        
+
         # Test reset
         slots.reset_slots()
         assert slots.get_available_slots(1) == 3
@@ -671,27 +671,27 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test Position
         Position = module.Position
         pos1 = Position(x=0, y=0, z=0)
         pos2 = Position(x=3, y=4, z=0)
-        
+
         # Test distance calculation (3-4-5 triangle)
         assert pos1.distance_to(pos2) == 25.0  # 5 * 5 feet per square
-        
+
         # Test adjacency
         pos3 = Position(x=1, y=1, z=0)
         assert pos1.is_adjacent(pos3) is True
@@ -704,26 +704,26 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test that key LLM functions exist
         llm_functions = [
             'generate_dm_response',
             'generate_ai_player_action',
             'generate_character_dialogue'
         ]
-        
+
         for func_name in llm_functions:
             assert hasattr(module, func_name), f"Missing LLM function: {func_name}"
             func = getattr(module, func_name)
@@ -736,25 +736,25 @@ class TestDndGameMasterAgent(BaseAgentTest):
         dice_roller_mock = MagicMock()
         dnd_api_mock = MagicMock()
         sqlite_mock = MagicMock()
-        
-        sys.modules['packages.funcn_registry.components.tools.dice_roller.tool'] = dice_roller_mock
-        sys.modules['packages.funcn_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
-        sys.modules['packages.funcn_registry.components.tools.sqlite_db.tool'] = sqlite_mock
-        
+
+        sys.modules['packages.sygaldry_registry.components.tools.dice_roller.tool'] = dice_roller_mock
+        sys.modules['packages.sygaldry_registry.components.tools.dnd_5e_api.tool'] = dnd_api_mock
+        sys.modules['packages.sygaldry_registry.components.tools.sqlite_db.tool'] = sqlite_mock
+
         # Import module
         import importlib.util
         spec = importlib.util.spec_from_file_location(
-            "dnd_game_master", "packages/funcn_registry/components/agents/game_playing_dnd/agent.py"
+            "dnd_game_master", "packages/sygaldry_registry/components/agents/game_playing_dnd/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        
+
         # Test PlayerType enum
         PlayerType = module.PlayerType
         assert PlayerType.HUMAN == "human"
         assert PlayerType.AI == "ai"
         assert PlayerType.DM == "dm"
-        
+
         # Test GamePhase enum
         GamePhase = module.GamePhase
         assert hasattr(GamePhase, 'EXPLORATION')
@@ -762,14 +762,14 @@ class TestDndGameMasterAgent(BaseAgentTest):
         assert hasattr(GamePhase, 'ROLEPLAY')
         assert hasattr(GamePhase, 'PUZZLE')
         assert hasattr(GamePhase, 'REST')
-        
+
         # Test ActionType enum
         ActionType = module.ActionType
         assert hasattr(ActionType, 'MOVEMENT')
         assert hasattr(ActionType, 'ATTACK')
         assert hasattr(ActionType, 'SPELL')
         assert hasattr(ActionType, 'SKILL_CHECK')
-        
+
         # Test DiceType enum
         DiceType = module.DiceType
         assert DiceType.D20 == "d20"

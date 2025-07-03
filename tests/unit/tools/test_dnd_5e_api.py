@@ -4,7 +4,7 @@ import asyncio
 import pytest
 
 # Import the tool functions
-from packages.funcn_registry.components.tools.dnd_5e_api.tool import (
+from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import (
     get_class_info,
     get_condition_info,
     get_equipment_info,
@@ -24,7 +24,7 @@ class TestDnd5eApiTool(BaseToolTest):
     """Test cases for D&D 5e API tool."""
 
     component_name = "dnd_5e_api"
-    component_path = Path("packages/funcn_registry/components/tools/dnd_5e_api")
+    component_path = Path("packages/sygaldry_registry/components/tools/dnd_5e_api")
 
     def get_component_function(self):
         """Get the main tool function."""
@@ -60,7 +60,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/fireball"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -99,7 +99,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/classes/wizard"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_class_data)
@@ -146,7 +146,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/monsters/goblin"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_monster_data)
@@ -171,7 +171,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -194,7 +194,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -235,7 +235,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/equipment/longsword"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_equipment_data)
@@ -251,7 +251,7 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_not_found_error(self):
         """Test handling of 404 not found errors."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 404
             mock_response.text = Mock(return_value="Not found")
@@ -266,7 +266,7 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_api_error_handling(self):
         """Test handling of API errors."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(side_effect=Exception("Connection error"))
 
             with pytest.raises(Exception) as exc_info:
@@ -301,7 +301,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/races/elf"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_race_data)
@@ -326,7 +326,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/conditions/poisoned"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_condition_data)
@@ -349,7 +349,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -372,7 +372,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ],
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -387,7 +387,7 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_timeout_handling(self):
         """Test handling of request timeouts."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(side_effect=Exception("Request timeout"))
 
             with pytest.raises(Exception) as exc_info:
@@ -411,16 +411,16 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/feats/alert"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_feat_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
+
             # Import the function
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_feat_info
-            
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_feat_info
+
             result = await get_feat_info("alert")
 
             assert result.name == "Alert"
@@ -443,15 +443,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/ability-scores/str"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_ability_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_ability_score_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_ability_score_info
+
             result = await get_ability_score_info("strength")
 
             assert result["name"] == "STR"
@@ -472,15 +472,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/proficiencies/skill-acrobatics"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_proficiency_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_proficiency_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_proficiency_info
+
             result = await get_proficiency_info("skill-acrobatics")
 
             assert result["name"] == "Skill: Acrobatics"
@@ -498,15 +498,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/languages/elvish"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_language_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_language_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_language_info
+
             result = await get_language_info("elvish")
 
             assert result["name"] == "Elvish"
@@ -524,15 +524,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/alignments/lawful-good"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_alignment_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_alignment_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_alignment_info
+
             result = await get_alignment_info("lawful good")
 
             assert result["name"] == "Lawful Good"
@@ -548,15 +548,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/damage-types/fire"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_damage_type_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_damage_type_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_damage_type_info
+
             result = await get_damage_type_info("fire")
 
             assert result["name"] == "Fire"
@@ -574,15 +574,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/weapon-properties/versatile"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_property_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_weapon_property_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_weapon_property_info
+
             result = await get_weapon_property_info("versatile")
 
             assert result["name"] == "Versatile"
@@ -607,7 +607,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/melfs-acid-arrow"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -635,7 +635,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "results": []
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -702,7 +702,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/monsters/adult-red-dragon"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_monster_data)
@@ -732,7 +732,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/equipment/plate"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_armor_data)
@@ -776,7 +776,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/races/elf"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_race_data)
@@ -813,7 +813,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/fireball"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -850,7 +850,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/hold-person"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -866,8 +866,8 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_invalid_ability_score(self):
         """Test invalid ability score name."""
-        from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_ability_score_info
-        
+        from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_ability_score_info
+
         with pytest.raises(ValueError) as exc_info:
             await get_ability_score_info("invalid")
 
@@ -876,8 +876,8 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_invalid_alignment(self):
         """Test invalid alignment name."""
-        from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_alignment_info
-        
+        from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_alignment_info
+
         with pytest.raises(ValueError) as exc_info:
             await get_alignment_info("invalid alignment")
 
@@ -897,7 +897,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -958,7 +958,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/monsters/goblin"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             async def mock_get(url, *args, **kwargs):
                 mock_response = Mock()
                 mock_response.status_code = 200
@@ -973,7 +973,7 @@ class TestDnd5eApiTool(BaseToolTest):
             # Run multiple requests concurrently
             spell_task = get_spell_info("magic-missile")
             monster_task = get_monster_info("goblin")
-            
+
             spell_result, monster_result = await asyncio.gather(spell_task, monster_task)
 
             assert spell_result.name == "Magic Missile"
@@ -1004,7 +1004,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/equipment/longsword"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_equipment_data)
@@ -1021,7 +1021,7 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_http_error_handling(self):
         """Test handling of HTTP errors other than 404."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 500
             mock_response.text = Mock(return_value="Internal Server Error")
@@ -1032,19 +1032,19 @@ class TestDnd5eApiTool(BaseToolTest):
             # Search should raise ValueError when status is not 200
             with pytest.raises(ValueError) as exc_info:
                 await search_dnd_content(content_type="spells", query="test")
-            
+
             assert "Failed to search spells" in str(exc_info.value)
-            
+
             # For specific lookups, 500 errors cause JSON parsing to fail
             # Since response.json() is called without checking status code first
             mock_response = Mock()
             mock_response.status_code = 500
             mock_response.json = Mock(side_effect=ValueError("Server error"))
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
+
             with pytest.raises(ValueError) as exc_info:
                 await get_spell_info("test")
-            
+
             assert "Server error" in str(exc_info.value)
 
     @pytest.mark.asyncio
@@ -1067,7 +1067,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/magic-items/bag-of-holding"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_item_data)
@@ -1085,7 +1085,7 @@ class TestDnd5eApiTool(BaseToolTest):
         # The functions return typed Pydantic models, not dicts
         # So we check if it's a Pydantic model instance
         from pydantic import BaseModel
-        
+
         # For dict returns (utility functions)
         if isinstance(output, dict):
             assert "url" in output or "results" in output
@@ -1100,7 +1100,7 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.unit
     def test_all_api_functions_have_docstrings(self):
         """Test that all API functions have proper docstrings."""
-        from packages.funcn_registry.components.tools.dnd_5e_api.tool import (
+        from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import (
             get_ability_score_info,
             get_alignment_info,
             get_class_info,
@@ -1117,7 +1117,7 @@ class TestDnd5eApiTool(BaseToolTest):
             get_weapon_property_info,
             search_dnd_content,
         )
-        
+
         functions = [
             get_spell_info,
             get_class_info,
@@ -1166,7 +1166,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/cure-wounds"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -1199,7 +1199,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/detect-magic"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -1251,7 +1251,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/classes/wizard"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_class_data)
@@ -1320,7 +1320,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/monsters/shield-guardian"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_monster_data)
@@ -1380,7 +1380,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/races/half-elf"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_race_data)
@@ -1418,7 +1418,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/equipment/longbow"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_equipment_data)
@@ -1454,15 +1454,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/feats/heavy-armor-master"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_feat_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_feat_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_feat_info
+
             result = await get_feat_info("heavy-armor-master")
 
             assert result.name == "Heavy Armor Master"
@@ -1481,7 +1481,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -1508,7 +1508,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -1534,7 +1534,7 @@ class TestDnd5eApiTool(BaseToolTest):
             ]
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_search_results)
@@ -1601,7 +1601,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/monsters/vampire"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_monster_data)
@@ -1651,7 +1651,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/classes/rogue"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_class_data)
@@ -1675,15 +1675,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/alignments/chaotic-evil"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_alignment_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_alignment_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_alignment_info
+
             result = await get_alignment_info("ce")
 
             assert result["name"] == "Chaotic Evil"
@@ -1707,15 +1707,15 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/ability-scores/dex"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_ability_data)
 
             mock_client.return_value.__aenter__.return_value.get = AsyncMock(return_value=mock_response)
-            
-            from packages.funcn_registry.components.tools.dnd_5e_api.tool import get_ability_score_info
-            
+
+            from packages.sygaldry_registry.components.tools.dnd_5e_api.tool import get_ability_score_info
+
             result = await get_ability_score_info("dexterity")
 
             assert result["name"] == "DEX"
@@ -1736,7 +1736,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/equipment/rope-hempen-50-feet"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_equipment_data)
@@ -1774,7 +1774,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/mage-hand"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)
@@ -1790,7 +1790,7 @@ class TestDnd5eApiTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_json_parsing_error(self):
         """Test handling of JSON parsing errors."""
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(side_effect=ValueError("Invalid JSON"))
@@ -1821,7 +1821,7 @@ class TestDnd5eApiTool(BaseToolTest):
             "url": "/api/spells/test-spell"
         }
 
-        with patch("packages.funcn_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
+        with patch("packages.sygaldry_registry.components.tools.dnd_5e_api.tool.httpx.AsyncClient") as mock_client:
             mock_response = Mock()
             mock_response.status_code = 200
             mock_response.json = Mock(return_value=mock_spell_data)

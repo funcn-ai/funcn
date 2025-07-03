@@ -1,16 +1,41 @@
-# funcn
+# sygaldry
 
-**Production-ready Mirascope components that you can copy and paste into your AI apps.**
+**Developer Tools for Applied AI Engineering**
 
-A component library for Mirascope-powered applications, providing reusable agents, tools, response models, prompt templates, and evaluation frameworks. Built with the same philosophy as [shadcn/ui](https://ui.shadcn.com) - this is NOT a traditional package dependency, but a collection of components you copy into your project and customize.
+sygaldry provides essential tooling for AI engineers and researchers building production systems. Our open-source projects focus on practical solutions to real challenges faced when integrating AI into applications and workflows.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
-[![PyPI version](https://badge.fury.io/py/funcn.svg)](https://badge.fury.io/py/funcn)
+[![PyPI version](https://badge.fury.io/py/sygaldry.svg)](https://badge.fury.io/py/sygaldry)
 
-## Why funcn?
+## Mission
 
-Building AI applications with Mirascope often involves writing the same patterns repeatedly - search tools, web scrapers, document parsers, and agent architectures. funcn provides:
+We build tools that bridge the gap between AI research and production deployment. Every project emerges from hands-on experience building AI systems at scale, addressing pain points we've encountered firsthand.
+
+## Philosophy
+
+Good tools should be:
+
+- **Practical** - Solve real problems developers face daily
+- **Composable** - Work seamlessly with existing toolchains
+- **Performant** - Optimized for production workloads
+- **Transparent** - Clear internals, no black boxes
+
+## Projects
+
+Our repositories contain tools and libraries focused on:
+
+- Efficient model integration patterns
+- Production-ready inference pipelines
+- Workflow orchestration for AI systems
+- Performance optimization utilities
+- Development workflow enhancements
+
+Each project includes comprehensive documentation, examples, and benchmarks to help you evaluate and integrate our tools into your stack.
+
+## Why sygaldry
+
+Building AI applications with Mirascope often involves writing the same patterns repeatedly - search tools, web scrapers, document parsers, and agent architectures. sygaldry provides:
 
 - **Production-Ready Mirascope Components** - Battle-tested agents, tools, and models built with Mirascope best practices
 - **Copy & Customize** - Not a dependency, but code you own and can modify
@@ -19,17 +44,17 @@ Building AI applications with Mirascope often involves writing the same patterns
 - **Provider Agnostic** - Works with OpenAI, Anthropic, Google, Mistral, and any Mirascope-supported provider
 - **Built-in Observability** - Optional Lilypad integration for tracing and monitoring
 
-## How funcn Works
+## How sygaldry Works
 
-funcn uses a three-tier configuration system:
+sygaldry uses a three-tier configuration system:
 
-1. **`funcn.json`** - Your project configuration that tells the CLI where to place components
+1. **`sygaldry.json`** - Your project configuration that tells the CLI where to place components
 2. **`component.json`** - Each component's metadata, dependencies, and structure
-3. **`funcn.md`** - Component documentation that becomes part of your codebase
+3. **`sygaldry.md`** - Component documentation that becomes part of your codebase
 
-When you run `funcn add <component>`, the CLI:
+When you run `sygaldry add <component>`, the CLI:
 
-1. Reads your `funcn.json` to understand your project structure
+1. Reads your `sygaldry.json` to understand your project structure
 2. Fetches the component's `component.json` to know what files to copy
 3. Places files in the correct directories based on component type
 4. Installs any required dependencies
@@ -43,25 +68,25 @@ When you run `funcn add <component>`, the CLI:
 
 ```bash
 # Install the CLI
-pip install funcn
+pip install sygaldry
 
 # Or with uv (recommended)
-uv pip install funcn
+uv pip install sygaldry
 ```
 
 ### Initialize Your Project
 
 ```bash
-# Create a funcn configuration file
-funcn init
+# Create a sygaldry configuration file
+sygaldry init
 
-# This creates a funcn.json with your project structure
+# This creates a sygaldry.json with your project structure
 ```
 
-Your `funcn.json` might look like:
+Your `sygaldry.json` might look like:
 ```json
 {
-  "$schema": "./funcn.schema.json",
+  "$schema": "./sygaldry.schema.json",
   "agentDirectory": "src/agents",
   "toolDirectory": "src/tools",
   "promptTemplateDirectory": "src/prompts",
@@ -82,16 +107,16 @@ Your `funcn.json` might look like:
 
 ```bash
 # Add a PDF search tool to src/tools/pdf_search/
-funcn add pdf_search_tool
+sygaldry add pdf_search_tool
 
 # Add a web search agent with custom provider to src/agents/web_search/
-funcn add web_search_agent --provider anthropic --model claude-3-opus
+sygaldry add web_search_agent --provider anthropic --model claude-3-opus
 
 # Add with observability to src/agents/research_assistant/
-funcn add research_assistant_agent --with-lilypad
+sygaldry add research_assistant_agent --with-lilypad
 
 # Add from a URL
-funcn add https://your-registry.com/components/custom_agent.json
+sygaldry add https://your-registry.com/components/custom_agent.json
 ```
 
 ## Component Architecture
@@ -102,36 +127,36 @@ Components are organized by type, with each component in its own directory:
 
 ```
 your_project/
-├── funcn.json                 # Your project configuration
+├── sygaldry.json                 # Your project configuration
 ├── src/
 │   ├── agents/               # Agent components (from agentDirectory)
 │   │   ├── research_assistant/
 │   │   │   ├── __init__.py
 │   │   │   ├── agent.py     # Main agent implementation
-│   │   │   └── funcn.md     # Component documentation
+│   │   │   └── sygaldry.md     # Component documentation
 │   │   └── web_search/
 │   │       ├── __init__.py
 │   │       ├── agent.py
-│   │       └── funcn.md
+│   │       └── sygaldry.md
 │   ├── tools/                # Tool components (from toolDirectory)
 │   │   ├── pdf_search/
 │   │   │   ├── __init__.py
 │   │   │   ├── tool.py      # Main tool implementation
-│   │   │   └── funcn.md
+│   │   │   └── sygaldry.md
 │   │   └── csv_search/
 │   │       ├── __init__.py
 │   │       ├── tool.py
-│   │       └── funcn.md
+│   │       └── sygaldry.md
 │   ├── prompts/              # Prompt templates (from promptTemplateDirectory)
 │   │   └── summarization/
 │   │       ├── __init__.py
 │   │       ├── prompt.py
-│   │       └── funcn.md
+│   │       └── sygaldry.md
 │   └── models/               # Response models (from responseModelDirectory)
 │       └── research_output/
 │           ├── __init__.py
 │           ├── model.py
-│           └── funcn.md
+│           └── sygaldry.md
 ```
 
 ### Component Configuration
@@ -140,7 +165,7 @@ Each component includes a `component.json` that defines:
 
 ```json
 {
-  "$schema": "https://funcn.ai/schemas/component.json",
+  "$schema": "https://sygaldry.ai/schemas/component.json",
   "name": "pdf_search",
   "version": "0.1.0",
   "type": "tool",  // Determines which directory to use
@@ -157,7 +182,7 @@ Each component includes a `component.json` that defines:
       "type": "init_file"
     }
   ],
-  "target_directory_key": "toolDirectory",  // Which funcn.json key to use
+  "target_directory_key": "toolDirectory",  // Which sygaldry.json key to use
   "python_dependencies": [
     {"name": "PyPDF2", "version": ">=3.0.0"},
     {"name": "fuzzywuzzy", "version": ">=0.18.0"}
@@ -261,7 +286,7 @@ The CLI supports customization flags that modify components during installation:
 
 ```bash
 # These flags customize the component's code
-funcn add research_assistant \
+sygaldry add research_assistant \
   --provider anthropic \          # Sets @llm.call(provider="anthropic")
   --model claude-3-opus \         # Sets @llm.call(model="claude-3-opus")
   --with-lilypad \               # Adds @lilypad.trace() decorators
@@ -282,8 +307,8 @@ The CLI uses template variables in the component files to apply these customizat
 
 ```bash
 # Clone the repository
-git clone https://github.com/funcn-ai/funcn
-cd funcn
+git clone https://github.com/sygaldry-ai/sygaldry
+cd sygaldry
 
 # Install dependencies
 task install
@@ -308,10 +333,10 @@ task test:coverage
 
 ```bash
 # For a tool component
-mkdir -p packages/funcn_registry/components/tools/my_tool
+mkdir -p packages/sygaldry_registry/components/tools/my_tool
 
 # For an agent component
-mkdir -p packages/funcn_registry/components/agents/my_agent
+mkdir -p packages/sygaldry_registry/components/agents/my_agent
 ```
 
 ### 2. Create component.json
@@ -326,7 +351,7 @@ mkdir -p packages/funcn_registry/components/agents/my_agent
 
 ```json
 {
-  "$schema": "https://funcn.ai/schemas/component.json",
+  "$schema": "https://sygaldry.ai/schemas/component.json",
   "name": "my_search_tool",  // Note the _tool suffix
   "version": "0.1.0",
   "type": "tool",
@@ -387,16 +412,16 @@ async def research_agent(topic: str) -> str:
     ...
 ```
 
-### 4. Create funcn.md Documentation
+### 4. Create sygaldry.md Documentation
 
-The `funcn.md` file is a crucial part of each component that serves multiple purposes:
+The `sygaldry.md` file is a crucial part of each component that serves multiple purposes:
 
 - **Documentation**: Comprehensive guide for using the component
 - **Context**: Provides context to LLMs when using the component
 - **Examples**: Shows real-world usage patterns
 - **Configuration**: Documents available options and customizations
 
-Example `funcn.md` structure:
+Example `sygaldry.md` structure:
 ```markdown
 # Component Name
 
@@ -406,8 +431,8 @@ Brief description of what this component does.
 Detailed explanation of the component's purpose and capabilities.
 
 ## Configuration
-- `provider`: LLM provider (default: from funcn.json)
-- `model`: Model to use (default: from funcn.json)
+- `provider`: LLM provider (default: from sygaldry.json)
+- `model`: Model to use (default: from sygaldry.json)
 - Template variables and their effects
 
 ## Usage Examples
@@ -424,24 +449,30 @@ Detailed documentation of functions, classes, and parameters.
 Tips for optimal usage with Mirascope.
 ```
 
+## For Engineers, By Engineers
+
+These tools emerge from our work at Grey Haven AI, where we build production AI systems across industries. We open source the patterns and utilities that prove their value in real deployments.
+
 ## Contributing
 
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
+We welcome contributions from the community. Whether you're fixing bugs, improving documentation, or proposing new features, your input helps make these tools better for everyone.
+
+Check individual project repositories for contribution guidelines and development setup instructions.
 
 ### Adding Components to the Registry
 
 1. Follow the component structure guidelines
 2. Use Mirascope decorators and patterns
 3. Include comprehensive tests
-4. Document in `funcn.md`
+4. Document in `sygaldry.md`
 5. Ensure all dependencies are specified
 6. Test with multiple LLM providers
 
-## Community
+## Support
 
-- **Discord**: [Join our community](https://discord.gg/funcn)
-- **Twitter**: [@funcn_ai](https://twitter.com/funcn_ai)
-- **Blog**: [funcn.ai/blog](https://funcn.ai/blog)
+- **Documentation**: Available in each project repository
+- **Issues**: File bugs and feature requests on respective project pages
+- **Discussions**: Join conversations about tool development and usage
 
 ## License
 
@@ -455,4 +486,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**funcn** - Build Mirascope applications faster with components you can trust and customize.
+Built with engineering rigor at Grey Haven AI

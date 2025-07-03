@@ -9,23 +9,23 @@ import asyncio
 import json
 import pytest
 from datetime import datetime
-from packages.funcn_registry.components.tools.code_interpreter.tool import (
+from packages.sygaldry_registry.components.tools.code_interpreter.tool import (
     CodeExecutionResult,
     execute_code,
 )
 
 # Import actual components
-from packages.funcn_registry.components.tools.exa_search.tool import (
+from packages.sygaldry_registry.components.tools.exa_search.tool import (
     SearchArgs,
     SearchResponse,
     exa_search,
 )
-from packages.funcn_registry.components.tools.git_repo_search.tool import (
+from packages.sygaldry_registry.components.tools.git_repo_search.tool import (
     GitRepoSearchArgs,
     GitRepoSearchResponse,
     search_git_repo,
 )
-from packages.funcn_registry.components.tools.json_search.tool import (
+from packages.sygaldry_registry.components.tools.json_search.tool import (
     JSONSearchArgs,
     JSONSearchResponse,
     search_json_content,
@@ -36,19 +36,19 @@ from unittest.mock import AsyncMock, Mock, patch
 
 class TestProductionScenarios:
     """Test real-world production scenarios with tools and agents."""
-    
+
     @pytest.mark.asyncio
     async def test_research_workflow_with_code_analysis(self):
         """Test a research workflow that finds code examples and analyzes them.
-        
+
         Simulates: User wants to research a Python library, find examples,
         and analyze the code patterns.
         """
         # Step 1: Search for information about a Python library
-        with patch("packages.funcn_registry.components.tools.exa_search.tool.Exa") as mock_exa:
+        with patch("packages.sygaldry_registry.components.tools.exa_search.tool.Exa") as mock_exa:
             mock_client = Mock()
             mock_exa.return_value = mock_client
-            
+
             # Mock search results
             mock_search_result = Mock()
             mock_search_result.results = [
@@ -63,7 +63,7 @@ class TestProductionScenarios:
                     highlight_scores=[0.9, 0.85]
                 ),
                 Mock(
-                    id="2", 
+                    id="2",
                     url="https://pandas.pydata.org/docs/",
                     title="Official Pandas Documentation",
                     score=0.92,
@@ -74,22 +74,22 @@ class TestProductionScenarios:
                 )
             ]
             mock_client.search.return_value = mock_search_result
-            
+
             # Execute search
             search_args = SearchArgs(
                 query="pandas DataFrame best practices examples",
                 max_results=5
             )
             search_results = await exa_search(search_args)
-            
+
             assert len(search_results.results) == 2
             assert "pandas" in search_results.results[0].title.lower()
-        
+
         # Step 2: Get content from the most relevant result
-        with patch("packages.funcn_registry.components.tools.exa_search.tool.Exa") as mock_exa:
+        with patch("packages.sygaldry_registry.components.tools.exa_search.tool.Exa") as mock_exa:
             mock_client = Mock()
             mock_exa.return_value = mock_client
-            
+
             # Mock content retrieval
             mock_content_result = Mock()
             mock_content_result.results = [
@@ -120,12 +120,12 @@ df['date'] = pd.to_datetime(df['date_string'])
                 )
             ]
             mock_client.get_contents.return_value = mock_content_result
-            
+
             # In production, you would get content from the search results
             # For this test, we'll use the mocked text content from the search
             assert len(search_results.results) == 2
             # The mock already includes the text content we need
-        
+
         # Step 3: Extract and analyze the code
         code_snippet = """
 import pandas as pd
@@ -140,7 +140,7 @@ print("Column C sum:", df['C'].sum())
 print("DataFrame info:")
 print(df.info())
 """
-        
+
         # Execute the extracted code
         execution_result = await execute_code(
             code=code_snippet,
@@ -148,24 +148,24 @@ print(df.info())
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert execution_result.success is True
         assert "DataFrame shape: (3, 3)" in execution_result.output
         assert "Column C sum: 21" in execution_result.output
         assert execution_result.variables.get('df') is not None
-    
+
     @pytest.mark.asyncio
     async def test_codebase_analysis_workflow(self):
         """Test analyzing a codebase to understand patterns and generate documentation.
-        
+
         Simulates: Developer wants to understand a new codebase structure,
         find key patterns, and generate insights.
         """
         # Step 1: Search git repository for main application files
-        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_repo:
+        with patch("packages.sygaldry_registry.components.tools.git_repo_search.tool.git.Repo") as mock_repo:
             mock_repo_instance = Mock()
             mock_repo.return_value = mock_repo_instance
-            
+
             # Mock file search results
             mock_repo_instance.git.ls_files.return_value = """
 src/main.py
@@ -177,7 +177,7 @@ src/utils/database.py
 tests/test_api.py
 tests/test_models.py
 """.strip()
-            
+
             # Search for Python files
             git_args = GitRepoSearchArgs(
                 repo_path="/fake/repo",
@@ -185,17 +185,17 @@ tests/test_models.py
                 search_type="file"
             )
             git_results = await search_git_repo(git_args)
-            
+
             assert git_results.success is True
             assert len(git_results.results) > 0
             assert git_results.file_matches is not None
             assert any("main.py" in r.file_path for r in git_results.file_matches)
-        
+
         # Step 2: Search for specific patterns in the codebase
-        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_repo:
+        with patch("packages.sygaldry_registry.components.tools.git_repo_search.tool.git.Repo") as mock_repo:
             mock_repo_instance = Mock()
             mock_repo.return_value = mock_repo_instance
-            
+
             # Mock grep results for API endpoints
             mock_repo_instance.git.grep.return_value = """
 src/api/routes.py:15:@app.route('/api/users', methods=['GET'])
@@ -204,7 +204,7 @@ src/api/routes.py:25:@app.route('/api/products', methods=['GET', 'POST'])
 src/api/handlers.py:10:async def handle_user_request(user_id: int):
 src/api/handlers.py:35:async def handle_product_creation(data: dict):
 """.strip()
-            
+
             # Search for API patterns
             api_args = GitRepoSearchArgs(
                 repo_path="/fake/repo",
@@ -214,12 +214,12 @@ src/api/handlers.py:35:async def handle_product_creation(data: dict):
                 regex=True
             )
             api_results = await search_git_repo(api_args)
-            
+
             assert api_results.success is True
             assert len(api_results.results) > 0
             assert api_results.code_matches is not None
             assert any("routes.py" in r.file_path for r in api_results.code_matches)
-        
+
         # Step 3: Analyze the discovered patterns
         analysis_code = """
 # Analyze API structure from discovered patterns
@@ -256,23 +256,23 @@ for _, path in api_endpoints:
 
 print(f"\\nResources identified: {', '.join(sorted(resources))}")
 """
-        
+
         result = await execute_code(
             code=analysis_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Total endpoints: 4" in result.output
         assert "GET: 3" in result.output
         assert "POST: 1" in result.output
         assert "users, products" in result.output.lower()
-    
+
     @pytest.mark.asyncio
     async def test_data_pipeline_workflow(self):
         """Test a data processing pipeline with search, analysis, and transformation.
-        
+
         Simulates: Processing JSON data files, searching for specific patterns,
         and transforming the results.
         """
@@ -303,9 +303,9 @@ print(f"\\nResources identified: {', '.join(sorted(resources))}")
                 }
             }
         }
-        
+
         # Search for database configuration
-        from packages.funcn_registry.components.tools.json_search.tool import JSONSearchArgs
+        from packages.sygaldry_registry.components.tools.json_search.tool import JSONSearchArgs
         json_results = await search_json_content(
             JSONSearchArgs(
                 json_data=sample_json_data,
@@ -314,11 +314,11 @@ print(f"\\nResources identified: {', '.join(sorted(resources))}")
                 exact_match=False  # Use fuzzy matching
             )
         )
-        
+
         assert json_results.error is None
         assert len(json_results.results) > 0
         assert any("database" in str(r.value) for r in json_results.results)
-        
+
         # Step 2: Extract and process the configuration
         process_code = """
 import json
@@ -344,7 +344,7 @@ config = {
             }
         },
         "cache": {
-            "host": "cache.example.com", 
+            "host": "cache.example.com",
             "port": 6379,
             "ttl": 3600
         }
@@ -388,32 +388,32 @@ for service_name, service_config in config["services"].items():
     if "port" in service_config:
         print(f"{env_prefix}_PORT={service_config['port']}")
 """
-        
+
         result = await execute_code(
             code=process_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "api: api.example.com:8080" in result.output
         assert "database: db.example.com:5432" in result.output
         assert "API_HOST=api.example.com" in result.output
         assert result.variables.get("service_hosts") is not None
         assert len(result.variables["service_hosts"]) == 3
-    
+
     @pytest.mark.asyncio
     async def test_multi_tool_research_and_analysis(self):
         """Test complex workflow using multiple tools in sequence.
-        
+
         Simulates: Research a topic, find code examples, analyze them,
         and generate a summary report.
         """
         # Step 1: Initial research
-        with patch("packages.funcn_registry.components.tools.exa_search.tool.Exa") as mock_exa:
+        with patch("packages.sygaldry_registry.components.tools.exa_search.tool.Exa") as mock_exa:
             mock_client = Mock()
             mock_exa.return_value = mock_client
-            
+
             mock_search_result = Mock()
             mock_search_result.results = [
                 Mock(
@@ -428,17 +428,17 @@ for service_name, service_config in config["services"].items():
             ]
             mock_client.search.return_value = mock_search_result
             mock_client.get_contents.return_value = Mock(results=mock_search_result.results)
-            
+
             # Research async patterns
             search_args = SearchArgs(
                 query="Python asyncio best practices patterns",
                 max_results=3
             )
             search_results = await exa_search(search_args)
-            
+
             # In production, content would come from search results
             # For this test, we use the mocked data
-        
+
         # Step 2: Generate and test example code based on research
         example_code = """
 import asyncio
@@ -484,18 +484,18 @@ speedup = sequential_time / concurrent_time
 print(f"\\nTheoretical speedup: {speedup}x")
 print("Pattern: asyncio.gather() for concurrent execution")
 """
-        
+
         execution_result = await execute_code(
             code=example_code,
             timeout_seconds=10,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert execution_result.success is True
         assert "Items processed: 5" in execution_result.output
         assert "Theoretical speedup: 5" in execution_result.output
-        
+
         # Step 3: Generate final analysis report
         report_code = f"""
 # Generate research summary report
@@ -545,31 +545,31 @@ print(f"Sources analyzed: {total_sources}")
 print(f"Patterns identified: {total_patterns}")
 print(f"Recommendations: {total_recommendations}")
 """
-        
+
         report_result = await execute_code(
             code=report_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert report_result.success is True
         assert "RESEARCH REPORT" in report_result.output
         assert "asyncio.gather()" in report_result.output
         assert "recommendations" in report_result.output.lower()
         assert report_result.variables.get("report") is not None
-    
+
     @pytest.mark.asyncio
     async def test_error_handling_and_recovery_workflow(self):
         """Test how tools handle errors and recovery in production scenarios.
-        
+
         Simulates: Real-world error conditions and recovery strategies.
         """
         # Test 1: Handle malformed JSON gracefully
         malformed_json = '{"invalid": "json", "missing": closing_brace'
-        
+
         with pytest.raises(json.JSONDecodeError):
             json.loads(malformed_json)
-        
+
         # Test recovery with error handling
         recovery_code = """
 import json
@@ -614,25 +614,25 @@ for error in errors:
     fixed_data = error["data"]
     if "missing: quotes" in fixed_data:
         fixed_data = fixed_data.replace("missing: quotes", '"missing": "quotes"')
-    
+
     try:
         parsed = json.loads(fixed_data)
         print(f"  Index {error['index']}: Fixed and parsed successfully!")
     except:
         print(f"  Index {error['index']}: Could not auto-fix")
 """
-        
+
         result = await execute_code(
             code=recovery_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Successful: 3" in result.output
         assert "Failed: 2" in result.output
         assert "Fixed and parsed successfully!" in result.output
-        
+
         # Test 2: Handle timeout scenarios
         timeout_code = """
 import asyncio
@@ -668,22 +668,22 @@ for name, operation, timeout in operations:
     else:
         print(f"  Error: {result['error']}")
 """
-        
+
         timeout_result = await execute_code(
             code=timeout_code,
             timeout_seconds=5,
             use_subprocess=False
         )
-        
+
         assert timeout_result.success is True
         assert "✓ Success" in timeout_result.output
         assert "✗ Timeout" in timeout_result.output
         assert "Operation timed out" in timeout_result.output
-    
+
     @pytest.mark.asyncio
     async def test_performance_monitoring_workflow(self):
         """Test performance monitoring and optimization workflow.
-        
+
         Simulates: Monitoring tool performance and identifying bottlenecks.
         """
         performance_code = """
@@ -695,7 +695,7 @@ import statistics
 class PerformanceMonitor:
     def __init__(self):
         self.metrics = []
-    
+
     async def measure_operation(self, name: str, operation):
         \"\"\"Measure operation performance.\"\"\"
         start = time.time()
@@ -719,14 +719,14 @@ class PerformanceMonitor:
                 "timestamp": time.time()
             })
             raise
-    
+
     def get_summary(self) -> Dict:
         \"\"\"Get performance summary.\"\"\"
         if not self.metrics:
             return {"error": "No metrics collected"}
-        
+
         durations = [m["duration"] for m in self.metrics if m["success"]]
-        
+
         return {
             "total_operations": len(self.metrics),
             "successful": sum(1 for m in self.metrics if m["success"]),
@@ -761,10 +761,10 @@ async def run_performance_test():
         ("process_data", process_data()),
         ("fast_search_3", fast_search()),
     ]
-    
+
     for name, op in operations:
         await monitor.measure_operation(name, lambda: op)
-    
+
     return monitor.get_summary()
 
 # Execute test
@@ -796,14 +796,14 @@ if summary["total_time"] > summary["total_operations"] * 0.1:
 if efficiency < 100:
     print("- Investigate and fix failing operations")
 """
-        
+
         perf_result = await execute_code(
             code=performance_code,
             timeout_seconds=10,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert perf_result.success is True
         assert "Performance Summary" in perf_result.output
         assert "total_operations: 5" in perf_result.output
@@ -814,24 +814,24 @@ if efficiency < 100:
 @pytest.mark.asyncio
 class TestAgentIntegrationScenarios:
     """Test production-like scenarios for agents working with tools."""
-    
+
     async def test_research_agent_full_workflow(self):
         """Test a complete research agent workflow as it would run in production.
-        
+
         This simulates the research_assistant_agent using real tools.
         """
         # Mock the Exa tool that the agent would use
-        with patch("packages.funcn_registry.components.tools.exa_search.tool.Exa") as mock_exa:
+        with patch("packages.sygaldry_registry.components.tools.exa_search.tool.Exa") as mock_exa:
             mock_client = Mock()
             mock_exa.return_value = mock_client
-            
+
             # Simulate agent generating search queries
             search_queries = [
                 "machine learning in healthcare latest developments 2024",
                 "AI medical diagnosis accuracy studies",
                 "healthcare ML implementation challenges"
             ]
-            
+
             # Mock search results for each query
             mock_results = []
             for i, query in enumerate(search_queries):
@@ -848,33 +848,33 @@ class TestAgentIntegrationScenarios:
                     )
                 ]
                 mock_results.append(mock_result)
-            
+
             mock_client.search.side_effect = mock_results
             mock_client.get_contents.side_effect = [
                 Mock(results=[r.results[0]]) for r in mock_results
             ]
-            
+
             # Simulate the agent's research process
             all_results = []
             for query in search_queries:
                 search_args = SearchArgs(query=query, max_results=5)
                 result = await exa_search(search_args)
                 all_results.extend(result.results)
-            
+
             # Agent would analyze and synthesize results
             assert len(all_results) >= 3
             assert all(r.score > 0.8 for r in all_results)
-    
+
     async def test_code_analysis_agent_workflow(self):
         """Test code analysis agent working with git search and code interpreter.
-        
+
         Simulates the code_generation_execution_agent analyzing a codebase.
         """
         # Step 1: Agent searches for code patterns
-        with patch("packages.funcn_registry.components.tools.git_repo_search.tool.git.Repo") as mock_repo:
+        with patch("packages.sygaldry_registry.components.tools.git_repo_search.tool.git.Repo") as mock_repo:
             mock_repo_instance = Mock()
             mock_repo.return_value = mock_repo_instance
-            
+
             # Simulate finding Python files
             mock_repo_instance.git.ls_files.return_value = """
 app/main.py
@@ -882,7 +882,7 @@ app/models.py
 app/utils.py
 tests/test_main.py
 """.strip()
-            
+
             # Agent searches for patterns
             mock_repo_instance.git.grep.return_value = """
 app/models.py:class User(BaseModel):
@@ -890,7 +890,7 @@ app/models.py:    email: str
 app/models.py:    created_at: datetime
 app/utils.py:def validate_email(email: str) -> bool:
 """.strip()
-            
+
             # Execute search
             git_args = GitRepoSearchArgs(
                 repo_path="/fake/repo",
@@ -899,11 +899,11 @@ app/utils.py:def validate_email(email: str) -> bool:
                 regex=True
             )
             search_result = await search_git_repo(git_args)
-            
+
             assert search_result.success is True
             assert search_result.code_matches is not None
             assert len(search_result.code_matches) > 0
-        
+
         # Step 2: Agent generates analysis code
         analysis_code = """
 # Analyze code structure
@@ -941,22 +941,22 @@ print(f"\\n=== Recommendations ===")
 for i, rec in enumerate(recommendations, 1):
     print(f"{i}. {rec}")
 """
-        
+
         # Agent executes analysis
         result = await execute_code(
             code=analysis_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Code Analysis Report" in result.output
         assert "User (extends BaseModel)" in result.output
         assert "validate_email" in result.output
-    
+
     async def test_data_processing_agent_workflow(self):
         """Test data processing agent with JSON search and code execution.
-        
+
         Simulates an agent processing configuration data and generating reports.
         """
         # Configuration data the agent would process
@@ -969,7 +969,7 @@ for i, rec in enumerate(recommendations, 1):
                         "pool_size": 20
                     },
                     "cache": {
-                        "host": "prod-cache.example.com", 
+                        "host": "prod-cache.example.com",
                         "ttl": 3600
                     },
                     "features": {
@@ -986,7 +986,7 @@ for i, rec in enumerate(recommendations, 1):
                     },
                     "cache": {
                         "host": "stage-cache.example.com",
-                        "ttl": 1800  
+                        "ttl": 1800
                     },
                     "features": {
                         "auth_enabled": True,
@@ -996,7 +996,7 @@ for i, rec in enumerate(recommendations, 1):
                 }
             }
         }
-        
+
         # Agent searches for differences between environments
         prod_results = await search_json_content(
             JSONSearchArgs(
@@ -1005,7 +1005,7 @@ for i, rec in enumerate(recommendations, 1):
                 json_path="$.environments.production..*"
             )
         )
-        
+
         stage_results = await search_json_content(
             JSONSearchArgs(
                 json_data=config_data,
@@ -1013,7 +1013,7 @@ for i, rec in enumerate(recommendations, 1):
                 json_path="$.environments.staging..*"
             )
         )
-        
+
         # Agent generates comparison code
         comparison_code = """
 # Compare environment configurations
@@ -1041,7 +1041,7 @@ if prod_config["database"]["pool_size"] != stage_config["database"]["pool_size"]
         "impact": "Performance difference expected"
     })
 
-# Compare cache settings  
+# Compare cache settings
 if prod_config["cache"]["ttl"] != stage_config["cache"]["ttl"]:
     differences.append({
         "setting": "cache.ttl",
@@ -1077,13 +1077,13 @@ if any(d["setting"] == "features.debug_mode" for d in differences):
 if any(d["setting"] == "database.pool_size" for d in differences):
     print("📊 Monitor database connections in staging before promoting to production")
 """
-        
+
         result = await execute_code(
             code=comparison_code,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Differences found: 3" in result.output
         assert "debug mode is disabled in production" in result.output

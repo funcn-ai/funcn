@@ -1,6 +1,6 @@
-# Contributing to funcn
+# Contributing to sygaldry
 
-Thank you for your interest in contributing to funcn! We're excited to have you join our community of developers building the future of Mirascope applications.
+Thank you for your interest in contributing to sygaldry! We're excited to have you join our community of developers building the future of Mirascope applications.
 
 ## Table of Contents
 
@@ -15,7 +15,7 @@ Thank you for your interest in contributing to funcn! We're excited to have you 
 
 ## Getting Started
 
-funcn welcomes contributions of all kinds:
+sygaldry welcomes contributions of all kinds:
 
 - New Mirascope components (agents, tools, prompts, etc.)
 - Bug fixes
@@ -37,8 +37,8 @@ funcn welcomes contributions of all kinds:
 
 1. **Fork and Clone**
    ```bash
-   git clone https://github.com/YOUR_USERNAME/funcn.git
-   cd funcn
+   git clone https://github.com/YOUR_USERNAME/sygaldry.git
+   cd sygaldry
    ```
 
 2. **Install Dependencies**
@@ -91,7 +91,7 @@ component_name/
 
 ```json
 {
-  "$schema": "https://funcn.ai/schemas/component.json",
+  "$schema": "https://sygaldry.ai/schemas/component.json",
   "name": "your_component",
   "version": "0.1.0",
   "type": "tool|agent|prompt|response_model|eval",
@@ -125,7 +125,7 @@ component_name/
 5. **Async First**: Use `async def` for all LLM operations and I/O
 6. **Response Models**: Always define Pydantic response models for structured outputs
 7. **Error Handling**: Handle errors gracefully with informative messages
-8. **Documentation**: Include docstrings, usage examples, and funcn.md
+8. **Documentation**: Include docstrings, usage examples, and sygaldry.md
 
 ### Example Tool Component (Mirascope Functional Pattern)
 
@@ -326,7 +326,7 @@ Each component must include:
 
 ### Getting Help
 
-- **Discord**: [discord.gg/funcn](https://discord.gg/funcn)
+- **Discord**: [discord.gg/sygaldry](https://discord.gg/sygaldry)
 - **GitHub Issues**: For bugs and feature requests
 - **Discussions**: For questions and ideas
 
@@ -358,7 +358,7 @@ Looking for inspiration? Here are some component ideas:
   - Technical documentation
   - Code explanation
 
-## Questions?
+## Questions
 
 If you have questions, please:
 
@@ -366,4 +366,4 @@ If you have questions, please:
 2. Ask in Discord
 3. Create a discussion
 
-Thank you for contributing to funcn! Together, we're building the future of AI development. 
+Thank you for contributing to sygaldry! Together, we're building the future of AI development. 

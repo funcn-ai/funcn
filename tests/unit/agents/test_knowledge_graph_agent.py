@@ -10,7 +10,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
     """Test cases for knowledge graph agent."""
 
     component_name = "knowledge_graph_agent"
-    component_path = Path("packages/funcn_registry/components/agents/knowledge_graph")
+    component_path = Path("packages/sygaldry_registry/components/agents/knowledge_graph")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -54,7 +54,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -84,7 +84,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -138,7 +138,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -160,7 +160,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -193,7 +193,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -214,7 +214,7 @@ class TestKnowledgeGraphAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "knowledge_graph_agent", "packages/funcn_registry/components/agents/knowledge_graph/agent.py"
+            "knowledge_graph_agent", "packages/sygaldry_registry/components/agents/knowledge_graph/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

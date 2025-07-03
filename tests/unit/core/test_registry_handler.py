@@ -4,9 +4,9 @@ from __future__ import annotations
 
 import httpx
 import pytest
-from funcn_cli.config_manager import ConfigManager, FuncnConfig
-from funcn_cli.core.models import RegistryComponentEntry, RegistryIndex
-from funcn_cli.core.registry_handler import RegistryHandler
+from sygaldry_cli.config_manager import ConfigManager, SygaldryConfig
+from sygaldry_cli.core.models import RegistryComponentEntry, RegistryIndex
+from sygaldry_cli.core.registry_handler import RegistryHandler
 from unittest.mock import MagicMock, patch
 
 
@@ -16,7 +16,7 @@ class TestRegistryHandler:
     @pytest.fixture
     def sample_config(self):
         """Sample configuration with multiple sources."""
-        return FuncnConfig(
+        return SygaldryConfig(
             default_registry_url="https://default.com/index.json",
             registry_sources={
                 "default": "https://default.com/index.json",
@@ -58,7 +58,7 @@ class TestRegistryHandler:
 
     def test_fetch_index_with_silent_errors_timeout(self, mock_config_manager):
         """Test fetch_index with timeout and silent errors."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
             mock_client_class.return_value = mock_client
@@ -76,7 +76,7 @@ class TestRegistryHandler:
 
     def test_fetch_index_with_silent_errors_connection_error(self, mock_config_manager):
         """Test fetch_index with connection error and silent errors."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.ConnectError("Connection failed")
             mock_client_class.return_value = mock_client
@@ -94,7 +94,7 @@ class TestRegistryHandler:
 
     def test_fetch_index_with_silent_errors_http_error(self, mock_config_manager):
         """Test fetch_index with HTTP error and silent errors."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_response = MagicMock()
             mock_response.status_code = 404
             mock_response.raise_for_status.side_effect = httpx.HTTPStatusError(
@@ -118,7 +118,7 @@ class TestRegistryHandler:
 
     def test_fetch_all_indexes_mixed_availability(self, mock_config_manager, sample_index):
         """Test fetch_all_indexes with some sources offline."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
 
             def mock_get_side_effect(url):
@@ -153,7 +153,7 @@ class TestRegistryHandler:
 
     def test_fetch_all_indexes_all_offline(self, mock_config_manager):
         """Test fetch_all_indexes when all sources are offline."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.ConnectError("Connection failed")
             mock_client_class.return_value = mock_client
@@ -167,7 +167,7 @@ class TestRegistryHandler:
 
     def test_find_component_with_offline_sources(self, mock_config_manager, sample_index):
         """Test finding component when some sources are offline."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
 
             def mock_get_side_effect(url):
@@ -197,7 +197,7 @@ class TestRegistryHandler:
 
     def test_search_single_source_offline(self, mock_config_manager):
         """Test _search_single_source when source is offline."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.ConnectError("Connection failed")
             mock_client_class.return_value = mock_client
@@ -232,21 +232,21 @@ class TestRegistryHandler:
             "lower": {"url": "https://lower.com/index.json", "priority": 200, "enabled": True},
             "default": "https://default.com/index.json",  # Override default to avoid adding it twice
         }
-        
+
         rh = RegistryHandler(mock_config_manager)
         sources = rh.get_sources_by_priority()
-        
+
         # Should be sorted by priority, excluding disabled
         assert len(sources) == 5
         assert sources[0] == ("high", "https://high.com/index.json", 10)
         assert sources[1] == ("medium", "https://medium.com/index.json", 50)
-        
+
         # Both default and low have priority 100, order between them doesn't matter
         priority_100_sources = [s for s in sources if s[2] == 100]
         assert len(priority_100_sources) == 2
         assert ("default", "https://default.com/index.json", 100) in priority_100_sources
         assert ("low", "https://low.com/index.json", 100) in priority_100_sources
-        
+
         assert sources[4] == ("lower", "https://lower.com/index.json", 200)
 
     def test_fetch_all_indexes_respects_priority(self, mock_config_manager, sample_index):
@@ -257,11 +257,11 @@ class TestRegistryHandler:
             "medium": {"url": "https://medium.com/index.json", "priority": 50, "enabled": True},
             "low": {"url": "https://low.com/index.json", "priority": 100, "enabled": True},
         }
-        
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             fetch_order = []
-            
+
             def mock_get_side_effect(url):
                 # Track the order of fetches
                 if "high.com" in url:
@@ -270,21 +270,21 @@ class TestRegistryHandler:
                     fetch_order.append("medium")
                 elif "low.com" in url:
                     fetch_order.append("low")
-                
+
                 mock_response = MagicMock()
                 mock_response.status_code = 200
                 mock_response.json.return_value = sample_index.model_dump()
                 return mock_response
-            
+
             mock_client.get.side_effect = mock_get_side_effect
             mock_client_class.return_value = mock_client
-            
+
             rh = RegistryHandler(mock_config_manager)
             rh._client = mock_client
-            
+
             # Fetch all indexes
             indexes = rh.fetch_all_indexes(silent_errors=True)
-            
+
             # Check fetch order matches priority
             assert fetch_order == ["high", "medium", "low"]
             assert len(indexes) == 3
@@ -296,11 +296,11 @@ class TestRegistryHandler:
             "low_priority": {"url": "https://low.com/index.json", "priority": 100, "enabled": True},
             "high_priority": {"url": "https://high.com/index.json", "priority": 10, "enabled": True},
         }
-        
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             search_order = []
-            
+
             def mock_get_side_effect(url):
                 if "high.com" in url:
                     search_order.append("high_priority")
@@ -316,16 +316,16 @@ class TestRegistryHandler:
                     mock_response.status_code = 200
                     mock_response.json.return_value = sample_index.model_dump()
                     return mock_response
-            
+
             mock_client.get.side_effect = mock_get_side_effect
             mock_client_class.return_value = mock_client
-            
+
             rh = RegistryHandler(mock_config_manager)
             rh._client = mock_client
-            
+
             # Search for component
             result = rh.find_component_manifest_url("test-agent")
-            
+
             # Should search high priority first, then low priority
             assert search_order == ["high_priority", "low_priority"]
             assert result is not None
