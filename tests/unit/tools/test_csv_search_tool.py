@@ -6,7 +6,7 @@ import pandas as pd
 import pytest
 
 # Import the actual tool components
-from packages.funcn_registry.components.tools.csv_search.tool import (
+from packages.sygaldry_registry.components.tools.csv_search.tool import (
     CSVSearchArgs,
     CSVSearchResponse,
     CSVSearchResult,
@@ -22,7 +22,7 @@ class TestCSVSearchTool(BaseToolTest):
     """Test csv_search_tool component."""
 
     component_name = "csv_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/csv_search")
+    component_path = Path("packages/sygaldry_registry/components/tools/csv_search")
 
     def get_component_function(self):
         """Import the tool function."""
@@ -53,7 +53,7 @@ class TestCSVSearchTool(BaseToolTest):
     def validate_tool_output(self, output, input_data):
         """Validate the tool output format."""
         assert isinstance(output, CSVSearchResponse)
-        
+
         if hasattr(input_data, 'max_results'):
             assert len(output.results) <= input_data.max_results
 
@@ -94,7 +94,7 @@ class TestCSVSearchTool(BaseToolTest):
         csv_content = "product,price\nLaptop,1000\nLAPTOP,1200\nlaptop,900\nDesktop,800\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Case-insensitive search
@@ -125,7 +125,7 @@ class TestCSVSearchTool(BaseToolTest):
         csv_content = "name,id\nJohn Doe,1\nJohnny Smith,2\nDon Johnson,3\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Exact match
@@ -153,7 +153,7 @@ class TestCSVSearchTool(BaseToolTest):
         csv_content = "product,price,quantity\nA,100,5\nB,200,10\nC,100,5\nD,300,15\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search for numeric value
@@ -176,7 +176,7 @@ class TestCSVSearchTool(BaseToolTest):
             csv_content += f"{i},test\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search with limit
@@ -218,7 +218,7 @@ class TestCSVSearchTool(BaseToolTest):
         csv_content = "name,age\nJohn,30\nJane,25\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Try to search non-existent column
@@ -239,7 +239,7 @@ class TestCSVSearchTool(BaseToolTest):
         csv_content = "email,notes\nuser@example.com,$100 payment\nadmin+test@example.com,50% discount\ninfo@company.org,C++ developer\n"
         csv_file = tmp_path / "test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search for special characters
@@ -265,7 +265,7 @@ class TestCSVSearchTool(BaseToolTest):
             csv_content += f"{i},row {i} data,{category}\n"
         csv_file = tmp_path / "large.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         import time
@@ -291,7 +291,7 @@ class TestCSVSearchTool(BaseToolTest):
         csv_content = "text,id\ncafé,1\nrésumé,2\nnaïve,3\n"
         csv_file = tmp_path / "encoded.csv"
         csv_file.write_text(csv_content, encoding="utf-8")
-        
+
         tool = self.get_component_function()
 
         args = CSVSearchArgs(
@@ -316,7 +316,7 @@ entry",3
 '''
         csv_file = tmp_path / "multiline.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search for text in multiline cells
@@ -340,7 +340,7 @@ entry",3
         csv_content = "name,age,department,salary\nJohn,25,Engineering,50000\nJane,35,Marketing,60000\nBob,45,Engineering,80000\nAlice,30,HR,55000\n"
         csv_file = tmp_path / "employees.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Test greater than filter
@@ -392,7 +392,7 @@ entry",3
         # Test invalid CSV content
         invalid_csv = tmp_path / "invalid.csv"
         invalid_csv.write_text("This is not a valid CSV\n\n\n")
-        
+
         args_invalid = CSVSearchArgs(
             file_path=str(invalid_csv),
             query="test"
@@ -407,7 +407,7 @@ entry",3
         csv_content = "text,id\nHello World,1\nHelo Wrld,2\nGoodbye,3\n"
         csv_file = tmp_path / "fuzzy.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Test threshold 0 - should match everything
@@ -446,7 +446,7 @@ entry",3
         csv_content = "name,comment,rating\nJohn 😀,Great product! 👍,5\nMarie Château,Très bien ⭐,4\n山田太郎,素晴らしい 🎌,5\nüñíçødé_tëst,Special chars,3\n"
         csv_file = tmp_path / "unicode.csv"
         csv_file.write_text(csv_content, encoding="utf-8")
-        
+
         tool = self.get_component_function()
 
         # Search for emoji
@@ -487,7 +487,7 @@ entry",3
         csv_content = "mixed_col,id\n123,1\ntext,2\n123.45,3\nTrue,4\n,5\nNaN,6\n"
         csv_file = tmp_path / "mixed.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search for number in mixed column
@@ -523,7 +523,7 @@ entry",3
         csv_content = "text,number\ntest,1\ndata,2\ninfo,3\n"
         csv_file = tmp_path / "params.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Test max_results = 0
@@ -578,7 +578,7 @@ entry",3
         csv_content = "name,age,salary,department,active\nJohn,25,50000,Engineering,True\nJane,35,60000,Marketing,True\nBob,45,80000,Engineering,False\nAlice,30,55000,HR,True\nCharlie,28,52000,Engineering,True\n"
         csv_file = tmp_path / "complex.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Multiple filters with different operators
@@ -621,7 +621,7 @@ entry",3
         csv_content = "name,age,notes\nJohn,25,Good\nJane,,Active\nBob,30,\nAlice,35,NaN\n,40,Unknown\n"
         csv_file = tmp_path / "nulls.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search in column with missing values
@@ -663,7 +663,7 @@ entry",3
             csv_content += f"{i},row {i} content,category_{i % 5}\n"
         csv_file = tmp_path / "concurrent.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Create multiple search tasks
@@ -691,7 +691,7 @@ entry",3
         csv_content = "data,id\na,1\nab,2\nabc,3\nabcdefghijklmnopqrstuvwxyz,4\nVery long text content that spans multiple words and contains lots of information for testing purposes,5\n"
         csv_file = tmp_path / "query_lengths.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Very short query (1 character)
@@ -730,7 +730,7 @@ entry",3
         csv_content = "name,age,name,status\nJohn,25,John Doe,active\nJane,30,Jane Smith,inactive\n"
         csv_file = tmp_path / "duplicates.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         args = CSVSearchArgs(
@@ -750,7 +750,7 @@ entry",3
             csv_content += f"{i},{'x' * 100},{i * 2}\n"  # Each row has 100 chars of text
         csv_file = tmp_path / "memory_test.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         import time
@@ -763,7 +763,7 @@ entry",3
             fuzzy_threshold=90
         )
         results = await tool(args)
-        
+
         elapsed = time.time() - start_time
 
         # Should complete within reasonable time
@@ -777,7 +777,7 @@ entry",3
         csv_content = "name,age\nJohn,25\nJane,30\n"
         csv_file = tmp_path / "filters.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Test invalid operator
@@ -807,7 +807,7 @@ entry",3
         csv_content = "col with spaces,col@special,col-dash,col.dot,col#hash\nvalue1,value2,value3,value4,value5\ntest1,test2,test3,test4,test5\n"
         csv_file = tmp_path / "special_cols.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search in column with spaces
@@ -844,7 +844,7 @@ entry",3
         csv_content = "text,number\ntest,1\n"
         csv_file = tmp_path / "boundary.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Test negative fuzzy threshold (should be handled gracefully)
@@ -881,7 +881,7 @@ entry",3
         csv_content = "John,25,Engineer\nJane,30,Designer\nBob,35,Manager\n"
         csv_file = tmp_path / "no_headers.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         args = CSVSearchArgs(
@@ -933,7 +933,7 @@ entry",3
         csv_content = "event,date,timestamp\nMeeting,2024-01-15,2024-01-15 14:30:00\nConference,2024-02-20,2024-02-20 09:00:00\nWorkshop,2024-01-15,2024-01-15 16:00:00\n"
         csv_file = tmp_path / "dates.csv"
         csv_file.write_text(csv_content)
-        
+
         tool = self.get_component_function()
 
         # Search for date

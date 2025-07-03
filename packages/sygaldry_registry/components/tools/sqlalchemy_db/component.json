@@ -1,0 +1,87 @@
+{
+  "name": "sqlalchemy_db",
+  "type": "tool",
+  "version": "0.1.0",
+  "description": "SQLAlchemy ORM tool for advanced database operations and agent state management",
+  "author": "sygaldry",
+  "license": "MIT",
+  "main": "tool.py",
+  "entry_function": "store_agent_state",
+  "tags": [
+    "database",
+    "sqlalchemy",
+    "orm",
+    "storage",
+    "persistence",
+    "state-management",
+    "postgresql",
+    "mysql",
+    "sqlite"
+  ],
+  "requirements": [
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "asyncpg>=0.29.0",
+    "aiomysql>=0.2.0"
+  ],
+  "environment_variables": [
+    {
+      "name": "DATABASE_URL",
+      "description": "Database connection URL",
+      "required": false,
+      "default": "sqlite:///agent_state.db"
+    }
+  ],
+  "config": {
+    "default_pool_size": 5,
+    "default_max_overflow": 10,
+    "default_pool_timeout": 30,
+    "default_pool_recycle": 3600,
+    "enable_echo": false,
+    "use_async": true
+  },
+  "functions": [
+    {
+      "name": "create_tables",
+      "description": "Create all tables defined in the models"
+    },
+    {
+      "name": "store_agent_state",
+      "description": "Store or update agent state using SQLAlchemy ORM"
+    },
+    {
+      "name": "get_agent_state",
+      "description": "Retrieve agent state using SQLAlchemy ORM"
+    },
+    {
+      "name": "delete_agent_state",
+      "description": "Delete agent state using SQLAlchemy ORM"
+    },
+    {
+      "name": "query_agent_history",
+      "description": "Query agent state history with advanced filtering"
+    },
+    {
+      "name": "get_database_info",
+      "description": "Get information about the database"
+    },
+    {
+      "name": "cleanup_old_state",
+      "description": "Clean up old agent state records"
+    }
+  ],
+  "examples": [
+    {
+      "name": "Initialize database",
+      "code": "config = SQLAlchemyConfig(database_url='sqlite:///agent_state.db')\nresult = await create_tables(config)"
+    },
+    {
+      "name": "Store agent state",
+      "code": "config = SQLAlchemyConfig(database_url='postgresql://user:pass@localhost/db')\nresult = await store_agent_state(config, 'agent_123', 'preferences', {'theme': 'dark'})"
+    },
+    {
+      "name": "Query with date range",
+      "code": "from datetime import datetime, timedelta\nstart = datetime.utcnow() - timedelta(days=7)\nresult = await query_agent_history(config, 'agent_123', start_date=start)"
+    }
+  ]
+}

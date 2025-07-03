@@ -10,7 +10,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
     """Test cases for decision quality assessor agent."""
 
     component_name = "decision_quality_assessor"
-    component_path = Path("packages/funcn_registry/components/agents/decision_quality_assessor")
+    component_path = Path("packages/sygaldry_registry/components/agents/decision_quality_assessor")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -62,7 +62,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -137,7 +137,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -248,7 +248,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -287,7 +287,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -335,7 +335,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -359,7 +359,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -408,7 +408,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -427,7 +427,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -445,7 +445,7 @@ class TestDecisionQualityAssessor(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "decision_quality_assessor", "packages/funcn_registry/components/agents/decision_quality_assessor/agent.py"
+            "decision_quality_assessor", "packages/sygaldry_registry/components/agents/decision_quality_assessor/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

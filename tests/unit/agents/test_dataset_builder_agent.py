@@ -10,7 +10,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
     """Test cases for dataset builder agent."""
 
     component_name = "dataset_builder_agent"
-    component_path = Path("packages/funcn_registry/components/agents/dataset_builder")
+    component_path = Path("packages/sygaldry_registry/components/agents/dataset_builder")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -59,7 +59,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -97,7 +97,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -207,7 +207,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -235,7 +235,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -285,7 +285,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -311,7 +311,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -348,7 +348,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -374,7 +374,7 @@ class TestDatasetBuilderAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "dataset_builder_agent", "packages/funcn_registry/components/agents/dataset_builder/agent.py"
+            "dataset_builder_agent", "packages/sygaldry_registry/components/agents/dataset_builder/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

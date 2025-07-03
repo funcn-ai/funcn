@@ -5,7 +5,7 @@ import httpx
 import pytest
 
 # Import the tool and models
-from packages.funcn_registry.components.tools.url_content_parser.tool import URLParseArgs, parse_url_content
+from packages.sygaldry_registry.components.tools.url_content_parser.tool import URLParseArgs, parse_url_content
 from pathlib import Path
 from tests.utils import BaseToolTest
 from unittest.mock import AsyncMock, Mock, patch
@@ -15,7 +15,7 @@ class TestUrlContentParserTool(BaseToolTest):
     """Test cases for URL content parsing tool."""
 
     component_name = "url_content_parser_tool"
-    component_path = Path("packages/funcn_registry/components/tools/url_content_parser")
+    component_path = Path("packages/sygaldry_registry/components/tools/url_content_parser")
 
     def get_component_function(self):
         """Get the main tool function."""
@@ -58,12 +58,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -91,12 +91,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -125,12 +125,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -173,12 +173,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -188,7 +188,7 @@ class TestUrlContentParserTool(BaseToolTest):
             # Check content is present
             assert "Title" in result
             assert "Content paragraph" in result
-            
+
             # Check scripts and styles are removed
             assert "console.log" not in result
             assert "function test" not in result
@@ -200,7 +200,7 @@ class TestUrlContentParserTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_http_error_handling(self):
         """Test handling of HTTP errors."""
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             # Create a proper HTTPStatusError with mocked request and response
@@ -210,7 +210,7 @@ class TestUrlContentParserTool(BaseToolTest):
             mock_response.raise_for_status = Mock(
                 side_effect=httpx.HTTPStatusError("Client error '404 Not Found'", request=mock_request, response=mock_error_response)
             )
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -223,7 +223,7 @@ class TestUrlContentParserTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_connection_error_handling(self):
         """Test handling of connection errors."""
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(
                 side_effect=httpx.ConnectError("Connection refused")
@@ -239,7 +239,7 @@ class TestUrlContentParserTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_timeout_handling(self):
         """Test handling of request timeouts."""
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(
                 side_effect=httpx.TimeoutException("Request timeout")
@@ -257,12 +257,12 @@ class TestUrlContentParserTool(BaseToolTest):
         """Test handling of empty HTML pages."""
         mock_html = "<html><head><title></title></head><body></body></html>"
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -286,12 +286,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode('utf-8')
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -301,15 +301,15 @@ class TestUrlContentParserTool(BaseToolTest):
             # HTML entities should be decoded
             assert "&" in result
             assert "<special>" in result
-            
+
             # Unicode should be preserved
             assert "Café" in result
             assert "你好" in result
             assert "مرحبا" in result
-            
+
             # Emojis should be preserved
             assert "🎉" in result
-            
+
             # Math symbols
             assert "∑" in result
 
@@ -338,12 +338,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -367,12 +367,12 @@ class TestUrlContentParserTool(BaseToolTest):
             </span>
         """  # Missing closing tags
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -390,12 +390,12 @@ class TestUrlContentParserTool(BaseToolTest):
         """Test handling of non-HTML content types."""
         mock_content = '{"key": "value", "number": 123, "array": [1, 2, 3]}'
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_content.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -436,12 +436,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -468,25 +468,25 @@ class TestUrlContentParserTool(BaseToolTest):
             <form>
                 <label for="name">Full Name:</label>
                 <input type="text" id="name" placeholder="Enter your name">
-                
+
                 <label for="email">Email:</label>
                 <input type="email" id="email" placeholder="your@email.com">
-                
+
                 <label for="message">Message:</label>
                 <textarea id="message" placeholder="Type your message here">Default text</textarea>
-                
+
                 <button type="submit">Submit Form</button>
             </form>
         </body>
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -519,12 +519,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -555,12 +555,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -570,7 +570,7 @@ class TestUrlContentParserTool(BaseToolTest):
             # Body content should be present
             assert "Body Content" in result
             assert "This is the actual page content" in result
-            
+
             # Meta content should not be extracted as text
             assert "This is meta description" not in result
             assert "test, keywords, meta" not in result
@@ -588,7 +588,7 @@ class TestUrlContentParserTool(BaseToolTest):
                 <li>Second item</li>
                 <li>Third item</li>
             </ol>
-            
+
             <h2>Unordered List</h2>
             <ul>
                 <li>Bullet point one</li>
@@ -604,12 +604,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -629,7 +629,7 @@ class TestUrlContentParserTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_invalid_url_handling(self):
         """Test handling of invalid URLs."""
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client.get = AsyncMock(
                 side_effect=httpx.InvalidURL("Invalid URL format")
@@ -647,12 +647,12 @@ class TestUrlContentParserTool(BaseToolTest):
         """Test that redirects are handled by httpx."""
         mock_html = "<html><body><h1>Redirected Page</h1></body></html>"
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -674,12 +674,12 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             mock_response.content = mock_html.encode()
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 
@@ -708,7 +708,7 @@ class TestUrlContentParserTool(BaseToolTest):
             mock_response.raise_for_status = Mock()
             return mock_response
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_client.get = mock_get
             mock_client_class.return_value.__aenter__.return_value = mock_client
@@ -719,7 +719,7 @@ class TestUrlContentParserTool(BaseToolTest):
                 parse_url_content(URLParseArgs(url="https://example.com/page2")),
                 parse_url_content(URLParseArgs(url="https://example.com/page3"))
             ]
-            
+
             results = await asyncio.gather(*tasks)
 
             assert "Page 1" in results[0]
@@ -739,13 +739,13 @@ class TestUrlContentParserTool(BaseToolTest):
         </html>
         """
 
-        with patch("packages.funcn_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
+        with patch("packages.sygaldry_registry.components.tools.url_content_parser.tool.httpx.AsyncClient") as mock_client_class:
             mock_client = AsyncMock()
             mock_response = AsyncMock()
             # BeautifulSoup should handle encoding detection
             mock_response.content = mock_html.encode('iso-8859-1')
             mock_response.raise_for_status = Mock()
-            
+
             mock_client.get = AsyncMock(return_value=mock_response)
             mock_client_class.return_value.__aenter__.return_value = mock_client
 

@@ -1,0 +1,83 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "knowledge_graph_agent",
+  "version": "0.1.0",
+  "description": "Agent for extracting structured knowledge from text by identifying entities and their relationships. Builds comprehensive knowledge graph representations with support for hierarchical relationships, graph enrichment, and visualization-ready outputs.",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "knowledge_graph/agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "knowledge_graph/__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    {
+      "name": "mirascope",
+      "version": ">=1.24.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    },
+    {
+      "name": "lilypad",
+      "version": ">=0.1.0"
+    }
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "API key for OpenAI services (if using OpenAI provider).",
+      "required": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "description": "API key for Anthropic services (if using Anthropic provider).",
+      "required": false
+    },
+    {
+      "name": "GOOGLE_API_KEY",
+      "description": "API key for Google services (if using Google provider).",
+      "required": false
+    }
+  ],
+  "example_usage": "```python\nimport asyncio\nfrom knowledge_graph import (\n    extract_knowledge_graph,\n    extract_entities_only,\n    extract_triples,\n    build_domain_graph,\n    visualize_graph_data\n)\n\nasync def main():\n    # Sample text for knowledge extraction\n    text = \"\"\"Apple Inc., founded by Steve Jobs and Steve Wozniak in 1976, is headquartered \n    in Cupertino, California. Tim Cook has served as CEO since 2011. The company's \n    flagship products include the iPhone, iPad, and Mac computers. Apple acquired \n    Beats Electronics in 2014 for $3 billion.\"\"\"\n    \n    # Extract full knowledge graph\n    graph = await extract_knowledge_graph(\n        text=text,\n        domain=\"technology\",\n        extraction_depth=\"deep\"\n    )\n    \n    print(f\"Knowledge Graph Summary: {graph.summary}\")\n    print(f\"\\nEntities ({len(graph.entities)}):\")\n    for entity in graph.entities:\n        print(f\"  - {entity.name} ({entity.type}): {entity.properties}\")\n    \n    print(f\"\\nRelationships ({len(graph.relationships)}):\")\n    for rel in graph.relationships:\n        print(f\"  - {rel.source_id} --[{rel.relationship_type}]--> {rel.target_id}\")\n    \n    # Extract only entities\n    entities = await extract_entities_only(text)\n    print(f\"\\nEntity extraction only: {entities}\")\n    \n    # Extract as triples\n    triples = await extract_triples(text)\n    print(f\"\\nTriple statements:\")\n    for s, p, o in triples:\n        print(f\"  - ({s}, {p}, {o})\")\n    \n    # Visualize for Cytoscape\n    viz_data = await visualize_graph_data(text, format=\"cytoscape\")\n    print(f\"\\nVisualization data (nodes: {len(viz_data['nodes'])}, edges: {len(viz_data['edges'])})\")\n    \n    # Build domain graph from multiple texts\n    texts = [text, \"Microsoft was founded by Bill Gates and Paul Allen.\"]\n    domain_graph = await build_domain_graph(texts, domain=\"technology\")\n    print(f\"\\nDomain graph: {domain_graph.summary}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
+  "post_add_instructions": "This agent extracts entities (Person, Organization, Location, Event, Product, Concept) and their relationships from text. Extraction depths: 'shallow' (entities only), 'standard' (entities + relationships), 'deep' (with enrichment and graph metrics). The agent can merge knowledge from multiple documents and output visualization-ready formats (Cytoscape, D3). Set your preferred LLM provider's API key.",
+  "tags": [
+    "knowledge_graph",
+    "entity_extraction",
+    "relationship_extraction",
+    "agent",
+    "mirascope",
+    "nlp",
+    "graph_analysis",
+    "visualization",
+    "lilypad"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "extraction_depth": "standard",
+    "domain": "general"
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

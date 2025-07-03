@@ -1,9 +1,9 @@
 [project]
-name = "funcn"
+name = "sygaldry"
 version = "0.1.0"
 description = "Production-ready AI components that you can copy and paste into your apps"
 authors = [
-    {name = "greyhaven-ai", email = "info@funcn.ai"}
+    {name = "greyhaven-ai", email = "info@sygaldry.ai"}
 ]
 license = {text = "MIT"}
 readme = "README_PYPI.md"
@@ -28,9 +28,9 @@ dependencies = [
 ]
 
 [project.urls]
-homepage = "https://funcn.ai"
-repository = "https://github.com/funcn-ai/funcn"
-documentation = "https://funcn.ai/docs"
+homepage = "https://sygaldry.ai"
+repository = "https://github.com/sygaldry-ai/sygaldry"
+documentation = "https://sygaldry.ai/docs"
 
 [project.optional-dependencies]
 dev = [
@@ -82,7 +82,7 @@ test = [
 ]
 
 [project.scripts]
-funcn = "funcn_cli.main:main"
+sygaldry = "sygaldry_cli.main:main"
 
 [tool.deptry]
 # DEP003: transitive deps
@@ -129,7 +129,7 @@ markers = [
 ]
 
 [tool.coverage.run]
-source = ["funcn"]
+source = ["sygaldry"]
 omit = [
     "*/tests/*",
     "*/migrations/*",
@@ -239,10 +239,10 @@ max-complexity = 10
 
 [tool.setuptools]
 package-dir = {"" = "src"}
-packages = ["funcn_cli", "funcn_cli.commands", "funcn_cli.core"]
+packages = ["sygaldry_cli", "sygaldry_cli.commands", "sygaldry_cli.core"]
 
 [tool.setuptools.package-data]
-"funcn_cli.core" = ["known_llms.json"]
+"sygaldry_cli.core" = ["known_llms.json"]
 
 [dependency-groups]
 dev = [

@@ -10,7 +10,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
     """Test cases for hallucination detector agent."""
 
     component_name = "hallucination_detector_agent"
-    component_path = Path("packages/funcn_registry/components/agents/hallucination_detector")
+    component_path = Path("packages/sygaldry_registry/components/agents/hallucination_detector")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -51,7 +51,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -71,7 +71,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -145,7 +145,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -170,7 +170,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -198,7 +198,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -220,7 +220,7 @@ class TestHallucinationDetectorAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "hallucination_detector_agent", "packages/funcn_registry/components/agents/hallucination_detector/agent.py"
+            "hallucination_detector_agent", "packages/sygaldry_registry/components/agents/hallucination_detector/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

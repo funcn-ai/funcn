@@ -11,7 +11,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
     """Test cases for game playing diplomacy agent."""
 
     component_name = "game_playing_diplomacy"
-    component_path = Path("packages/funcn_registry/components/agents/game_playing_diplomacy")
+    component_path = Path("packages/sygaldry_registry/components/agents/game_playing_diplomacy")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -19,7 +19,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -31,7 +31,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -167,7 +167,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -213,7 +213,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -279,7 +279,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -308,7 +308,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -338,7 +338,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -363,7 +363,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -415,7 +415,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -460,7 +460,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -493,7 +493,7 @@ class TestGamePlayingDiplomacyAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_playing_diplomacy", "packages/funcn_registry/components/agents/game_playing_diplomacy/agent.py"
+            "game_playing_diplomacy", "packages/sygaldry_registry/components/agents/game_playing_diplomacy/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

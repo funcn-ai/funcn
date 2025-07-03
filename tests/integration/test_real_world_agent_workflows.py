@@ -22,11 +22,11 @@ from unittest.mock import AsyncMock, Mock, patch
 
 class TestRealWorldAgentWorkflows:
     """Test complete agent workflows in production-like scenarios."""
-    
+
     @pytest.mark.asyncio
     async def test_complete_research_workflow(self):
         """Test a complete research workflow from query to report.
-        
+
         Simulates: research_assistant_agent conducting full research.
         """
         # Mock the Mirascope-style agent implementation
@@ -38,7 +38,7 @@ class TestRealWorldAgentWorkflows:
                     "content_analyzed": [],
                     "report_sections": []
                 }
-            
+
             async def generate_search_queries(self, topic: str, num_queries: int = 5) -> list[str]:
                 """Generate diverse search queries for comprehensive research."""
                 # Simulate LLM generating queries
@@ -49,18 +49,18 @@ class TestRealWorldAgentWorkflows:
                     f"{topic} challenges and limitations",
                     f"{topic} future trends predictions"
                 ]
-                
+
                 self.research_state["queries_generated"] = base_queries[:num_queries]
                 return self.research_state["queries_generated"]
-            
+
             async def search_and_collect(self, queries: list[str]) -> list[dict]:
                 """Search for and collect relevant sources."""
                 sources = []
-                
-                with patch("packages.funcn_registry.components.tools.exa_search.tool.Exa") as mock_exa:
+
+                with patch("packages.sygaldry_registry.components.tools.exa_search.tool.Exa") as mock_exa:
                     mock_client = Mock()
                     mock_exa.return_value = mock_client
-                    
+
                     for i, query in enumerate(queries):
                         # Mock search results
                         mock_client.search.return_value = Mock(
@@ -85,16 +85,16 @@ class TestRealWorldAgentWorkflows:
                                 )
                             ]
                         )
-                        
+
                         # Import would happen here in real agent
-                        from packages.funcn_registry.components.tools.exa_search.tool import (
+                        from packages.sygaldry_registry.components.tools.exa_search.tool import (
                             SearchArgs,
                             exa_search,
                         )
-                        
+
                         search_args = SearchArgs(query=query, num_results=5)
                         results = await exa_search(search_args)
-                        
+
                         for result in results.results:
                             sources.append({
                                 "query": query,
@@ -108,15 +108,15 @@ class TestRealWorldAgentWorkflows:
                                     "author": getattr(result, 'author', 'Unknown')
                                 }
                             })
-                
+
                 self.research_state["sources_found"] = sources
                 return sources
-            
+
             async def analyze_sources(self, sources: list[dict]) -> dict:
                 """Analyze collected sources for key insights."""
                 # Simulate content analysis using code interpreter
-                from packages.funcn_registry.components.tools.code_interpreter.tool import execute_code
-                
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import execute_code
+
                 analysis_code = f"""
 import json
 from collections import Counter, defaultdict
@@ -178,29 +178,29 @@ analysis_result = {{
     "recommendation": "Proceed with comprehensive report generation"
 }}
 """
-                
+
                 result = await execute_code(
                     code=analysis_code,
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if result.success and result.variables.get('analysis_result'):
                     self.research_state["content_analyzed"] = result.variables['analysis_result']
                     return result.variables['analysis_result']
-                
+
                 # Fallback
                 return {
                     "insights": {"total_sources": len(sources)},
                     "key_findings": ["Analysis completed"],
                     "recommendation": "Proceed with report"
                 }
-            
+
             async def generate_report(self, topic: str, analysis: dict) -> str:
                 """Generate final research report."""
                 # Simulate report generation
-                from packages.funcn_registry.components.tools.code_interpreter.tool import execute_code
-                
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import execute_code
+
                 report_code = f"""
 import json
 from datetime import datetime
@@ -215,7 +215,7 @@ report = f\"\"\"# Research Report: {{topic}}
 
 ## Executive Summary
 
-This comprehensive research report analyzes {{analysis['insights']['total_sources']}} sources 
+This comprehensive research report analyzes {{analysis['insights']['total_sources']}} sources
 to provide insights into {{topic}}. Our analysis reveals several key themes and trends
 in the current landscape.
 
@@ -232,7 +232,7 @@ report += f\"\"\"
 
 Our research covered the following areas:
 - Latest Research: {{analysis['insights']['coverage'].get('research', 0)}} sources
-- Best Practices: {{analysis['insights']['coverage'].get('practices', 0)}} sources  
+- Best Practices: {{analysis['insights']['coverage'].get('practices', 0)}} sources
 - Case Studies: {{analysis['insights']['coverage'].get('case_studies', 0)}} sources
 - Challenges: {{analysis['insights']['coverage'].get('challenges', 0)}} sources
 - Future Trends: {{analysis['insights']['coverage'].get('trends', 0)}} sources
@@ -276,59 +276,59 @@ planning their strategy.
 print(report)
 result = report
 """
-                
+
                 result = await execute_code(
                     code=report_code,
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if result.success:
                     self.research_state["report_sections"].append({
                         "type": "final_report",
                         "content": result.output
                     })
                     return result.output or "Report generation completed"
-                
+
                 return "Report generation failed"
-        
+
         # Execute complete workflow
         agent = ResearchAgent()
         topic = "Artificial Intelligence in Healthcare"
-        
+
         # Step 1: Generate queries
         queries = await agent.generate_search_queries(topic, num_queries=5)
         assert len(queries) == 5
         assert all(topic.lower() in q.lower() for q in queries)
-        
+
         # Step 2: Search and collect sources
         sources = await agent.search_and_collect(queries)
         assert len(sources) >= 10  # At least 2 per query
         assert all('source' in s and 'query' in s for s in sources)
-        
+
         # Step 3: Analyze sources
         analysis = await agent.analyze_sources(sources)
         assert 'insights' in analysis
         assert 'key_findings' in analysis
         assert analysis['insights']['total_sources'] == len(sources)
-        
+
         # Step 4: Generate report
         report = await agent.generate_report(topic, analysis)
         assert "Research Report:" in report
         assert topic in report
         assert "Key Findings" in report
         assert "Recommendations" in report
-        
+
         # Verify complete workflow state
         assert len(agent.research_state["queries_generated"]) == 5
         assert len(agent.research_state["sources_found"]) >= 10
         assert agent.research_state["content_analyzed"] is not None
         assert len(agent.research_state["report_sections"]) > 0
-    
+
     @pytest.mark.asyncio
     async def test_code_generation_validation_workflow(self):
         """Test complete code generation and validation workflow.
-        
+
         Simulates: code_generation_execution_agent creating and testing code.
         """
         class CodeGenerationAgent:
@@ -339,12 +339,12 @@ result = report
                     "test_results": [],
                     "final_code": None
                 }
-            
+
             async def analyze_requirements(self, task: str) -> list[str]:
                 """Analyze task and extract requirements."""
                 # Simulate requirement extraction
                 requirements = []
-                
+
                 if "api" in task.lower():
                     requirements.extend([
                         "Create REST API endpoints",
@@ -352,7 +352,7 @@ result = report
                         "Add error handling",
                         "Include authentication"
                     ])
-                
+
                 if "database" in task.lower():
                     requirements.extend([
                         "Design database schema",
@@ -360,10 +360,10 @@ result = report
                         "Add connection pooling",
                         "Include migrations"
                     ])
-                
+
                 self.generation_state["requirements"] = requirements
                 return requirements
-            
+
             async def generate_code(self, requirements: list[str]) -> str:
                 """Generate code based on requirements."""
                 # Simulate code generation
@@ -380,7 +380,7 @@ class UserModel(BaseModel):
     username: str = Field(..., min_length=3, max_length=50)
     email: str = Field(..., regex=r'^[\\w\\.-]+@[\\w\\.-]+\\.\\w+$')
     created_at: Optional[datetime] = None
-    
+
     class Config:
         json_encoders = {
             datetime: lambda v: v.isoformat()
@@ -391,7 +391,7 @@ class UserDB:
     def __init__(self):
         self.users: Dict[int, UserModel] = {}
         self.next_id = 1
-    
+
     async def create_user(self, user: UserModel) -> UserModel:
         """Create a new user."""
         user.id = self.next_id
@@ -399,15 +399,15 @@ class UserDB:
         self.users[user.id] = user
         self.next_id += 1
         return user
-    
+
     async def get_user(self, user_id: int) -> Optional[UserModel]:
         """Get user by ID."""
         return self.users.get(user_id)
-    
+
     async def list_users(self, limit: int = 10) -> List[UserModel]:
         """List all users."""
         return list(self.users.values())[:limit]
-    
+
     async def update_user(self, user_id: int, user_data: UserModel) -> Optional[UserModel]:
         """Update user."""
         if user_id in self.users:
@@ -416,7 +416,7 @@ class UserDB:
             self.users[user_id] = user_data
             return user_data
         return None
-    
+
     async def delete_user(self, user_id: int) -> bool:
         """Delete user."""
         if user_id in self.users:
@@ -429,7 +429,7 @@ class UserAPI:
     """User API with error handling."""
     def __init__(self):
         self.db = UserDB()
-    
+
     async def create_user_endpoint(self, user_data: dict) -> dict:
         """Create user endpoint."""
         try:
@@ -446,7 +446,7 @@ class UserAPI:
                 "error": str(e),
                 "message": "Failed to create user"
             }
-    
+
     async def get_user_endpoint(self, user_id: int) -> dict:
         """Get user endpoint."""
         user = await self.db.get_user(user_id)
@@ -465,42 +465,42 @@ class UserAPI:
 async def demo():
     """Demonstrate API usage."""
     api = UserAPI()
-    
+
     # Create user
     result = await api.create_user_endpoint({
         "username": "testuser",
         "email": "test@example.com"
     })
     print(f"Create result: {result}")
-    
+
     # Get user
     if result["success"]:
         user_id = result["data"]["id"]
         get_result = await api.get_user_endpoint(user_id)
         print(f"Get result: {get_result}")
-    
+
     return api
 
 # Run demo
 import asyncio
 api = asyncio.run(demo())
 '''
-                
+
                 self.generation_state["generated_code"].append({
                     "version": len(self.generation_state["generated_code"]) + 1,
                     "code": code,
                     "timestamp": datetime.now().isoformat()
                 })
-                
+
                 return code
-            
+
             async def validate_code(self, code: str) -> dict:
                 """Validate generated code."""
-                from packages.funcn_registry.components.tools.code_interpreter.tool import (
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import (
                     execute_code,
                     validate_code as validate_syntax,
                 )
-                
+
                 # Syntax validation
                 is_valid, error = validate_syntax(code)
                 if not is_valid:
@@ -509,7 +509,7 @@ api = asyncio.run(demo())
                         "error": error,
                         "tests_passed": 0
                     }
-                
+
                 # Execute and test
                 result = await execute_code(
                     code=code,
@@ -517,14 +517,14 @@ api = asyncio.run(demo())
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if not result.success:
                     return {
                         "valid": False,
                         "error": result.error,
                         "tests_passed": 0
                     }
-                
+
                 # Validate output
                 tests_passed = 0
                 if result.output and "Create result:" in result.output:
@@ -533,7 +533,7 @@ api = asyncio.run(demo())
                     tests_passed += 1
                 if result.output and "'success': True" in result.output:
                     tests_passed += 1
-                
+
                 validation_result = {
                     "valid": True,
                     "tests_passed": tests_passed,
@@ -541,55 +541,55 @@ api = asyncio.run(demo())
                     "output": result.output,
                     "api_instance": result.variables.get('api') is not None
                 }
-                
+
                 self.generation_state["test_results"].append(validation_result)
                 return validation_result
-            
+
             async def refine_code(self, code: str, validation_result: dict) -> str:
                 """Refine code based on validation results."""
                 if validation_result["valid"] and validation_result["tests_passed"] == validation_result["total_tests"]:
                     # Code is good
                     self.generation_state["final_code"] = code
                     return code
-                
+
                 # In real implementation, would use LLM to refine
                 # For now, return the original code
                 self.generation_state["final_code"] = code
                 return code
-        
+
         # Execute workflow
         agent = CodeGenerationAgent()
         task = "Create a REST API with database operations for user management"
-        
+
         # Step 1: Analyze requirements
         requirements = await agent.analyze_requirements(task)
         assert len(requirements) > 0
         assert any("API" in r for r in requirements)
-        
+
         # Step 2: Generate code
         generated_code = await agent.generate_code(requirements)
         assert "class UserModel" in generated_code
         assert "async def create_user" in generated_code
-        
+
         # Step 3: Validate code
         validation = await agent.validate_code(generated_code)
         assert validation["valid"] is True
         assert validation["tests_passed"] > 0
-        
+
         # Step 4: Refine if needed
         final_code = await agent.refine_code(generated_code, validation)
         assert final_code is not None
-        
+
         # Verify workflow completion
         assert len(agent.generation_state["requirements"]) > 0
         assert len(agent.generation_state["generated_code"]) > 0
         assert len(agent.generation_state["test_results"]) > 0
         assert agent.generation_state["final_code"] is not None
-    
+
     @pytest.mark.asyncio
     async def test_document_processing_pipeline(self):
         """Test complete document processing pipeline.
-        
+
         Simulates: document_segmentation_agent processing complex documents.
         """
         class DocumentProcessor:
@@ -600,11 +600,11 @@ api = asyncio.run(demo())
                     "metadata": {},
                     "embeddings": []
                 }
-            
+
             async def analyze_structure(self, document: str) -> dict:
                 """Analyze document structure."""
-                from packages.funcn_registry.components.tools.code_interpreter.tool import execute_code
-                
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import execute_code
+
                 analysis_code = f'''
 import re
 from collections import defaultdict
@@ -637,7 +637,7 @@ for i, line in enumerate(lines):
             "start_line": i,
             "content": []
         }})
-    
+
     # Count paragraphs
     elif line.strip() and not line.startswith('#'):
         structure["paragraphs"] += 1
@@ -662,36 +662,36 @@ print(f"- Paragraphs: {{structure['paragraphs']}}")
 
 result = structure
 '''
-                
+
                 result = await execute_code(
                     code=analysis_code,
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if result.success and result.variables.get('result'):
                     self.processing_state["document_structure"] = result.variables['result']
                     return result.variables['result']
-                
+
                 return {"sections": [], "headers": [], "paragraphs": 0}
-            
+
             async def segment_document(self, document: str, structure: dict) -> list[dict]:
                 """Segment document based on structure."""
                 segments = []
                 lines = document.split('\n')
-                
+
                 # Create segments based on sections
                 for i, section in enumerate(structure.get("sections", [])):
                     start_line = section["start_line"]
-                    
+
                     # Find end line (next section or end of document)
                     if i + 1 < len(structure["sections"]):
                         end_line = structure["sections"][i + 1]["start_line"]
                     else:
                         end_line = len(lines)
-                    
+
                     segment_content = '\n'.join(lines[start_line:end_line])
-                    
+
                     segments.append({
                         "id": f"segment_{i}",
                         "type": "section",
@@ -704,14 +704,14 @@ result = structure
                             "char_count": len(segment_content)
                         }
                     })
-                
+
                 self.processing_state["segments"] = segments
                 return segments
-            
+
             async def extract_metadata(self, segments: list[dict]) -> dict:
                 """Extract metadata from segments."""
-                from packages.funcn_registry.components.tools.code_interpreter.tool import execute_code
-                
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import execute_code
+
                 metadata_code = f"""
 import json
 from datetime import datetime
@@ -753,24 +753,24 @@ print(json.dumps(metadata, indent=2))
 
 result = metadata
 """
-                
+
                 result = await execute_code(
                     code=metadata_code,
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if result.success and result.variables.get('result'):
                     self.processing_state["metadata"] = result.variables['result']
                     return result.variables['result']
-                
+
                 return {"document_stats": {}, "segment_types": {}}
-            
+
             async def generate_embeddings(self, segments: list[dict]) -> list[dict]:
                 """Generate embeddings for segments (simulated)."""
                 # In production, would use actual embedding model
                 embeddings = []
-                
+
                 for segment in segments:
                     # Simulate embedding generation
                     embedding = {
@@ -780,10 +780,10 @@ result = metadata
                         "timestamp": datetime.now().isoformat()
                     }
                     embeddings.append(embedding)
-                
+
                 self.processing_state["embeddings"] = embeddings
                 return embeddings
-        
+
         # Test document
         test_document = """# Research Report on Machine Learning
 
@@ -830,41 +830,41 @@ The future of machine learning looks promising with advances in:
 Machine learning continues to be a driving force in technological advancement.
 Its applications will only expand as the technology matures.
 """
-        
+
         # Execute pipeline
         processor = DocumentProcessor()
-        
+
         # Step 1: Analyze structure
         structure = await processor.analyze_structure(test_document)
         assert len(structure["sections"]) > 0
         assert len(structure["headers"]) > 0
         assert structure["paragraphs"] > 0
-        
+
         # Step 2: Segment document
         segments = await processor.segment_document(test_document, structure)
         assert len(segments) == len(structure["sections"])
         assert all("content" in s for s in segments)
-        
+
         # Step 3: Extract metadata
         metadata = await processor.extract_metadata(segments)
         assert "document_stats" in metadata
         assert metadata["document_stats"]["total_segments"] == len(segments)
-        
+
         # Step 4: Generate embeddings
         embeddings = await processor.generate_embeddings(segments)
         assert len(embeddings) == len(segments)
         assert all("embedding" in e for e in embeddings)
-        
+
         # Verify complete pipeline
         assert processor.processing_state["document_structure"] is not None
         assert len(processor.processing_state["segments"]) > 0
         assert processor.processing_state["metadata"] is not None
         assert len(processor.processing_state["embeddings"]) > 0
-    
+
     @pytest.mark.asyncio
     async def test_knowledge_extraction_workflow(self):
         """Test knowledge extraction and graph building workflow.
-        
+
         Simulates: knowledge_graph_agent extracting entities and relationships.
         """
         class KnowledgeExtractor:
@@ -875,11 +875,11 @@ Its applications will only expand as the technology matures.
                     "graph": None,
                     "insights": []
                 }
-            
+
             async def extract_entities(self, text: str) -> list[dict]:
                 """Extract entities from text."""
-                from packages.funcn_registry.components.tools.code_interpreter.tool import execute_code
-                
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import execute_code
+
                 extraction_code = f'''
 import re
 from collections import defaultdict
@@ -902,7 +902,7 @@ for company in set(companies):
         }})
 
 # Extract technologies (specific keywords)
-tech_keywords = ["AI", "machine learning", "deep learning", "neural network", 
+tech_keywords = ["AI", "machine learning", "deep learning", "neural network",
                  "data science", "cloud computing", "blockchain", "IoT"]
 for tech in tech_keywords:
     if tech.lower() in text.lower():
@@ -931,26 +931,26 @@ for e in entities[:5]:  # Show first 5
 
 result = entities
 '''
-                
+
                 result = await execute_code(
                     code=extraction_code,
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if result.success and result.variables.get('result'):
                     self.extraction_state["entities"] = result.variables['result']
                     return result.variables['result']
-                
+
                 return []
-            
+
             async def extract_relationships(self, text: str, entities: list[dict]) -> list[dict]:
                 """Extract relationships between entities."""
                 relationships: list[dict] = []
-                
+
                 # Simple relationship extraction based on proximity
                 entity_names = [e.get('name', e.get('value', '')) for e in entities]
-                
+
                 sentences = text.split('.')
                 for sentence in sentences:
                     # Find entities mentioned in same sentence
@@ -959,7 +959,7 @@ result = entities
                         entity_text = entity.get('name', entity.get('value', ''))
                         if entity_text and entity_text in sentence:
                             mentioned.append(i)
-                    
+
                     # Create relationships for co-mentioned entities
                     if len(mentioned) >= 2:
                         for i in range(len(mentioned)-1):
@@ -971,14 +971,14 @@ result = entities
                                     "type": "related_to",
                                     "context": sentence.strip()[:100] + "..."
                                 })
-                
+
                 self.extraction_state["relationships"] = relationships
                 return relationships
-            
+
             async def build_knowledge_graph(self, entities: list[dict], relationships: list[dict]) -> dict:
                 """Build knowledge graph from entities and relationships."""
-                from packages.funcn_registry.components.tools.code_interpreter.tool import execute_code
-                
+                from packages.sygaldry_registry.components.tools.code_interpreter.tool import execute_code
+
                 graph_code = f"""
 import json
 from collections import defaultdict
@@ -1018,7 +1018,7 @@ for rel in relationships:
 if entity_connections:
     most_connected = max(entity_connections.items(), key=lambda x: x[1])
     most_connected_entity = next(
-        (e for e in entities if e["id"] == most_connected[0]), 
+        (e for e in entities if e["id"] == most_connected[0]),
         None
     )
     graph["insights"] = {{
@@ -1031,40 +1031,40 @@ print(json.dumps(graph["statistics"], indent=2))
 
 result = graph
 """
-                
+
                 result = await execute_code(
                     code=graph_code,
                     capture_variables=True,
                     use_subprocess=False
                 )
-                
+
                 if result.success and result.variables.get('result'):
                     self.extraction_state["graph"] = result.variables['result']
                     return result.variables['result']
-                
+
                 return {"nodes": entities, "edges": relationships, "statistics": {}}
-            
+
             async def generate_insights(self, graph: dict) -> list[str]:
                 """Generate insights from knowledge graph."""
                 insights = []
-                
+
                 # Basic insights
                 stats = graph.get("statistics", {})
-                
+
                 if stats.get("total_entities", 0) > 10:
                     insights.append(f"Rich knowledge base with {stats['total_entities']} entities identified")
-                
+
                 if stats.get("total_relationships", 0) > 5:
                     insights.append(f"Complex interconnections with {stats['total_relationships']} relationships")
-                
+
                 # Entity type insights
                 entity_types = stats.get("entity_types", {})
                 if "Technology" in entity_types and entity_types["Technology"] > 3:
                     insights.append("Strong technology focus in the content")
-                
+
                 if "Organization" in entity_types and entity_types["Organization"] > 2:
                     insights.append("Multiple organizations mentioned, indicating industry relevance")
-                
+
                 # Connectivity insights
                 if "insights" in graph and graph["insights"].get("most_connected_entity"):
                     entity = graph["insights"]["most_connected_entity"]
@@ -1072,48 +1072,48 @@ result = graph
                         f"Central concept: {entity.get('name', 'Unknown')} "
                         f"with {graph['insights']['connection_count']} connections"
                     )
-                
+
                 self.extraction_state["insights"] = insights
                 return insights
-        
+
         # Test text
         test_text = """
         Apple and Google are leading the AI revolution with their latest developments.
         Machine learning has become central to their strategies, with investments exceeding 20%.
         Microsoft has also joined the race with their Azure AI platform achieving 95% accuracy.
-        
+
         The collaboration between OpenAI and Microsoft has resulted in breakthrough technologies.
         Deep learning models are now capable of processing millions of parameters.
         Google's TensorFlow and Facebook's PyTorch remain the most popular frameworks.
-        
+
         Industry reports show that 75% of enterprises are adopting AI solutions.
         Cloud computing infrastructure supports these massive computational requirements.
         The market is expected to reach $500 billion by 2025.
         """
-        
+
         # Execute workflow
         extractor = KnowledgeExtractor()
-        
+
         # Step 1: Extract entities
         entities = await extractor.extract_entities(test_text)
         assert len(entities) > 0
         assert any(e["type"] == "Organization" for e in entities)
         assert any(e["type"] == "Technology" for e in entities)
-        
+
         # Step 2: Extract relationships
         relationships = await extractor.extract_relationships(test_text, entities)
         assert len(relationships) > 0
-        
+
         # Step 3: Build knowledge graph
         graph = await extractor.build_knowledge_graph(entities, relationships)
         assert "nodes" in graph
         assert "edges" in graph
         assert "statistics" in graph
-        
+
         # Step 4: Generate insights
         insights = await extractor.generate_insights(graph)
         assert len(insights) > 0
-        
+
         # Verify complete workflow
         assert len(extractor.extraction_state["entities"]) > 0
         assert len(extractor.extraction_state["relationships"]) > 0

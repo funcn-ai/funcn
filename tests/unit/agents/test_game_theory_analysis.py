@@ -10,7 +10,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
     """Test cases for game theory analysis agent."""
 
     component_name = "game_theory_analysis"
-    component_path = Path("packages/funcn_registry/components/agents/game_theory_analysis")
+    component_path = Path("packages/sygaldry_registry/components/agents/game_theory_analysis")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -54,7 +54,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -80,7 +80,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -153,7 +153,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -184,7 +184,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -222,7 +222,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -246,7 +246,7 @@ class TestGameTheoryAnalysisAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "game_theory_analysis", "packages/funcn_registry/components/agents/game_theory_analysis/agent.py"
+            "game_theory_analysis", "packages/sygaldry_registry/components/agents/game_theory_analysis/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

@@ -4,55 +4,55 @@ tasks:
   generate:
     desc: "Generate documentation for all components"
     cmds:
-      - python -m funcn_cli.main docs generate
+      - python -m sygaldry_cli.main docs generate
 
   generate-all-editors:
     desc: "Generate documentation for all editors"
     cmds:
-      - python -m funcn_cli.main docs generate --editor cursor
-      - python -m funcn_cli.main docs generate --editor windsurf
-      - python -m funcn_cli.main docs generate --editor cline
-      - python -m funcn_cli.main docs generate --editor claude
-      - python -m funcn_cli.main docs generate --editor sourcegraph
-      - python -m funcn_cli.main docs generate --editor openai_codex
-      - python -m funcn_cli.main docs generate --editor amp_code
+      - python -m sygaldry_cli.main docs generate --editor cursor
+      - python -m sygaldry_cli.main docs generate --editor windsurf
+      - python -m sygaldry_cli.main docs generate --editor cline
+      - python -m sygaldry_cli.main docs generate --editor claude
+      - python -m sygaldry_cli.main docs generate --editor sourcegraph
+      - python -m sygaldry_cli.main docs generate --editor openai_codex
+      - python -m sygaldry_cli.main docs generate --editor amp_code
 
   agents:
     desc: "Generate documentation for all agents"
     cmds:
-      - python -m funcn_cli.main docs generate --type agent
+      - python -m sygaldry_cli.main docs generate --type agent
 
   tools:
     desc: "Generate documentation for all tools"
     cmds:
-      - python -m funcn_cli.main docs generate --type tool
+      - python -m sygaldry_cli.main docs generate --type tool
 
   prompts:
     desc: "Generate documentation for all prompt templates"
     cmds:
-      - python -m funcn_cli.main docs generate --type prompt_template
+      - python -m sygaldry_cli.main docs generate --type prompt_template
 
   models:
     desc: "Generate documentation for all response models"
     cmds:
-      - python -m funcn_cli.main docs generate --type response_model
+      - python -m sygaldry_cli.main docs generate --type response_model
 
   evals:
     desc: "Generate documentation for all evaluations"
     cmds:
-      - python -m funcn_cli.main docs generate --type eval
+      - python -m sygaldry_cli.main docs generate --type eval
 
   examples:
     desc: "Generate documentation for all examples"
     cmds:
-      - python -m funcn_cli.main docs generate --type example
+      - python -m sygaldry_cli.main docs generate --type example
 
   types:
     desc: "List available component types and their templates"
     cmds:
-      - python -m funcn_cli.main docs types
+      - python -m sygaldry_cli.main docs types
 
   template:
-    desc: "Generate a funcn.md template for a component"
+    desc: "Generate a sygaldry.md template for a component"
     cmds:
-      - python -m funcn_cli.main docs template {{.CLI_ARGS}}
+      - python -m sygaldry_cli.main docs template {{.CLI_ARGS}}

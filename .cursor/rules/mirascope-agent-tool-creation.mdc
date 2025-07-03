@@ -72,4 +72,4 @@ def recommend_book(genre: str):
 
 By following these guidelines, we can build more robust, flexible, and maintainable AI components with Mirascope.
 Refer to the official [Mirascope Tools documentation](mdc:https:/mirascope.com/docs/mirascope/learn/tools) and [Mirascope Agents documentation](mdc:https:/mirascope.com/docs/mirascope/learn/agents) for more in-depth information.
-The [funcn.json](mdc:funcn.json) file contains default provider and model settings that might be relevant.
+The [sygaldry.json](mdc:sygaldry.json) file contains default provider and model settings that might be relevant.

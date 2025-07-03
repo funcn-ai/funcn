@@ -1,8 +1,8 @@
 """Sample component fixtures for testing the component system."""
 
 import json
-from funcn_cli.core.models import ComponentManifest, RegistryComponentEntry
 from pathlib import Path
+from sygaldry_cli.core.models import ComponentManifest, RegistryComponentEntry
 
 
 def create_sample_agent_files(component_dir: Path) -> None:
@@ -22,7 +22,7 @@ def create_sample_agent_files(component_dir: Path) -> None:
             "dependencies": [{"name": "mirascope", "version": ">=1.0.0"}, {"name": "pydantic", "version": ">=2.0.0"}],
             "files": [
                 {"src": "agent.py", "dest": "agent.py"},
-                {"src": "funcn.md", "dest": "funcn.md"},
+                {"src": "sygaldry.md", "dest": "sygaldry.md"},
                 {"src": "__init__.py", "dest": "__init__.py"},
             ],
             "template_variables": ["provider", "model"],
@@ -92,10 +92,10 @@ __all__ = ["sample_agent", "sample_agent_sync"]
     with open(component_dir / "__init__.py", "w") as f:
         f.write(init_code)
 
-    # Create funcn.md
-    funcn_md = """# Sample Agent
+    # Create sygaldry.md
+    sygaldry_md = """# Sample Agent
 
-A sample agent component for testing the funcn system.
+A sample agent component for testing the sygaldry system.
 
 ## Overview
 
@@ -132,8 +132,8 @@ The agent supports multiple LLM providers:
 - pydantic >= 2.0.0
 """
 
-    with open(component_dir / "funcn.md", "w") as f:
-        f.write(funcn_md)
+    with open(component_dir / "sygaldry.md", "w") as f:
+        f.write(sygaldry_md)
 
 
 def create_sample_tool_files(component_dir: Path) -> None:
@@ -152,7 +152,7 @@ def create_sample_tool_files(component_dir: Path) -> None:
             "dependencies": [{"name": "requests", "version": ">=2.25.0"}],
             "files": [
                 {"src": "tool.py", "dest": "tool.py"},
-                {"src": "funcn.md", "dest": "funcn.md"},
+                {"src": "sygaldry.md", "dest": "sygaldry.md"},
                 {"src": "__init__.py", "dest": "__init__.py"},
             ],
             "template_variables": [],
@@ -250,10 +250,10 @@ __all__ = ["search_data", "fetch_content", "search_data_async"]
     with open(component_dir / "__init__.py", "w") as f:
         f.write(init_code)
 
-    # Create funcn.md
-    funcn_md = """# Sample Tool
+    # Create sygaldry.md
+    sygaldry_md = """# Sample Tool
 
-A sample tool component for testing the funcn system.
+A sample tool component for testing the sygaldry system.
 
 ## Overview
 
@@ -308,8 +308,8 @@ results = await search_data_async("async search", limit=10)
 - requests >= 2.25.0
 """
 
-    with open(component_dir / "funcn.md", "w") as f:
-        f.write(funcn_md)
+    with open(component_dir / "sygaldry.md", "w") as f:
+        f.write(sygaldry_md)
 
 
 def create_sample_prompt_template_files(component_dir: Path) -> None:
@@ -326,7 +326,7 @@ def create_sample_prompt_template_files(component_dir: Path) -> None:
         "config": {
             "min_python_version": "3.12",
             "dependencies": [{"name": "mirascope", "version": ">=1.0.0"}],
-            "files": [{"src": "prompt.py", "dest": "prompt.py"}, {"src": "funcn.md", "dest": "funcn.md"}],
+            "files": [{"src": "prompt.py", "dest": "prompt.py"}, {"src": "sygaldry.md", "dest": "sygaldry.md"}],
             "template_variables": ["style", "language"],
             "post_install_message": "Sample prompt template installed!",
         },
@@ -390,10 +390,10 @@ def summary_prompt(content: str, max_words: int = 100) -> str:
     with open(component_dir / "prompt.py", "w") as f:
         f.write(prompt_code)
 
-    # Create funcn.md
-    funcn_md = """# Sample Prompt Template
+    # Create sygaldry.md
+    sygaldry_md = """# Sample Prompt Template
 
-Sample prompt templates for testing the funcn system.
+Sample prompt templates for testing the sygaldry system.
 
 ## Templates
 
@@ -431,8 +431,8 @@ Template variables:
 - `language`: Output language (configured during installation)
 """
 
-    with open(component_dir / "funcn.md", "w") as f:
-        f.write(funcn_md)
+    with open(component_dir / "sygaldry.md", "w") as f:
+        f.write(sygaldry_md)
 
 
 class ComponentFixtureFactory:

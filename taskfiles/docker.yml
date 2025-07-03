@@ -10,7 +10,7 @@ env:
   ARCH: "linux/amd64"
   REGISTRY: "ghcr.io"
   USER_NAME: "greyhaven-ai"
-  SERVICE: "funcn"
+  SERVICE: "sygaldry"
   VERSION: "0.1.0"
 
 tasks:

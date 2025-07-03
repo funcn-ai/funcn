@@ -17,8 +17,8 @@ class TestTemplateVariables(BaseE2ETest):
 
     @pytest.fixture
     def initialized_project(self, cli_runner, test_project_dir):
-        """Create an initialized funcn project."""
-        # Run funcn init with --yes flag to use defaults
+        """Create an initialized sygaldry project."""
+        # Run sygaldry init with --yes flag to use defaults
         result = self.run_command(cli_runner, ["init", "--yes"], input="n\n")
         self.assert_command_success(result)
         return test_project_dir
@@ -71,12 +71,12 @@ if ENABLE_LOGGING:
 
 class {{component_class_name}}:
     '''Agent component with configurable timeout and logging'''
-    
+
     def __init__(self):
         self.client = httpx.Client(timeout=API_TIMEOUT)
         if ENABLE_LOGGING:
             logger.info(f"Initialized {{component_class_name}} with timeout={API_TIMEOUT}")
-    
+
     @llm.call(provider="openai", model="gpt-4o-mini")
     def process(self, question: str) -> str:
         return f"Processing question: {question}"
@@ -103,7 +103,7 @@ __all__ = ["template_component"]
 
     def test_template_substitution_with_defaults(self, cli_runner, initialized_project, component_with_templates):
         """Test template variable substitution using default values."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             # Create mock client instance
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
@@ -170,11 +170,11 @@ __all__ = ["template_component"]
 
             self.assert_command_success(result)
 
-            # Read funcn.json to get the actual agent directory path
-            with open(initialized_project / "funcn.json") as f:
+            # Read sygaldry.json to get the actual agent directory path
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
 
-            # The agentDirectory in funcn.json is an absolute path, so we need to get the relative part
+            # The agentDirectory in sygaldry.json is an absolute path, so we need to get the relative part
             from pathlib import Path
 
             agent_dir_abs = Path(config.get("agentDirectory"))
@@ -194,7 +194,7 @@ __all__ = ["template_component"]
 
     def test_template_substitution_with_custom_values(self, cli_runner, initialized_project, component_with_templates):
         """Test template variable substitution with custom user input."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
@@ -258,11 +258,11 @@ __all__ = ["template_component"]
 
             self.assert_command_success(result)
 
-            # Read funcn.json to get the actual agent directory path
-            with open(initialized_project / "funcn.json") as f:
+            # Read sygaldry.json to get the actual agent directory path
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
 
-            # The agentDirectory in funcn.json is an absolute path, so we need to get the relative part
+            # The agentDirectory in sygaldry.json is an absolute path, so we need to get the relative part
             from pathlib import Path
 
             agent_dir_abs = Path(config.get("agentDirectory"))
@@ -304,7 +304,7 @@ __all__ = ["template_component"]
 
         # Tool with various case transformations
         (component_dir / "tool.py").write_text("""
-# {{tool_name|title}} Tool  
+# {{tool_name|title}} Tool
 # Constant: {{tool_name|upper}}
 # Module: {{tool_name|lower}}
 
@@ -321,7 +321,7 @@ def {{tool_name|lower}}_tool(query: str) -> str:
 {{tool_name|lower}} = {{tool_name|lower}}_tool
 """)
 
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
@@ -379,11 +379,11 @@ def {{tool_name|lower}}_tool(query: str) -> str:
 
             self.assert_command_success(result)
 
-            # Read funcn.json to get the actual tool directory path
-            with open(initialized_project / "funcn.json") as f:
+            # Read sygaldry.json to get the actual tool directory path
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
 
-            # The toolDirectory in funcn.json is an absolute path, so we need to get the relative part
+            # The toolDirectory in sygaldry.json is an absolute path, so we need to get the relative part
             from pathlib import Path
 
             tool_dir_abs = Path(config.get("toolDirectory"))
@@ -429,7 +429,7 @@ def tool():
     return "{{another_undefined}}"
 """)
 
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
@@ -486,11 +486,11 @@ def tool():
             # Should handle gracefully - either leave as-is or warn
             self.assert_command_success(result)
 
-            # Read funcn.json to get the actual tool directory path
-            with open(initialized_project / "funcn.json") as f:
+            # Read sygaldry.json to get the actual tool directory path
+            with open(initialized_project / "sygaldry.json") as f:
                 config = json.load(f)
 
-            # The toolDirectory in funcn.json is an absolute path, so we need to get the relative part
+            # The toolDirectory in sygaldry.json is an absolute path, so we need to get the relative part
             from pathlib import Path
 
             tool_dir_abs = Path(config.get("toolDirectory"))
@@ -504,7 +504,7 @@ def tool():
 
     def test_template_environment_variables(self, cli_runner, initialized_project, component_with_templates):
         """Test that environment variables are properly documented after template substitution."""
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 

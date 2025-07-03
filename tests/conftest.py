@@ -1,13 +1,13 @@
-"""Global pytest configuration and fixtures for funcn tests."""
+"""Global pytest configuration and fixtures for sygaldry tests."""
 
 import asyncio
 import json
 import pytest
 import shutil
 import tempfile
-from funcn_cli.config_manager import ConfigManager
-from funcn_cli.core.models import Author, ComponentManifest, FileMapping, RegistryComponentEntry, RegistryIndex
 from pathlib import Path
+from sygaldry_cli.config_manager import ConfigManager
+from sygaldry_cli.core.models import Author, ComponentManifest, FileMapping, RegistryComponentEntry, RegistryIndex
 from typer.testing import CliRunner
 from typing import Any
 from unittest.mock import AsyncMock, Mock, patch
@@ -33,8 +33,8 @@ def tmp_project_dir(tmp_path):
     (project_dir / "src" / "tools").mkdir()
     (project_dir / "src" / "prompts").mkdir()
 
-    # Create a basic funcn.json
-    funcn_config = {
+    # Create a basic sygaldry.json
+    sygaldry_config = {
         "directories": {
             "agents": "src/agents",
             "tools": "src/tools",
@@ -46,15 +46,15 @@ def tmp_project_dir(tmp_path):
         "model": "gpt-4",
     }
 
-    with open(project_dir / "funcn.json", "w") as f:
-        json.dump(funcn_config, f, indent=2)
+    with open(project_dir / "sygaldry.json", "w") as f:
+        json.dump(sygaldry_config, f, indent=2)
 
     return project_dir
 
 
 @pytest.fixture
-def funcn_config():
-    """Create a sample funcn configuration dict."""
+def sygaldry_config():
+    """Create a sample sygaldry configuration dict."""
     return {
         "directories": {
             "agents": "src/agents",
@@ -81,7 +81,7 @@ def sample_component():
         mirascope_version_min="1.24.0",
         files_to_copy=[
             FileMapping(source="agent.py", destination="agent.py"),
-            FileMapping(source="funcn.md", destination="funcn.md"),
+            FileMapping(source="sygaldry.md", destination="sygaldry.md"),
         ],
         target_directory_key="agents",
         python_dependencies=["mirascope>=1.24.0", "pydantic>=2.0.0"],
@@ -107,7 +107,7 @@ def sample_tool_component():
         mirascope_version_min="1.24.0",
         files_to_copy=[
             FileMapping(source="tool.py", destination="tool.py"),
-            FileMapping(source="funcn.md", destination="funcn.md"),
+            FileMapping(source="sygaldry.md", destination="sygaldry.md"),
         ],
         target_directory_key="tools",
         python_dependencies=["requests>=2.0.0"],
@@ -147,7 +147,7 @@ def mock_http_client():
 @pytest.fixture
 def config_manager(tmp_project_dir):
     """Create a ConfigManager instance with a temporary project directory."""
-    with patch("funcn_cli.config_manager.Path.cwd", return_value=tmp_project_dir):
+    with patch("sygaldry_cli.config_manager.Path.cwd", return_value=tmp_project_dir):
         return ConfigManager()
 
 
@@ -167,7 +167,7 @@ def sample_component_files(tmp_path):
         "config": {
             "min_python_version": "3.12",
             "dependencies": [{"name": "mirascope", "version": ">=1.0.0"}],
-            "files": [{"src": "agent.py", "dest": "agent.py"}, {"src": "funcn.md", "dest": "funcn.md"}],
+            "files": [{"src": "agent.py", "dest": "agent.py"}, {"src": "sygaldry.md", "dest": "sygaldry.md"}],
             "template_variables": ["provider", "model"],
         },
     }
@@ -207,8 +207,8 @@ async def test_agent(query: str) -> Messages.Type:
     with open(component_dir / "agent.py", "w") as f:
         f.write(agent_code)
 
-    # Create funcn.md
-    funcn_md = """# Test Agent
+    # Create sygaldry.md
+    sygaldry_md = """# Test Agent
 
 A simple test agent for unit testing.
 
@@ -222,8 +222,8 @@ print(result.result)
 ```
 """
 
-    with open(component_dir / "funcn.md", "w") as f:
-        f.write(funcn_md)
+    with open(component_dir / "sygaldry.md", "w") as f:
+        f.write(sygaldry_md)
 
     return component_dir
 

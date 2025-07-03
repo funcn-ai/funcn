@@ -1,19 +1,23 @@
-# Funcn Codebase Memory
+# Sygaldry Codebase Memory
 
 ## Overview
-The Funcn AI framework provides reusable components for building LLM-powered applications using Mirascope.
+
+The Sygaldry AI framework provides reusable components for building LLM-powered applications using Mirascope.
 
 ## Key Architecture
+
 - **Component System**: Registry-based components with JSON manifests
 - **LLM Integration**: Mirascope for provider-agnostic LLM calls
 - **Type Safety**: Pydantic models for all data structures
 - **Async First**: All LLM operations use async/await
 
 ## Component Categories
+
 - **Agent**: text_summarization_agent, multi_source_news_verification, multi_agent_coordinator, recruiting_assistant_agent, game_theory_analysis, enhanced_knowledge_graph_agent, document_segmentation_agent, knowledge_graph_agent, prompt_engineering_optimizer, academic_research_agent, game_playing_catan, research_assistant_agent, pii_scrubbing_agent, dataset_builder_agent, dnd_game_master, multi_platform_social_media_manager, decision_quality_assessor, sales_intelligence_agent, market_intelligence_agent, web_search_agent, game_playing_diplomacy, hallucination_detector_agent, dynamic_learning_path, sourcing_assistant_agent, code_generation_execution_agent
 - **Tool**: docx_search_tool, directory_search_tool, sqlalchemy_db, firecrawl_scrape_tool, git_repo_search_tool, code_interpreter_tool, pg_search_tool, dice_roller, mdx_search_tool, csv_search_tool, code_docs_search_tool, json_search_tool, pdf_search_tool, exa_websets_tool, dnd_5e_api, url_content_parser_tool, sqlite_db, nimble_search_tool, qwant_search_tool, duckduckgo_search_tool, exa_search_tools, youtube_video_search_tool, xml_search_tool
 
 ## Available Components
+
 - **text_summarization_agent** (agent): Advanced text summarization agent using chain-of-thought reasoning, few-shot learning, and iterative refinement. Supports multiple styles (technical, executive, simple, academic, journalistic) and progressive summarization with validation.
 - **multi_source_news_verification** (agent): Advanced multi-source news verification agent with comprehensive fact-checking tools including academic search, government data verification, social media verification, and expert source validation for combating misinformation
 - **multi_agent_coordinator** (agent): Orchestrates multiple specialized agents to solve complex tasks through intelligent task decomposition, agent selection, and result synthesis
@@ -64,6 +68,7 @@ The Funcn AI framework provides reusable components for building LLM-powered app
 - **xml_search_tool** (tool): XML data processing tool with XPath queries, namespace support, validation, and advanced search capabilities
 
 ## Development Patterns
+
 - Use `@prompt_template` decorators for all prompts
 - Define Pydantic response models for structured outputs
 - Implement async functions for LLM calls
@@ -71,6 +76,7 @@ The Funcn AI framework provides reusable components for building LLM-powered app
 - Include comprehensive error handling
 
 ## Environment Variables
+
 - ANTHROPIC_API_KEY: API key for Anthropic services (if using Anthropic provider).
 - ANTHROPIC_API_KEY: Anthropic API key for Claude models
 - ANTHROPIC_API_KEY: Anthropic API key for Claude-based players
@@ -96,6 +102,7 @@ The Funcn AI framework provides reusable components for building LLM-powered app
 - YOUTUBE_API_KEY: YouTube Data API v3 key
 
 ## Common Issues
+
 - Always await async LLM calls
 - Include proper type hints
 - Follow the component.json manifest structure

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "research_assistant_agent",
+  "version": "0.1.0",
+  "description": "AI-powered research agent that conducts comprehensive research using Exa search",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    {
+      "name": "mirascope[openai]",
+      "version": ">=1.24.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    },
+    {
+      "name": "exa-py",
+      "version": ">=1.0.0"
+    }
+  ],
+  "registry_dependencies": [
+    "exa_search"
+  ],
+  "environment_variables": [
+    {
+      "name": "EXA_API_KEY",
+      "description": "API key for Exa services",
+      "required": true
+    },
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "API key for OpenAI services",
+      "required": true
+    }
+  ],
+  "example_usage": "```python\nfrom ai_agents.research_assistant import research_topic, research_company\n\nasync def main():\n    # General topic research\n    report = await research_topic('artificial intelligence in healthcare')\n    print(f\"Title: {report.title}\")\n    print(f\"Summary: {report.executive_summary}\")\n    \n    # Company research\n    company_report = await research_company('OpenAI')\n    \n    # Quick summary\n    summary = await quick_research_summary('latest AI regulations')\n    print(f\"Summary: {summary['summary']}\")\n```",
+  "post_add_instructions": "You can now import the research assistant with `from ai_agents.research_assistant import research_topic`. Make sure to set your EXA_API_KEY and OPENAI_API_KEY environment variables. The agent provides:\n\n1. `research_topic()` - General research on any topic\n2. `research_company()` - Specialized company analysis\n3. `research_technology()` - Technology deep dives\n4. `research_market()` - Market/industry analysis\n5. `quick_research_summary()` - Fast summaries\n\nFor optional tracing, install lilypad: `pip install lilypad`.",
+  "tags": [
+    "research",
+    "exa",
+    "report-generation",
+    "analysis",
+    "market-research"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {
+    "provider": "openai",
+    "model": "gpt-4o-mini",
+    "depth": "comprehensive",
+    "style": "professional",
+    "audience": "general business",
+    "num_queries": 5,
+    "target_words": 1000
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

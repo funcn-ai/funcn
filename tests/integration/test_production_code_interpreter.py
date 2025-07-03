@@ -9,7 +9,7 @@ import pytest
 from datetime import datetime
 
 # Import actual components
-from packages.funcn_registry.components.tools.code_interpreter.tool import (
+from packages.sygaldry_registry.components.tools.code_interpreter.tool import (
     CodeExecutionResult,
     execute_code,
     execute_code_with_timeout,
@@ -20,11 +20,11 @@ from pathlib import Path
 
 class TestProductionCodeInterpreter:
     """Test real-world code interpreter usage scenarios."""
-    
+
     @pytest.mark.asyncio
     async def test_data_analysis_workflow(self):
         """Test a complete data analysis workflow.
-        
+
         Simulates: Analyzing data and generating insights.
         """
         analysis_code = """
@@ -99,7 +99,7 @@ summary = {
 
 result = summary
 """
-        
+
         # Execute analysis
         result = await execute_code(
             code=analysis_code,
@@ -107,24 +107,24 @@ result = summary
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Sales Analysis Report" in result.output
         assert "Total Revenue:" in result.output
         assert "Revenue by Category" in result.output
         assert "Insights & Recommendations" in result.output
-        
+
         # Check captured variables
         assert result.variables.get("summary") is not None
         summary = result.variables["summary"]
         assert summary["total_revenue"] > 0
         assert summary["total_items"] > 0
         assert summary["top_category"] in ["Electronics", "Furniture"]
-    
+
     @pytest.mark.asyncio
     async def test_code_generation_and_validation(self):
         """Test code generation, validation, and execution workflow.
-        
+
         Simulates: Generating code dynamically and validating it.
         """
         # Step 1: Generate code based on requirements
@@ -133,16 +133,16 @@ def process_{data_type}(data):
     \"\"\"Process {data_type} data and return analysis.\"\"\"
     if not isinstance(data, {expected_type}):
         raise TypeError("Invalid data type")
-    
+
     result = {{
         "data_type": "{data_type}",
         "count": len(data),
         "processed": True
     }}
-    
+
     # Type-specific processing
     {specific_processing}
-    
+
     return result
 
 # Test the generated function
@@ -151,7 +151,7 @@ result = process_{data_type}(test_data)
 print(f"Processed {{result['count']}} {data_type} items")
 print(f"Result: {{result}}")
 """
-        
+
         # Generate code for different data types
         configurations = [
             {
@@ -161,20 +161,20 @@ print(f"Result: {{result}}")
                 "test_data": "[1, 2, 3, 4, 5]"
             },
             {
-                "data_type": "strings", 
+                "data_type": "strings",
                 "expected_type": "list",
                 "specific_processing": 'result["total_length"] = sum(len(s) for s in data)\n    result["longest"] = max(data, key=len) if data else ""',
                 "test_data": '["hello", "world", "test"]'
             }
         ]
-        
+
         for config in configurations:
             generated_code = code_template.format(**config)
-            
+
             # Step 2: Validate the generated code
             is_valid, error = validate_code(generated_code)
             assert is_valid is True, f"Generated code is invalid: {error}"
-            
+
             # Step 3: Execute the generated code
             result = await execute_code(
                 code=generated_code,
@@ -182,11 +182,11 @@ print(f"Result: {{result}}")
                 capture_variables=True,
                 use_subprocess=False
             )
-            
+
             assert result.success is True
             assert "Processed" in result.output
             assert result.variables.get("result") is not None
-            
+
             # Verify type-specific processing
             if config["data_type"] == "numbers":
                 assert "sum" in result.variables["result"]
@@ -194,11 +194,11 @@ print(f"Result: {{result}}")
             elif config["data_type"] == "strings":
                 assert "longest" in result.variables["result"]
                 assert result.variables["result"]["longest"] == "hello"
-    
+
     @pytest.mark.asyncio
     async def test_error_handling_and_recovery(self):
         """Test error handling and recovery patterns.
-        
+
         Simulates: Handling various error conditions in production.
         """
         error_handling_code = """
@@ -210,7 +210,7 @@ from typing import Any, Dict, List
 def risky_operations():
     \"\"\"Execute operations with potential failures.\"\"\"
     results = []
-    
+
     # Operation 1: Division (might have zero division)
     try:
         values = [10, 5, 0, 2]
@@ -222,7 +222,7 @@ def risky_operations():
                 results.append({"op": f"divide_by_{val}", "success": False, "error": "Division by zero"})
     except Exception as e:
         results.append({"op": "division_batch", "success": False, "error": str(e)})
-    
+
     # Operation 2: Type conversion
     try:
         conversions = ["123", "45.6", "not_a_number", "789"]
@@ -234,7 +234,7 @@ def risky_operations():
                 results.append({"op": f"convert_{val}", "success": False, "error": "Invalid number format"})
     except Exception as e:
         results.append({"op": "conversion_batch", "success": False, "error": str(e)})
-    
+
     # Operation 3: Dictionary access
     try:
         data = {"key1": "value1", "key2": "value2"}
@@ -249,7 +249,7 @@ def risky_operations():
                 results.append({"op": f"access_{key}", "success": True, "result": default_value, "fallback": True})
     except Exception as e:
         results.append({"op": "dictionary_batch", "success": False, "error": str(e)})
-    
+
     return results
 
 # Execute operations
@@ -303,30 +303,30 @@ summary = {
     "recoveries": len(fallbacks)
 }
 """
-        
+
         result = await execute_code(
             code=error_handling_code,
             timeout_seconds=5,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Operation Results Summary" in result.output
         assert "Failed Operations" in result.output
         assert "Recovery Strategies Applied" in result.output
         assert "System Resilience" in result.output
-        
+
         # Check resilience metrics
         assert result.variables.get("summary") is not None
         assert result.variables["summary"]["resilience_score"] > 0
         assert result.variables["summary"]["failures"] >= 2  # We expect some failures
         assert result.variables["summary"]["recoveries"] >= 2  # We expect some recoveries
-    
+
     @pytest.mark.asyncio
     async def test_performance_monitoring_workflow(self):
         """Test performance monitoring and optimization.
-        
+
         Simulates: Monitoring code performance and identifying bottlenecks.
         """
         performance_code = """
@@ -414,7 +414,7 @@ improvement = ((baseline["duration"] - optimized["duration"]) / baseline["durati
 
 print("\\n=== Optimization Impact ===")
 print("Baseline (slow_loop): {:.4f}s".format(baseline['duration']))
-print("Optimized (formula): {:.4f}s".format(optimized['duration'])) 
+print("Optimized (formula): {:.4f}s".format(optimized['duration']))
 print("Improvement: {:.1f}%".format(improvement))
 print("Speedup: {:.1f}x".format(baseline['duration'] / optimized['duration']))
 
@@ -429,30 +429,30 @@ performance_summary = {
 # Ensure variable is captured
 result = performance_summary
 """
-        
+
         result = await execute_code(
             code=performance_code,
             timeout_seconds=10,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Performance Benchmark Results" in result.output
         assert "Operation Performance" in result.output
         assert "Optimization Impact" in result.output
-        
+
         # Verify performance metrics
         assert result.variables.get("result") is not None
         summary = result.variables["result"]
         assert summary["optimization_improvement"] > 50  # Expect significant improvement
         assert "optimized" in summary["fastest_operation"]
         assert "slow" in summary["slowest_operation"]
-    
+
     @pytest.mark.asyncio
     async def test_complex_data_processing(self):
         """Test complex data processing pipeline.
-        
+
         Simulates: Multi-stage data transformation and analysis.
         """
         pipeline_code = """
@@ -570,21 +570,21 @@ summary = {
 print("\\n=== Pipeline Summary ===")
 print(json.dumps(summary, indent=2))
 """
-        
+
         result = await execute_code(
             code=pipeline_code,
             timeout_seconds=5,
             capture_variables=True,
             use_subprocess=False
         )
-        
+
         assert result.success is True
         assert "Stage 1: Data Parsing" in result.output
         assert "Stage 2: Service Aggregation" in result.output
         assert "Stage 3: Time Analysis" in result.output
         assert "Stage 4: Alert Generation" in result.output
         assert "Pipeline Summary" in result.output
-        
+
         # Verify pipeline results
         assert result.variables.get("summary") is not None
         summary = result.variables["summary"]

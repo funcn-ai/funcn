@@ -18,20 +18,20 @@ class TestSourceManagement(BaseE2ETest):
         """Clean up any existing global config before each test."""
         import os
 
-        if os.path.exists(".funcnrc.json"):
-            os.remove(".funcnrc.json")
+        if os.path.exists(".sygaldryrc.json"):
+            os.remove(".sygaldryrc.json")
 
     def teardown_method(self):
         """Clean up global config after each test."""
         import os
 
-        if os.path.exists(".funcnrc.json"):
-            os.remove(".funcnrc.json")
+        if os.path.exists(".sygaldryrc.json"):
+            os.remove(".sygaldryrc.json")
 
     @pytest.fixture
     def initialized_project(self, cli_runner, test_project_dir):
-        """Create an initialized funcn project."""
-        # Run funcn init with --yes flag to use all defaults
+        """Create an initialized sygaldry project."""
+        # Run sygaldry init with --yes flag to use all defaults
         result = self.run_command(cli_runner, ["init", "--yes"], input="n\n", cwd=test_project_dir)
         self.assert_command_success(result)
         return test_project_dir
@@ -40,7 +40,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test adding a registry source at project level."""
         # Add a custom source (skip connectivity check for E2E tests)
         result = self.run_command(
-            cli_runner, ["source", "add", "myregistry", "https://myregistry.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
+            cli_runner, ["source", "add", "myregistry", "https://myregistry.sygaldry.ai/index.json", "--skip-check"], cwd=initialized_project
         )
 
         self.assert_command_success(result)
@@ -54,19 +54,19 @@ class TestSourceManagement(BaseE2ETest):
         self.assert_command_success(result)
 
         assert "myregistry" in result.output
-        assert "myregistry.funcn.ai" in result.output  # URL may be truncated in table
+        assert "myregistry.sygaldry.ai" in result.output  # URL may be truncated in table
 
     def test_add_duplicate_source(self, cli_runner, initialized_project):
         """Test adding a source with duplicate alias."""
         # Add a source
         result = self.run_command(
-            cli_runner, ["source", "add", "duplicate", "https://first.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
+            cli_runner, ["source", "add", "duplicate", "https://first.sygaldry.ai/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
         # Try to add another source with same alias
         result = self.run_command(
-            cli_runner, ["source", "add", "duplicate", "https://second.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
+            cli_runner, ["source", "add", "duplicate", "https://second.sygaldry.ai/index.json", "--skip-check"], cwd=initialized_project
         )
 
         # Should either update or warn about duplicate
@@ -80,7 +80,7 @@ class TestSourceManagement(BaseE2ETest):
 
         # Should show default source
         assert "default" in result.output
-        assert "funcn-ai/funcn-registry" in result.output or "default" in result.output
+        assert "sygaldry-ai/sygaldry-registry" in result.output or "default" in result.output
 
     def test_add_file_source(self, cli_runner, initialized_project):
         """Test adding a local file source."""
@@ -102,7 +102,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test using a custom source for listing components."""
         # Add custom source
         result = self.run_command(
-            cli_runner, ["source", "add", "custom", "https://custom.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
+            cli_runner, ["source", "add", "custom", "https://custom.sygaldry.ai/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
@@ -125,7 +125,7 @@ class TestSourceManagement(BaseE2ETest):
             ],
         }
 
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
@@ -146,7 +146,7 @@ class TestSourceManagement(BaseE2ETest):
             # Verify custom URL was used
             mock_client.get.assert_called()
             call_args = str(mock_client.get.call_args)
-            assert "custom.funcn.ai" in call_args
+            assert "custom.sygaldry.ai" in call_args
 
     def test_add_source_invalid_url(self, cli_runner, initialized_project):
         """Test adding source with invalid URL format."""
@@ -162,7 +162,7 @@ class TestSourceManagement(BaseE2ETest):
         """Test that sources persist across CLI invocations."""
         # Add a source
         result = self.run_command(
-            cli_runner, ["source", "add", "persistent", "https://persistent.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
+            cli_runner, ["source", "add", "persistent", "https://persistent.sygaldry.ai/index.json", "--skip-check"], cwd=initialized_project
         )
         self.assert_command_success(result)
 
@@ -176,15 +176,15 @@ class TestSourceManagement(BaseE2ETest):
         # Source should still be there
         assert "persistent" in result.output
         # URL may be truncated in table, so check for partial match
-        assert "persistent.funcn.ai" in result.output
+        assert "persistent.sygaldry.ai" in result.output
 
     def test_multiple_sources_workflow(self, cli_runner, initialized_project):
         """Test complete workflow with multiple sources."""
         # Add multiple sources
         sources = [
-            ("dev", "https://dev.funcn.ai/index.json"),
-            ("prod", "https://prod.funcn.ai/index.json"),
-            ("staging", "https://staging.funcn.ai/index.json"),
+            ("dev", "https://dev.sygaldry.ai/index.json"),
+            ("prod", "https://prod.sygaldry.ai/index.json"),
+            ("staging", "https://staging.sygaldry.ai/index.json"),
         ]
 
         for alias, url in sources:
@@ -227,7 +227,7 @@ class TestSourceManagement(BaseE2ETest):
             ],
         }
 
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
@@ -236,9 +236,9 @@ class TestSourceManagement(BaseE2ETest):
                 response.status_code = 200
                 response.raise_for_status = MagicMock()
 
-                if "dev.funcn.ai" in url:
+                if "dev.sygaldry.ai" in url:
                     response.json.return_value = dev_registry
-                elif "prod.funcn.ai" in url:
+                elif "prod.sygaldry.ai" in url:
                     response.json.return_value = prod_registry
                 else:
                     response.json.return_value = {"registry_version": "1.0.0", "components": []}
@@ -259,18 +259,18 @@ class TestSourceManagement(BaseE2ETest):
             assert "prod_component" in result.output
             assert "dev_component" not in result.output
 
-    @pytest.mark.skip(reason="Authentication for registry sources not implemented - tracked in FUNCNOS-36")
+    @pytest.mark.skip(reason="Authentication for registry sources not implemented - tracked in SYGALDRYOS-36")
     def test_source_with_auth_token(self, cli_runner, initialized_project):
         """Test adding source that requires authentication."""
         # Add source (auth would be handled via headers)
         result = self.run_command(
-            cli_runner, ["source", "add", "private", "https://private.funcn.ai/index.json", "--skip-check"], cwd=initialized_project
+            cli_runner, ["source", "add", "private", "https://private.sygaldry.ai/index.json", "--skip-check"], cwd=initialized_project
         )
 
         self.assert_command_success(result)
 
         # When using this source, it should handle auth
-        with patch("funcn_cli.core.registry_handler.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.core.registry_handler.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
 
@@ -371,7 +371,7 @@ class TestSourceManagement(BaseE2ETest):
 
     def test_source_connectivity_check(self, cli_runner, initialized_project):
         """Test source connectivity checking when adding."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             # Mock successful connectivity check
             mock_response = MagicMock()
             mock_response.status_code = 200
@@ -379,13 +379,13 @@ class TestSourceManagement(BaseE2ETest):
                 "registry_version": "1.0.0",
                 "components": []
             }
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             # Add source with connectivity check
             result = self.run_command(
                 cli_runner, ["source", "add", "checked", "https://example.com/index.json"], cwd=initialized_project
@@ -397,14 +397,14 @@ class TestSourceManagement(BaseE2ETest):
 
     def test_source_connectivity_check_failure(self, cli_runner, initialized_project):
         """Test handling failed connectivity check."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             # Mock connection failure
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.ConnectError("Connection failed")
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             # Try to add source - should fail
             result = self.run_command(
                 cli_runner, ["source", "add", "unreachable", "https://unreachable.com/index.json"], cwd=initialized_project
@@ -416,16 +416,16 @@ class TestSourceManagement(BaseE2ETest):
 
     def test_source_connectivity_skip_check(self, cli_runner, initialized_project):
         """Test skipping connectivity check."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             # Add source with skip flag
             result = self.run_command(
                 cli_runner, ["source", "add", "skipped", "https://example.com/index.json", "--skip-check"], cwd=initialized_project
             )
             self.assert_command_success(result)
-            
+
             # Should not call httpx.Client
             mock_client_class.assert_not_called()
-            
+
             # Should not show connectivity messages
             assert "Testing connectivity" not in result.output
             assert "Successfully connected" not in result.output

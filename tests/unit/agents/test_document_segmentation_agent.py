@@ -10,7 +10,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
     """Test cases for document segmentation agent."""
 
     component_name = "document_segmentation_agent"
-    component_path = Path("packages/funcn_registry/components/agents/document_segmentation")
+    component_path = Path("packages/sygaldry_registry/components/agents/document_segmentation")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -57,7 +57,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -87,7 +87,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -141,7 +141,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -165,7 +165,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -199,7 +199,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -220,7 +220,7 @@ class TestDocumentSegmentationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "document_segmentation_agent", "packages/funcn_registry/components/agents/document_segmentation/agent.py"
+            "document_segmentation_agent", "packages/sygaldry_registry/components/agents/document_segmentation/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

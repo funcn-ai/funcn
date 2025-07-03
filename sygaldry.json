@@ -1,0 +1,17 @@
+{
+  "$schema": "./sygaldry.schema.json",
+  "agentDirectory": "packages/sygaldry_registry/components/agents",
+  "evalDirectory": "packages/sygaldry_registry/components/evals",
+  "promptTemplateDirectory": "packages/sygaldry_registry/components/prompt_templates",
+  "toolDirectory": "packages/sygaldry_registry/components/tools",
+  "responseModelDirectory": "packages/sygaldry_registry/components/response_models",
+  "aliases": {
+    "agents": "@/agents",
+    "evals": "@/evals",
+    "prompts": "@/prompt_templates",
+    "tools": "@/tools"
+  },
+  "defaultProvider": "openai",
+  "defaultModel": "gpt-4o-mini",
+  "stream": false
+}

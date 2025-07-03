@@ -496,7 +496,7 @@ wheels = [
 ]
 
 [[package]]
-name = "funcn"
+name = "sygaldry"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

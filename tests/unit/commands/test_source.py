@@ -1,37 +1,37 @@
-"""Tests for the funcn source command."""
+"""Tests for the sygaldry source command."""
 
 from __future__ import annotations
 
 import httpx
 import pytest
 import typer
-from funcn_cli.commands.source import _test_source_connectivity, add, cache_clear, cache_stats, list_sources, remove
-from funcn_cli.config_manager import CacheConfig, FuncnConfig
+from sygaldry_cli.commands.source import _test_source_connectivity, add, cache_clear, cache_stats, list_sources, remove
+from sygaldry_cli.config_manager import CacheConfig, SygaldryConfig
 from unittest.mock import MagicMock, patch
 
 
 class TestSource:
-    """Test the funcn source command and its subcommands."""
+    """Test the sygaldry source command and its subcommands."""
 
     @pytest.fixture
     def mock_config_manager(self, mocker):
         """Mock ConfigManager."""
         mock_cfg_manager = MagicMock()
-        mocker.patch("funcn_cli.commands.source.ConfigManager", return_value=mock_cfg_manager)
+        mocker.patch("sygaldry_cli.commands.source.ConfigManager", return_value=mock_cfg_manager)
         return mock_cfg_manager
 
     @pytest.fixture
     def mock_console(self, mocker):
         """Mock console output."""
-        return mocker.patch("funcn_cli.commands.source.console")
+        return mocker.patch("sygaldry_cli.commands.source.console")
 
     @pytest.fixture
     def sample_config(self):
         """Sample configuration with registry sources."""
-        return FuncnConfig(
-            default_registry_url="https://raw.githubusercontent.com/funcn-ai/funcn-registry/main/index.json",
+        return SygaldryConfig(
+            default_registry_url="https://raw.githubusercontent.com/sygaldry-ai/sygaldry-registry/main/index.json",
             registry_sources={
-                "default": "https://raw.githubusercontent.com/funcn-ai/funcn-registry/main/index.json",
+                "default": "https://raw.githubusercontent.com/sygaldry-ai/sygaldry-registry/main/index.json",
                 "custom": "https://example.com/custom/index.json",
                 "local": "file:///path/to/local/index.json",
             },
@@ -107,7 +107,7 @@ class TestSource:
     def test_list_sources_empty(self, mock_config_manager, mock_console):
         """Test listing sources when none are configured."""
         # Setup
-        empty_config = FuncnConfig(
+        empty_config = SygaldryConfig(
             default_registry_url="",
             registry_sources={},
             component_paths={},
@@ -145,7 +145,7 @@ class TestSource:
         # Execute with row capture
         from unittest.mock import patch
 
-        with patch("funcn_cli.commands.source.Table") as mock_table_class:
+        with patch("sygaldry_cli.commands.source.Table") as mock_table_class:
             mock_table = MagicMock()
             mock_table.add_row = MagicMock(side_effect=capture_add_row)
             mock_table_class.return_value = mock_table
@@ -167,7 +167,7 @@ class TestSource:
     def test_list_sources_ordering(self, mock_config_manager, mock_console):
         """Test that sources are listed in a consistent order."""
         # Setup with sources that would have different ordering
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://default.com/index.json",
             registry_sources={
                 "zebra": "https://zebra.com/index.json",
@@ -189,7 +189,7 @@ class TestSource:
         # Execute with row capture
         from unittest.mock import patch
 
-        with patch("funcn_cli.commands.source.Table") as mock_table_class:
+        with patch("sygaldry_cli.commands.source.Table") as mock_table_class:
             mock_table = MagicMock()
             mock_table.add_row = MagicMock(side_effect=capture_add_row)
             mock_table_class.return_value = mock_table
@@ -235,7 +235,7 @@ class TestSource:
     def test_list_sources_with_long_urls(self, mock_config_manager, mock_console):
         """Test listing sources with very long URLs."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "long": "https://very-long-domain-name.example.com/with/very/deep/path/structure/to/test/table/formatting/index.json",
@@ -255,7 +255,7 @@ class TestSource:
     def test_remove_source_success(self, mock_config_manager, mock_console):
         """Test successfully removing a registry source."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "default": "https://example.com/index.json",
@@ -278,7 +278,7 @@ class TestSource:
     def test_remove_source_not_found(self, mock_config_manager, mock_console):
         """Test removing a non-existent registry source."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "default": "https://example.com/index.json",
@@ -299,7 +299,7 @@ class TestSource:
     def test_remove_last_remaining_source(self, mock_config_manager, mock_console):
         """Test preventing removal of the only remaining registry source."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "default": "https://example.com/index.json",
@@ -320,7 +320,7 @@ class TestSource:
     def test_remove_source_with_multiple_sources(self, mock_config_manager, mock_console):
         """Test removing a source when multiple sources exist."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "default": "https://example.com/index.json",
@@ -343,7 +343,7 @@ class TestSource:
     def test_remove_default_source_with_other_sources(self, mock_config_manager, mock_console):
         """Test that default source can be removed if other sources exist."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "default": "https://example.com/index.json",
@@ -431,128 +431,128 @@ class TestSource:
         """Test adding source with successful connectivity check."""
         # Mock the console and config manager correctly
         mock_console.print.reset_mock()
-        
+
         # Need to mock _test_source_connectivity directly since it has its own console
-        with patch("funcn_cli.commands.source._test_source_connectivity") as mock_test_connectivity:
+        with patch("sygaldry_cli.commands.source._test_source_connectivity") as mock_test_connectivity:
             mock_test_connectivity.return_value = True
-            
+
             # Execute with defaults
             add(alias="valid", url="https://example.com/index.json", priority=100, skip_connectivity_check=False)
-            
+
             # Should call connectivity test
             mock_test_connectivity.assert_called_once_with("https://example.com/index.json")
-            
+
             # Should have print calls
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("Testing connectivity" in msg for msg in messages)
             assert any("Successfully connected" in msg for msg in messages)
             assert any("Added registry source" in msg for msg in messages)
-            
+
             # Should add the source
             mock_config_manager.add_registry_source.assert_called_once_with("valid", "https://example.com/index.json", priority=100)
 
     def test_add_source_with_connectivity_check_failure(self, mock_config_manager, mock_console):
         """Test adding source with failed connectivity check."""
         # Mock _test_source_connectivity to return False
-        with patch("funcn_cli.commands.source._test_source_connectivity") as mock_test_connectivity:
+        with patch("sygaldry_cli.commands.source._test_source_connectivity") as mock_test_connectivity:
             mock_test_connectivity.return_value = False
-            
+
             # Execute and verify exception is raised
             with pytest.raises(typer.Exit) as exc_info:
                 add(alias="unreachable", url="https://unreachable.com/index.json", priority=100, skip_connectivity_check=False)
-            
+
             assert exc_info.value.exit_code == 1
-            
+
             # Should call connectivity test
             mock_test_connectivity.assert_called_once_with("https://unreachable.com/index.json")
-            
+
             # Should print error messages
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("Testing connectivity" in msg for msg in messages)
             assert any("Failed to connect" in msg for msg in messages)
             assert any("--skip-check" in msg for msg in messages)
-            
+
             # Should NOT add the source
             mock_config_manager.add_registry_source.assert_not_called()
 
     def test_add_source_skip_connectivity_check(self, mock_config_manager, mock_console):
         """Test adding source with connectivity check skipped."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             # Execute with skip flag
             add(alias="skipped", url="https://example.com/index.json", priority=100, skip_connectivity_check=True)
-            
+
             # httpx.Client should not be called
             mock_client_class.assert_not_called()
-            
+
             # Should only have 1 print call (added message)
             assert mock_console.print.call_count == 1
             success_msg = str(mock_console.print.call_args[0][0])
             assert "Added registry source" in success_msg
-            
+
             # Should add the source
             mock_config_manager.add_registry_source.assert_called_once_with("skipped", "https://example.com/index.json", priority=100)
 
     def test_connectivity_check_timeout(self, mock_console):
         """Test connectivity check with timeout."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.TimeoutException("Request timed out")
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://slow.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("timed out" in msg for msg in messages)
 
     def test_connectivity_check_invalid_json(self, mock_console):
         """Test connectivity check with invalid JSON response."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.side_effect = ValueError("Invalid JSON")
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://invalid.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("Invalid registry response format" in msg for msg in messages)
 
     def test_connectivity_check_missing_fields(self, mock_console):
         """Test connectivity check with missing required fields."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             # Test missing registry_version
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = {"components": []}
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://incomplete.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("missing 'registry_version'" in msg for msg in messages)
 
     def test_connectivity_check_http_error(self, mock_console):
         """Test connectivity check with HTTP error."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_response = MagicMock()
             mock_response.status_code = 404
             mock_response.reason_phrase = "Not Found"
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.get.side_effect = httpx.HTTPStatusError(
@@ -561,50 +561,50 @@ class TestSource:
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://notfound.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("HTTP error 404" in msg for msg in messages)
 
     def test_connectivity_check_connect_error(self, mock_console):
         """Test connectivity check with connection error."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = httpx.ConnectError("Failed to connect")
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://unreachable.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("Failed to connect" in msg for msg in messages)
 
     def test_connectivity_check_missing_components_field(self, mock_console):
         """Test connectivity check with missing components field."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = {"registry_version": "1.0.0"}  # Missing components
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://incomplete.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("missing 'components' field" in msg for msg in messages)
 
     def test_connectivity_check_valid_registry(self, mock_console):
         """Test connectivity check with valid registry response."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = {
@@ -612,47 +612,47 @@ class TestSource:
                 "components": [],
                 "updated_at": "2024-01-01T00:00:00Z"
             }
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://valid.com/index.json")
-            
+
             assert result is True
             # Should not print any error messages
             assert mock_console.print.call_count == 0
 
     def test_connectivity_check_not_json(self, mock_console):
         """Test connectivity check with non-JSON response."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_response = MagicMock()
             mock_response.status_code = 200
             mock_response.json.return_value = []  # Returns array instead of object
-            
+
             mock_client = MagicMock()
             mock_client.get.return_value = mock_response
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://array.com/index.json")
-            
+
             assert result is False
 
     def test_connectivity_check_generic_exception(self, mock_console):
         """Test connectivity check with unexpected exception."""
-        with patch("funcn_cli.commands.source.httpx.Client") as mock_client_class:
+        with patch("sygaldry_cli.commands.source.httpx.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client.get.side_effect = Exception("Unexpected error")
             mock_client.__enter__.return_value = mock_client
             mock_client.__exit__.return_value = None
             mock_client_class.return_value = mock_client
-            
+
             result = _test_source_connectivity("https://error.com/index.json")
-            
+
             assert result is False
             messages = [str(call[0][0]) for call in mock_console.print.call_args_list]
             assert any("Unexpected error" in msg for msg in messages)
@@ -661,7 +661,7 @@ class TestSource:
         """Test adding a source with custom priority."""
         # Execute with custom priority
         add(alias="high", url="https://high.com/index.json", priority=10, skip_connectivity_check=True)
-        
+
         # Verify priority is passed correctly
         mock_config_manager.add_registry_source.assert_called_once_with("high", "https://high.com/index.json", priority=10)
         mock_console.print.assert_called_once()
@@ -673,7 +673,7 @@ class TestSource:
         """Test adding a source with default priority doesn't show priority in message."""
         # Execute with default priority
         add(alias="default_prio", url="https://default.com/index.json", priority=100, skip_connectivity_check=True)
-        
+
         # Verify priority is passed but not shown in message
         mock_config_manager.add_registry_source.assert_called_once_with("default_prio", "https://default.com/index.json", priority=100)
         mock_console.print.assert_called_once()
@@ -684,7 +684,7 @@ class TestSource:
     def test_list_sources_with_priorities(self, mock_config_manager, mock_console):
         """Test listing sources shows priorities and status."""
         # Setup config with mixed format sources
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "old_format": "https://old.com/index.json",
@@ -702,10 +702,10 @@ class TestSource:
             component_paths={},
         )
         mock_config_manager.config = config
-        
+
         # Execute
         list_sources()
-        
+
         # Verify table was printed
         assert mock_console.print.called
         # Get all print calls
@@ -717,7 +717,7 @@ class TestSource:
                 printed_table = call[0][0]
                 break
         assert printed_table is not None
-        
+
         # Should have Priority, Status, and Cache columns
         assert any(col.header == "Priority" for col in printed_table.columns)
         assert any(col.header == "Status" for col in printed_table.columns)
@@ -725,26 +725,26 @@ class TestSource:
 
 
 class TestSourceCacheCommands:
-    """Test the cache subcommands of funcn source."""
+    """Test the cache subcommands of sygaldry source."""
 
     @pytest.fixture
     def mock_config_manager(self, mocker):
         """Mock ConfigManager."""
         mock_cfg_manager = MagicMock()
-        mocker.patch("funcn_cli.commands.source.ConfigManager", return_value=mock_cfg_manager)
+        mocker.patch("sygaldry_cli.commands.source.ConfigManager", return_value=mock_cfg_manager)
         return mock_cfg_manager
 
     @pytest.fixture
     def mock_registry_handler(self, mocker):
         """Mock RegistryHandler."""
         mock_handler = MagicMock()
-        mocker.patch("funcn_cli.commands.source.RegistryHandler", return_value=mock_handler)
+        mocker.patch("sygaldry_cli.commands.source.RegistryHandler", return_value=mock_handler)
         return mock_handler
 
     @pytest.fixture
     def mock_console(self, mocker):
         """Mock console output."""
-        return mocker.patch("funcn_cli.commands.source.console")
+        return mocker.patch("sygaldry_cli.commands.source.console")
 
     def test_cache_clear_all(self, mock_config_manager, mock_registry_handler, mock_console):
         """Test clearing all caches."""
@@ -812,19 +812,19 @@ class TestSourceCacheCommands:
 
         # Capture table
         from unittest.mock import patch
-        with patch("funcn_cli.commands.source.Table") as mock_table_class:
+        with patch("sygaldry_cli.commands.source.Table") as mock_table_class:
             mock_table = MagicMock()
             mock_table_class.return_value = mock_table
-            
+
             # Execute
             cache_stats()
 
         # Verify
         mock_cache_manager.get_cache_stats.assert_called_once()
-        
+
         # Verify table creation
         mock_table_class.assert_called_once_with(title="Registry Cache Statistics")
-        
+
         # Verify columns added
         assert mock_table.add_column.call_count == 5
         column_calls = [call[0][0] for call in mock_table.add_column.call_args_list]
@@ -836,7 +836,7 @@ class TestSourceCacheCommands:
 
         # Verify rows added
         assert mock_table.add_row.call_count == 2
-        
+
         # Verify summary printed
         assert mock_console.print.call_count >= 3  # Table + total size + location
 
@@ -873,7 +873,7 @@ class TestSourceCacheCommands:
     def test_list_sources_with_cache_enabled(self, mock_config_manager, mock_registry_handler, mock_console):
         """Test list sources shows cache info when cache is enabled."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={
                 "default": "https://example.com/index.json",
@@ -883,7 +883,7 @@ class TestSourceCacheCommands:
             cache_config=CacheConfig(enabled=True, ttl_seconds=3600)
         )
         mock_config_manager.config = config
-        
+
         mock_cache_manager = MagicMock()
         mock_cache_manager.get_cache_stats.return_value = {
             "default": {"age": "10 minutes"},
@@ -903,14 +903,14 @@ class TestSourceCacheCommands:
     def test_list_sources_with_refresh(self, mock_config_manager, mock_registry_handler, mock_console):
         """Test list sources with --refresh flag."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={"default": "https://example.com/index.json"},
             component_paths={},
             cache_config=CacheConfig(enabled=True)
         )
         mock_config_manager.config = config
-        
+
         mock_cache_manager = MagicMock()
         mock_cache_manager.get_cache_stats.return_value = {}
         mock_registry_handler._cache_manager = mock_cache_manager
@@ -926,7 +926,7 @@ class TestSourceCacheCommands:
     def test_list_sources_cache_disabled(self, mock_config_manager, mock_registry_handler, mock_console):
         """Test list sources when cache is disabled."""
         # Setup
-        config = FuncnConfig(
+        config = SygaldryConfig(
             default_registry_url="https://example.com/index.json",
             registry_sources={"default": "https://example.com/index.json"},
             component_paths={},

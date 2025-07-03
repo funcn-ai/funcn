@@ -1,4 +1,4 @@
-"""Base test class for funcn CLI commands."""
+"""Base test class for sygaldry CLI commands."""
 
 import json
 import pytest
@@ -14,9 +14,9 @@ class BaseCommandTest:
     def setup_method(self):
         """Set up test environment before each test."""
         self.runner = CliRunner()
-        self.mock_registry_url = "https://registry.funcn.ai"
-        
-    def create_test_project(self, tmp_path: Path, with_funcn_json: bool = True) -> Path:
+        self.mock_registry_url = "https://registry.sygaldry.ai"
+
+    def create_test_project(self, tmp_path: Path, with_sygaldry_json: bool = True) -> Path:
         """Create a test project directory with basic structure."""
         project_dir = tmp_path / "test_project"
         project_dir.mkdir()
@@ -29,9 +29,9 @@ class BaseCommandTest:
         (project_dir / "src" / "models").mkdir()
         (project_dir / "src" / "evals").mkdir()
 
-        if with_funcn_json:
-            # Create a basic funcn.json
-            funcn_config = {
+        if with_sygaldry_json:
+            # Create a basic sygaldry.json
+            sygaldry_config = {
                 "directories": {
                     "agents": "src/agents",
                     "tools": "src/tools",
@@ -43,8 +43,8 @@ class BaseCommandTest:
                 "model": "gpt-4o-mini",
             }
 
-            with open(project_dir / "funcn.json", "w") as f:
-                json.dump(funcn_config, f, indent=2)
+            with open(project_dir / "sygaldry.json", "w") as f:
+                json.dump(sygaldry_config, f, indent=2)
 
         return project_dir
 
@@ -120,22 +120,22 @@ class BaseCommandTest:
     def mock_config_manager(self, tmp_path):
         """Create a mock ConfigManager."""
         project_dir = self.create_test_project(tmp_path)
-        with patch("funcn_cli.config_manager.Path.cwd", return_value=project_dir):
-            from funcn_cli.config_manager import ConfigManager
+        with patch("sygaldry_cli.config_manager.Path.cwd", return_value=project_dir):
+            from sygaldry_cli.config_manager import ConfigManager
             yield ConfigManager()
 
     @pytest.fixture
     def mock_console(self):
         """Mock the rich console for testing output."""
-        with patch("funcn_cli.commands.init_cmd.Console") as mock_console_cls:
+        with patch("sygaldry_cli.commands.init_cmd.Console") as mock_console_cls:
             mock_console = Mock()
             mock_console_cls.return_value = mock_console
             yield mock_console
 
     def run_command(self, command_args: list, cwd: Path = None):
-        """Run a funcn CLI command."""
-        from funcn_cli.main import app
-        
+        """Run a sygaldry CLI command."""
+        from sygaldry_cli.main import app
+
         # Set working directory if provided
         if cwd:
             with patch("os.getcwd", return_value=str(cwd)):

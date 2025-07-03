@@ -1,1 +1,1 @@
-"""Unit tests for funcn components."""
+"""Unit tests for sygaldry components."""

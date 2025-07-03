@@ -1,0 +1,73 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "mdx_search_tool",
+  "version": "0.1.0",
+  "description": "MDX documentation search tool with JSX component parsing, frontmatter support, and section extraction",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    {
+      "name": "mirascope[openai]",
+      "version": ">=1.24.0"
+    },
+    {
+      "name": "pydantic",
+      "version": ">=2.0.0"
+    },
+    {
+      "name": "aiofiles",
+      "version": ">=23.0.0"
+    },
+    {
+      "name": "python-frontmatter",
+      "version": ">=1.0.0"
+    },
+    {
+      "name": "markdown",
+      "version": ">=3.4.0"
+    }
+  ],
+  "environment_variables": [],
+  "example_usage": "```python\nfrom ai_tools.mdx_search import search_mdx_files, extract_mdx_components, find_documentation_sections\n\nasync def main():\n    # Search MDX files\n    results = await search_mdx_files(\n        query=\"React hooks\",\n        search_path=\"./docs\",\n        search_in=[\"content\", \"components\", \"headings\"]\n    )\n    \n    # Extract JSX components\n    components = await extract_mdx_components(\n        file_path=\"./docs/components.mdx\",\n        component_names=[\"CodeBlock\", \"Alert\"]\n    )\n    \n    # Find documentation sections\n    sections = await find_documentation_sections(\n        search_path=\"./docs\",\n        heading_pattern=\"API.*Reference\",\n        min_level=2\n    )\n    \n    # Search with metadata filters\n    filtered = await search_mdx_with_metadata(\n        query=\"authentication\",\n        metadata_filters={\"category\": \"security\"},\n        tags_filter=[\"auth\", \"oauth\"]\n    )\n```",
+  "post_add_instructions": "You can now import MDX search functions with `from ai_tools.mdx_search import search_mdx_files`. The tool searches MDX documentation files (Markdown with JSX), extracts components, parses frontmatter, and provides section-based navigation for documentation sites.",
+  "tags": [
+    "mdx",
+    "documentation",
+    "jsx",
+    "markdown",
+    "frontmatter",
+    "search"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {
+    "default_max_results": 50,
+    "default_case_sensitive": false,
+    "default_search_in": [
+      "content"
+    ],
+    "default_file_pattern": "**/*.mdx"
+  },
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

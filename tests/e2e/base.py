@@ -5,9 +5,9 @@ from __future__ import annotations
 import json
 import os
 import pytest
-from funcn_cli.config_manager import ConfigManager
-from funcn_cli.main import app
 from pathlib import Path
+from sygaldry_cli.config_manager import ConfigManager
+from sygaldry_cli.main import app
 from typer.testing import CliRunner
 from typing import Any, Optional
 from unittest.mock import MagicMock, patch
@@ -15,33 +15,33 @@ from unittest.mock import MagicMock, patch
 
 class BaseE2ETest:
     """Base class for end-to-end CLI tests.
-    
-    Provides utilities for testing complete user workflows with the funcn CLI.
+
+    Provides utilities for testing complete user workflows with the sygaldry CLI.
     """
-    
+
     @pytest.fixture
     def cli_runner(self):
         """Get a CLI runner for testing commands."""
         return CliRunner()
-    
+
     @pytest.fixture
     def test_project_dir(self, tmp_path):
         """Create a temporary project directory for testing."""
         project_dir = tmp_path / "test_project"
         project_dir.mkdir()
-        
+
         # Change to the project directory for the test
         original_cwd = os.getcwd()
         os.chdir(project_dir)
-        
+
         yield project_dir
-        
+
         # Restore original directory
         os.chdir(original_cwd)
-    
+
     @pytest.fixture
     def mock_registry_response(self):
-        """Mock response from the funcn registry."""
+        """Mock response from the sygaldry registry."""
         return {
             "registry_version": "1.0.0",
             "components": [
@@ -54,14 +54,14 @@ class BaseE2ETest:
                 },
                 {
                     "name": "test-tool",
-                    "version": "1.0.0", 
+                    "version": "1.0.0",
                     "type": "tool",
                     "description": "A test tool for demos",
                     "manifest_path": "components/tools/test-tool/component.json"
                 }
             ]
         }
-    
+
     @pytest.fixture
     def mock_component_manifest(self):
         """Mock component manifest data."""
@@ -83,23 +83,23 @@ class BaseE2ETest:
             "environment_variables": ["TEST_API_KEY"],
             "tags": ["test", "demo"]
         }
-    
+
     @pytest.fixture
     def initialized_project(self, cli_runner, test_project_dir):
-        """Create an initialized funcn project."""
-        # Run funcn init with defaults
+        """Create an initialized sygaldry project."""
+        # Run sygaldry init with defaults
         result = self.run_command(cli_runner, ["init", "--yes"], input="n\n")
         assert result.exit_code == 0
-        
+
         # Return the project directory
         return test_project_dir
-    
+
     @pytest.fixture
     def mock_component_files(self, tmp_path):
         """Create mock component files for testing."""
         components_dir = tmp_path / "mock_components"
         components_dir.mkdir()
-        
+
         # Create test agent files
         agent_dir = components_dir / "test-agent"
         agent_dir.mkdir()
@@ -123,7 +123,7 @@ def test_agent(question: str): ...
             "description": "A test agent for demos",
             "files_to_copy": ["agent.py", "requirements.txt"]
         }))
-        
+
         # Create test tool files
         tool_dir = components_dir / "test-tool"
         tool_dir.mkdir()
@@ -143,9 +143,9 @@ def test_tool(input: str) -> str:
             "description": "A test tool for demos",
             "files_to_copy": ["tool.py"]
         }))
-        
+
         return components_dir
-    
+
     def run_command(self, cli_runner: CliRunner, command: list[str], input: str = None, cwd: Path = None) -> Any:
         """Run a CLI command and return the result."""
         if cwd:
@@ -160,7 +160,7 @@ def test_tool(input: str) -> str:
         else:
             result = cli_runner.invoke(app, command, input=input)
             return result
-    
+
     def assert_command_success(self, result: Any):
         """Assert that a command executed successfully."""
         if result.exit_code != 0:
@@ -168,38 +168,38 @@ def test_tool(input: str) -> str:
             if result.exception:
                 print(f"Exception: {result.exception}")
         assert result.exit_code == 0
-    
+
     def assert_file_exists(self, path: Path | str, message: str = None):
         """Assert that a file exists."""
         path = Path(path)
         if not path.exists():
             msg = message or f"File does not exist: {path}"
             pytest.fail(msg)
-    
+
     def assert_file_contains(self, path: Path | str, content: str, message: str = None):
         """Assert that a file contains specific content."""
         path = Path(path)
         self.assert_file_exists(path)
-        
+
         file_content = path.read_text()
         if content not in file_content:
             msg = message or f"File {path} does not contain expected content: {content}"
             pytest.fail(msg)
-    
+
     def assert_json_file_has_key(self, path: Path | str, key: str, expected_value: Any = None):
         """Assert that a JSON file has a specific key and optionally check its value."""
         path = Path(path)
         self.assert_file_exists(path)
-        
+
         with open(path) as f:
             data = json.load(f)
-        
+
         if key not in data:
             pytest.fail(f"JSON file {path} does not have key: {key}")
-        
+
         if expected_value is not None and data[key] != expected_value:
             pytest.fail(f"JSON file {path} key '{key}' has value {data[key]}, expected {expected_value}")
-    
+
     def create_mock_registry_server(self, mock_response: dict):
         """Create a mock HTTP server for registry requests."""
         def mock_get(url, *args, **kwargs):
@@ -207,9 +207,9 @@ def test_tool(input: str) -> str:
             response.status_code = 200
             response.json.return_value = mock_response
             return response
-        
+
         return mock_get
-    
+
     def verify_project_structure(self, project_dir: Path, expected_dirs: list[str]):
         """Verify that the project has the expected directory structure."""
         for dir_name in expected_dirs:

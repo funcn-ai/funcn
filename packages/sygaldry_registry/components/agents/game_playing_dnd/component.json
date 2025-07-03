@@ -1,0 +1,93 @@
+{
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "dnd_game_master",
+  "version": "1.1.0",
+  "description": "A comprehensive D&D 5e game master agent with full rules enforcement and persistent campaign state. Features SQLite-based state persistence for multi-session campaigns, fair dice rolling with modifiers, complete D&D 5e API integration, multi-model orchestration, turn-based combat with positioning, spell slot tracking, condition management, death saves, XP/leveling, exhaustion, skill proficiencies, inventory management, and dynamic roleplay with human-in-the-loop support.",
+  "type": "agent",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "agent.py",
+      "destination": "agent.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    },
+    {
+      "source": "example_usage.py",
+      "destination": "example_usage.py",
+      "type": "example"
+    }
+  ],
+  "target_directory_key": "agents",
+  "python_dependencies": [
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0",
+    "httpx>=0.27.0",
+    "asyncio",
+    "aiosqlite>=0.19.0"
+  ],
+  "registry_dependencies": [
+    "dice_roller",
+    "dnd_5e_api",
+    "sqlite_db"
+  ],
+  "environment_variables": [
+    {
+      "name": "OPENAI_API_KEY",
+      "description": "OpenAI API key for DM and AI players",
+      "required": false
+    },
+    {
+      "name": "ANTHROPIC_API_KEY",
+      "description": "Anthropic API key for Claude-based players",
+      "required": false
+    },
+    {
+      "name": "GOOGLE_API_KEY",
+      "description": "Google API key for Gemini-based players",
+      "required": false
+    }
+  ],
+  "example_usage": "```python\nfrom dnd_game_master import (\n    dnd_game_master,\n    dnd_game_master_stream,\n    create_character,\n    list_campaign_sessions,\n    CharacterClass,\n    PlayerType\n)\n\nimport asyncio\n\n# Check for existing sessions\nsessions = await list_campaign_sessions(\"My Epic Campaign\")\n\n# Easy character creation with helper function\nparty = [\n    # Human player\n    create_character(\n        name=\"Aragorn\",\n        race=\"Human\",\n        character_class=\"ranger\",\n        level=5,\n        player_type=PlayerType.HUMAN,\n        personality=[\"Noble ranger\", \"Protector of the weak\"]\n    ),\n    \n    # AI wizard using Claude\n    create_character(\n        name=\"Gandalf\",\n        race=\"Human\",\n        character_class=CharacterClass.WIZARD,\n        level=5,\n        player_type=PlayerType.AI,\n        ai_model=\"claude-3-5-sonnet-20241022\",\n        ai_provider=\"anthropic\",\n        ai_personality=\"Wise wizard who speaks cryptically\",\n        stats={\n            \"strength\": 10,\n            \"dexterity\": 12,\n            \"constitution\": 14,\n            \"intelligence\": 18,\n            \"wisdom\": 16,\n            \"charisma\": 13\n        }\n    ),\n    \n    # AI rogue using GPT-4\n    create_character(\n        name=\"Shadowblade\",\n        race=\"Halfling\",\n        character_class=\"rogue\",\n        level=5,\n        player_type=PlayerType.AI,\n        ai_model=\"gpt-4o\",\n        ai_provider=\"openai\",\n        ai_personality=\"Witty rogue with a heart of gold\"\n    )\n]\n\n# Define encounter tables for different locations\nencounter_tables = {\n    \"Forest Path\": [\n        [(\"Wolf 1\", \"wolf\"), (\"Wolf 2\", \"wolf\"), (\"Wolf 3\", \"wolf\")],\n        [(\"Bandit 1\", \"bandit\"), (\"Bandit 2\", \"bandit\"), (\"Bandit Captain\", \"bandit-captain\")],\n        [(\"Owlbear\", \"owlbear\")]\n    ],\n    \"Goblin Cave\": [\n        [(\"Goblin 1\", \"goblin\"), (\"Goblin 2\", \"goblin\"), (\"Goblin 3\", \"goblin\")],\n        [(\"Hobgoblin\", \"hobgoblin\"), (\"Goblin 1\", \"goblin\"), (\"Goblin 2\", \"goblin\")],\n        [(\"Bugbear\", \"bugbear\")]\n    ]\n}\n\n# Run a persistent campaign session\ngame_state = asyncio.run(\n    dnd_game_master(\n        campaign_name=\"The Lost Artifact\",\n        players=party,\n        starting_location=\"Forest Path\",\n        campaign_tone=\"Epic fantasy with mystery\",\n        dm_style=\"Descriptive and challenging\",\n        dm_provider=\"openai\",\n        dm_model=\"gpt-4o\",\n        session_length=1800,  # 30 minutes\n        enable_persistence=True,  # Enable SQLite state saving\n        load_session_id=None,  # Or provide session ID to continue\n        auto_save_interval=300,  # Auto-save every 5 minutes\n        initial_scene=\"The party stands at the edge of the Whispering Woods...\",\n        quest_hooks=[\n            \"Find the Crystal of Eternal Light\",\n            \"Investigate the disappearances\",\n            \"Discover why wildlife is aggressive\"\n        ],\n        encounter_tables=encounter_tables\n    )\n)\n\n# Or use streaming for real-time updates\nasync for update in dnd_game_master_stream(\n    campaign_name=\"Quick Adventure\",\n    players=party,\n    create_sample_party=False,\n    dm_model=\"gpt-4o-mini\"\n):\n    print(update, end=\"\", flush=True)\n```",
+  "post_add_instructions": "After adding this component:\n\n1. **Set up API keys** for the AI providers you want to use (OpenAI, Anthropic, Google, etc.)\n\n2. **Create characters** using the helper function or custom CharacterSheet objects\n\n3. **Key features**:\n   - **NEW: SQLite state persistence** for multi-session campaigns\n   - **NEW: Auto-save functionality** with configurable intervals\n   - **NEW: Session management** to continue previous games\n   - **NEW: Combat logging** for detailed history\n   - **NEW: Automatic backups** after each session\n   - Fair dice rolling with all proper modifiers (ability, proficiency, expertise)\n   - Complete D&D 5e rules via API (spells, monsters, races, conditions, skills, items)\n   - Multi-model orchestration (different AI models for different characters)\n   - Turn-based combat with grid positioning and movement validation\n   - Spell slot tracking and component requirements\n   - Condition management with duration and saving throws\n   - Death saving throws at 0 HP\n   - XP tracking and automatic level-ups with proper progression\n   - Exhaustion and rest mechanics (short/long)\n   - Skill proficiencies and expertise\n   - Inventory management with attunement\n   - Dynamic roleplay with natural conversation flow\n   - Human-in-the-loop with interrupt capability (Ctrl+C)\n\n4. **State persistence**:\n   - Campaigns saved in `campaigns/` directory\n   - List sessions: `await list_campaign_sessions(\"Campaign Name\")`\n   - Continue session: Set `load_session_id` parameter\n   - Auto-saves during gameplay\n   - Backups in `campaigns/backups/`\n\n5. **Combat features**:\n   - Initiative tracking and turn order\n   - Action economy (action, bonus action, reaction, movement)\n   - Position-based combat on grid\n   - Attack rolls with advantage/disadvantage\n   - Damage rolls with criticals\n   - Condition application and tracking\n   - Encounter difficulty calculations\n\n6. **Customization options**:\n   - Campaign name, tone, and DM style\n   - Session length and enabled features\n   - Initial scene and quest hooks\n   - Encounter tables by location\n   - Custom character personalities for AI players\n   - Persistence settings (enable/disable, save interval)\n\n7. **During gameplay**:\n   - Human players get prompts with timeout\n   - AI players act in character based on personality\n   - DM enforces all D&D 5e rules consistently\n   - All dice rolls show transparent results\n   - Resources are tracked automatically\n   - Progress auto-saved periodically",
+  "tags": [
+    "game",
+    "dnd",
+    "dungeons-and-dragons",
+    "5e",
+    "roleplay",
+    "multi-model",
+    "human-in-the-loop",
+    "turn-based",
+    "orchestration",
+    "dice-rolling",
+    "rules-enforcement",
+    "combat-system",
+    "character-progression",
+    "spell-management",
+    "condition-tracking",
+    "grid-combat",
+    "api-integration",
+    "state-persistence",
+    "sqlite",
+    "campaign-management",
+    "save-system",
+    "multi-session"
+  ],
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
+}

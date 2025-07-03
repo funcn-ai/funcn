@@ -1,4 +1,4 @@
-"""Test fixtures for funcn testing."""
+"""Test fixtures for sygaldry testing."""
 
 from .llm_mocks import (
     LLMMockFactory,

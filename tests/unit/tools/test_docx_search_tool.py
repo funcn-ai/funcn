@@ -11,7 +11,7 @@ class TestDOCXSearchTool(BaseToolTest):
     """Test cases for DOCX search tool."""
 
     component_name = "docx_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/docx_search_tool")
+    component_path = Path("packages/sygaldry_registry/components/tools/docx_search_tool")
 
     def get_component_function(self):
         """Import the tool function."""

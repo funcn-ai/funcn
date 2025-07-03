@@ -1,1 +1,1 @@
-"""Tests for funcn components."""
+"""Tests for sygaldry components."""

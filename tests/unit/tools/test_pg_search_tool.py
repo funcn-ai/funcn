@@ -7,7 +7,7 @@ import pytest
 from datetime import datetime
 
 # Import the tool functions
-from packages.funcn_registry.components.tools.pg_search.tool import (
+from packages.sygaldry_registry.components.tools.pg_search.tool import (
     PGSearchResult,
     QueryResult,
     execute_postgres_query,
@@ -25,50 +25,50 @@ class TestPgSearchTool(BaseToolTest):
     """Test cases for PostgreSQL database search and query tool."""
 
     component_name = "pg_search_tool"
-    component_path = Path("packages/funcn_registry/components/tools/pg_search")
-    
+    component_path = Path("packages/sygaldry_registry/components/tools/pg_search")
+
     def create_mock_pool_and_conn(self, mock_asyncpg, fetch_results=None, side_effect=None):
         """Create properly mocked pool and connection for testing."""
         mock_pool = AsyncMock()
         mock_asyncpg.create_pool = AsyncMock(return_value=mock_pool)
-        
+
         mock_conn = AsyncMock()
         # Create a proper async context manager for pool.acquire()
         mock_acquire_cm = AsyncMock()
         mock_acquire_cm.__aenter__ = AsyncMock(return_value=mock_conn)
         mock_acquire_cm.__aexit__ = AsyncMock(return_value=None)
         mock_pool.acquire = Mock(return_value=mock_acquire_cm)
-        
+
         if side_effect:
             mock_conn.fetch = AsyncMock(side_effect=side_effect)
         elif fetch_results is not None:
             mock_conn.fetch = AsyncMock(return_value=fetch_results)
-        
+
         mock_pool.close = AsyncMock()
-        
+
         return mock_pool, mock_conn
-    
+
     def create_mock_record(self, data_dict):
         """Create a mock asyncpg Record object."""
         class MockRecord:
             def __init__(self, data):
                 self._data = data
-                
+
             def keys(self):
                 return list(self._data.keys())
-                
+
             def values(self):
                 return list(self._data.values())
-                
+
             def items(self):
                 return list(self._data.items())
-                
+
             def __iter__(self):
                 return iter(self._data.items())
-                
+
             def __getitem__(self, key):
                 return self._data[key]
-                
+
         return MockRecord(data_dict)
 
     def get_component_function(self):
@@ -90,10 +90,10 @@ class TestPgSearchTool(BaseToolTest):
         # Create mock records that behave like asyncpg Record objects
         mock_record1 = self.create_mock_record({"id": 1, "name": "John Doe", "email": "john@example.com"})
         mock_record2 = self.create_mock_record({"id": 2, "name": "Jane Smith", "email": "jane@example.com"})
-        
+
         mock_results = [mock_record1, mock_record2]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_results)
 
             result = await query_postgres("postgresql://localhost/test", "SELECT * FROM users LIMIT 2")
@@ -108,10 +108,10 @@ class TestPgSearchTool(BaseToolTest):
     async def test_search_table_functionality(self):
         """Test table search functionality."""
         mock_record = self.create_mock_record({"id": 1, "name": "Gaming Laptop", "description": "High-performance laptop for gaming"})
-        
+
         mock_results = [mock_record]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_results)
 
             result = await search_table(
@@ -130,10 +130,10 @@ class TestPgSearchTool(BaseToolTest):
     async def test_full_text_search(self):
         """Test full-text search functionality."""
         mock_record1 = self.create_mock_record({"id": 1, "title": "Python Programming", "content": "Learn Python basics"})
-        
+
         mock_results = [mock_record1]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_results)
 
             result = await full_text_search(
@@ -152,7 +152,7 @@ class TestPgSearchTool(BaseToolTest):
     async def test_get_table_data_with_conditions(self):
         """Test retrieving table data with WHERE conditions."""
         mock_record = self.create_mock_record({"id": 1, "status": "pending", "total": 150.00})
-        
+
         mock_results = [mock_record]
 
         # Mock schema result
@@ -163,10 +163,10 @@ class TestPgSearchTool(BaseToolTest):
             "column_default": None,
             "character_maximum_length": None
         })
-        
+
         mock_schema_results = [mock_schema_record]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, side_effect=[mock_results, mock_schema_results])
 
             result = await get_table_data(
@@ -184,7 +184,7 @@ class TestPgSearchTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_connection_error_handling(self):
         """Test database connection error handling."""
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_asyncpg.create_pool = AsyncMock(side_effect=Exception("Connection refused"))
 
             result = await execute_postgres_query("postgresql://localhost/test", query="SELECT 1")
@@ -195,7 +195,7 @@ class TestPgSearchTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_query_timeout(self):
         """Test query timeout handling."""
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, side_effect=TimeoutError("Query timeout"))
 
             result = await execute_postgres_query("postgresql://localhost/test", query="SELECT pg_sleep(30)")
@@ -208,7 +208,7 @@ class TestPgSearchTool(BaseToolTest):
         """Test handling of empty result sets."""
         mock_results = []
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_results)
 
             result = await execute_postgres_query("postgresql://localhost/test", query="SELECT * FROM users WHERE id = -1")
@@ -221,7 +221,7 @@ class TestPgSearchTool(BaseToolTest):
     async def test_invalid_connection_string(self):
         """Test behavior with invalid connection string."""
         result = await execute_postgres_query("invalid://connection", query="SELECT 1")
-        
+
         assert result.success is False
         assert "Connection string must start with postgresql:// or postgres://" in result.error
 
@@ -229,10 +229,10 @@ class TestPgSearchTool(BaseToolTest):
     async def test_null_value_handling(self):
         """Test handling of NULL values in results."""
         mock_record = self.create_mock_record({"id": 1, "name": "Test User", "email": None})
-        
+
         mock_results = [mock_record]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_results)
 
             result = await execute_postgres_query("postgresql://localhost/test", query="SELECT * FROM users WHERE email IS NULL")
@@ -244,10 +244,10 @@ class TestPgSearchTool(BaseToolTest):
     async def test_complex_where_conditions(self):
         """Test complex WHERE conditions including IN and NULL."""
         mock_record = self.create_mock_record({"id": 1, "status": "active", "category": "electronics"})
-        
+
         mock_results = [mock_record]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_results)
 
             result = await execute_postgres_query(
@@ -271,7 +271,7 @@ class TestPgSearchTool(BaseToolTest):
             mock_record = self.create_mock_record({"id": i + 1, "created_at": f"2023-01-{i+1:02d}"})
             mock_records.append(mock_record)
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             mock_pool, mock_conn = self.create_mock_pool_and_conn(mock_asyncpg, fetch_results=mock_records)
 
             result = await execute_postgres_query(
@@ -289,7 +289,7 @@ class TestPgSearchTool(BaseToolTest):
         """Validate the tool output structure."""
         # Output should be a PGSearchResult
         assert isinstance(output, dict) or isinstance(output, PGSearchResult)
-        
+
         if isinstance(output, dict):
             assert "success" in output
             assert "query" in output
@@ -305,38 +305,38 @@ class TestPgSearchTool(BaseToolTest):
         for func in functions:
             assert func.__doc__ is not None
             assert len(func.__doc__) > 20
-            
+
     @pytest.mark.asyncio
     async def test_concurrent_queries(self):
         """Test handling of concurrent queries."""
         mock_results1 = [self.create_mock_record({"count": 100})]
         mock_results2 = [self.create_mock_record({"sum": 5000})]
 
-        with patch("packages.funcn_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
+        with patch("packages.sygaldry_registry.components.tools.pg_search.tool.asyncpg") as mock_asyncpg:
             # Create separate pools for each query
             mock_pool1 = AsyncMock()
             mock_pool2 = AsyncMock()
-            
+
             mock_asyncpg.create_pool = AsyncMock(side_effect=[mock_pool1, mock_pool2])
 
             # Create two mock connections with proper async context managers
             mock_conn1 = AsyncMock()
             mock_conn2 = AsyncMock()
-            
+
             # Create async context managers for pool.acquire()
             mock_acquire_cm1 = AsyncMock()
             mock_acquire_cm1.__aenter__ = AsyncMock(return_value=mock_conn1)
             mock_acquire_cm1.__aexit__ = AsyncMock(return_value=None)
             mock_pool1.acquire = Mock(return_value=mock_acquire_cm1)
-            
+
             mock_acquire_cm2 = AsyncMock()
             mock_acquire_cm2.__aenter__ = AsyncMock(return_value=mock_conn2)
             mock_acquire_cm2.__aexit__ = AsyncMock(return_value=None)
             mock_pool2.acquire = Mock(return_value=mock_acquire_cm2)
-            
+
             mock_conn1.fetch = AsyncMock(return_value=mock_results1)
             mock_conn2.fetch = AsyncMock(return_value=mock_results2)
-            
+
             mock_pool1.close = AsyncMock()
             mock_pool2.close = AsyncMock()
 

@@ -10,7 +10,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
     """Test cases for multi source news verification agent."""
 
     component_name = "multi_source_news_verification"
-    component_path = Path("packages/funcn_registry/components/agents/multi_source_news_verification")
+    component_path = Path("packages/sygaldry_registry/components/agents/multi_source_news_verification")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -55,7 +55,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -83,7 +83,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -140,7 +140,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -164,7 +164,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -191,7 +191,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -214,7 +214,7 @@ class TestMultiSourceNewsVerificationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "multi_source_news_verification", "packages/funcn_registry/components/agents/multi_source_news_verification/agent.py"
+            "multi_source_news_verification", "packages/sygaldry_registry/components/agents/multi_source_news_verification/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

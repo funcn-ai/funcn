@@ -1,6 +1,6 @@
-# Funcn Code Standards
+# Sygaldry Code Standards
 
-This file defines the code standards for the Funcn project to ensure all generated code passes pre-commit hooks without requiring manual cleanup.
+This file defines the code standards for the Sygaldry project to ensure all generated code passes pre-commit hooks without requiring manual cleanup.
 
 ## Python Code Style
 
@@ -90,8 +90,8 @@ from pydantic import BaseModel
 from typer import Typer
 
 # Local imports
-from funcn_cli.core import utils
-from funcn_cli.models import Component
+from sygaldry_cli.core import utils
+from sygaldry_cli.models import Component
 ```
 
 ### Mirascope Patterns
@@ -214,7 +214,7 @@ __all__ = ["tool_function"]
 
 ```python
 import pytest
-from funcn_cli.components import my_component
+from sygaldry_cli.components import my_component
 
 @pytest.mark.asyncio
 async def test_async_function():

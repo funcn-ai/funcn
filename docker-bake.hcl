@@ -4,7 +4,7 @@ variable "REGISTRY" {
 }
 
 variable "IMAGE_NAME" {
-  default = "funcn"
+  default = "sygaldry"
 }
 
 variable "TAG" {

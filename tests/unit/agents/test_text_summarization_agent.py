@@ -10,7 +10,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
     """Test cases for text summarization agent."""
 
     component_name = "text_summarization_agent"
-    component_path = Path("packages/funcn_registry/components/agents/text_summarization")
+    component_path = Path("packages/sygaldry_registry/components/agents/text_summarization")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+            "text_summarization_agent", "packages/sygaldry_registry/components/agents/text_summarization/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -53,7 +53,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+            "text_summarization_agent", "packages/sygaldry_registry/components/agents/text_summarization/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -81,7 +81,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+            "text_summarization_agent", "packages/sygaldry_registry/components/agents/text_summarization/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -138,7 +138,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+            "text_summarization_agent", "packages/sygaldry_registry/components/agents/text_summarization/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -168,7 +168,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+            "text_summarization_agent", "packages/sygaldry_registry/components/agents/text_summarization/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -196,7 +196,7 @@ class TestTextSummarizationAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "text_summarization_agent", "packages/funcn_registry/components/agents/text_summarization/agent.py"
+            "text_summarization_agent", "packages/sygaldry_registry/components/agents/text_summarization/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

@@ -1,32 +1,32 @@
-"""Tests for the funcn list command."""
+"""Tests for the sygaldry list command."""
 
 from __future__ import annotations
 
 import httpx
 import pytest
 import typer
-from funcn_cli.commands.list_components import list_components
-from funcn_cli.core.models import RegistryComponentEntry, RegistryIndex
+from sygaldry_cli.commands.list_components import list_components
+from sygaldry_cli.core.models import RegistryComponentEntry, RegistryIndex
 from unittest.mock import ANY, MagicMock, patch
 
 
 class TestListComponents:
-    """Test the funcn list command."""
+    """Test the sygaldry list command."""
 
     @pytest.fixture
     def mock_config_manager(self, mocker):
         """Mock ConfigManager."""
-        return mocker.patch("funcn_cli.commands.list_components.ConfigManager")
+        return mocker.patch("sygaldry_cli.commands.list_components.ConfigManager")
 
     @pytest.fixture
     def mock_registry_handler(self, mocker):
         """Mock RegistryHandler."""
-        return mocker.patch("funcn_cli.commands.list_components.RegistryHandler")
+        return mocker.patch("sygaldry_cli.commands.list_components.RegistryHandler")
 
     @pytest.fixture
     def mock_console(self, mocker):
         """Mock console output."""
-        return mocker.patch("funcn_cli.commands.list_components.console")
+        return mocker.patch("sygaldry_cli.commands.list_components.console")
 
     @pytest.fixture
     def sample_components(self):
@@ -173,7 +173,7 @@ class TestListComponents:
             captured_rows.append(args)
 
         # Execute with row capture
-        with patch("funcn_cli.commands.list_components.Table") as mock_table_class:
+        with patch("sygaldry_cli.commands.list_components.Table") as mock_table_class:
             mock_table = MagicMock()
             mock_table.add_row = MagicMock(side_effect=capture_add_row)
             mock_table_class.return_value = mock_table
@@ -209,7 +209,7 @@ class TestListComponents:
         # Execute and verify exit is raised
         with pytest.raises(typer.Exit) as exc_info:
             list_components(ctx, source=None, all_sources=False)
-        
+
         assert exc_info.value.exit_code == 1
         # Should print error
         error_msg = str(mock_console.print.call_args[0][0])
@@ -357,7 +357,7 @@ class TestListComponents:
         ctx = typer.Context(command=MagicMock())
 
         # Capture table creation
-        with patch("funcn_cli.commands.list_components.Table") as mock_table_class:
+        with patch("sygaldry_cli.commands.list_components.Table") as mock_table_class:
             mock_table = MagicMock()
             captured_columns = []
 

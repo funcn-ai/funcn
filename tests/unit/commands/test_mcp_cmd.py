@@ -1,4 +1,4 @@
-"""Tests for the funcn mcp command."""
+"""Tests for the sygaldry mcp command."""
 
 from __future__ import annotations
 
@@ -16,33 +16,33 @@ sys.modules['mcp.client'] = MagicMock()
 sys.modules['mcp.client.stdio'] = MagicMock()
 sys.modules['mirascope.mcp'] = MagicMock()
 
-from funcn_cli.commands.mcp_cmd import run_mcp_agent
+from sygaldry_cli.commands.mcp_cmd import run_mcp_agent
 
 
 class TestMcp:
-    """Test the funcn mcp command."""
+    """Test the sygaldry mcp command."""
 
     @pytest.fixture
     def mock_console(self, mocker):
         """Mock console output."""
-        return mocker.patch("funcn_cli.commands.mcp_cmd.console")
+        return mocker.patch("sygaldry_cli.commands.mcp_cmd.console")
 
     @pytest.fixture
     def mock_config_manager(self, mocker):
         """Mock ConfigManager."""
-        return mocker.patch("funcn_cli.commands.mcp_cmd.ConfigManager")
+        return mocker.patch("sygaldry_cli.commands.mcp_cmd.ConfigManager")
 
     @pytest.fixture
-    def mock_get_funcn_config(self, mocker):
-        """Mock get_funcn_config function."""
-        return mocker.patch("funcn_cli.commands.mcp_cmd.get_funcn_config")
+    def mock_get_sygaldry_config(self, mocker):
+        """Mock get_sygaldry_config function."""
+        return mocker.patch("sygaldry_cli.commands.mcp_cmd.get_sygaldry_config")
 
     @pytest.fixture
     def tmp_project(self, tmp_path):
         """Create a temporary project structure."""
-        # Create funcn.json
-        funcn_config = {
-            "$schema": "./funcn.schema.json",
+        # Create sygaldry.json
+        sygaldry_config = {
+            "$schema": "./sygaldry.schema.json",
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
             "defaultModel": "gpt-4o-mini",
@@ -50,7 +50,7 @@ class TestMcp:
             "default_mcp_host": "localhost",
             "default_mcp_port": 8080,
         }
-        (tmp_path / "funcn.json").write_text(json.dumps(funcn_config, indent=2))
+        (tmp_path / "sygaldry.json").write_text(json.dumps(sygaldry_config, indent=2))
 
         # Create agent directory structure
         agent_dir = tmp_path / "src" / "agents" / "test_agent"
@@ -66,14 +66,14 @@ print(f"MCP Server started with args: {sys.argv}")
 
         return tmp_path
 
-    def test_run_mcp_agent_no_funcn_json(self, mock_console, mock_config_manager, mock_get_funcn_config):
-        """Test running MCP agent without funcn.json."""
+    def test_run_mcp_agent_no_sygaldry_json(self, mock_console, mock_config_manager, mock_get_sygaldry_config):
+        """Test running MCP agent without sygaldry.json."""
         # Setup
         mock_cfg = MagicMock()
         mock_cfg.project_root = Path("/test/project")
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = None
+        mock_get_sygaldry_config.return_value = None
 
         # Execute
         with pytest.raises(typer.Exit) as exc_info:
@@ -83,16 +83,16 @@ print(f"MCP Server started with args: {sys.argv}")
 
         # Verify error message
         console_calls = [str(call) for call in mock_console.print.call_args_list]
-        assert any("funcn.json not found" in call for call in console_calls)
+        assert any("sygaldry.json not found" in call for call in console_calls)
 
-    def test_run_mcp_agent_no_agent_directory(self, mock_console, mock_config_manager, mock_get_funcn_config):
+    def test_run_mcp_agent_no_agent_directory(self, mock_console, mock_config_manager, mock_get_sygaldry_config):
         """Test running MCP agent without agent directory configured."""
         # Setup
         mock_cfg = MagicMock()
         mock_cfg.project_root = Path("/test/project")
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             # Missing agentDirectory
             "defaultProvider": "openai",
         }
@@ -108,7 +108,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert any("Agent directory not configured" in call for call in console_calls)
 
     def test_run_mcp_agent_missing_mcp_server(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_path
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_path
     ):
         """Test running MCP agent when mcp_server.py doesn't exist."""
         # Setup
@@ -116,7 +116,7 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_path
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
@@ -136,7 +136,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert any("MCP server entrypoint 'mcp_server.py' not found" in call for call in console_calls)
 
     def test_run_mcp_agent_stdio_success(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test successful MCP agent run in stdio mode."""
         # Setup
@@ -144,7 +144,7 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
@@ -159,7 +159,7 @@ print(f"MCP Server started with args: {sys.argv}")
             )
         ]
 
-        mock_stdio_client = mocker.patch("funcn_cli.commands.mcp_cmd.stdio_client")
+        mock_stdio_client = mocker.patch("sygaldry_cli.commands.mcp_cmd.stdio_client")
         mock_stdio_client.return_value.__aenter__.return_value = mock_client
 
         # Mock asyncio.run to capture the async function
@@ -184,7 +184,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert any("test_prompt" in call for call in console_calls)
 
     def test_run_mcp_agent_different_modes(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test MCP agent with different modes."""
         # Setup
@@ -192,7 +192,7 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
             "default_mcp_host": "0.0.0.0",
@@ -200,14 +200,14 @@ print(f"MCP Server started with args: {sys.argv}")
         }
 
         # Mock clients
-        mock_stdio_client = mocker.patch("funcn_cli.commands.mcp_cmd.stdio_client")
-        mock_sse_client = mocker.patch("funcn_cli.commands.mcp_cmd.sse_client")
+        mock_stdio_client = mocker.patch("sygaldry_cli.commands.mcp_cmd.stdio_client")
+        mock_sse_client = mocker.patch("sygaldry_cli.commands.mcp_cmd.sse_client")
 
         # Mock asyncio.run to execute the coroutine
         def run_async(coro):
             loop = asyncio.new_event_loop()
             return loop.run_until_complete(coro)
-        
+
         mocker.patch("asyncio.run", side_effect=run_async)
 
         # Test stdio mode
@@ -220,7 +220,7 @@ print(f"MCP Server started with args: {sys.argv}")
         # Note: The command still uses stdio_client for server params, but would connect with sse_client
 
     def test_run_mcp_agent_custom_host_port(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test MCP agent with custom host and port."""
         # Setup
@@ -228,29 +228,29 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
 
         # Mock StdioServerParameters to capture its creation
         captured_args = None
-        
+
         original_stdio_params = sys.modules['mcp.client.stdio'].StdioServerParameters
-        
+
         def mock_stdio_params(command, args, env):
             nonlocal captured_args
             captured_args = args
             return original_stdio_params(command, args, env)
-        
-        mocker.patch("funcn_cli.commands.mcp_cmd.StdioServerParameters", side_effect=mock_stdio_params)
-        mocker.patch("funcn_cli.commands.mcp_cmd.stdio_client", return_value=MagicMock(__aenter__=AsyncMock(return_value=AsyncMock())))
-        
+
+        mocker.patch("sygaldry_cli.commands.mcp_cmd.StdioServerParameters", side_effect=mock_stdio_params)
+        mocker.patch("sygaldry_cli.commands.mcp_cmd.stdio_client", return_value=MagicMock(__aenter__=AsyncMock(return_value=AsyncMock())))
+
         # Mock asyncio.run to execute the coroutine
         def run_async(coro):
             loop = asyncio.new_event_loop()
             return loop.run_until_complete(coro)
-        
+
         mocker.patch("asyncio.run", side_effect=run_async)
 
         # Execute
@@ -264,7 +264,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert "9999" in captured_args
 
     def test_run_mcp_agent_connection_refused(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test MCP agent when connection is refused."""
         # Setup
@@ -272,7 +272,7 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
@@ -281,14 +281,14 @@ print(f"MCP Server started with args: {sys.argv}")
         async def raise_connection_refused():
             raise ConnectionRefusedError("Connection refused")
 
-        mock_stdio_client = mocker.patch("funcn_cli.commands.mcp_cmd.stdio_client")
+        mock_stdio_client = mocker.patch("sygaldry_cli.commands.mcp_cmd.stdio_client")
         mock_stdio_client.return_value.__aenter__.side_effect = raise_connection_refused
 
         # Mock asyncio.run
         def run_async(coro):
             loop = asyncio.new_event_loop()
             return loop.run_until_complete(coro)
-        
+
         mocker.patch("asyncio.run", side_effect=run_async)
 
         # Execute
@@ -299,7 +299,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert any("Connection refused by MCP server" in call for call in console_calls)
 
     def test_run_mcp_agent_keyboard_interrupt(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test MCP agent handling keyboard interrupt."""
         # Setup
@@ -307,7 +307,7 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
@@ -324,7 +324,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert any("Finished running agent" in call for call in console_calls)
 
     def test_run_mcp_agent_no_prompts(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test MCP agent when no prompts are exposed."""
         # Setup
@@ -332,7 +332,7 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
@@ -341,14 +341,14 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_client = AsyncMock()
         mock_client.list_prompts.return_value = []
 
-        mock_stdio_client = mocker.patch("funcn_cli.commands.mcp_cmd.stdio_client")
+        mock_stdio_client = mocker.patch("sygaldry_cli.commands.mcp_cmd.stdio_client")
         mock_stdio_client.return_value.__aenter__.return_value = mock_client
 
         # Mock asyncio.run
         def run_async(coro):
             loop = asyncio.new_event_loop()
             return loop.run_until_complete(coro)
-        
+
         mocker.patch("asyncio.run", side_effect=run_async)
 
         # Execute
@@ -359,7 +359,7 @@ print(f"MCP Server started with args: {sys.argv}")
         assert any("No prompts exposed by agent" in call for call in console_calls)
 
     def test_run_mcp_agent_case_insensitive_mode(
-        self, mock_console, mock_config_manager, mock_get_funcn_config, tmp_project, mocker
+        self, mock_console, mock_config_manager, mock_get_sygaldry_config, tmp_project, mocker
     ):
         """Test that mode parameter is case insensitive."""
         # Setup
@@ -367,16 +367,16 @@ print(f"MCP Server started with args: {sys.argv}")
         mock_cfg.project_root = tmp_project
         mock_config_manager.return_value = mock_cfg
 
-        mock_get_funcn_config.return_value = {
+        mock_get_sygaldry_config.return_value = {
             "agentDirectory": "src/agents",
             "defaultProvider": "openai",
         }
 
-        mocker.patch("funcn_cli.commands.mcp_cmd.stdio_client")
+        mocker.patch("sygaldry_cli.commands.mcp_cmd.stdio_client")
         mocker.patch("asyncio.run")
 
         # Test different case variations
         for mode in ["STDIO", "Stdio", "StDiO"]:
             run_mcp_agent(agent_name="test_agent", mode=mode, host=None, port=None)
-            
+
             # Should not raise errors

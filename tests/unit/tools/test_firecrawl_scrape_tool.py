@@ -3,7 +3,7 @@
 import asyncio
 import os
 import pytest
-from packages.funcn_registry.components.tools.firecrawl_scrape.tool import (
+from packages.sygaldry_registry.components.tools.firecrawl_scrape.tool import (
     FirecrawlScrapeArgs,
     FirecrawlScrapeResponse,
     PageMetadata,
@@ -18,7 +18,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     """Test cases for Firecrawl web scraping tool."""
 
     component_name = "firecrawl_scrape_tool"
-    component_path = Path("packages/funcn_registry/components/tools/firecrawl_scrape")
+    component_path = Path("packages/sygaldry_registry/components/tools/firecrawl_scrape")
 
     def get_component_function(self):
         """Get the main tool function."""
@@ -76,7 +76,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             },
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -109,7 +109,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "content": "Full Content Main article text here.",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -138,7 +138,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "screenshot": "base64encodedscreenshot==",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -153,7 +153,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
 
             assert result.success is True
             assert result.screenshot == "base64encodedscreenshot=="
-            
+
             # Verify screenshot parameter was passed
             mock_app.scrape_url.assert_called_once()
             call_args = mock_app.scrape_url.call_args
@@ -167,7 +167,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "markdown": "# Filtered Content",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -195,7 +195,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "markdown": "# Dynamic Content\n\nLoaded after JavaScript execution.",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -232,7 +232,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "error": "Failed to load page: 404 Not Found",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -248,7 +248,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_scrape_with_no_response(self):
         """Test handling when API returns None."""
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=None)
@@ -263,7 +263,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_exception_handling(self):
         """Test handling of exceptions during scraping."""
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(side_effect=Exception("Network error"))
@@ -300,7 +300,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             },
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -340,7 +340,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             },
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -364,7 +364,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "markdown": "# Page without scripts",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -408,7 +408,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "metadata": {"title": "Empty Page"},
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -430,7 +430,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "html": "<h1>Special Characters</h1><p>© 2024 • Émojis: 🔥 💻 🚀</p>",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -452,7 +452,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_rate_limit_exception(self):
         """Test handling of rate limit errors."""
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(side_effect=Exception("Rate limit exceeded"))
@@ -467,7 +467,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     @pytest.mark.asyncio
     async def test_timeout_exception(self):
         """Test handling of timeout errors."""
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(side_effect=TimeoutError("Request timeout"))
@@ -487,7 +487,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "markdown": "# Main Content Only",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -508,7 +508,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     async def test_default_parameters(self):
         """Test default parameter values."""
         args = FirecrawlScrapeArgs(url="https://example.com")
-        
+
         assert args.formats == ["markdown", "html"]
         assert args.only_main_content is True
         assert args.remove_scripts is True
@@ -521,11 +521,11 @@ class TestFirecrawlScrapeTool(BaseToolTest):
     async def test_concurrent_scrapes(self):
         """Test concurrent scraping operations."""
         mock_responses = [
-            {"success": True, "markdown": f"# Page {i}"} 
+            {"success": True, "markdown": f"# Page {i}"}
             for i in range(3)
         ]
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(side_effect=mock_responses)
@@ -536,7 +536,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
                     scrape_website(FirecrawlScrapeArgs(url=f"https://example.com/page{i}"))
                     for i in range(3)
                 ]
-                
+
                 results = await asyncio.gather(*tasks)
 
             assert len(results) == 3
@@ -577,7 +577,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             # No content since no formats requested
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)
@@ -603,7 +603,7 @@ class TestFirecrawlScrapeTool(BaseToolTest):
             "markdown": "# Search Results",
         }
 
-        with patch("packages.funcn_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
+        with patch("packages.sygaldry_registry.components.tools.firecrawl_scrape.tool.FirecrawlApp") as mock_firecrawl:
             mock_app = Mock()
             mock_firecrawl.return_value = mock_app
             mock_app.scrape_url = Mock(return_value=mock_response)

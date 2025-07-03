@@ -1,12 +1,13 @@
 # Testing Standards
 
-This document defines testing standards for the Funcn project, ensuring good coverage while maintaining practical, maintainable tests.
+This document defines testing standards for the Sygaldry project, ensuring good coverage while maintaining practical, maintainable tests.
 
 ## Testing Philosophy
 
 **80/20 Rule**: Focus on testing the 80% of code paths that matter most, not every edge case.
 
 Key principles:
+
 1. **Test behavior, not implementation**
 2. **Prioritize critical paths and happy paths**
 3. **Make tests readable and maintainable**
@@ -50,8 +51,8 @@ tests/
 import pytest
 from unittest.mock import Mock, patch
 
-from funcn_cli.core.component_manager import ComponentManager
-from funcn_cli.core.models import Component
+from sygaldry_cli.core.component_manager import ComponentManager
+from sygaldry_cli.core.models import Component
 
 
 class TestComponentManager:
@@ -152,7 +153,7 @@ pytest -m integration
 pytest -m "not slow"
 
 # Run tests with coverage
-pytest --cov=funcn_cli --cov-report=html
+pytest --cov=sygaldry_cli --cov-report=html
 
 # Run specific test file
 pytest tests/unit/test_component_manager.py
@@ -172,12 +173,14 @@ pytest -n auto
 ### Target Coverage: 80%
 
 Focus coverage on:
+
 1. **Core business logic** (90%+ coverage)
 2. **Public APIs** (85%+ coverage)
 3. **Critical paths** (95%+ coverage)
 4. **Error handling** (80%+ coverage)
 
 Skip coverage for:
+
 - Generated code
 - Third-party integrations (mock instead)
 - Temporary debugging code
@@ -265,7 +268,7 @@ def test_pattern_example():
 ### 5. Mock External Dependencies
 
 ```python
-@patch("funcn_cli.core.utils.fetch_from_registry")
+@patch("sygaldry_cli.core.utils.fetch_from_registry")
 def test_fetch_component(mock_fetch):
     """Test fetching component without hitting real API."""
     # Arrange
@@ -315,14 +318,14 @@ def test_component_file_creation(tmp_path):
     # Assert
     assert (component_dir / "component.json").exists()
     assert (component_dir / "agent.py").exists()
-    assert (component_dir / "funcn.md").exists()
+    assert (component_dir / "sygaldry.md").exists()
 ```
 
 ### Testing CLI Commands
 
 ```python
 from typer.testing import CliRunner
-from funcn_cli.main import app
+from sygaldry_cli.main import app
 
 def test_cli_add_command():
     """Test CLI add command."""
@@ -337,6 +340,7 @@ def test_cli_add_command():
 ## When NOT to Write Tests
 
 Skip tests for:
+
 1. **Trivial code**: Simple property accessors
 2. **Framework code**: Don't test Typer, Pydantic, etc.
 3. **Temporary code**: Debugging utilities

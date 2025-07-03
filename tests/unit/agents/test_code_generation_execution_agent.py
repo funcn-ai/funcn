@@ -15,7 +15,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
     """Test cases for code generation and execution agent."""
 
     component_name = "code_generation_execution_agent"
-    component_path = Path("packages/funcn_registry/components/agents/code_generation_execution")
+    component_path = Path("packages/sygaldry_registry/components/agents/code_generation_execution")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -23,7 +23,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -60,7 +60,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -122,7 +122,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -151,7 +151,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -182,7 +182,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -212,7 +212,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -242,7 +242,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -267,7 +267,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -313,7 +313,7 @@ class TestCodeGenerationExecutionAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "code_generation_execution_agent", "packages/funcn_registry/components/agents/code_generation_execution/agent.py"
+            "code_generation_execution_agent", "packages/sygaldry_registry/components/agents/code_generation_execution/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

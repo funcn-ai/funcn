@@ -1,37 +1,37 @@
-"""Tests for the funcn build command."""
+"""Tests for the sygaldry build command."""
 
 from __future__ import annotations
 
 import json
 import pytest
 import typer
-from funcn_cli.commands.build_cmd import build
 from pathlib import Path
+from sygaldry_cli.commands.build_cmd import build
 from unittest.mock import MagicMock, call
 
 
 class TestBuild:
-    """Test the funcn build command."""
+    """Test the sygaldry build command."""
 
     @pytest.fixture
     def mock_console(self, mocker):
         """Mock console output."""
-        return mocker.patch("funcn_cli.commands.build_cmd.console")
+        return mocker.patch("sygaldry_cli.commands.build_cmd.console")
 
     @pytest.fixture
     def tmp_project(self, tmp_path):
         """Create a temporary project structure."""
         # Create default registry structure
-        registry_dir = tmp_path / "packages" / "funcn_registry"
+        registry_dir = tmp_path / "packages" / "sygaldry_registry"
         registry_dir.mkdir(parents=True)
-        
+
         # Create component manifests
         agents_dir = registry_dir / "src" / "agents"
         agents_dir.mkdir(parents=True)
-        
+
         tools_dir = registry_dir / "src" / "tools"
         tools_dir.mkdir(parents=True)
-        
+
         # Create sample component manifests
         text_agent_manifest = {
             "name": "text_summarization_agent",
@@ -47,7 +47,7 @@ class TestBuild:
             "registry_dependencies": [],
             "environment_variables": []
         }
-        
+
         search_tool_manifest = {
             "name": "duckduckgo_search_tool",
             "version": "1.0.0",
@@ -62,16 +62,16 @@ class TestBuild:
             "registry_dependencies": [],
             "environment_variables": []
         }
-        
+
         # Write manifest files
         text_agent_dir = agents_dir / "text_summarization_agent"
         text_agent_dir.mkdir()
         (text_agent_dir / "component.json").write_text(json.dumps(text_agent_manifest, indent=2))
-        
+
         search_tool_dir = tools_dir / "duckduckgo_search_tool"
         search_tool_dir.mkdir()
         (search_tool_dir / "component.json").write_text(json.dumps(search_tool_manifest, indent=2))
-        
+
         # Create registry index
         registry_index = {
             "registry_version": "1.0.0",
@@ -92,30 +92,30 @@ class TestBuild:
                 }
             ]
         }
-        
+
         (registry_dir / "index.json").write_text(json.dumps(registry_index, indent=2))
-        
+
         return tmp_path
 
     def test_build_default_paths(self, mock_console, tmp_project):
         """Test build with default registry and output paths."""
         # Execute build
         build(registry=None, output="./public/r", cwd=tmp_project)
-        
+
         # Verify output directory was created
         output_dir = tmp_project / "public" / "r"
         assert output_dir.exists()
-        
+
         # Verify component files were created
         assert (output_dir / "text_summarization_agent.json").exists()
         assert (output_dir / "duckduckgo_search_tool.json").exists()
         assert (output_dir / "index.json").exists()
-        
+
         # Verify content
         text_agent_data = json.loads((output_dir / "text_summarization_agent.json").read_text())
         assert text_agent_data["name"] == "text_summarization_agent"
         assert text_agent_data["version"] == "1.0.0"
-        
+
         # Verify console output
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("text_summarization_agent.json" in call for call in console_calls)
@@ -128,7 +128,7 @@ class TestBuild:
         # Create custom registry location
         custom_registry = tmp_project / "custom" / "registry.json"
         custom_registry.parent.mkdir(parents=True)
-        
+
         registry_data = {
             "registry_version": "1.0.0",
             "components": [
@@ -142,7 +142,7 @@ class TestBuild:
             ]
         }
         custom_registry.write_text(json.dumps(registry_data, indent=2))
-        
+
         # Create manifest
         manifest_data = {
             "name": "custom_component",
@@ -159,10 +159,10 @@ class TestBuild:
             "environment_variables": []
         }
         (custom_registry.parent / "component.json").write_text(json.dumps(manifest_data, indent=2))
-        
+
         # Execute build
         build(registry=str(custom_registry), output="./output", cwd=tmp_project)
-        
+
         # Verify output
         output_dir = tmp_project / "output"
         assert (output_dir / "custom_component.json").exists()
@@ -170,12 +170,12 @@ class TestBuild:
     def test_build_absolute_paths(self, mock_console, tmp_project):
         """Test build with absolute paths."""
         # Use absolute paths
-        registry_path = tmp_project / "packages" / "funcn_registry" / "index.json"
+        registry_path = tmp_project / "packages" / "sygaldry_registry" / "index.json"
         output_path = tmp_project / "custom_output"
-        
+
         # Execute build
         build(registry=str(registry_path), output=str(output_path), cwd=None)
-        
+
         # Verify output
         assert output_path.exists()
         assert (output_path / "text_summarization_agent.json").exists()
@@ -185,9 +185,9 @@ class TestBuild:
         # Use non-existent registry
         with pytest.raises(typer.Exit) as exc_info:
             build(registry="nonexistent.json", output="./output", cwd=tmp_project)
-        
+
         assert exc_info.value.exit_code == 1
-        
+
         # Verify error message
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("Registry file not found:" in call for call in console_calls)
@@ -197,13 +197,13 @@ class TestBuild:
         # Create invalid JSON file
         invalid_registry = tmp_project / "invalid.json"
         invalid_registry.write_text("{ invalid json }")
-        
+
         # Execute build
         with pytest.raises(typer.Exit) as exc_info:
             build(registry=str(invalid_registry), output="./output", cwd=tmp_project)
-        
+
         assert exc_info.value.exit_code == 1
-        
+
         # Verify error message
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("Invalid JSON in registry file:" in call for call in console_calls)
@@ -213,11 +213,11 @@ class TestBuild:
         # Create registry with empty components
         empty_registry = tmp_project / "empty.json"
         empty_registry.write_text(json.dumps({"registry_version": "1.0.0", "components": []}, indent=2))
-        
+
         # Execute build
         with pytest.raises(typer.Exit):
             build(registry=str(empty_registry), output="./output", cwd=tmp_project)
-        
+
         # Verify warning message
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("No components found in registry file." in call for call in console_calls)
@@ -236,10 +236,10 @@ class TestBuild:
                 }
             ]
         }
-        
+
         invalid_registry = tmp_project / "invalid_components.json"
         invalid_registry.write_text(json.dumps(registry_data, indent=2))
-        
+
         # Create valid manifest
         manifest_data = {
             "name": "valid_component",
@@ -256,14 +256,14 @@ class TestBuild:
             "environment_variables": []
         }
         (invalid_registry.parent / "component.json").write_text(json.dumps(manifest_data, indent=2))
-        
+
         # Execute build
         build(registry=str(invalid_registry), output="./output", cwd=tmp_project)
-        
+
         # Verify warnings
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("Skipping invalid component entry:" in call for call in console_calls)
-        
+
         # Verify valid component was processed
         output_dir = tmp_project / "output"
         assert (output_dir / "valid_component.json").exists()
@@ -280,13 +280,13 @@ class TestBuild:
                 }
             ]
         }
-        
+
         registry_path = tmp_project / "registry.json"
         registry_path.write_text(json.dumps(registry_data, indent=2))
-        
+
         # Execute build
         build(registry=str(registry_path), output="./output", cwd=tmp_project)
-        
+
         # Verify warning
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("Manifest not found for component 'missing_component':" in call for call in console_calls)
@@ -303,16 +303,16 @@ class TestBuild:
                 }
             ]
         }
-        
+
         registry_path = tmp_project / "registry.json"
         registry_path.write_text(json.dumps(registry_data, indent=2))
-        
+
         # Create invalid manifest
         (tmp_project / "invalid.json").write_text("{ invalid json }")
-        
+
         # Execute build
         build(registry=str(registry_path), output="./output", cwd=tmp_project)
-        
+
         # Verify warning
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("Invalid manifest JSON for 'invalid_manifest':" in call for call in console_calls)
@@ -321,10 +321,10 @@ class TestBuild:
         """Test that output directory is created if it doesn't exist."""
         # Use nested output path that doesn't exist
         output_path = "./deeply/nested/output/dir"
-        
+
         # Execute build
         build(registry=None, output=output_path, cwd=tmp_project)
-        
+
         # Verify directory was created
         full_output_path = tmp_project / "deeply" / "nested" / "output" / "dir"
         assert full_output_path.exists()
@@ -337,20 +337,20 @@ class TestBuild:
             if str(self).startswith("~"):
                 return tmp_project / str(self)[2:]
             return self
-        
+
         mocker.patch.object(Path, "expanduser", mock_expanduser)
-        
+
         # Create registry at "home" location
         home_registry = tmp_project / "registry.json"
         home_registry.write_text(json.dumps({
             "registry_version": "1.0.0",
             "components": []
         }, indent=2))
-        
+
         # Execute build with ~ paths
         with pytest.raises(typer.Exit):  # Will exit due to empty components
             build(registry="~/registry.json", output="~/output", cwd=tmp_project)
-        
+
         # Verify expanduser was used
         console_calls = [str(call) for call in mock_console.print.call_args_list]
         assert any("No components found" in call for call in console_calls)

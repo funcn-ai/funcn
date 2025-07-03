@@ -10,7 +10,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
     """Test cases for multi-platform social media manager agent."""
 
     component_name = "multi_platform_social_media_manager"
-    component_path = Path("packages/funcn_registry/components/agents/multi_platform_social_media_manager")
+    component_path = Path("packages/sygaldry_registry/components/agents/multi_platform_social_media_manager")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -19,7 +19,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -66,7 +66,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -132,7 +132,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -207,7 +207,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -234,7 +234,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -275,7 +275,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -304,7 +304,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -333,7 +333,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -392,7 +392,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -445,7 +445,7 @@ class TestMultiPlatformSocialMediaManager(BaseAgentTest):
 
         spec = importlib.util.spec_from_file_location(
             "multi_platform_social_media_manager",
-            "packages/funcn_registry/components/agents/multi_platform_social_media_manager/agent.py",
+            "packages/sygaldry_registry/components/agents/multi_platform_social_media_manager/agent.py",
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

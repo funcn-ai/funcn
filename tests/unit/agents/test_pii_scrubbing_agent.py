@@ -10,7 +10,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
     """Test cases for PII scrubbing agent."""
 
     component_name = "pii_scrubbing_agent"
-    component_path = Path("packages/funcn_registry/components/agents/pii_scrubbing")
+    component_path = Path("packages/sygaldry_registry/components/agents/pii_scrubbing")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -54,7 +54,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -78,7 +78,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -134,7 +134,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -157,7 +157,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -186,7 +186,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -207,7 +207,7 @@ class TestPiiScrubbingAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "pii_scrubbing_agent", "packages/funcn_registry/components/agents/pii_scrubbing/agent.py"
+            "pii_scrubbing_agent", "packages/sygaldry_registry/components/agents/pii_scrubbing/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)

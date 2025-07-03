@@ -10,7 +10,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
     """Test cases for sourcing assistant agent."""
 
     component_name = "sourcing_assistant_agent"
-    component_path = Path("packages/funcn_registry/components/agents/sourcing_assistant")
+    component_path = Path("packages/sygaldry_registry/components/agents/sourcing_assistant")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -64,14 +64,14 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
         # Test that the literal type exists
         assert hasattr(module, 'SourcingCategory')
-        
+
         # Test expected categories (based on the Literal definition)
         expected_categories = ["manufacturer", "supplier", "software", "service", "tool", "platform", "solution"]
         # Can't directly test Literal values, but we can test in the model
@@ -82,7 +82,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -97,7 +97,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -137,7 +137,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         agent = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(agent)
@@ -165,7 +165,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -213,7 +213,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -260,7 +260,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         """Validate the agent output structure."""
         # Since we can't directly import and instantiate the model due to forward references,
         # we'll just check the output has the expected attributes
-        
+
         # Should have all required fields
         assert hasattr(output, "webset_id")
         assert hasattr(output, "search_query")
@@ -269,7 +269,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         assert hasattr(output, "enrichments")
         assert hasattr(output, "geographic_scope")
         assert hasattr(output, "status")
-        
+
         # Validate types
         assert isinstance(output.webset_id, str)
         assert isinstance(output.search_query, str)
@@ -278,7 +278,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         assert isinstance(output.enrichments, list)
         assert isinstance(output.geographic_scope, str)
         assert isinstance(output.status, str)
-        
+
         # estimated_suppliers can be None or int
         if hasattr(output, "estimated_suppliers") and output.estimated_suppliers is not None:
             assert isinstance(output.estimated_suppliers, int)
@@ -290,7 +290,7 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -305,14 +305,14 @@ class TestSourcingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "sourcing_assistant_agent", "packages/funcn_registry/components/agents/sourcing_assistant/agent.py"
+            "sourcing_assistant_agent", "packages/sygaldry_registry/components/agents/sourcing_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
-        
+
         # The module should load even if exa_websets_tools is not available
         # (it has try/except fallback)
         spec.loader.exec_module(module)
-        
+
         # If tools aren't available, they should be None
         if module.create_webset is None:
             assert module.get_webset_status is None

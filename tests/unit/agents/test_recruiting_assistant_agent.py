@@ -10,7 +10,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
     """Test cases for recruiting assistant agent."""
 
     component_name = "recruiting_assistant_agent"
-    component_path = Path("packages/funcn_registry/components/agents/recruiting_assistant")
+    component_path = Path("packages/sygaldry_registry/components/agents/recruiting_assistant")
 
     def get_component_function(self):
         """Get the main agent function."""
@@ -18,7 +18,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -60,7 +60,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -84,7 +84,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -170,7 +170,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -197,7 +197,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import inspect
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -236,7 +236,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
@@ -258,7 +258,7 @@ class TestRecruitingAssistantAgent(BaseAgentTest):
         import importlib.util
 
         spec = importlib.util.spec_from_file_location(
-            "recruiting_assistant_agent", "packages/funcn_registry/components/agents/recruiting_assistant/agent.py"
+            "recruiting_assistant_agent", "packages/sygaldry_registry/components/agents/recruiting_assistant/agent.py"
         )
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
