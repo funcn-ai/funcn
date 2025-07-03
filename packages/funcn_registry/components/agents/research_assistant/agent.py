@@ -6,14 +6,16 @@ from typing import Any, Optional
 
 # Import Exa search tools
 try:
-    from exa_search_tools import AnswerArgs, ExaCategory, SearchArgs, exa_answer, exa_search
+    from ...tools.exa_search.tool import AnswerArgs, ExaCategory, SearchArgs, exa_answer, exa_search
+    EXA_AVAILABLE = True
 except ImportError:
-    # Fallback imports for when tools aren't available yet
+    # Fallback for when tools aren't available yet
     ExaCategory = None
     SearchArgs = None
     exa_search = None
     exa_answer = None
     AnswerArgs = None
+    EXA_AVAILABLE = False
 
 
 # Response models for structured outputs
@@ -22,7 +24,7 @@ class SearchQuery(BaseModel):
 
     query: str = Field(..., description="The search query to execute")
     search_type: str = Field(default="auto", description="Type of search: 'auto', 'keyword', or 'neural'")
-    category: ExaCategory | None = Field(default=None, description="Optional category for more targeted results")
+    category: Any | None = Field(default=None, description="Optional category for more targeted results")
 
 
 class SearchQueriesResponse(BaseModel):
@@ -88,7 +90,7 @@ async def generate_search_queries(topic: str, depth: str = "comprehensive", num_
 @llm.call(
     provider="openai",
     model="gpt-4o-mini",
-    tools=[exa_search, exa_answer] if exa_search else [],
+    tools=[exa_search, exa_answer] if EXA_AVAILABLE else [],
 )
 @prompt_template(
     """

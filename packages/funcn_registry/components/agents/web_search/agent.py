@@ -4,13 +4,29 @@ from collections.abc import AsyncGenerator
 from datetime import datetime
 from mirascope import BaseDynamicConfig, llm, prompt_template
 from pydantic import BaseModel, Field
-from typing import Literal
+from typing import Any, Literal, Optional
 
 # Import all available search tools
 try:
-    from duckduckgo_search_tools import SearchArgs, duckduckgo_search
-    from exa_search_tools import ExaCategory, exa_answer, exa_find_similar, exa_search
-    from nimble_search_tools import (
+    from ...tools.duckduckgo_search.tool import SearchArgs, duckduckgo_search
+    DUCKDUCKGO_AVAILABLE = True
+except ImportError:
+    duckduckgo_search = None
+    SearchArgs = None
+    DUCKDUCKGO_AVAILABLE = False
+
+try:
+    from ...tools.exa_search.tool import ExaCategory, exa_answer, exa_find_similar, exa_search
+    EXA_AVAILABLE = True
+except ImportError:
+    ExaCategory = None
+    exa_search = None
+    exa_answer = None
+    exa_find_similar = None
+    EXA_AVAILABLE = False
+
+try:
+    from ...tools.nimble_search.tool import (
         NimbleMapsSearchArgs,
         NimbleSearchArgs,
         NimbleSERPSearchArgs,
@@ -18,25 +34,30 @@ try:
         nimble_search,
         nimble_serp_search,
     )
-    from qwant_search_tools import qwant_search
-    from url_content_parser import URLParseArgs, parse_url_content
+    NIMBLE_AVAILABLE = True
 except ImportError:
-    # Fallback imports for when tools aren't available yet
-    duckduckgo_search = None
-    qwant_search = None
-    ExaCategory = None
-    exa_search = None
-    exa_answer = None
-    exa_find_similar = None
     nimble_search = None
     nimble_serp_search = None
     nimble_maps_search = None
-    parse_url_content = None
-    SearchArgs = None
-    URLParseArgs = None
     NimbleSearchArgs = None
     NimbleSERPSearchArgs = None
     NimbleMapsSearchArgs = None
+    NIMBLE_AVAILABLE = False
+
+try:
+    from ...tools.qwant_search.tool import qwant_search
+    QWANT_AVAILABLE = True
+except ImportError:
+    qwant_search = None
+    QWANT_AVAILABLE = False
+
+try:
+    from ...tools.url_content_parser.tool import URLParseArgs, parse_url_content
+    URL_PARSER_AVAILABLE = True
+except ImportError:
+    parse_url_content = None
+    URLParseArgs = None
+    URL_PARSER_AVAILABLE = False
 
 
 # Unified response model for all search providers
@@ -264,15 +285,15 @@ async def web_search_agent(
 
     # Build the list of available tools
     available_tools = []
-    if duckduckgo_search:
+    if DUCKDUCKGO_AVAILABLE:
         available_tools.append(duckduckgo_search)
-    if qwant_search:
+    if QWANT_AVAILABLE:
         available_tools.append(qwant_search)
-    if exa_search:
+    if EXA_AVAILABLE:
         available_tools.extend([exa_search, exa_answer, exa_find_similar])
-    if nimble_search:
+    if NIMBLE_AVAILABLE:
         available_tools.extend([nimble_search, nimble_serp_search, nimble_maps_search])
-    if parse_url_content:
+    if URL_PARSER_AVAILABLE:
         available_tools.append(parse_url_content)
 
     # Return dynamic configuration
