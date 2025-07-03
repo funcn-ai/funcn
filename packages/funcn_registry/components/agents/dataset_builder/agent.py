@@ -8,7 +8,7 @@ from typing import Any, Literal, Optional
 
 # Import Exa websets tools
 try:
-    from exa_websets_tools import (
+    from ...tools.exa_websets.tool import (
         WebsetCancelArgs,
         WebsetCreateArgs,
         WebsetExportArgs,

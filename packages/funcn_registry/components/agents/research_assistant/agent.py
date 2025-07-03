@@ -6,7 +6,7 @@ from typing import Any, Optional
 
 # Import Exa search tools
 try:
-    from exa_search_tools import AnswerArgs, ExaCategory, SearchArgs, exa_answer, exa_search
+    from ...tools.exa_search.tool import AnswerArgs, ExaCategory, SearchArgs, exa_answer, exa_search
 except ImportError:
     # Fallback imports for when tools aren't available yet
     ExaCategory = None
@@ -22,7 +22,7 @@ class SearchQuery(BaseModel):
 
     query: str = Field(..., description="The search query to execute")
     search_type: str = Field(default="auto", description="Type of search: 'auto', 'keyword', or 'neural'")
-    category: ExaCategory | None = Field(default=None, description="Optional category for more targeted results")
+    category: Any | None = Field(default=None, description="Optional category for more targeted results")
 
 
 class SearchQueriesResponse(BaseModel):

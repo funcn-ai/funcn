@@ -8,9 +8,9 @@ from typing import Literal
 
 # Import all available search tools
 try:
-    from duckduckgo_search_tools import SearchArgs, duckduckgo_search
-    from exa_search_tools import ExaCategory, exa_answer, exa_find_similar, exa_search
-    from nimble_search_tools import (
+    from ...tools.duckduckgo_search.tool import SearchArgs, duckduckgo_search
+    from ...tools.exa_search.tool import ExaCategory, exa_answer, exa_find_similar, exa_search
+    from ...tools.nimble_search.tool import (
         NimbleMapsSearchArgs,
         NimbleSearchArgs,
         NimbleSERPSearchArgs,
@@ -18,8 +18,8 @@ try:
         nimble_search,
         nimble_serp_search,
     )
-    from qwant_search_tools import qwant_search
-    from url_content_parser import URLParseArgs, parse_url_content
+    from ...tools.qwant_search.tool import qwant_search
+    from ...tools.url_content_parser.tool import URLParseArgs, parse_url_content
 except ImportError:
     # Fallback imports for when tools aren't available yet
     duckduckgo_search = None
