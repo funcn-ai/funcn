@@ -26,6 +26,7 @@ try:
         list_websets,
         update_webset,
     )
+    WEBSETS_AVAILABLE = True
 except ImportError:
     # Fallback imports
     WebsetCreateArgs = None
@@ -37,6 +38,7 @@ except ImportError:
     cancel_webset = None
     export_webset = None
     exa_wait_until_idle = None
+    WEBSETS_AVAILABLE = False
 
 
 # Response models
@@ -144,7 +146,7 @@ async def create_dataset_plan(requirements: str):
 @llm.call(
     provider="openai",
     model="gpt-4o-mini",
-    tools=[create_webset, get_webset] if create_webset else [],
+    tools=[create_webset, get_webset] if WEBSETS_AVAILABLE else [],
 )
 @prompt_template(
     """
@@ -179,7 +181,7 @@ async def execute_dataset_plan(plan: str):
     provider="openai",
     model="gpt-4o-mini",
     response_model=DatasetStatus,
-    tools=[get_webset, list_webset_items] if get_webset else [],
+    tools=[get_webset, list_webset_items] if WEBSETS_AVAILABLE else [],
 )
 @prompt_template(
     """
@@ -210,7 +212,7 @@ async def monitor_dataset_progress(webset_id: str):
     provider="openai",
     model="gpt-4o-mini",
     response_model=DatasetAnalysis,
-    tools=[list_webset_items, export_webset] if list_webset_items else [],
+    tools=[list_webset_items, export_webset] if WEBSETS_AVAILABLE else [],
 )
 @prompt_template(
     """
