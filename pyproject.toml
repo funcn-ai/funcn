@@ -1,5 +1,5 @@
 [project]
-name = "sygaldry"
+name = "sygaldry-cli"
 version = "0.1.0"
 description = "Production-ready AI components that you can copy and paste into your apps"
 authors = [

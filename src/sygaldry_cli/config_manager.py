@@ -12,7 +12,7 @@ console = Console()
 
 CONFIG_ENV_VAR = "SYGALDRY_CONFIG_FILE"
 PROJECT_CONFIG_FILENAME = "sygaldry.json"
-DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/greyhaven-ai/sygaldry_registry/main/index.json"
+DEFAULT_REGISTRY_URL = "https://raw.githubusercontent.com/greyhaven-ai/sygaldry/main/packages/sygaldry_registry/index.json"
 
 
 class ComponentPaths(BaseModel):

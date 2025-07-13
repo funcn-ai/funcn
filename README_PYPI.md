@@ -46,12 +46,12 @@ When you add a component:
 ## Installation
 
 ```bash
-pip install sygaldry
+pip install sygaldry-cli
 ```
 
 Or with uv (recommended):
 ```bash
-uv pip install sygaldry
+uv pip install sygaldry-cli-cli
 ```
 
 ## Quick Start

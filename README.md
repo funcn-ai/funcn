@@ -6,7 +6,7 @@ sygaldry provides essential tooling for AI engineers and researchers building pr
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python Version](https://img.shields.io/badge/python-3.12-blue.svg)](https://www.python.org/downloads/)
-[![PyPI version](https://badge.fury.io/py/sygaldry.svg)](https://badge.fury.io/py/sygaldry)
+[![PyPI version](https://badge.fury.io/py/sygaldry-cli.svg)](https://badge.fury.io/py/sygaldry-cli)
 
 ## Mission
 
@@ -68,10 +68,10 @@ When you run `sygaldry add <component>`, the CLI:
 
 ```bash
 # Install the CLI
-pip install sygaldry
+pip install sygaldry-cli
 
 # Or with uv (recommended)
-uv pip install sygaldry
+uv pip install sygaldry-cli-cli
 ```
 
 ### Initialize Your Project
