@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "sourcing_assistant_agent",
+  "name": "sourcing-assistant-agent",
   "version": "0.1.0",
   "description": "Sourcing assistant for finding suppliers, manufacturers, and solutions using Exa websets. Perfect for procurement, supply chain management, and technology sourcing.",
   "type": "agent",
@@ -34,11 +34,7 @@
     "exa_websets"
   ],
   "environment_variables": [
-    {
-      "key": "EXA_API_KEY",
-      "description": "API key for Exa",
-      "required": true
-    }
+    "EXA_API_KEY"
   ],
   "example_usage": "```python\nfrom sourcing_assistant import sourcing_assistant_agent, find_sustainable_manufacturers\n\n# Find sustainable chemical manufacturers\nresult = await find_sustainable_manufacturers(\n    product_type=\"Hydrochlorous acid\",\n    location=\"Europe\"\n)\n\n# Find low MOQ clothing manufacturers\nresult = await sourcing_assistant_agent(\n    product_type=\"High end clothing\",\n    category=\"manufacturer\",\n    location_preference=\"Asia or Europe\",\n    moq_requirements=\"Low minimum order quantity\"\n)\n```",
   "post_add_instructions": "Make sure to set your EXA_API_KEY environment variable before using this agent.",

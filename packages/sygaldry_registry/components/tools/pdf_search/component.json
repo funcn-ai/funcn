@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "pdf_search_tool",
+  "name": "pdf-search-tool",
   "version": "0.1.0",
   "description": "PDF search tool that enables searching for text within PDF documents using fuzzy matching. Extracts text from PDFs and provides context-aware search results with page numbers and match scores.",
   "type": "tool",
@@ -27,22 +27,10 @@
   ],
   "target_directory_key": "tools",
   "python_dependencies": [
-    {
-      "name": "PyPDF2",
-      "version": ">=3.0.0"
-    },
-    {
-      "name": "fuzzywuzzy",
-      "version": ">=0.18.0"
-    },
-    {
-      "name": "python-Levenshtein",
-      "version": ">=0.12.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    }
+    "PyPDF2>=3.0.0",
+    "fuzzywuzzy>=0.18.0",
+    "python-Levenshtein>=0.12.0",
+    "pydantic>=2.0.0"
   ],
   "registry_dependencies": [],
   "environment_variables": [],

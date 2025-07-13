@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "decision_quality_assessor",
+  "name": "decision-quality-assessor",
   "version": "0.1.0",
   "description": "Comprehensive decision quality assessment agent that analyzes context, evaluates alternatives, detects cognitive biases, and provides actionable recommendations for better decision-making",
   "type": "agent",
@@ -32,13 +32,7 @@
     "asyncio"
   ],
   "registry_dependencies": [],
-  "environment_variables": [
-    {
-      "name": "OPENAI_API_KEY",
-      "description": "OpenAI API key for LLM calls",
-      "required": true
-    }
-  ],
+  "environment_variables": [],
   "example_usage": "```python\nfrom decision_quality_assessor import decision_quality_assessor, decision_quality_assessor_stream\n\n# Example 1: Assess a strategic business decision\nresult = await decision_quality_assessor(\n    decision=\"Should we expand into the European market next year?\",\n    background=\"Our company has been growing 30% YoY in North America. We have $10M in funding.\",\n    alternatives=[\n        \"Expand to Europe immediately\",\n        \"Wait 6 months and gather more data\",\n        \"Focus on North America growth\",\n        \"Partner with European distributor\"\n    ],\n    stakeholders=\"Executive team, investors, employees, potential European customers\",\n    constraints=\"Limited budget, no European presence, regulatory requirements\",\n    timeline=\"Decision needed within 30 days\",\n    decision_process=\"Executive team discussions, market research, financial modeling\"\n)\n\nprint(f\"Overall Quality Score: {result.overall_quality_score:.2f}\")\nprint(f\"Decision Readiness: {result.decision_readiness:.2f}\")\nprint(f\"\\nRecommended Framework: {result.framework_recommendation.recommended_framework}\")\n\n# Example 2: Stream assessment for a hiring decision\nasync for update in decision_quality_assessor_stream(\n    decision=\"Should we hire a senior engineer or two junior engineers?\",\n    background=\"Growing startup, limited budget, need to scale engineering team\",\n    alternatives=[\n        \"Hire one senior engineer\",\n        \"Hire two junior engineers\",\n        \"Hire one mid-level engineer\"\n    ],\n    evaluation_criteria=\"Technical skills, team fit, cost, mentorship capacity\"\n):\n    print(update, end='')\n\n# Example 3: Assess a personal decision with bias detection\nresult = await decision_quality_assessor(\n    decision=\"Should I accept the job offer from Company X?\",\n    background=\"Current job is stable but limited growth. New offer: 30% salary increase, relocation required.\",\n    alternatives=[\n        \"Accept the new offer\",\n        \"Negotiate current position\",\n        \"Decline and continue job search\"\n    ],\n    stakeholders=\"Family, current employer, potential employer\",\n    constraints=\"Need to relocate within 60 days if accepted, family considerations\",\n    timeline=\"Response needed within 1 week\",\n    decision_makers=\"Self, spouse\",\n    information_sources=\"Job offer details, Glassdoor reviews, industry contacts\"\n)\n\n# Access detailed bias analysis\nfor bias in result.bias_analysis:\n    if bias.severity > 0.5:\n        print(f\"\\nHigh Severity Bias: {bias.bias_type.value}\")\n        print(f\"Impact: {bias.impact_on_decision}\")\n        print(f\"Mitigation: {bias.mitigation_strategies[0]}\")\n```",
   "post_add_instructions": "The Decision Quality Assessor helps you make better decisions through systematic analysis. It identifies cognitive biases, evaluates alternatives, and provides actionable recommendations. Configure your OpenAI API key and provide comprehensive decision context for best results.",
   "tags": [

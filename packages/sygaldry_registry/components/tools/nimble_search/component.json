@@ -1,8 +1,40 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "nimble_search_tool",
-  "type": "tool",
+  "name": "nimble-search-tool",
+  "version": "1.0.0",
   "description": "Multi-API search tool using Nimble's Web, SERP, and Maps APIs for comprehensive search capabilities",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
+  "license": "MIT",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [
+    "requests",
+    "beautifulsoup4",
+    "pydantic"
+  ],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "",
+  "post_add_instructions": "",
   "tags": [
     "search",
     "web",
@@ -11,53 +43,8 @@
     "nimble",
     "structured-data"
   ],
-  "version": "1.0.0",
-  "status": "stable",
-  "author": "sygaldry",
-  "repository": "https://github.com/greyhaven-ai/sygaldry",
-  "license": "MIT",
-  "requirements": [
-    "requests",
-    "beautifulsoup4",
-    "pydantic"
-  ],
-  "environment_variables": [
-    {
-      "name": "NIMBLE_API_KEY",
-      "description": "API key for Nimble services",
-      "required": true
-    }
-  ],
-  "exports": [
-    {
-      "name": "nimble_search",
-      "type": "function",
-      "description": "General web search using Nimble Web API"
-    },
-    {
-      "name": "nimble_serp_search",
-      "type": "function",
-      "description": "Search engine results using Nimble SERP API"
-    },
-    {
-      "name": "nimble_maps_search",
-      "type": "function",
-      "description": "Location-based search using Nimble Maps API"
-    },
-    {
-      "name": "NimbleSearchArgs",
-      "type": "class",
-      "description": "Arguments for Nimble Web API search"
-    },
-    {
-      "name": "NimbleSERPSearchArgs",
-      "type": "class",
-      "description": "Arguments for Nimble SERP API search"
-    },
-    {
-      "name": "NimbleMapsSearchArgs",
-      "type": "class",
-      "description": "Arguments for Nimble Maps API search"
-    }
-  ]
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
 }

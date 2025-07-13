@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "document_segmentation_agent",
+  "name": "document-segmentation-agent",
   "version": "0.1.0",
   "description": "Agent for intelligently segmenting documents into logical parts. Supports multiple strategies including semantic, structural, hybrid, and fixed-size segmentation. Features document structure analysis, segment summarization, and optimized chunking for vector embeddings.",
   "type": "agent",
@@ -27,37 +27,12 @@
   ],
   "target_directory_key": "agents",
   "python_dependencies": [
-    {
-      "name": "mirascope",
-      "version": ">=1.24.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    },
-    {
-      "name": "lilypad",
-      "version": ">=0.1.0"
-    }
+    "mirascope>=1.24.0",
+    "pydantic>=2.0.0",
+    "lilypad>=0.1.0"
   ],
   "registry_dependencies": [],
-  "environment_variables": [
-    {
-      "name": "OPENAI_API_KEY",
-      "description": "API key for OpenAI services (if using OpenAI provider).",
-      "required": false
-    },
-    {
-      "name": "ANTHROPIC_API_KEY",
-      "description": "API key for Anthropic services (if using Anthropic provider).",
-      "required": false
-    },
-    {
-      "name": "GOOGLE_API_KEY",
-      "description": "API key for Google services (if using Google provider).",
-      "required": false
-    }
-  ],
+  "environment_variables": [],
   "example_usage": "```python\nimport asyncio\nfrom document_segmentation import (\n    segment_document,\n    quick_segment,\n    extract_sections,\n    chunk_for_embedding\n)\n\nasync def main():\n    # Sample document\n    document = \"\"\"# Introduction\n    This is a comprehensive guide to machine learning...\n    \n    ## Chapter 1: Fundamentals\n    Machine learning is a subset of artificial intelligence...\n    \n    ### 1.1 Supervised Learning\n    In supervised learning, we train models on labeled data...\n    \n    ## Chapter 2: Advanced Topics\n    Deep learning extends traditional machine learning...\n    \n    ## Conclusion\n    Machine learning continues to evolve rapidly...\"\"\"\n    \n    # Full document segmentation with auto-detection\n    result = await segment_document(\n        document=document,\n        segmentation_method=\"auto\",\n        generate_summaries=True\n    )\n    \n    print(f\"Segmentation Summary: {result.summary}\")\n    print(f\"Document Type: {result.document_structure.document_type}\")\n    print(f\"\\nSegments ({result.total_segments}):\")\n    for seg in result.segments:\n        print(f\"  - {seg.id}: {seg.title} ({seg.segment_type}, {len(seg.content)} chars)\")\n        if \"summary\" in seg.metadata:\n            print(f\"    Summary: {seg.metadata['summary']}\")\n    \n    # Quick segmentation\n    quick_segments = await quick_segment(document, max_segments=5)\n    print(f\"\\nQuick segments: {quick_segments}\")\n    \n    # Extract specific sections\n    sections = await extract_sections(\n        document=document,\n        section_types=[\"introduction\", \"conclusion\"]\n    )\n    print(f\"\\nExtracted sections: {list(sections.keys())}\")\n    \n    # Chunk for embeddings\n    chunks = await chunk_for_embedding(\n        document=document,\n        chunk_size=256,\n        overlap=50\n    )\n    print(f\"\\nEmbedding chunks: {len(chunks)} chunks created\")\n    print(f\"First chunk: {chunks[0]}\")\n\nif __name__ == \"__main__\":\n    asyncio.run(main())\n```",
   "post_add_instructions": "This agent segments documents using various strategies: 'auto' (intelligent detection), 'semantic' (topic-based), 'structural' (heading-based), 'hybrid' (combined), or 'fixed_size' (character count). It analyzes document structure (research papers, reports, articles) and can generate summaries for each segment. The chunk_for_embedding function creates overlapping chunks optimized for vector databases. Set your preferred LLM provider's API key.",
   "tags": [
@@ -72,12 +47,7 @@
     "lilypad"
   ],
   "supports_lilypad": true,
-  "template_variables": {
-    "provider": "openai",
-    "model": "gpt-4o-mini",
-    "segmentation_method": "auto",
-    "generate_summaries": true
-  },
+  "template_variables": null,
   "mcp_compatible": false,
   "mcp_entrypoint": ""
 }

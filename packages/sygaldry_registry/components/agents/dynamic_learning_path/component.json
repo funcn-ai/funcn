@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "dynamic_learning_path",
+  "name": "dynamic-learning-path",
   "version": "0.1.0",
   "description": "Generates personalized, adaptive learning paths based on individual skills, goals, and learning preferences with comprehensive resource curation",
   "type": "agent",
@@ -32,13 +32,7 @@
     "asyncio"
   ],
   "registry_dependencies": [],
-  "environment_variables": [
-    {
-      "name": "OPENAI_API_KEY",
-      "description": "OpenAI API key for LLM calls",
-      "required": true
-    }
-  ],
+  "environment_variables": [],
   "example_usage": "```python\nfrom dynamic_learning_path import (\n    dynamic_learning_path_generator,\n    dynamic_learning_path_stream,\n    LearningStyle\n)\n\n# Example 1: Generate a learning path for Python development\nlearning_path = await dynamic_learning_path_generator(\n    background=\"Computer Science degree, 2 years of Java experience\",\n    experience=\"Built several web applications, familiar with databases\",\n    learning_goals=\"Master Python for data science and machine learning\",\n    available_time=\"10 hours per week\",\n    learning_style=LearningStyle.VISUAL,\n    budget=\"Mixed (prefer free resources)\",\n    career_goals=\"Transition to ML Engineer role within 6 months\"\n)\n\nprint(f\"Learning Path: {learning_path.path_name}\")\nprint(f\"Total Duration: {learning_path.total_duration}\")\nfor i, module in enumerate(learning_path.modules, 1):\n    print(f\"\\nModule {i}: {module.module_name}\")\n    print(f\"Duration: {module.estimated_duration}\")\n    print(f\"Resources: {len(module.resources)} curated resources\")\n\n# Example 2: Stream the learning path generation\nasync for update in dynamic_learning_path_stream(\n    background=\"Marketing professional with basic Excel skills\",\n    experience=\"5 years in digital marketing, some SQL knowledge\",\n    learning_goals=\"Learn data analytics for marketing insights\",\n    available_time=\"5 hours per week\"\n):\n    print(update, end='')\n```",
   "post_add_instructions": "The Dynamic Learning Path Generator creates personalized learning journeys. Configure your OpenAI API key and consider your learners' backgrounds, goals, and constraints for optimal path generation.",
   "tags": [

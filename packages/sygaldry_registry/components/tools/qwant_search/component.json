@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "qwant_search_tool",
+  "name": "qwant-search-tool",
   "version": "0.2.0",
   "description": "Privacy-focused web search tools using Qwant search engine. Provides structured search results with no user tracking, using unified models compatible with other search providers.",
   "type": "tool",
@@ -27,14 +27,8 @@
   ],
   "target_directory_key": "tools",
   "python_dependencies": [
-    {
-      "name": "httpx",
-      "version": ">=0.24.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    }
+    "httpx>=0.24.0",
+    "pydantic>=2.0.0"
   ],
   "registry_dependencies": [],
   "environment_variables": [],

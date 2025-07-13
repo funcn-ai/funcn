@@ -1,12 +1,36 @@
 {
-  "name": "sqlite_db",
-  "type": "tool",
+  "$schema": "https://sygaldry.ai/schemas/component.json",
+  "name": "sqlite-db",
   "version": "0.1.0",
   "description": "SQLite database tool for persistent agent state storage",
-  "author": "sygaldry",
+  "type": "tool",
+  "authors": [
+    {
+      "name": "Sygaldry Project",
+      "email": "info@sygaldry.ai"
+    }
+  ],
   "license": "MIT",
-  "main": "tool.py",
-  "entry_function": "execute_sqlite_query",
+  "repository_url": "https://github.com/greyhaven-ai/sygaldry",
+  "mirascope_version_min": "1.24.0",
+  "files_to_copy": [
+    {
+      "source": "tool.py",
+      "destination": "tool.py",
+      "type": "module"
+    },
+    {
+      "source": "__init__.py",
+      "destination": "__init__.py",
+      "type": "init_file"
+    }
+  ],
+  "target_directory_key": "tools",
+  "python_dependencies": [],
+  "registry_dependencies": [],
+  "environment_variables": [],
+  "example_usage": "",
+  "post_add_instructions": "",
   "tags": [
     "database",
     "sqlite",
@@ -14,61 +38,8 @@
     "persistence",
     "state-management"
   ],
-  "requirements": [],
-  "environment_variables": [],
-  "config": {
-    "default_db_path": "agent_state.db",
-    "default_table_name": "agent_state",
-    "max_query_timeout": 30,
-    "enable_foreign_keys": true,
-    "enable_wal_mode": true
-  },
-  "functions": [
-    {
-      "name": "execute_sqlite_query",
-      "description": "Execute a SQLite query with proper error handling and async support"
-    },
-    {
-      "name": "create_agent_state_table",
-      "description": "Create a table for storing agent state"
-    },
-    {
-      "name": "store_agent_state",
-      "description": "Store or update agent state in the database"
-    },
-    {
-      "name": "get_agent_state",
-      "description": "Retrieve agent state from the database"
-    },
-    {
-      "name": "delete_agent_state",
-      "description": "Delete agent state from the database"
-    },
-    {
-      "name": "get_database_info",
-      "description": "Get comprehensive information about the SQLite database"
-    },
-    {
-      "name": "query_agent_history",
-      "description": "Query agent state history with pagination"
-    },
-    {
-      "name": "cleanup_old_state",
-      "description": "Clean up old agent state records"
-    }
-  ],
-  "examples": [
-    {
-      "name": "Store agent state",
-      "code": "result = await store_agent_state('agent_state.db', 'agent_123', 'user_preferences', {'theme': 'dark', 'language': 'en'})"
-    },
-    {
-      "name": "Retrieve agent state",
-      "code": "result = await get_agent_state('agent_state.db', 'agent_123', 'user_preferences')"
-    },
-    {
-      "name": "Execute custom query",
-      "code": "result = await execute_sqlite_query('agent_state.db', 'SELECT * FROM agent_state WHERE agent_id = ?', ('agent_123',))"
-    }
-  ]
+  "supports_lilypad": true,
+  "template_variables": {},
+  "mcp_compatible": false,
+  "mcp_entrypoint": ""
 }

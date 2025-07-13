@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "csv_search_tool",
+  "name": "csv-search-tool",
   "version": "0.1.0",
   "description": "CSV search tool for searching and filtering structured data within CSV files. Supports column-specific searches, data filtering, and both exact and fuzzy matching capabilities.",
   "type": "tool",
@@ -27,22 +27,10 @@
   ],
   "target_directory_key": "tools",
   "python_dependencies": [
-    {
-      "name": "pandas",
-      "version": ">=2.0.0"
-    },
-    {
-      "name": "fuzzywuzzy",
-      "version": ">=0.18.0"
-    },
-    {
-      "name": "python-Levenshtein",
-      "version": ">=0.12.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    }
+    "pandas>=2.0.0",
+    "fuzzywuzzy>=0.18.0",
+    "python-Levenshtein>=0.12.0",
+    "pydantic>=2.0.0"
   ],
   "registry_dependencies": [],
   "environment_variables": [],

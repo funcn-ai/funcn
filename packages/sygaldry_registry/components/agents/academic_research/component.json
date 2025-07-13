@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "academic_research_agent",
+  "name": "academic-research-agent",
   "version": "0.1.0",
   "description": "Academic research agent for finding research papers using Exa websets. Perfect for academics, researchers, and anyone needing to discover scholarly publications.",
   "type": "agent",
@@ -34,11 +34,7 @@
     "exa_websets"
   ],
   "environment_variables": [
-    {
-      "key": "EXA_API_KEY",
-      "description": "API key for Exa",
-      "required": true
-    }
+    "EXA_API_KEY"
   ],
   "example_usage": "```python\nfrom academic_research import academic_research_agent, find_papers_by_methodology\n\n# Find papers on cell generation technology\nresult = await academic_research_agent(\n    topic=\"cell generation technology\",\n    field=\"biology\",\n    journal_requirements=[\"published in major US journal\"]\n)\n\n# Find papers disagreeing with transformer methodology\nresult = await find_papers_by_methodology(\n    field=\"computer_science\",\n    methodology=\"transformer based model methodology for AI training\",\n    disagree_with=\"transformer\"\n)\n```",
   "post_add_instructions": "Make sure to set your EXA_API_KEY environment variable before using this agent.",

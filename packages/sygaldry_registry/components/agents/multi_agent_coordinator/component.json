@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "multi_agent_coordinator",
+  "name": "multi-agent-coordinator",
   "version": "0.1.0",
   "description": "Orchestrates multiple specialized agents to solve complex tasks through intelligent task decomposition, agent selection, and result synthesis",
   "type": "agent",
@@ -39,13 +39,7 @@
     "agents.knowledge_graph",
     "agents.code_generation_execution"
   ],
-  "environment_variables": [
-    {
-      "name": "OPENAI_API_KEY",
-      "description": "OpenAI API key for LLM calls",
-      "required": true
-    }
-  ],
+  "environment_variables": [],
   "example_usage": "```python\nfrom multi_agent_coordinator import multi_agent_coordinator, multi_agent_coordinator_stream\n\n# Example 1: Coordinate agents for complex research task\nresult = await multi_agent_coordinator(\n    task=\"Research the impact of AI on healthcare and create a comprehensive report\",\n    context=\"Focus on diagnostic accuracy, patient outcomes, and ethical considerations\",\n    requirements=\"Include recent studies, real-world implementations, and future predictions\",\n    max_parallel_tasks=3\n)\n\nprint(f\"Final Answer: {result.final_answer}\")\nprint(f\"Quality Score: {result.quality_score}\")\nprint(f\"Agents Used: {', '.join(result.agents_used)}\")\n\n# Example 2: Stream the coordination process\nasync for update in multi_agent_coordinator_stream(\n    task=\"Analyze market trends for renewable energy investments\",\n    context=\"Focus on solar, wind, and battery storage sectors\"\n):\n    print(update, end='')\n```",
   "post_add_instructions": "The Multi-Agent Coordinator requires access to other specialized agents. Ensure you have installed the required agent dependencies listed above. Configure your OpenAI API key for optimal performance.",
   "tags": [
