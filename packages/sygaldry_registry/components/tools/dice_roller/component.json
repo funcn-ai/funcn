@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "dice_roller",
+  "name": "dice-roller",
   "version": "0.1.0",
   "description": "A fair and transparent dice rolling tool for tabletop RPGs. Supports all standard dice types (d4-d100), modifiers, advantage/disadvantage, and provides detailed roll results with timestamps.",
   "type": "tool",

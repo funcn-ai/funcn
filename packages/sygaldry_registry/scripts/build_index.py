@@ -37,7 +37,11 @@ REGISTRY_VERSION = "1.0"
 
 def iter_manifest_paths(base_dir: Path) -> Iterable[Path]:
     """Yield all component.json paths under *base_dir*."""
-    yield from base_dir.rglob("component.json")
+    for path in base_dir.rglob("component.json"):
+        # Skip template files
+        if "template" in path.parent.name or path.name == "component_template.json":
+            continue
+        yield path
 
 
 # ---------------------------------------------------------------------------
@@ -55,6 +59,8 @@ def build_index() -> None:
             manifest = ComponentManifest.model_validate(manifest_data)
         except (json.JSONDecodeError, ValidationError) as exc:
             validation_errors[str(manifest_path)] = str(exc)
+            # Also print the path for debugging
+            console.print(f"[red]Error in: {manifest_path.relative_to(REGISTRY_ROOT)}[/]")
             continue
 
         relative_manifest_path = manifest_path.relative_to(REGISTRY_ROOT)

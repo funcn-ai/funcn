@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "code_docs_search_tool",
+  "name": "code-docs-search-tool",
   "version": "0.1.0",
   "description": "Technical documentation search tool for API docs, README files, code comments, docstrings, and code examples",
   "type": "tool",
@@ -27,26 +27,11 @@
   ],
   "target_directory_key": "tools",
   "python_dependencies": [
-    {
-      "name": "mirascope[openai]",
-      "version": ">=1.24.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    },
-    {
-      "name": "aiofiles",
-      "version": ">=23.0.0"
-    },
-    {
-      "name": "markdown",
-      "version": ">=3.4.0"
-    },
-    {
-      "name": "pyyaml",
-      "version": ">=6.0.0"
-    }
+    "mirascope[openai]>=1.24.0",
+    "pydantic>=2.0.0",
+    "aiofiles>=23.0.0",
+    "markdown>=3.4.0",
+    "pyyaml>=6.0.0"
   ],
   "environment_variables": [],
   "example_usage": "```python\nfrom ai_tools.code_docs_search import CodeDocsSearchTool, search_documentation, find_code_examples\n\nasync def main():\n    # Search documentation\n    docs = await search_documentation(\n        query=\"authentication\",\n        path=\"./docs\",\n        max_results=10\n    )\n    \n    # Find code examples\n    examples = await find_code_examples(\n        topic=\"database connection\",\n        languages=[\"py\", \"js\"]\n    )\n    \n    # Search API documentation\n    api_docs = await search_api_docs(\n        api_name=\"create_user\",\n        path=\"./src\"\n    )\n```",
@@ -60,12 +45,7 @@
     "technical-docs"
   ],
   "supports_lilypad": true,
-  "template_variables": {
-    "default_search_mode": "fuzzy",
-    "default_max_results": 50,
-    "default_context_lines": 3,
-    "default_prioritize_readme": true
-  },
+  "template_variables": null,
   "mcp_compatible": false,
   "mcp_entrypoint": ""
 }

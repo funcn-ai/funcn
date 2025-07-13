@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "duckduckgo_search_tool",
+  "name": "duckduckgo-search-tool",
   "version": "0.2.0",
   "description": "DuckDuckGo web search tools with clean, structured results. Provides comprehensive search coverage using the duckduckgo-search library.",
   "type": "tool",
@@ -27,14 +27,8 @@
   ],
   "target_directory_key": "tools",
   "python_dependencies": [
-    {
-      "name": "duckduckgo-search",
-      "version": ">=6.0.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    }
+    "duckduckgo-search>=6.0.0",
+    "pydantic>=2.0.0"
   ],
   "registry_dependencies": [],
   "environment_variables": [],

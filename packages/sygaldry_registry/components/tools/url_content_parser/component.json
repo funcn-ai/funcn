@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "url_content_parser_tool",
+  "name": "url-content-parser-tool",
   "version": "0.1.0",
   "description": "URL content parsing tool that extracts clean text content from web pages. Removes scripts, styles, and other noise to provide readable text content.",
   "type": "tool",
@@ -27,18 +27,9 @@
   ],
   "target_directory_key": "tools",
   "python_dependencies": [
-    {
-      "name": "httpx",
-      "version": ">=0.24.0"
-    },
-    {
-      "name": "beautifulsoup4",
-      "version": ">=4.0.0"
-    },
-    {
-      "name": "pydantic",
-      "version": ">=2.0.0"
-    }
+    "httpx>=0.24.0",
+    "beautifulsoup4>=4.0.0",
+    "pydantic>=2.0.0"
   ],
   "registry_dependencies": [],
   "environment_variables": [],

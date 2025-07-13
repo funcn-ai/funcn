@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "game_theory_analysis",
+  "name": "game-theory-analysis",
   "version": "0.1.0",
   "description": "Analyzes complex strategic situations using game theory principles, identifying equilibria, predicting outcomes, and providing actionable recommendations",
   "type": "agent",
@@ -32,13 +32,7 @@
     "asyncio"
   ],
   "registry_dependencies": [],
-  "environment_variables": [
-    {
-      "name": "OPENAI_API_KEY",
-      "description": "OpenAI API key for LLM calls",
-      "required": true
-    }
-  ],
+  "environment_variables": [],
   "example_usage": "```python\nfrom game_theory_analysis import game_theory_analyzer, game_theory_analyzer_stream\n\n# Example 1: Analyze a business competition scenario\nanalysis = await game_theory_analyzer(\n    situation=\"Two tech companies competing for market share in cloud services\",\n    context=\"Company A has 60% market share but higher costs, Company B has innovative technology but limited resources\",\n    stakeholders=\"Company A (incumbent), Company B (challenger), Enterprise customers, Developers\",\n    objectives=\"A wants to maintain dominance, B wants to gain share, customers want best value\",\n    environmental_factors=\"Increasing demand for AI services, regulatory scrutiny on monopolies\"\n)\n\nprint(f\"Game Type: {analysis.scenario.game_type.value}\")\nprint(f\"\\nPredicted Outcomes:\")\nfor outcome in analysis.predicted_outcomes[:3]:\n    print(f\"- {outcome.outcome_name}: {outcome.probability:.1%} probability\")\n\nprint(f\"\\nStrategic Recommendations:\")\nfor player, recs in analysis.strategic_recommendations.items():\n    print(f\"\\n{player}:\")\n    for rec in recs[:2]:\n        print(f\"  - {rec}\")\n\n# Example 2: Stream analysis of a negotiation scenario\nasync for update in game_theory_analyzer_stream(\n    situation=\"Labor union negotiating with company management for better wages\",\n    context=\"Company profitable but facing competition, union has strong support\"\n):\n    print(update, end='')\n\n# Example 3: Analyze a multi-party political scenario\nanalysis = await game_theory_analyzer(\n    situation=\"Three political parties forming coalition government\",\n    context=\"Party A (35%), Party B (30%), Party C (20%), need 50% to govern\",\n    stakeholders=\"Party A (center), Party B (left), Party C (right), Voters\",\n    objectives=\"Each party wants maximum cabinet positions and policy influence\"\n)\n```",
   "post_add_instructions": "The Game Theory Analysis agent helps analyze strategic interactions and conflicts. Configure your OpenAI API key and provide clear descriptions of the players, their objectives, and constraints for best results.",
   "tags": [

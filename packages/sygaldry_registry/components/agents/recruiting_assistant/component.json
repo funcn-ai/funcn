@@ -1,6 +1,6 @@
 {
   "$schema": "https://sygaldry.ai/schemas/component.json",
-  "name": "recruiting_assistant_agent",
+  "name": "recruiting-assistant-agent",
   "version": "0.1.0",
   "description": "Recruiting assistant for finding qualified candidates using Exa websets. Helps with technical recruiting, sales hiring, and executive search.",
   "type": "agent",
@@ -34,11 +34,7 @@
     "exa_websets"
   ],
   "environment_variables": [
-    {
-      "key": "EXA_API_KEY",
-      "description": "API key for Exa",
-      "required": true
-    }
+    "EXA_API_KEY"
   ],
   "example_usage": "```python\nfrom recruiting_assistant import recruiting_assistant_agent, find_engineers_with_opensource\n\n# Find engineers with open source experience\nresult = await find_engineers_with_opensource(\n    skills=[\"Python\", \"FastAPI\", \"async\"],\n    startup_experience=True\n)\n\n# Find ML engineers from top universities\nresult = await recruiting_assistant_agent(\n    role=\"ML Software Engineer\",\n    education=\"PhD from top 20 US university\",\n    skills=[\"machine learning\", \"deep learning\"]\n)\n```",
   "post_add_instructions": "Make sure to set your EXA_API_KEY environment variable before using this agent.",
