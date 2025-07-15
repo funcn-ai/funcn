@@ -71,7 +71,7 @@ When you run `sygaldry add <component>`, the CLI:
 pip install sygaldry-cli
 
 # Or with uv (recommended)
-uv pip install sygaldry-cli-cli
+uv pip install sygaldry-cli
 ```
 
 ### Initialize Your Project
